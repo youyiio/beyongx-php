@@ -1,0 +1,25 @@
+{
+    "name": "youyiio/beyongx",
+    "description": "BeyongX  is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
+    "type": "project",
+    "keywords": [
+        "cms",
+        "beyongx",
+        "content management system",
+        "thinkphp",
+        "swoole"
+    ],
+    "homepage": "http://www.beyongx.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "youyi",
+            "email": "developer@jifenbang.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "topthink/think-helper": "^1.0",
+        "topthink/think-image": "^1.0",
+    },
+}
