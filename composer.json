@@ -3,8 +3,9 @@
     "description": "BeyongX  is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
     "type": "project",
     "keywords": [
-        "cms",
         "beyongx",
+        "cms",
+        "framework",
         "content management system",
         "thinkphp",
         "swoole"
@@ -13,13 +14,31 @@
     "license": "Apache-2.0",
     "authors": [
         {
-            "name": "youyi",
+            "name": "youyiio",
             "email": "developer@jifenbang.net"
         }
     ],
     "require": {
         "php": ">=5.6.0",
+        "topthink/framework": "5.1.*",
+        "topthink/think-image": "^1.0",
         "topthink/think-helper": "^1.0",
-        "topthink/think-image": "^1.0"
+        "topthink/think-captcha": "^2.0",
+        "cattong/think-mailer": "^1.0",
+        "cattong/think-addons": "^1.0",
+        "cattong/think-auth": "^1.0",
+        "jaeger/querylist": "4.*",
+        "topthink/think-queue": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "app\\": "application"
+        }
+    },
+    "extra": {
+        "think-path": "thinkphp"
+    },
+    "config": {
+        "preferred-install": "dist"
     }
 }
