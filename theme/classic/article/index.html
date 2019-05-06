@@ -1,0 +1,96 @@
+{extend name="public/base" /}
+{block name="title"}blog{/block}
+
+{block name="css"}
+
+{/block}
+{block name="top_nav"}
+    {include file="public/top_nav" /}
+{/block}
+{block name="main"}
+
+   <div  class="blog-list-container">
+            <div  class="table-header">
+                <span>名称</span>
+                <span>创建时间</span>
+            </div>
+            <ul class="issue-list">
+                {notempty name="keyword"}
+                {article:search cid="cateId" keyword="keyword" id='article'}
+                <li  class="issue-item">
+                    <a  href="{:url('Article/viewArticle',['cateId' => $cateId, 'artId' => $article.id])}" class="">
+                        {$article.title}
+                    </a>
+                    <ul>
+                        <li  class="tag tag-small"
+                         {if $article.categorys['0']['id'] == 1} style="background-color: rgb(0, 82, 204);"
+                             {elseif $article.categorys['0']['id'] == 2/} style="background-color: rgb(14, 138, 22);"
+                             {elseif $article.categorys['0']['id'] == 3 /} style="background-color: rgb(251, 202, 4);"
+                             {elseif $article.categorys['0']['id'] == 4 /} style="background-color: rgb(83, 25, 231);"
+                             {elseif $article.categorys['0']['id'] == 5 /} style="background-color: rgb(233, 150, 149);"
+                         {/if}
+                            >{$article.categorys['0']['title_cn']}
+                        </li>
+                    </ul>
+                    <span class="time">{$article.post_time|date='Y-m-d H:i'}</span>
+                </li>
+                {/article:search}
+                {else /}
+                {article:list cid="cateId" cache='false' result='list1' page-size='10' id='art'}
+                <li class="issue-item">
+                    <a href="{:url('Article/viewArticle',['cateId'=> $cateId, 'artId'=> $art.id])}" class="">
+                        {$art.title}
+                    </a>
+                    <ul >
+                        <li class="tag tag-small"
+                        {if $art.categorys['0']['id'] == 1} style="background-color: rgb(0, 82, 204);"
+                            {elseif $art.categorys['0']['id'] == 2 /} style="background-color: rgb(14, 138, 22);"
+                            {elseif $art.categorys['0']['id'] == 3 /} style="background-color: rgb(251, 202, 4);"
+                            {elseif $art.categorys['0']['id'] == 4 /} style="background-color: rgb(83, 25, 231);"
+                            {elseif $art.categorys['0']['id'] == 5 /} style="background-color: rgb(233, 150, 149);"
+                        {/if}
+                        >{$art.categorys['0']['title_cn']}
+                        </li>
+                    </ul>
+                    <span class="text-right" >
+                          {$art.post_time|date='Y-m-d H:i'}
+                    </span>
+                </li>
+                {/article:list}
+                {/notempty}
+                <!--<li  class="issue-item">-->
+                	<!--<a  href="#/Blog/BlogDetail/62" class="">-->
+                       <!--2018中国（广州）国际商业智能设备产业博览交易会-->
+                	<!--</a>-->
+                    <!--<ul >-->
+                        <!--<li  class="tag tag-small" style="background-color: rgb(36, 204, 24);">随笔-->
+                        <!--</li>-->
+                    <!--</ul>-->
+                    <!--<span  class="time">-->
+        				<!--2018-03-04 20:03-->
+       				<!--</span>-->
+       			<!--</li>-->
+            </ul>
+            <div  class="bottom-bar" style="background-color: #e5f1fc">
+                <div class="">
+                    <form class="form" method="" action="">
+                        <div class="form-group-lg">
+                            <input type="text" placeholder="按文章标题或内容搜索..." name="keyword" class="form-control fl query" value="{$Think.get.keyword|default=''}" required>
+                        </div>
+                                            </form>
+                </div>
+                <div class="paginataion-container text-right">
+                    <a href="{:url('index/index', ['page'=>$list1->currentPage()+1])}">下一页</a>
+                    <!--<span class="total-num">共&nbsp;59&nbsp;条</span>-->
+                    <!--<img class="pre-page-disabled">-->
+                    <!--<input type="number" class="current-page">-->
+                    <!--<span class="page-count">/&nbsp;&nbsp;&nbsp;6</span>-->
+                    <!--<img class="next-page">-->
+                </div>
+            </div>
+   </div>
+{/block}
+
+{block name="js"}
+
+{/block}

@@ -1,0 +1,24 @@
+{extend name="public/base" /}
+{block name="title"}关于-轻博客{/block}
+{block name="body"}
+		<div class="container-wrap">
+			<div class="container container-message container-details container-about">
+					<div class="contar-wrap">
+						{article:view  aid="2" id='article'}
+						<div class="item">
+							<div class="item-box">
+								<h3>关于</h3>
+								<article>
+									{$article.content|raw}
+								</article>
+								<div class="count layui-clear">
+									<span class="pull-left">阅读 <em>{$article.read_count}</em></span>
+									<span class="pull-right like"><i class="layui-icon layui-icon-praise"></i><em>999</em></span>
+								</div>
+							</div>
+						</div>
+						{/article:view}
+					</div>
+			</div>
+		</div>
+{/block}

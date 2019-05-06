@@ -1,0 +1,67 @@
+{extend name="public/base" /}
+{block name="title"}{:get_config('site_name'){/block}
+{block name="body"}
+	<div class="container-wrap">
+		<div class="container">
+			<div class="contar-wrap">
+				<h4 class="item-title">
+					<p><i class="layui-icon layui-icon-speaker"></i>公告：<span>欢迎来到我的博客</span></p>
+				</h4>
+				{notempty name="$keyword"}
+				{article:search cid="" keyword="keyword" id='art'}
+				<div class="item">
+					<div class="item-box  layer-photos-demo1 layer-photos-demo">
+						<h3><a href="{:url('Article/viewArticle',['artId' => $art.id])}">{$art.title}</a></h3>
+						<h5>发布于：<span> {$art.post_time|date='Y-m-d H:i'}</span></h5>
+
+						<article style="overflow: hidden;text-overflow:ellipsis;white-space: nowrap;" >
+							{$art.description|raw}
+						</article>
+						<img src="{$art.thumbImage.full_thumb_image_url}" alt="">
+					</div>
+					<div class="comment count">
+						<a href="{:url('Article/viewArticle',['id' => $art.id])}">评论</a>
+						<a href="javascript:;" class="like">点赞</a>
+					</div>
+				</div>
+				{/article:search}
+				{else /}
+				{article:list cid="cateId" cache='false' result='list1' page-size='10' id='art'}
+				<div class="item">
+					<div class="item-box  layer-photos-demo1 layer-photos-demo">
+						<h3><a href="{:url('cms/Article/viewArticle',['artId' => $art.id])}">{$art.title}</a></h3>
+						<h5>发布于：<span> {$art.post_time|date='Y-m-d H:i'}</span></h5>
+
+						<article style="overflow: hidden;text-overflow:ellipsis;white-space: nowrap;" >
+							{$art.description|raw}
+						</article>
+						<img src="{$art.thumbImage.full_thumb_image_url}" alt="">
+					</div>
+					<div class="comment count">
+						<a href="{:url('cms/Article/viewArticle',['artId' => $art.id])}">评论</a>
+						<a href="javascript:;" class="like">点赞</a>
+					</div>
+				</div>
+				{/article:list}
+				{/notempty}
+				<!--<div class="item">-->
+					<!--<div class="item-box  layer-photos-demo2 layer-photos-demo">-->
+						<!--<h3><a href="viewArticle.html">拥有诗意的心态,才能拥有诗意的生活</a></h3>-->
+						<!--<h5>发布于：<span>刚刚</span></h5>-->
+						<!--<p>父爱如山，不善表达。回想十多年前，总记得父亲有个宽厚的肩膀，小小的自己跨坐在上面，越过人山人海去看更广阔的天空，那个时候期望自己有一双翅膀，能够像鸟儿一样飞得高，看得远。虽然父亲有时会和自己开玩笑，但在做错事的时候会受到严厉的训斥。父亲有双粗糙的大手掌，手把手教我走路、骑车，却会在该放手的时刻果断地放开让自己去大胆尝试，那个时候期望快快长大，能够做自己想做的事，不用受父亲的“控制”。父亲是智慧树，他无所不知、无所不晓，虽然你有十万个为什么，但是也难不倒他。</p>-->
+						<!--<img src="__PUBLIC__/static/theme/xianyan/images/item.png" alt="">-->
+					<!--</div>-->
+					<!--<div class="comment count">-->
+						<!--<a href="viewArticle.html#comment">评论</a>-->
+						<!--<a href="javascript:;" class="like">点赞</a>-->
+					<!--</div>-->
+				<!--</div>-->
+
+			</div>
+			<div class="item-btn">
+				<a href="{:url('cms/Article/index', ['page'=>$list1->currentPage()+1])}" class="layui-btn layui-btn-normal">下一页</a>
+			</div>
+		</div>
+	</div>
+{/block}
+

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {block name="meta"}{/block}
+    <title>{block name="title"}{:get_config('site_name')}{/block}</title>
+    <meta name="keywords" content="{block name='keywords'}{:get_config('keywords')}{/block}">
+    <meta name="description" content="{block name='description'}{:get_config('description')}{/block}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/theme/wenews/css/main.css">
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/layui/css/layui.css">
+    {block name="css"} {/block}
+</head>
+<body class="micronews">
+    {include file='public/header' /}
+
+    {block name="body"}{/block}
+
+    {include file='public/footer' /}
+
+    {:get_config('stat_code')}
+
+    <script type="text/javascript" src="__PUBLIC__/static/layui/layui.js"></script>
+    <script>
+        layui.config({
+            base: '__PUBLIC__/static/theme/wenews/js/'
+        }).use('index',function(){
+            var index = layui.index;
+            index.banner()
+            index.seachBtn()
+            index.arrowutil()
+        });
+    </script>
+
+    <script>
+        layui.config({
+            base: '__PUBLIC__/static/theme/wenews/js/'
+        }).use('index',function(){
+            var index = layui.index;
+            index.Page('micronews-search-test',80)
+            index.omitted('.item p',150)
+            index.seachBtn()
+            index.arrowutil()
+        });
+    </script>
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    {block name="js"}{/block}
+
+</body>
+</html>

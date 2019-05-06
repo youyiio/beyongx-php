@@ -1,0 +1,49 @@
+{extend name="public/base" /}
+{block name="title"}about{/block}
+
+{block name="css"}
+
+{/block}
+
+{block name="main"}
+<div class="blog-detail-container">
+
+    {article:view  aid="1" id='vo'}
+    <div class="title-container">
+        <ul>
+            <!--<li class="tag tag-small" style="background-color:rgb(251, 202, 4);">{$vo.categorys[0]['title_cn']}-->
+            <!--</li>-->
+            <span class="title">{$vo.title}</span>
+        </ul>
+        <span class="back"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxMiIgdmlld0JveD0iMCAwIDE4IDEyIj4NCiAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPg0KICAgICAgICA8cGF0aCBkPSJNLTMtNmgyNHYyNEgtM3oiLz4NCiAgICAgICAgPHBhdGggZmlsbD0iIzRCNTk1RiIgZmlsbC1ydWxlPSJub256ZXJvIiBkPSJNMTggNUgzLjgzbDMuNTgtMy41OUw2IDAgMCA2bDYgNiAxLjQxLTEuNDFMMy44MyA3SDE4eiIvPg0KICAgIDwvZz4NCjwvc3ZnPg0K" class="back-icon">返回
+                </span>
+    </div>
+    <div class="comment-container bga-back-top">
+        <div class="comment">
+            <div class="comment-title">
+                <div>作者 :  <span >{$vo.user.nickname}</span>  | 浏览量 : <span>{$vo.read_count}</span>
+                </div>
+                <span class="time">{$vo.create_time|date='Y-m-d H:i'}</span>
+            </div>
+            <article class="comment-body markdown-body">
+                {$vo.content|raw}
+            </article>
+        </div>
+        {/article:view}
+        <div  class="comment">
+            <div class="comment-title">
+                <div><a href="{:url('Article/comment',['artId' => 1])}">评论</a></div>
+                <span class="time">
+                            <a href="http://github.com/login/oauth/authorize?client_id=5b4cde4044d29cc1678d&amp;redirect_uri=file%3A%2F%2F%2FE%3A%2Fcompany%25E8%25B5%2584%25E6%2596%2599%2F%25E4%25BB%25BF%25E7%25AB%2599%2Fbeike11539%2Findex.html%23%2FBlog%2FBlogDetail%2F52&amp;scope=public_repo">Login
+                            </a>&nbsp;with GitHub
+                        </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+
+{/block}

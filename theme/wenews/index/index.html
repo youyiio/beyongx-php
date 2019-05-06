@@ -1,0 +1,109 @@
+{extend name="public/base" /}
+{block name="title"}{:get_config('site_name')}{/block}
+{block name="body"}
+
+<div class="layui-fulid micronews-banner w1000">
+  <div class="layui-carousel imgbox" id="micronews-carouse">
+    <div carousel-item>
+      {cms:ads cache='120' type='1' limit='5' id='vo'}
+      <div>
+        <p class="title" style="color: black">{$vo.title}</p>
+        <a href="{$vo.url}"><img src="{$vo.image.full_thumb_image_url}"></a>
+      </div>
+      {/cms:ads}
+    </div>
+  </div>
+</div>
+
+  <div class="micronews-container w1000">
+    <div class="layui-fluid">
+      <div class="layui-row">
+        <div class="layui-col-xs12 layui-col-sm12 layui-col-md8">
+          <div class="main">
+            <div class="list-item" id="LAY_demo2">
+              {article:list cache='120' page-size='10' id='art' assign='list'}
+              <div class="item">
+                <a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}">
+                  {empty name="$art.thumb_image_id"}
+                  <img src="">
+                  {else if}
+                  <img src="{$art.thumbImage.full_thumb_image_url}">
+                  {/empty}
+                </a>
+                <div class="item-info">
+                  <h4><a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}">{$art.title}</a></h4>
+                  <div class="b-txt">
+                    {volist name="art.categorys" id="vo" empty="未分类"}
+                    <span class="label">{$vo.title_cn}</span>
+                    {/volist}
+                    <span class="icon message">
+                      <i class="layui-icon layui-icon-dialogue"></i>
+                      {$art.comment_count}
+                    </span>
+                    <span class="icon time">
+                      <i class="layui-icon layui-icon-log"></i>
+                      {$art.post_time|date='Y-m-d H:i'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {/article:list}
+              <div style="text-align: center; padding:30px 0">
+                {$list->render()|raw}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="layui-col-xs12 layui-col-sm12 layui-col-md4">
+          <div class="popular-info">
+            <div class="layui-card">
+              <div class="layui-card-header">
+                <h3>热门资讯</h3>
+              </div>
+              <div class="layui-card-body">
+                <ul class="list-box">
+                  {article:hotlist cache='120' id='art' limit='10'}
+                  <li class="list">
+                     <a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}">{$art.title}</a><i class="heat-icon"></i>
+                  </li>
+                  {/article:hotlist}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  
+  <!-- content-laytpl -->
+  <script id="demo" type="text/html">
+  {{#  layui.each(d.itemCont, function(index, item){ }}
+    <div class="item">
+      {{# if(item.img){ }}
+      <a href="details.html">
+        <img src="{{item.img}}">
+      </a>
+      {{#  } }}
+      <div class="item-info">
+        <h4><a href="{:url('cms/Article/viewArticle',['aid' => 0])}">{{item.title}}</a></h4>
+        <div class="b-txt">
+          <span class="label">{{item.label}}</span>
+          <span class="icon message">
+            <i class="layui-icon layui-icon-dialogue"></i>
+            {{item.message}}
+          </span>
+          <span class="icon time">
+            <i class="layui-icon layui-icon-log"></i>
+            {{item.time}}
+          </span>
+        </div>
+      </div>
+    </div>
+  {{#  }); }}
+  </script>
+  <!-- end-content-laytpl-->
+{/block}
+
