@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试 tags</title>
+</head>
+<body>
+    <h1>非闭合标签</h1>
+    {Demo:close time='$demo_time'/}
+    <hr>
+    <h1>闭合标签</h1>
+    {demo:open name='demo_name'}
+        {$key}=>{$demo_name}<br>
+    {/demo:open}
+    <br>
+    {demo:open name='demo_name' type='1'}
+        {$key}=>{$demo_name}<br>
+    {/demo:open}
+
+    <h1>cms article view标签</h1>
+    {article:view ad="1" id="vo"}
+    标题:{$vo.title} <br/>
+    作者:{$vo.author} <br/>
+    内容: {$vo.content|raw}
+    {/article:view}
+    <br/>
+
+    <h1>article list标签</h1>
+    {article:list cid="2" limit="12" cache="true" id="vo"}
+    标题: {$vo.title} <br/>
+    作者: {$vo.author} <br/>
+    内容: {$vo.content|raw}
+    {/article:list}
+
+    <h1>article search标签</h1>
+    {article:search keyword="test" id="vo"}
+    标题: {$vo.title} <br/>
+    作者: {$vo.author} <br/>
+    {/article:search}
+
+    <h1>cms 友链标签</h1>
+    {cms:links limit="8" id="vo"}
+    <a href="{$vo.url}" target="_blank">{$vo.title}</a>
+    {/cms:links}
+
+    <h1>cms 广告标签</h1>
+    {cms:ads type="2" limit="8" id="vo"}
+    <a href="{$vo.url}">{$vo.title}</a>
+    {/cms:ads}
+</body>
+</html>

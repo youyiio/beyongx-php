@@ -1,0 +1,167 @@
+{extend name="public/base" /}
+{block name="title"}系统设置{/block}
+{block name="css"}{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>友情链接 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="javascript:;" onclick="add()">添加友情链接</a></li>
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <a href="javascript:;" onclick="add()" class="btn btn-success">添加友情链接</a>
+                <form action="{:url('System/orderLinks')}" class="ajax-form" method="post">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-condensed">
+                            <tr>
+                                <th width="5%">排序</th>
+                                <th>网站名称</th>
+                                <th>网站链接</th>
+                                <th>排序</th>
+                                <th>操作</th>
+                            </tr>
+                            {foreach name="list" item="v" empty="暂无数据"}
+                            <tr>
+                                <td>
+                                    <input class="form-control" style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$v['id']}" value="{$v['sort']}">
+                                </td>
+                                <td>{$v.title}</td>
+                                <td>{$v.url}</td>
+                                <td>{$v.sort}</td>
+                                <td>
+                                    <a href="javascript:;" data-id="{$v['id']}" data-title="{$v['title']}" data-url="{$v['url']}" data-sort="{$v['sort']}" onclick="edit(this)">修改</a> |
+                                    <a href="{:url('System/deleteLinks',['id'=>$v['id']])}" class="ajax-a">删除</a>
+                                </td>
+                            </tr>
+                            {/foreach}
+                            <tr>
+                                <th colspan="5">
+                                    <button class="btn btn-success" type="submit">排序</button>
+                                </th>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 添加友情链接模态框开始 -->
+<div class="modal fade" id="bjy-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加友情链接
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ajax-form" action="{:url('System/addLinks')}" method="post">
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">网站名称:</label>
+                        <div class="col-lg-10"><input type="text" name="title" placeholder="网站名称" class="form-control"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">网站链接:</label>
+                        <div class="col-lg-10"><input type="url" name="url" placeholder="网站链接" class="form-control"> <span class="help-block m-b-none">例:http://www.beyongx.com/</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">排序:</label>
+                        <div class="col-lg-10"><input type="number" name="sort" placeholder="排序" class="form-control"> <span class="help-block m-b-none">数值越小排序越靠前</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-sm btn-white" type="submit">添加</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 添加菜单模态框结束 -->
+<!-- 修改菜单模态框开始 -->
+<div class="modal fade" id="bjy-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">修改友情链接</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ajax-form" action="{:url('System/editLinks')}" method="post">
+                    <input type="hidden" name="id">
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">网站名称:</label>
+                        <div class="col-lg-10"><input type="text" name="title" placeholder="网站名称" class="form-control"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">网站链接:</label>
+                        <div class="col-lg-10"><input type="url" name="url" placeholder="网站链接" class="form-control"> <span class="help-block m-b-none">例:http://www.xmtsjyxx.com/</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">排序:</label>
+                        <div class="col-lg-10"><input type="number" name="sort" placeholder="排序" class="form-control"> <span class="help-block m-b-none">数值越小排序越靠前</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-sm btn-white" type="submit">修改</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name="js"}
+<script>
+    // 添加菜单
+    function add(){
+        $("input[name='title'],input[name='url']").val('');
+        $('#bjy-add').modal('show');
+    }
+
+    // 修改菜单
+    function edit(obj){
+        var id = $(obj).data('id');
+        var title=$(obj).data('title');
+        var url=$(obj).data('url');
+        var sort=$(obj).data('sort');
+        $("input[name='id']").val(id);
+        $("input[name='title']").val(title);
+        $("input[name='url']").val(url);
+        $("input[name='sort']").val(sort);
+        $('#bjy-edit').modal('show');
+    }
+
+</script>
+{/block}

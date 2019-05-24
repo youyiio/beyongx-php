@@ -1,0 +1,43 @@
+{extend name="public/base" /}
+{block name="title"}{$columnTitle|default="采集管理"}{/block}
+{block name="css"}
+
+{/block}
+{block name="main"}
+<div class="wrapper wrapper-content  animated fadeInRight article">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="pull-right">
+                    </div>
+                    <div class="text-center article-title">
+                        <h1>
+                            {$article.title|default="无"}
+                        </h1>
+                    </div>
+                    <blockquote>{$article.description|default="描述无"}</blockquote>
+
+                    {$article.content|default="无"|raw}
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="small text-right">
+                                <h5></h5>
+                                <i class="fa fa-eye"> </i> {$article.read_count|default=0} views
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<script src="__PUBLIC__/static/inspinia/js/plugins/clipboard/clipboard.min.js"></script>
+<script>
+    var clipboard = new Clipboard('#btnCopy');
+</script>
+{/block}

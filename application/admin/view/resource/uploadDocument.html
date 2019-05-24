@@ -1,0 +1,137 @@
+{extend name="public/base" /}
+{block name="title"}{$columnTitle|default="文档管理"}{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="ibox float-e-margins">
+    <div class="ibox-title">
+      <h5>文档上传</h5>
+      <div class="ibox-tools">
+        <a class="collapse-link">
+          <i class="fa fa-chevron-up"></i>
+        </a>
+        <a class="close-link">
+          <i class="fa fa-times"></i>
+        </a>
+      </div>
+    </div>
+    <div class="ibox-content">
+      <form class="form-horizontal ajax-form" enctype="multipart/form-data"  method="post">
+
+        <div class="form-group">
+          <label class="col-lg-2 control-label" >上传文件</label>
+          <div class="col-lg-10">
+            <input type="hidden" name="fileId" id="fileId" value="">
+
+            <div class="dropzone needsclick dz-clickable" id="uploadFile" data-input-name="fileId"  >
+              <div class="dz-message needsclick">
+
+                点击此处上传文档 <br>
+                <span class="note needsclick"></span>
+
+              </div>
+              <div class="text fileName"></div>
+            </div>
+            <span class="help-block m-b-none">文件类型:doc,docx,ppt,pptx,txt,avi,pdf,mp3,zip,mp4,xlsx; &nbsp;&nbsp;&nbsp;&nbsp;   文件小于200M</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-2 control-label">备注</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
+            <span class="help-block m-b-none"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-lg-offset-2 col-lg-10">
+            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{/block}
+
+{block name="js"}
+<!-- 日期 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/bootstrap-datetimepicker.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+<!-- 上传插件 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/dropzone/dropzone-4.3.0.min.js"></script>
+
+<!-- Chosen -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/chosen/chosen.jquery.js"></script>
+
+<!-- 引入ueditor的js代码 -->
+<script src="__PUBLIC__/static/ueditor/ueditor.config.js?2017032702"></script>
+<script src="__PUBLIC__/static/ueditor/ueditor.all.js?2017041701"></script>
+<script>
+
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-search'    : {search_contains:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
+        '.chosen-select-width'     : {width:"100%!important"}
+    };
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+
+    //图片上传
+    Dropzone.autoDiscover = false;
+    $("#uploadFile").dropzone({
+        // autoProcessQueue:false,
+        url: "{:url('File/upload')}",
+        paramName: 'file', //input的name
+        maxFilesize: 200, // MB
+        addRemoveLinks: true, //添加删除链接
+        maxFiles: 1, //最多上传文件数量
+        acceptedFiles: '.doc,.docx,.ppt,.pptx,.txt,.avi,.pdf,.mp3,.zip,.mp4,.xlsx', //允许上传的文件后缀
+        dictCancelUpload: '取消上传',
+        dictRemoveFile: '删除图片',
+        maxfilesexceeded: function(file) {
+            layer.alert('超最大数量,请删除现有文件后再上传', {icon: 2, title: '上传失败'});
+            file.previewElement.remove();
+        },
+        sending: function(file,xhr,formData) {
+            var $element = $(this.element);
+        },
+        success: function(file,response) {
+            var $element = $(this.element);
+            if (response.code) {
+                //将图片id填入input
+                var fileId = response.data.file_id;
+                var fileName = "" + response.data.file_name;
+                //console.log(fileName);
+                $('#' + $element.data('inputName')).val(fileId);
+                $(this).find('.note').text(fileName);
+                // var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
+
+                // file.previewElement.remove();
+                // this.removeFile(file);
+            } else {
+                layer.alert(response.msg, {icon: 2, title: '上传失败'});
+            }
+        },
+        complete: function(file){
+
+        },
+        error: function(file, message) {
+            //上传错误
+            layer.alert(message, {icon: 2, title: '上传失败'});
+            this.removeFile(file);
+        }
+    });
+</script>
+{/block}

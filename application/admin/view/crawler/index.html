@@ -1,0 +1,90 @@
+{extend name="public/base" /}
+{block name="title"}规则列表{/block}
+{block name="css"}
+<!-- ladda   -->
+<link href="__PUBLIC__/static/admin/css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
+{/block}
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>规则列表 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="btn-group">
+                    <a href="{:url('crawler/create')}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i>
+                        新增规则</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-border">
+                        <thead>
+                        <tr>
+                            <th><input type="checkbox" class="i-checks js-check-all"></th>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>定时更新？</th>
+                            <th>分页采集？</th>
+                            <th>更新时间</th>
+                            <th>创建时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                            <tbody>
+                            {empty name="list"}
+                            <tr>
+                                <td colspan="9" align="center">暂无数据</td>
+                            </tr>
+                            {else/}
+                            {volist name="list" id="vo"}
+                            <tr>
+                                <td><input type="checkbox" class="i-checks js-check"></td>
+                                <td>{$vo.id}</td>
+                                <td>{$vo.title}</td>
+                                <td>{$vo.is_timing?'是':'否'}</td>
+                                <td>{$vo.is_paging?'是['.$vo['start_page'].'-'.$vo['end_page'].']':'否'}</td>
+                                <td>{$vo.last_update_time}</td>
+                                <td>{$vo.create_time}</td>
+                                <td>{$vo.status_html|raw}</td>
+                                <td>
+                                    {if $vo.status == 2}
+                                    <a href="" class="btn btn-xs btn-primary ajax-a" disabled="">采集中</a>
+                                    {else if}
+                                    <a href="{:url('Crawler/startCrawl',['id'=>$vo['id']])}" class="btn btn-xs btn-primary ajax-a">采集</a>
+                                    {/if}
+                                    <a href="{:url('Crawler/edit',['id'=>$vo['id']])}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span></a>
+                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Crawler/deleteCrawler',['id'=>$vo['id']])}"
+                                            data-title="确定删除此规则吗？" data-text="请三思">删除
+                                    </button>
+                                </td>
+                            </tr>
+                            {/volist}
+                            {/empty}
+                        </tbody>
+                    </table>
+                    {$page|raw}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<!-- Ladda -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.jquery.min.js"></script>
+{/block}

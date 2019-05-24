@@ -1,0 +1,94 @@
+{extend name="public/base" /}
+{block name="title"}用户列表{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/codemirror/codemirror.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/codemirror/ambiance.css" rel="stylesheet">
+{/block}
+{block name='bodyClass'}
+    full-height-layout
+{/block}
+{block name="main"}
+
+<div class="fh-breadcrumb">
+
+    <div class="fh-column">
+
+        <div class="full-height-scroll " >
+            <ul class="list-group elements-list">
+                {volist name="list" id="fb"}
+                <li class="list-group-item ">
+                    <a href="javascript:void(0)"  data-send_client_id="{$fb.send_client_id}" data-feedback_id="{$fb.feedback_id}">
+                        <small class="pull-right text-muted">{$fb.create_time}</small>
+                        <strong>{$fb.sender}</strong>
+                        <div class="small m-t-xs">
+                            <p>{$fb.content}</p>
+
+                            {if $fb.status <= $sendStatus}
+                            <!--<p class="pull-right"><i class="fa fa-circle text-danger"></i></p>-->
+                            <span class="label pull-right label-primary">{$fb.count}条未读</span>
+                            {/if}
+
+                            <p class="m-b-none"><i class="fa fa-map-marker"></i>来自{$fb.ip}</p>
+                        </div>
+                    </a>
+                </li>
+                {/volist}
+            </ul>
+        </div>
+    </div>
+    <!--消息窗口-->
+    <div class="full-height" >
+        <div class="full-height-scroll white-bg border-left">
+
+            <div class="element-detail-box">
+
+                <div class="tab-content ">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{/block}
+{block name="js"}
+
+<!-- Mainly scripts -->
+<!-- Custom and plugin javascript -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/bootstrap-datetimepicker.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        //消息窗内容的加载
+        $('li.list-group-item >a').click(function () {
+
+            var sendClientId = $(this).attr("data-send_client_id");
+            var feedbackId = $(this).attr("data-feedback_id");
+            var upData = $(this).data();
+            // admin.log(upData);
+            $('.tab-content').load('{:url("chat")}', {send_client_id:sendClientId, feedback_id: feedbackId}, function (response,status) {
+
+            })
+        });
+
+        //li>a点击 添加bg-primary类
+
+        $(' li.list-group-item >a').click(function (e) {
+
+           var $liGroup = $(this).parents('ul.list-group').children('li.list-group-item ');
+
+           $liGroup.each(function () {
+               $(this).children('a').removeClass('bg-info');
+           });
+
+           $(this).addClass('bg-info');
+
+        });
+
+    })
+</script>
+{/block}

@@ -1,0 +1,178 @@
+{extend name="public/base" /}
+{block name="title"}{$crawler ? '修改规则' : '新增规则'}{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/switchery/switchery.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>{$crawler ? '修改规则' : '新增规则'}</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal ajax-form" action="{present name='crawler'}{:url('Crawler/edit')}{else/}{:url('Crawler/create')}{/present}" method="post" id="crawlerForm">
+                    <input type="password" style="display:none"><!-- for disable autocomplete on chrome -->
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">标题:</label>
+                        <div class="col-lg-10"><input type="text" name="title" placeholder="请输入标题" class="form-control" value="{$crawler.title|default=''}" autocomplete="off"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">链接:</label>
+                        <div class="col-lg-10"><input type="text" name="url" placeholder="请输入需要采集的链接" class="form-control" value="{$crawler.url|default=''}" autocomplete="off"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">页面编码:</label>
+                        <div class="col-lg-10">
+                            <select class="form-control" name="encoding">
+                                <option value="auto" {if isset($crawler) && $crawler.encoding=='auto'}selected{/if}>自动判断</option>
+                                <option value="utf-8" {if isset($crawler) && $crawler.encoding=='utf-8'}selected{/if}>UTF-8</option>
+                                <option value="gb2312" {if isset($crawler) && $crawler.encoding=='gb2312'}selected{/if}>GB2312</option>
+                                <option value="gbk" {if isset($crawler) && $crawler.encoding=='gbk'}selected{/if}>GBK</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">是否定时抓取:</label>
+                        <div class="col-lg-2">
+                            <input type="checkbox" class="switch" name="is_timing" {if isset($crawler) && $crawler.is_timing===1}checked{/if}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">采集至文章分类:</label>
+                        <div class="col-lg-10">
+                            <select name="category_id" class="form-control">
+                                {volist name="categoryList" id="cl"}
+                                <option value="{$cl.id}" {if isset($crawler) && $crawler.category_id==$cl.id}selected{/if}>{$cl._name|raw}</option>
+                                {/volist}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">是否采集分页:</label>
+                        <div class="col-lg-10">
+                            <input type="checkbox" class="switch" name="is_paging" {if isset($crawler) && $crawler.is_paging===1}checked{/if}>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-lg-2">分页页码(始-终):</label>
+                        <div class="col-lg-2">
+                            <input type="number" class="form-control" name="start_page" value="{$crawler.start_page|default=''}" placeholder="开始页码">
+                        </div>
+                        <div class="col-lg-2">
+                            <input type="number" class="form-control" name="end_page" value="{$crawler.end_page|default=''}"  placeholder="结束页码">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">分页网址规则:</label>
+                        <div class="col-lg-10">
+                            <input class="form-control" type="text" name="paging_url" value="{$crawler.paging_url|default=''}" placeholder="请输入分页采集规则，例：https://www.xxx.com/list/{page}.html" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章网址规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_url" value="{$crawler.article_url|default=''}" placeholder="文章网址规则，例如: .list a,href" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章标题规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_title" value="{$crawler.article_title|default=''}" placeholder="请输入采集规则，例：.article h1,text" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章简介规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_description" value="{$crawler.article_description|default=''}" placeholder="请输入采集规则，例：.article,text" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章内容规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_content" value="{$crawler.article_content|default=''}" placeholder="请输入采集规则，例：.article,text" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章作者规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_author" value="{$crawler.article_author|default=''}" placeholder="请输入采集规则，例：.article h2,text" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">文章图片规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="article_image" value="{$crawler.article_image|default=''}" placeholder="请输入采集规则，例：.tupian img,src" class="form-control" autocomplete="off">
+                            <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    {present name="crawler"}
+                    <input type="hidden" name="id" value="{$crawler.id|default=''}">
+                    {/present}
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <input type="hidden" name="status" value="1">
+                            <button class="btn btn-info" type="submit">提交</button>
+                            <input class="btn btn-white" type="button" id="test" value="测试">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<!-- Switchery -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/switchery/switchery.js"></script>
+<script>
+    $(document).ready(function() {
+        var elems = document.querySelectorAll('.switch');
+        for (var i = 0; i < elems.length; i++) {
+            var checkbox = elems[i];
+            var switchery = new Switchery(checkbox, { color: '#1AB394' });
+            // checkbox.onchange = function() {
+            //     changeConfig(this.name, this.checked);
+            // }
+        }
+    });
+
+    $('#test').on('click', function() {
+        var data = $('#crawlerForm').serialize();
+        layer.open({
+            type: 2,
+            title: '采集文章测试页面',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['893px', '600px'],
+            content: '{:url("Crawler/crawlTest")}' + '?' + data//这里content是一个URL
+        });
+
+    });
+
+</script>
+{/block}

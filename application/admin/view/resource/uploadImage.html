@@ -1,0 +1,154 @@
+{extend name="public/base" /}
+{block name="title"}{$columnTitle|default="图片管理"}{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="ibox float-e-margins">
+    <div class="ibox-title">
+      <h5>图片上传</h5>
+      <div class="ibox-tools">
+        <a class="collapse-link">
+          <i class="fa fa-chevron-up"></i>
+        </a>
+        <a class="close-link">
+          <i class="fa fa-times"></i>
+        </a>
+      </div>
+    </div>
+    <div class="ibox-content">
+      <form class="form-horizontal ajax-form" action="{:url('uploadImage')}" method="post">
+
+        <div class="form-group">
+          <label class="col-lg-2 control-label" >上传图片</label>
+          <div class="col-lg-10">
+            <input type="hidden" name="imageId" id="imageId" value="" >
+            {assign name="dropzone_thumb_width" value="140"/}
+            {assign name="dropzone_thumb_height" value="140"/}
+            <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="imageId"  data-thumb-width="{$dropzone_thumb_width}" data-thumb-height="{$dropzone_thumb_height}">
+              <div class="dz-message needsclick">
+
+                点击此处上传图片 <br>
+                <span class="note needsclick"></span>
+
+              </div>
+            </div>
+            <span class="help-block m-b-none"> 图片大小限5M</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-lg-2 control-label">备注</label>
+          <div class="col-lg-10">
+            <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
+            <span class="help-block m-b-none"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-lg-offset-2 col-lg-10">
+            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{/block}
+
+{block name="js"}
+<!-- 日期 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/bootstrap-datetimepicker.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+<!-- 上传插件 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/dropzone/dropzone-4.3.0.min.js"></script>
+
+<!-- Chosen -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/chosen/chosen.jquery.js"></script>
+
+<!-- 引入ueditor的js代码 -->
+<script src="__PUBLIC__/static/ueditor/ueditor.config.js?2017032702"></script>
+<script src="__PUBLIC__/static/ueditor/ueditor.all.js?2017041701"></script>
+<script>
+
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-search'    : {search_contains:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
+        '.chosen-select-width'     : {width:"100%!important"}
+    };
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+
+    //日期选择
+    $('.form-datetime').datetimepicker({
+        locale: 'zh-cn',
+        viewMode: 'days',
+        format: 'YYYY-MM-DD HH:mm:ss'
+    });
+
+    //图片上传
+    Dropzone.autoDiscover = false;
+    $("#uploadImage").dropzone({
+        // autoProcessQueue:false,
+        url: "{:url('Image/upload')}",
+        paramName: 'Filedata', //input的name
+        maxFilesize: 5, // MB
+        addRemoveLinks: true, //添加删除链接
+        maxFiles: 1, //最多上传文件数量
+        acceptedFiles: '.jpg,.jpeg,.png,.gif', //允许上传的文件后缀
+        dictCancelUpload: '取消上传',
+        dictRemoveFile: '删除图片',
+        maxfilesexceeded: function(file) {
+            layer.alert('超最大数量,请删除现有文件后再上传', {icon: 2, title: '上传失败'});
+            file.previewElement.remove();
+        },
+        sending: function(file,xhr,formData) {
+            var $element = $(this.element);
+            //图片尺寸
+            formData.append("width", $element.data('width'));
+            formData.append("height", $element.data('height'));
+            //缩略图尺寸
+            formData.append("thumbWidth", $element.data('thumbWidth'));
+            formData.append("thumbHeight", $element.data('thumbHeight'));
+        },
+        success: function(file,response) {
+            //admin.log(response);
+            var $element = $(this.element);
+            var thumbWidth = $element.data('thumbWidth');
+            var thumbHeight = $element.data('thumbHeight');
+            if (response.code) {
+                //将图片id填入input
+                var imageId = response.data.image_id;
+                var imageUrl = "" + response.data.image_url;
+                $('#' + $element.data('inputName')).val(imageId);
+                var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
+                displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
+                displayHtml = displayHtml.replace('_thumbHeight_', thumbHeight);
+                $element.find('.dz-message').html('').append(displayHtml);
+            } else {
+                layer.alert(response.msg, {icon: 2, title: '上传失败'});
+                file.previewElement.remove();
+            }
+        },
+        complete: function(file){
+            if (this.options.maxFiles == 1) {
+                this.removeFile(file);
+            }
+        },
+        error: function(file,message) {
+            //上传错误
+            layer.alert(response.msg, {icon: 2, title: '上传失败'});
+            file.previewElement.remove();
+        }
+    });
+</script>
+{/block}

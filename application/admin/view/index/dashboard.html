@@ -1,0 +1,180 @@
+{extend name="public/base" /}
+{block name="title"}欢迎页面{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <span class="label label-primary pull-right">今日</span>
+                <h5>文章</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">{$todayCount}</h1>
+                <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
+                <small>新增单数</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <span class="label label-info pull-right">本周</span>
+                <h5>文章</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">{$curWeekCount}</h1>
+                <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
+                <small>新增单数</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <span class="label label-success pull-right">本月</span>
+                <h5>文章</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">{$curMonthCount}</h1>
+                <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
+                <small>新增单数</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>待发布文章数</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">{$waitForPublishCount}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>待审核文章数</h5>
+            </div>
+            <div class="ibox-content">
+                <h1 class="no-margins">{$waitForAuditCount}</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>用户新增统计</h5>
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-xs btn-white btn-tab" data-action="{:url('index/today')}">今天</button>
+                        <button type="button" class="btn btn-xs btn-white btn-tab" data-action="{:url('index/month')}">本月</button>
+                        <button type="button" class="btn btn-xs btn-white btn-tab" data-action="{:url('index/year')}">年度</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="flot-chart">
+                            <div class="flot-chart-content" id="flot-dashboard-chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<!-- echarts -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/echarts/echarts.min.js" type="text/javascript"></script>
+<script>
+    $(document).ready(function() {
+        var option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    animation: false,
+                    label: {
+                        backgroundColor: '#ccc',
+                        borderColor: '#aaa',
+                        borderWidth: 1,
+                        shadowBlur: 0,
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        textStyle: {
+                            color: '#222'
+                        }
+                    }
+                },
+                formatter: function (params) {
+                    return params[0].name + params[0].seriesName + ': ' + params[0].value;
+                }
+            },
+            grid: {
+                top:20,
+                right:20,
+                bottom:40,
+                left:40,
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: []
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: '新增',
+                data: [],
+                type: 'line',
+                lineStyle: {
+                    color: 'rgba(26,179,148, 1)'
+                },
+            }]
+        };
+
+        var myChart = echarts.init($('#flot-dashboard-chart').get(0), 'light');
+        myChart.setOption(option);
+
+        //自适应宽度
+        window.addEventListener("resize", function () {
+            myChart.resize();
+        });
+
+
+        $(".btn-tab").click(function (e) {
+            $(".btn-tab").removeClass('active');
+            $(this).addClass('active');
+
+            var url = $(this).data('action');
+            myChart.showLoading();
+            $.getJSON(url, [], function (json) {
+                myChart.hideLoading();
+                if (json.code != 1) {
+                    return;
+                }
+
+                myChart.setOption(json.data);
+            });
+        });
+        $(".btn-tab:first").trigger('click');
+    });
+</script>
+{/block}

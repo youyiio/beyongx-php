@@ -1,0 +1,189 @@
+{extend name="public/base" /}
+{block name="title"}广告{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>{$ad ? '修改' : '新增'}广告</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <form class="form-horizontal ajax-form" action="{:url(request()->controller().'/'. request()->action())}" method="post">
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="title">标题</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="title" name="title" placeholder="标题" value="{$ad.title|default=''}" >
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="url">链接</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="url" name="url" placeholder="链接,以http://开头" value="{$ad.url|default='http://'}">
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="types">显示位置</label>
+                    <div class="col-lg-10">
+                        <select name="types[]" id="types" data-placeholder="请选择显示位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple >
+                            {volist name="typeList" id="vo"}
+                            <option value="{$vo.type}" data-image-size="{$vo.image_size}" {present name="$ad"}{in name="vo.type" value="$oldTypes"}selected{/in}{/present}>{$vo.title_cn}</option>
+                            {/volist}
+                        </select>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="sort">排序</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="number" id="sort" name="sort" placeholder="排序" value="{$ad.sort|default='1'}">
+                        <span class="help-block m-b-none">数值越小越靠前</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">上传图片</label>
+                    <div class="col-lg-10">
+                        <input type="hidden" name="image_id" id="image_id" value="{$ad.image_id|default=''}">
+                        {php}$ad_image = ['width'=>1000,'height'=>300,'thumb_width'=>500,'thumb_height'=>150];{/php}
+                        <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="image_id" data-width="{$ad_image.width}" data-height="{$ad_image.height}"
+                             data-thumb-width="{$ad_image.thumb_width}" data-thumb-width-height="{$ad_image.thumb_height}">
+                            <div class="dz-message needsclick">
+                                {if isset($ad) && $ad.image_id > 0}
+                                <img src="{$ad.image.full_image_url}" style="border:1px solid #ccc;width:{$ad_image.thumb_width}px;height:{$ad_image.thumb_height}px">
+                                {else/}
+                                点击此处上传图片规格 （请先选择广告显示位置）<br>
+                                <span class="note needsclick"></span>
+                                {/if}
+                            </div>
+                        </div>
+                        <span class="help-block m-b-none" id="uploadDesc">图片规格 （请先选择广告显示位置）</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        {present name="ad"}<input type="hidden" name="id" value="{$ad.id}">{/present}
+                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$ad ? '修改' : '新增'}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<!-- Chosen -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/chosen/chosen.jquery.js"></script>
+<!-- 上传插件 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/dropzone/dropzone-4.3.0.min.js"></script>
+
+<script>
+
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-search'    : {search_contains:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
+        '.chosen-select-width'     : {width:"100%!important"}
+    }
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+
+    //图片上传,调用顺序:sending > success > complete > finished > accept
+    //图片上传
+    Dropzone.autoDiscover = false;
+    $("#uploadImage").dropzone({
+        url: "{:url('Image/upload')}",
+        paramName: 'Filedata', //input的name
+        maxFilesize: 5, // MB
+        addRemoveLinks: true, //添加删除链接
+        clickable: true, //预览图可点击
+        maxFiles: 1, //最多上传文件数量
+        acceptedFiles: '.jpg,.gif,.png,.jpeg', //允许上传的文件后缀
+        // thumbnailWidth: 320,
+        // thumbnailheight: 200,
+        dictCancelUpload: '取消上传',
+        dictRemoveFile: '删除图片',
+        maxfilesexceeded: function(file) {
+            layer.alert('超最大数量,请删除现有文件后再上传', {icon: 2, title: '错误'});
+            file.previewElement.remove();
+        },
+        sending: function(file,xhr,formData) {
+            var $element = $(this.element);
+            //图片尺寸
+            formData.append("width", $element.data('width'));
+            formData.append("height", $element.data('height'));
+            //缩略图尺寸
+            formData.append("thumbWidth", $element.data('thumbWidth'));
+            formData.append("thumbHeight", $element.data('thumbHeight'));
+        },
+        success: function(file,response) {
+            var $element = $(this.element);
+            var thumbWidth = $element.data('thumbWidth');
+            var thumbHeight = $element.data('thumbHeight');
+            if (response.code == 1) {
+                //将图片id填入input
+                var imageId = response.data.image_id;
+                var imageUrl = ""+response.data.image_url;
+                $('#' + $element.data('inputName')).val(imageId);
+                var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
+                displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
+                displayHtml = displayHtml.replace('_thumbHeight_', thumbHeight);
+                $element.find('.dz-message').html('').append(displayHtml);
+            } else {
+                layer.alert(response.msg, {icon: 2, title: '上传失败'});
+            }
+        },
+        complete: function(file) {
+            if (this.options.maxFiles == 1) {
+                this.removeFile(file);
+            }
+        },
+        error: function(file, message) {
+            //上传错误
+            layer.alert(message, {icon: 2, title: '上传失败'});
+            //file.previewElement.remove();
+            this.removeFile(file);
+        }
+    });
+
+    //广告图片大小根据选项框选择
+
+    $("#types").chosen().on("change", function (evt, params) {
+        var imageSize = $("#types option:selected").data("image-size");
+        if (imageSize == undefined || imageSize == "") {
+            return;
+        }
+
+        var width = imageSize["width"];
+        var height = imageSize["height"];
+        var thumbWidth = imageSize["thumbWidth"];
+        var thumbHeight = imageSize["thumbHeight"];
+
+        $("#uploadImage").data('width', width);
+        $("#uploadImage").data('height', height);
+        $("#uploadImage").data('thumb-width', thumbWidth);
+        $("#uploadImage").data('thumb-height', thumbHeight);
+        $(".dz-message").html('点击此处上传图片规格 ' + width + '*' + height + '<br><span class="note needsclick"></span');
+        $("#uploadDesc").html('图片规格 ' + width + '*' + height + '');
+    });
+
+</script>
+{/block}

@@ -1,13 +1,13 @@
 <div  class="left-container">
     <div  class="left-layout-container pc">
         <div  class="user-info">
-            <img src="__PUBLIC__/static/theme/classic/img/0001.jpg">
+            <img src="__PUBLIC__/theme/classic/img/0001.jpg">
             <div class="login-name">{:get_config('site_name')}</div>
             <div ></div>
         </div>
         <ul  class="other-site">
-            <li><a href="https://github.com/Moonlightg"><img src="__PUBLIC__/static/theme/classic/img/github.png"></a></li>
-            <li><a href="https://weibo.com/MoonlightGjb"><img src="__PUBLIC__/static/theme/classic/img/weibo.png"></a></li>
+            <li><a href="https://github.com/Moonlightg"><img src="__PUBLIC__/theme/classic/img/github.png"></a></li>
+            <li><a href="https://weibo.com/MoonlightGjb"><img src="__PUBLIC__/theme/classic/img/weibo.png"></a></li>
         </ul>
         <ul  class="left-menu">
             <a href="{:url('Article/index')}"><li class="{if request()->action() != 'about'}router-link-exact-active router-link-active selected-menu{else} {/if}">个人博客</li></a>
@@ -15,7 +15,7 @@
         </ul>
         <div  class="qq-group">
             <span >我的QQ</span> <span>扫码添加</span>
-            <img  src="__PUBLIC__/static/theme/classic/img/qq-group.jpg">
+            <img  src="__PUBLIC__/theme/classic/img/qq-group.jpg">
         </div>
         <div  class="copyright">@ 2015 - {$_SERVER.REQUEST_TIME|date='Y'}  {:get_config('site_name')}</div>
     </div>

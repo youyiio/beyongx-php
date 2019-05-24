@@ -7,7 +7,7 @@
     <meta name="keywords" content="{block name='keywords'}{:get_config('keywords')}{/block}">
     <meta name="description" content="{block name='description'}{:get_config('description')}{/block}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/theme/wenews/css/main.css">
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/theme/wenews/css/main.css">
     <link rel="stylesheet" type="text/css" href="__PUBLIC__/static/layui/css/layui.css">
     {block name="css"} {/block}
 </head>
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="__PUBLIC__/static/layui/layui.js"></script>
     <script>
         layui.config({
-            base: '__PUBLIC__/static/theme/wenews/js/'
+            base: '__PUBLIC__/theme/wenews/js/'
         }).use('index',function(){
             var index = layui.index;
             index.banner()
@@ -34,7 +34,7 @@
 
     <script>
         layui.config({
-            base: '__PUBLIC__/static/theme/wenews/js/'
+            base: '__PUBLIC__/theme/wenews/js/'
         }).use('index',function(){
             var index = layui.index;
             index.Page('micronews-search-test',80)

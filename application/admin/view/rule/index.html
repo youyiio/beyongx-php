@@ -1,0 +1,229 @@
+{extend name="public/base" /}
+{block name="title"}权限列表{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/switchery/switchery.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="row">
+      <div class="ibox float-e-margins">
+          <div class="ibox-title">
+              <h5>权限列表 </h5>
+              <div class="ibox-tools">
+                  <a class="collapse-link">
+                      <i class="fa fa-chevron-up"></i>
+                  </a>
+                  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                      <i class="fa fa-wrench"></i>
+                  </a>
+                  <ul class="dropdown-menu dropdown-user">
+                      <li><a href="javascript:;" onclick="add()">添加权限</a></li>
+                  </ul>
+                  <a class="close-link">
+                     <i class="fa fa-times"></i>
+                  </a>
+              </div>
+          </div>
+        <div class="ibox-content" style="padding:10px">
+            <a href="javascript:;" onclick="add()" class="btn btn-success">添加权限</a>
+            <form action="{:url('Rule/order')}" class="ajax-form" method="post">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover table-condensed">
+                    <tr>
+                        <th width="5%">排序</th>
+                        <th>权限名</th>
+                        <th>权限</th>
+                        <th>是否菜单</th>
+                        <th>图标</th>
+                        <th>条件</th>
+                        <th>所属</th>
+                        <th>操作</th>
+                    </tr>
+                    {foreach name="data" item="v"}
+                     <tr>
+                         <td><input class="form-control" style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$v['id']}" value="{$v['sort']}"></td>
+                         <td>{$v['_name']|raw}</td>
+                         <td>{$v['name']}</td>
+                         <td>
+                             <input type="checkbox" class="ajax-switch" name="{$v.id}" {if $v.is_menu == 1} checked {/if}>
+                         </td>
+                         <td>{notempty name="v.icon"}<i class="fa {$v['icon']}"></i>{/notempty}</td>
+                         <td>{$v.condition}</td>
+                         <td>{$v.belongto}</td>
+                         <td>
+                             <a href="javascript:;" data-id="{$v.id}" onclick="add_child(this)">添加子权限</a> |
+                             <a href="javascript:;" data-id="{$v.id}" data-name="{$v.name}" data-title="{$v.title}" data-icon="{$v.icon}" data-condition="{$v.condition}" onclick="edit(this)">修改</a> |
+                             <a href="{:url('Rule/delete', ['id'=>$v['id']])}" class="ajax-a">删除</a>
+                         </td>
+                     </tr>
+                    {/foreach}
+
+                    <tr>
+                        <th colspan="8">
+                            <button class="btn btn-success" type="submit">排序</button>
+                        </th>
+                    </tr>
+                </table>
+            </div>
+
+            </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+<!-- 添加菜单模态框开始 -->
+<div class="modal fade" id="bjy-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                  添加权限
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="bjy-form" class="form-horizontal ajax-form" action="{:url('Rule/add')}" method="post">
+                    <input type="hidden" name="pid" value="0">
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">权限名称:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="title" placeholder="权限名称" class="form-control"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">权限规则:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="name" placeholder="权限规则" class="form-control">
+                            <span class="help-block m-b-none">输入模块/控制器/方法即可 例: admin/Rule/index</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">图标:</label>
+                        <div class="col-lg-10">
+                            <input type="text" name="icon" placeholder="图标" class="form-control"> <span class="help-block m-b-none">font-awesome图标 如fa-wechat</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <input type="hidden" name="belongto" value="admin" />
+                            <button class="btn btn-sm btn-white" type="submit">新增</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 添加菜单模态框结束 -->
+
+<!-- 修改菜单模态框开始 -->
+<div class="modal fade" id="bjy-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                   &times;
+                 </button>
+                 <h4 class="modal-title">
+                   修改权限
+                 </h4>
+             </div>
+             <div class="modal-body">
+                 <form class="form-horizontal ajax-form" action="{:url('Rule/edit')}" method="post">
+                     <input type="hidden" name="id">
+                     <div class="form-group">
+                         <label class="col-lg-2 control-label">权限名称:</label>
+                         <div class="col-lg-10"><input type="text" name="title" placeholder="权限名称" class="form-control"> <span class="help-block m-b-none"></span>
+                         </div>
+                     </div>
+                     <div class="form-group">
+                         <label class="col-lg-2 control-label">权限规则:</label>
+                         <div class="col-lg-10"><input type="text" name="name" placeholder="权限规则" class="form-control"> <span class="help-block m-b-none">输入模块/控制器/方法即可 例: admin/Rule/index</span>
+                         </div>
+                     </div>
+                     <div class="form-group">
+                         <label class="col-lg-2 control-label">图标:</label>
+                         <div class="col-lg-10"><input type="text" name="icon" placeholder="图标" class="form-control"> <span class="help-block m-b-none">font-awesome图标 如fa-wechat</span>
+                         </div>
+                     </div>
+                     <div class="form-group">
+                         <label class="col-lg-2 control-label">条件:</label>
+                         <div class="col-lg-10"><input type="text" name="condition" placeholder="条件" class="form-control"> <span class="help-block m-b-none">用户条件 如{score}> 1 and {vip}=1</span>
+                         </div>
+                     </div>
+                     <div class="form-group">
+                         <div class="col-lg-offset-2 col-lg-10">
+                             <input type="hidden" name="belongto" value="admin" />
+                             <button class="btn btn-sm btn-white" type="submit">修改</button>
+                         </div>
+                     </div>
+                 </form>
+             </div>
+        </div>
+    </div>
+</div>
+<!-- 修改菜单模态框结束 -->
+{/block}
+
+{block name="js"}
+<!-- Switchery -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/switchery/switchery.js"></script>
+<script>
+    // 添加菜单
+    function add() {
+        $("input[name='title'],input[name='name']").val('');
+        $("input[name='pid']").val(0);
+        $('#bjy-add').modal('show');
+    }
+
+    // 添加子菜单
+    function add_child(obj) {
+        var id = $(obj).data('id');
+        $("input[name='pid']").val(id);
+        $("input[name='title']").val('');
+        $("input[name='name']").val('');
+        $("input[name='condition']").val();
+
+        $('#bjy-add').modal('show');
+    }
+
+    // 修改菜单
+    function edit(obj) {
+        $("input[name='id']").val($(obj).data('id'));
+        $("input[name='title']").val($(obj).data('title'));
+        $("input[name='name']").val($(obj).data('name'));
+        $("input[name='icon']").val($(obj).data('icon'));
+        $("input[name='condition']").val($(obj).data('condition'));
+
+        $('#bjy-edit').modal('show');
+    }
+
+
+    function setMenu(id, value) {
+        var url = "{:url(request()->controller() . '/setMenu')}" + "?id=" + id + "&is_menu=" + value;
+
+        $.get(url, function(data) {
+            if (data.code) {
+                layer.msg(data.msg);
+            } else {
+                layer.msg(data.msg, function(){});
+            }
+        });
+    }
+    $(document).ready(function() {
+        var elems = document.querySelectorAll('.ajax-switch');
+        for (var i = 0; i < elems.length; i++) {
+            var checkbox = elems[i];
+            var switchery = new Switchery(checkbox, { color: '#1AB394' });
+            checkbox.onchange = function() {
+                setMenu(this.name, this.checked);
+            }
+        }
+    })
+</script>
+{/block}

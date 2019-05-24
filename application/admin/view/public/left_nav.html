@@ -1,0 +1,60 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="nav-close"><i class="fa fa-times-circle"></i>
+    </div>
+    <div class="sidebar-collapse">
+        <ul class="nav" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <span><img alt="image" class="img-circle" src="{$myself.head_url|default='__PUBLIC__/static/admin/img/profile_small.jpg'}" width="48" height="48"/></span>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="clear">
+                            <span class="block m-t-xs"><strong class="font-bold">{:get_config('site_name','管理后台')}</strong></span>
+                            <span class="text-muted text-xs block">{$myself.nickname}<b class="caret"></b></span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/profile',['uid'=>$myself['user_id']])}">个人资料</a>
+                        </li>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="javascript:void(0)">修改头像</a>
+                        </li>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/password',['uid'=>$myself['user_id']])}">修改密码</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Sign/logout')}">安全退出</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="logo-element">{:get_config('site_name','管理后台')}
+                </div>
+            </li>
+
+            {notempty name="menus"}
+            {foreach name="menus" item="menu"}
+            {empty name="menu._data"}
+            <li class="{:menu_select($menu['name'])}" class="leftSubNav">
+                <a class="J_menuItem" href="{:url($menu['name'])}">{notempty name="menu.icon"}<i class="fa {$menu.icon}"></i>{/notempty} <span class="nav-label">{$menu.title}</span></a>
+            </li>
+            {else/}
+            <li>
+                <a href="#">{notempty name="menu.icon"}<i class="fa {$menu.icon}"></i>{/notempty} <span class="nav-label">{$menu.title} </span>
+                    {if $menu.id == 3}
+                    <span class="label label-warning pull-right">{:user_count('new')}</span>
+                    {else /}
+                    <span class="fa arrow"></span>
+                    {/if}
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    {volist name="menu._data" id="sub"}
+                    <li>
+                        <a class="J_menuItem" href="{:url($sub['name'])}">{$sub.title}</a>
+                    </li>
+                    {/volist}
+                </ul>
+            </li>
+            {/empty}
+            {/foreach}
+            {/notempty}
+
+        </ul>
+    </div>
+</nav>

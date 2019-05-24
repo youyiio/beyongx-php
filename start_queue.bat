@@ -1,6 +1,9 @@
 @ECHO OFF
 
-set queue=cms:queue
+rem php -r "$r = (include 'config\queue.php');echo $r['default'];"; and return value;
+for /f %%i in ('php -r "$r = (include 'config\queue.php');echo $r['default'];"') do ( set res=%%i)
+
+set queue=%res%
 set delay=2
 set memory=128
 set sleep=3

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>test addons 插件测试</title>
+</head>
+<body>
+    <h1>test addons 插件测试</h1>
+    <hr>
+    <h2>1、插件中钩子方法调用</h2>
+    <div>{php}hook('demo', ['id'=>1]);{/php}</div>
+    <hr>
+    <h2>2、插件中链接方法调用</h2>
+    <div>查看生成的链接格式为:{  :addons_url('test://Action/link')  }</div>
+    <div><a href="{:addons_url('test://Action/link')}">addons链接页面</a></div>
+    <hr>
+
+    <h1>enhance addons 插件测试</h1>
+    <hr>
+    <h2>1、用户详细面板钩子方法调用</h2>
+    <div>{php}hook('userstatuslist', ['id'=>1]);{/php}</div>
+    <hr>
+</body>
+</html>

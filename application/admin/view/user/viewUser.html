@@ -1,0 +1,277 @@
+{extend name="public/base" /}
+{block name="title"}用户详情{/block}
+{block name="css"}{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row m-b-lg m-t-lg">
+        <div class="col-md-4">
+            <div class="profile-image">
+                {if empty($user.head_url)}
+                <img src="/static/inspinia/img/profile.jpg" class="img-circle circle-border m-b-md" alt="头像">
+                {else/}
+                <img src="{$user.head_url}" class="img-circle circle-border m-b-md" alt="头像">
+                {/if}
+            </div>
+            <div class="profile-info">
+                <div class="">
+                    <div>
+                        <h2 class="no-margins">
+                            {$user.nickname} | UID:{$user.user_id} {volist name="user.groups" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
+                        </h2>
+                        <h4s>{$user.email}</h4s>
+                        <small>description</small>
+                        <ul class="tag-list" style="padding:0;">
+                            <li><a href="#"> VIP <i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
+                            <li><a class="ajax-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'mailactive'])}"> 邮件激活 <i class="fa {if $user['status'] ==1}fa-check text-success{else/}fa-close text-danger{/if}"></i> </a></li>
+                            <li><a class="ajax-a" data-callback="active" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'active'])}"> 激活<i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
+                            <li><a class="js-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'svip'])}"> 代理<i class="fa {if $user['status'] == 1}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
+                        </ul>
+
+                        <div class="btn-group" style="margin-top: 6px;">
+                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['user_id']])}"> <i class="fa fa-edit"></i> 修改 </a>
+                            <a class="btn btn-sm btn-primary" href="{:url('User/changePwd',['uid'=>$user['user_id']])}"> <i class="fa fa-key"></i> 改密 </a>
+                            {if $user.status == 1 || $user.status == 3}
+                            <label class="ladda-button btn btn-sm btn-success ajax-btn" data-style="zoom-in" data-action="{:url('User/active',['uid'=>$user['user_id']])}"> <i class="fa fa-check"></i> 激活 </label>
+                            {elseif $user.status == 2/}
+                            <label class="ladda-button btn btn-sm btn-danger ajax-btn" data-style="zoom-in" data-action="{:url('User/freeze',['uid'=>$user['user_id']])}"> <i class="fa fa-close"></i> 禁用 </label>
+                            {/if}
+                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['user_id']])}"> <i class="fa fa-user-times"></i> 角色管理 </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-12">
+            <table class="table small m-b-xs">
+                <tbody>
+                <tr>
+                    <td><strong>注册时间</strong></td>
+                    <td>{$user.register_time}</td>
+                </tr>
+                <tr>
+                    <td><strong>注册IP</strong></td>
+                    <td>{$user.register_ip|ip_to_address=###, 'province,city'}</td>
+                </tr>
+                <tr>
+                    <td><strong>最近登录</strong></td>
+                    <td>{$user.last_login_time}</td>
+                </tr>
+                <tr>
+                    <td><strong>最近IP</strong></td>
+                    <td>{$user.last_login_ip|ip_to_address=###, 'province,city'}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-5 col-sm-12">
+            <table class="table small m-b-xs">
+                <tbody>
+                <tr>
+                    <td><strong>来源</strong></td>
+                    <td>{$user.from_referee}</td>
+                </tr>
+                <tr>
+                    <td><strong>首访</strong></td>
+                    <td>{$user.entrance_url}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 m-b-lg">
+            <div id="vertical-timeline" class="vertical-container light-timeline no-margins">
+
+                <div class="vertical-timeline-block">
+                    <div class="vertical-timeline-icon navy-bg">
+                        <i class="fa fa-comments"></i>
+                    </div>
+                    <div class="vertical-timeline-content">
+                        <h2>个人资料</h2>
+                        <p>昵称: {$user.username|default="未命名"}</p>
+                        <p>邮箱: <a href="mailto:{$user.email}">{$user.email}</a></p>
+                        <p>用户分组: {volist name="user.groups" id="vo"}<label class="label label-default">{$vo.title}</label>{/volist}</p>
+                        <p>手机号: <a href="tel:{$user.mobile}">{$user.mobile|default=""}</a> </p>
+                        <p>QQ: <a href="http://wpa.qq.com/msgrd?v=3&uin={$user.qq}&site=qq&menu=yes">{$user.qq}</a></p>
+                        <p>微信: <a href="">{$user.weixin}</a></p>
+                        <a href="{:url('User/editUser',['uid'=>$user['user_id']])}" class="btn btn-sm btn-primary"> 修改</a>
+                    </div>
+                </div>
+
+                <!-- 用户帐户信息 -->
+                {php}hook('userBalance', ['user_id'=>$user['user_id']]){/php}
+
+                <!-- 用户状态 -->
+                {php}hook('userTimeline', ['user_id'=>$user['user_id']]){/php}
+
+                <!-- 登录日志 -->
+                <div class="vertical-timeline-block">
+                    <div class="vertical-timeline-icon lazur-bg">
+                        <i class="fa fa-coffee"></i>
+                    </div>
+
+                    <div class="vertical-timeline-content">
+                        <h2>登录日志</h2>
+                        <ul class="list-unstyled file-list">
+                            {volist name="actionLogList" id="vo"}
+                            <li class="text-success">{$vo.create_time} <span clsss="label label-success">{$vo.action}</span> - {$vo.module} - {$vo.remark}</li>
+                            {/volist}
+
+                        </ul>
+                        <a class="btn btn-info btn-sm" href="#">更多</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-8">
+
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h3>VIP服务</h3>
+                    {if isset($user['is_vip']) && $user['is_vip'] == true}
+                    <p class="text-success"><i class="fa fa-check"></i> VIP用户 期限:{$user.expire_time} <button class="btn btn-xs btn-warning ajax-btn" data-action="">取消VIP</button></p>
+                    {else /}
+                    <p class="text-danger">当前:<i class="fa fa-close"></i> 非VIP用户</p>
+                    {/if}
+                    <form role="form" class="form-inline ajax-form" action="{:url(request()->controller().'/vip')}" method="post">
+                        <div class="form-group">
+                            <label class="">天数:</label>
+                            <input type="number" name="vipDays" min="1" value="1" class="form-control" required="">
+                        </div>
+                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        {if isset($user['is_vip']) && $user['is_vip'] == true}
+                        <button class="btn btn-white" type="submit">延期 VIP</button>
+                        {else /}
+                        <button class="btn btn-white" type="submit">升级 VIP</button>
+                        {/if}
+                        <a class="btn btn-info" href="#">操作记录</a>
+                    </form>
+
+                </div>
+            </div>
+
+            {php}hook('userConfig', ['user_id'=>$user['user_id']]){/php}
+
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h3>推送消息</h3>
+                    <p class="small">
+                        给该用户<strong>{$user.mobile}</strong>推送消息
+                    </p>
+                    <form action="{:url(request()->controller() . '/pushMessage')}" class="form ajax-form" method="post">
+                        <div class="form-group">
+                            <label>标题</label>
+                            <input type="text" name="title" class="form-control" placeholder="消息标题" required="">
+                        </div>
+                        <div class="form-group">
+                            <label>内容</label>
+                            <textarea class="form-control" name="content" placeholder="消息内容" rows="3" required=""></textarea>
+                        </div>
+                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        <button class="btn btn-primary btn-block" type="submit">发送</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h3>发送邮件</h3>
+                    <p class="small">
+                        给该用户<strong>{$user.email}</strong>发送邮件
+                    </p>
+                    <form action="{:url(request()->controller() . '/sendmail')}" class="form ajax-form" method="post" accept-charset="utf-8">
+                        <div class="form-group">
+                            <label>标题</label>
+                            <input type="text" name="title" class="form-control" placeholder="邮件标题" required="">
+                        </div>
+                        <div class="form-group">
+                            <label>内容</label>
+                            <textarea class="form-control" name="content" placeholder="邮件内容" rows="3" required=""></textarea>
+                        </div>
+                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        <button class="btn btn-primary btn-block" type="submit">发送</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>我发布的文章 </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content" style="padding:10px">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover table-condensed">
+                            <tr>
+                                <th><input type="checkbox" class="ajax-check-all" id="0"></th>
+                                <th>ID</th>
+                                <th>所属分类</th>
+                                <th>标题</th>
+                                <th>状态</th>
+                                <th>发布时间</th>
+                                <th>操作</th>
+                            </tr>
+                            {foreach name="articleList" item="al"}
+                            <tr>
+                                <td><input type="checkbox" class="js-check" id="{$al.id}"></td>
+                                <td>{$al.id}</td>
+                                <td>
+                                    {volist name="al.categorys" id="vo" empty="未分类"}
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$vo.title_cn}</span>
+                                    {/volist}
+                                </td>
+                                <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}">{$al.title}</a>{eq name="al.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
+                                <td>{$al.status_text}</td>
+                                <td>{$al.post_time}</td>
+                                <td>
+                                    <a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
+                                    <a href="{:url(request()->controller().'/editArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
+                                    {eq name="al.status" value="0"}
+                                    <a href="{:url(request()->controller().'/postArticle',['id'=>$al['id']])}" class="ajax-a"><button class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="发布"><i class="fa fa-upload"></i> 发布</button></a>
+                                    {/eq}
+                                    {eq name="al.ad_id" value="0"}
+                                    <button class="btn btn-xs btn-success addHeadline" data-title="{$al.title}" data-url="{:url('cms/Article/viewArticle',['aid'=>$al['id']])}" data-article-id="{$al.id}" data-ad-id="{$al.ad_id|default=0}"><i class="fa fa-hand-o-up"></i> 上头条</button>
+                                    {else/}
+                                    <button class="btn btn-xs btn-white js-btn" data-action="{:url(request()->controller().'/deleteTop',['adId'=>$al['ad_id'],'artId'=>$al['id']])}"><i class="fa fa-hand-o-down"></i> 取消头条</button>
+                                    {/eq}
+                                    {eq name="al.is_top" value="0"}
+                                    <button class="btn btn-xs btn-info js-btn" data-action="{:url(request()->controller().'/setTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-up"></i> 置顶</button>
+                                    {else/}
+                                    <button class="btn btn-xs btn-white js-btn" data-action="{:url(request()->controller().'/unsetTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
+                                    {/eq}
+                                    <button class="btn btn-xs btn-danger js-btn-delete" data-action="{:url(request()->controller().'/deleteArticle',['id'=>$al['id']])}"><i class="fa fa-remove"></i> 删除</button>
+                                </td>
+                            </tr>
+                            {/foreach}
+                            <tfoot>
+                            <tr>
+                                <td colspan="7">{$articleList->render()|raw}</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户业务列表01 -->
+            {php}hook('userBusiness01', ['user_id'=>$user['user_id']]){/php}
+        </div>
+    </div>
+</div>
+
+
+{/block}
+{block name="js"}
+
+{/block}

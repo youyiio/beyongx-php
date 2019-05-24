@@ -1,0 +1,74 @@
+{extend name="public/base" /}
+{block name="title"}欢迎页面{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+<link href="__PUBLIC__/static/admin/css/bootstrap.min.css" rel="stylesheet" >
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content text-center p-md">
+
+                    <h2 class="font-bold">{:get_config('site_name')}</h2>
+                    <div class="error-desc">
+                        欢迎进入{:get_config('site_name')}管理后台
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content text-center p-md">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th colspan="6" style="text-align: center;">系统信息</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {volist name="info" id="v"}
+                        <tr>
+                            <td colspan="3">{$key}：</td>
+                            <td colspan="3">{$v}</td>
+                        </tr>
+                        {/volist}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!--预留给插件使用-->
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content text-center p-md">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th colspan="6" style="text-align: center; size: A3">官方动态</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td colspan="6">CMS系统更新版本至xx.xx.x</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--预留给插件使用-->
+
+    </div>
+</div>
+
+{/block}
+
+{block name="js"}
+{/block}

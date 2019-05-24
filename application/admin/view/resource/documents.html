@@ -1,0 +1,110 @@
+{extend name="public/base" /}
+{block name="title"}{$columnTitle|default="资源管理"}{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+{/block}
+{block name="main"}
+
+  <div class="wrapper wrapper-content">
+    <div class="row">
+      <div class="ibox float-e-margins">
+        <div class="ibox-title">
+          <h5>文档列表 </h5>
+          <div class="ibox-tools">
+            <a class="collapse-link">
+              <i class="fa fa-chevron-up"></i>
+            </a>
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              <i class="fa fa-wrench"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+              <li><a href="{:url(request()->controller().'/uploadDocument')}">上传文档</a></li>
+            </ul>
+            <a class="close-link">
+              <i class="fa fa-times"></i>
+            </a>
+          </div>
+        </div>
+       <div class="ibox-content" >
+         <div class="row">
+           <div class="col-lg-4 text-left">
+             <a class="btn btn-primary " href="{:url(request()->controller().'/uploadDocument')}">文档上传</a>
+           </div>
+           <div class="col-lg-8 col-md-8 text-right">
+             <form method="get" role="form" class="form-inline">
+               <div class="form-group">
+                 <input type="text" name="key" placeholder="备注词" class="form-control"
+                        value="{$Think.get.key|default=''}">
+               </div>
+               <button type="submit" class="btn btn-primary" style="margin-bottom: 0px">查找</button>
+             </form>
+           </div>
+         </div>
+
+
+        <div class="row">
+          <div class="col-lg-12">
+            {volist name='files' id='file'}
+            <div class="file-box">
+              <div class="file">
+                <div class="pull-right " id="deleteBtn" style="display: none">
+                  <a class="btn-circle ajax-a" href="{:url('Resource/deleteDocument',['fileId'=> $file.file_id])}"><i class="fa fa-times-circle fa-2x "></i></a>
+                </div>
+
+                  <span class="corner"></span>
+
+                  <div class="icon">
+                    {if $file['type'] == 'doc' || $file['type'] == 'docx'}
+                    <i class="fa fa-file-word-o"></i>
+                    {elseif $file['type'] == 'avi' || $file['type'] == 'mp4' /}
+                    <i class="fa fa-file-movie-o"></i>
+                    {elseif $file['type'] == 'ppt' || $file['type'] == 'pptx' /}
+                    <i class="fa fa-paper-plane"></i>
+                    {elseif $file['type'] == 'pdf' /}
+                    <i class="fa fa-file-pdf-o"></i>
+                    {elseif $file['type'] == 'zip' /}
+                    <i class="fa fa-file-archive-o"></i>
+                    {elseif $file['type'] == 'xlsx' /}
+                    <i class="fa fa-bar-chart-o"></i>
+                    {else }
+                    <i class="fa fa-file"></i>
+                    {/if}
+                  </div>
+                  <div class="file-name">
+                    <a href="{$file.file_url}">{$file.file_name}</a>
+                    <br/>
+                    <small>{$file.remark}</small>
+                  </div>
+
+              </div>
+            </div>
+            {/volist}
+
+          </div>
+        </div>
+         <div class="row">
+           <div class="col-lg-12">
+             <div class="pull-right" >{$pages|raw}</div>
+           </div>
+         </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+{/block}
+
+{block name="js"}
+<!-- 上传插件 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/dropzone/dropzone-4.3.0.min.js"></script>
+<script>
+  //删除按钮
+  $('.file-box').hover(function (){
+          $(this).find('#deleteBtn').show();
+      },function () {
+          $(this).find('#deleteBtn').hide();
+      }
+  );
+
+</script>
+{/block}

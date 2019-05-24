@@ -1,0 +1,77 @@
+{extend name="public/base" /}
+{block name="title"}系统设置{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/admin/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>清理缓存</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal ajax-form" action="{:url('System/clearCache')}" method="post">
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">模板缓存:</label>
+                            <div class="col-lg-9">
+                                <div class="checkbox checkbox-primary">
+                                    <input type="checkbox" name="types[]" value="temp" checked="" aria-label="">
+                                    <label></label>
+                                </div>
+                                <span class="help-block m-b-none"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">数据缓存:</label>
+                            <div class="col-lg-7">
+                                <div class="checkbox checkbox-primary">
+                                    <input type="checkbox" name="types[]" value="data" checked="" aria-label="">
+                                    <label></label>
+                                </div>
+                                <span class="help-block m-b-none"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">系统日志:</label>
+                            <div class="col-lg-9">
+                                <div class="checkbox checkbox-primary">
+                                    <input type="checkbox" name="types[]" value="log" checked="" aria-label="">
+                                    <label></label>
+                                </div>
+                                <span class="help-block m-b-none"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-3 control-label">系统变量缓存:</label>
+                            <div class="col-lg-9">
+                                <div class="checkbox checkbox-primary">
+                                    <input type="checkbox" name="types[]" value="vars" aria-label="">
+                                    <label></label>
+                                </div>
+                                <span class="help-block m-b-none"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-lg-offset-2 col-lg-10">
+                                <button class="btn btn-info" type="submit">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

@@ -1,0 +1,74 @@
+{extend name="public/base" /}
+{block name="title"}文章列表{/block}
+{block name="css"}
+
+{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+  <div class="row">
+    <div class="ibox float-e-margins">
+      <div class="ibox-title">
+        <h5>文章分类 </h5>
+        <div class="ibox-tools">
+          <a class="collapse-link">
+            <i class="fa fa-chevron-up"></i>
+          </a>
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="fa fa-wrench"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-user">
+            <li><a href="{:url('Article/addCategory')}">新增分类</a></li>
+          </ul>
+          <a class="close-link">
+            <i class="fa fa-times"></i>
+          </a>
+        </div>
+      </div>
+      <div class="ibox-content" style="padding:10px">
+        <a href="{:url('Article/addCategory')}" class="btn btn-primary">新增分类</a>
+        <form action="{:url('Article/orderCategory')}" class="ajax-form" method="post">
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered table-hover table-condensed">
+            <tr>
+              <th width="5%">排序</th>
+              <th>ID</th>
+              <th>分类名称</th>
+              <th>英文名称</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+            {foreach name="list" item="vo"}
+              <tr>
+                <td>
+                  <input style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$vo['id']}" value="{$vo['sort']}">
+                </td>
+                <td>{$vo['id']}</td>
+                <td>{$vo['_name']|raw}</td>
+                <td>{$vo['title_en']}</td>
+                <td>{$vo.remark}</td>
+                <td>
+                  <a href="{:url('Article/addCategory',['pid'=>$vo['id']])}" class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="新增子类"><i class="icon-remove"></i> 新增子类 </a>
+                  <a href="{:url('Article/editCategory',['id'=>$vo['id']])}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="icon-pencil"></i> 修改</a>
+                  <button type="button" class="btn btn-xs btn-danger ajax-btn" data-action="{:url('Article/deleteCategory',['id'=>$vo['id']])}" data-toggle="tooltip" data-placement="top" title="删除"><i class="icon-remove"></i> 删除</button>
+                </td>
+              </tr>
+            {/foreach}
+            <tr>
+              <th colspan="6">
+                <button class="btn btn-success" type="submit">排序</button>
+              </th>
+            </tr>
+          </table>
+        </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{/block}
+
+{block name="js"}
+
+{/block}

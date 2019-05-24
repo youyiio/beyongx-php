@@ -1,0 +1,197 @@
+{extend name="public/base" /}
+{block name="title"}用户列表{/block}
+{block name="css"}
+<!-- ladda   -->
+<link href="__PUBLIC__/static/admin/css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
+{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>用户列表 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="{:url('User/addUser')}">新增用户</a></li>
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="row">
+                    <div class="col-lg-12  col-md-12 m-b-xs">
+                        <div class="btn-group">
+                            <a href="{:url('User/index')}"  class="btn btn-sm {if input('status','')===''}btn-default active{else/}btn-white{/if}">所有用户<span class="badge">{$userTotal}</span></a>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{:url('User/index',['status'=>\\app\\common\\model\\UserModel::STATUS_FREEZED])}" class=" btn btn-sm {if input('status','')==3}btn-warning active{else/}btn-white{/if}">冻结用户<span class="badge badge-danger">{$freezeTotal}</span></a>
+                        </div>
+                        <div class="btn-group">
+                            <a href="{:url('User/index',['status'=>\\app\\common\\model\\UserModel::STATUS_ACTIVED])}" class=" btn btn-sm {if input('status','')==2}btn-info active{else/}btn-white{/if}">激活用户<span class="badge badge-success">{$activeTotal}</span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 m-b-xs">
+                        <div class="btn-group">
+                            <a href="{:url('User/addUser')}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i>
+                                新增</a>
+                        </div>
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in"
+                                   data-action="{:url('User/freeze')}"> <i class="fa fa-close"></i> 禁用 </label>
+                        </div>
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in"
+                                   data-action="{:url('User/active')}"> <i class="fa fa-check"></i> 激活 </label>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-8 text-right">
+                        <form method="get" role="form" class="form-inline">
+                            <div class="form-group">
+                                <input type="text" name="key" placeholder="关键字" class="form-control"
+                                       value="{$Think.get.key|default=''}">
+                            </div>
+                            <div class="form-group">
+                                <select name="type" class="form-control">
+                                    <option value="mobile" {notempty name="Think.get.type" }{eq name="Think.get.type" value="mobile" }selected{/eq}{/notempty}>手机号</option>
+                                    <option value="email" {notempty name="Think.get.type" }{eq name="Think.get.type" value="email" }selected{/eq}{/notempty}>邮箱</option>
+                                    <option value="user_id" {notempty name="Think.get.type" }{eq name="Think.get.type" value="user_id" }selected{/eq}{/notempty}>UID</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-bottom: 0px">查找</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-border">
+                        <thead>
+                        <tr>
+                            <th><input type="checkbox" class="i-checks ajax-check-all"></th>
+                            <th>用户ID</th>
+                            <th>手机</th>
+                            <th>邮箱</th>
+                            <th>昵称</th>
+                            <th>用户分组</th>
+                            <th>注册时间</th>
+                            <th>最后登录</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {empty name="list"}
+                        <tr>
+                            <td colspan="8">暂无数据</td>
+                        </tr>
+                        {else/}
+                        {volist name="list" id="vo"}
+                        <tr>
+                            <td><input type="checkbox" class="i-checks ajax-check" value="{$vo.user_id}"></td>
+                            <td>{$vo.user_id}</td>
+                            <td>{$vo.mobile}</td>
+                            <td>{$vo.email}</td>
+                            <td>{$vo.nickname}</td>
+                            <td>
+                                {notempty name="vo.groups"}
+                                {volist name="vo.groups" id="v" empty="未分组"}
+                                <span class="label label-info">{$v.title}</span>
+                                {/volist}
+                                {/notempty}
+                            </td>
+                            <td>{$vo.register_time}</td>
+                            <td>{$vo.last_login_time}</td>
+                            <td>{$vo.status_html|raw}</td>
+                            <td>
+                                <a href="{:url(request()->module().'/User/viewUser',['uid'=>$vo['user_id']])}"
+                                   class="btn btn-xs btn-info">详情</a>
+                                <a href="{:url('User/editUser',['uid'=>$vo['user_id']])}"
+                                   class="btn btn-xs btn-warning">修改</a>
+                                <button class="btn btn-xs btn-success changePwd" data-uid="{$vo.user_id}">修改密码</button>
+                                <button class="btn btn-xs btn-danger ajax-btn-warning"
+                                        data-action="{:url('User/deleteUser',['uid'=>$vo['user_id']])}"
+                                        data-title="提示" data-text="确定删除此用户吗？">删除
+                                </button>
+                            </td>
+                        </tr>
+                        {/volist}
+                        {/empty}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="10" class="footable-visible">{$pages|raw}</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="js"}
+<!-- Ladda -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.jquery.min.js"></script>
+<script type="text/javascript">
+    //批量任务操作 审核,取消审核,删除
+    var l = $('.ajax-batch-set').ladda();
+    l.click(function () {
+        // Start loading
+        $(this).ladda('start');
+
+        var uids = getAjaxCheckedValues(); //选择的任务
+        var action = $(this).data('action');
+        $.each(uids, function (i, uid) {
+            $.post(action, {uid: uid}, function (data) {
+                //console.log(data);
+                if (data.code == 0 && uids.length == 1) {
+                    layer.msg(data.msg, function(){});
+                    location.reload();
+                    return false;
+                }
+            });
+        });
+
+        setTimeout(function () {
+            location.reload();
+        }, 800);
+    });
+
+    //修改密码
+    $('.changePwd').click(function (e) {
+        e.preventDefault();
+
+        var uid = $(this).data('uid');
+        layer.prompt({title: '请输入新的密码', formType: 1}, function(inputValue, index) {
+            if (inputValue === false || inputValue === "") {
+                layer.msg("请输入值");
+                return false
+            }
+            layer.close(index);
+            $.post("{:url('User/changePwd')}", {'uid': uid, 'newPwd': inputValue}, function (res) {
+                if (res.code) {
+                    $.post("{:url('User/sendMail')}", {
+                        'uid': uid,
+                        'title': '密码变更',
+                        'message': '管理员修改了您的密码,您的新密码为:' + inputValue
+                    });
+                    layer.msg(res.msg);
+                } else {
+                    layer.msg(res.msg);
+                }
+            });
+        });
+    });
+</script>
+{/block}
