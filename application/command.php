@@ -10,5 +10,5 @@
 // +----------------------------------------------------------------------
 
 return [
-    'app\admin\command\ArticlePublish'
+    'app\admin\command\Publish',
 ];

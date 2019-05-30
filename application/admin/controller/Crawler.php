@@ -129,16 +129,22 @@ class Crawler extends Base
             $this->error(validate('Crawler')->getError(), 'javascript:void(0)'); //不做跳转
         }
 
-        $urls = \app\admin\job\Crawler::crawlUrls($url, $articleUrl, $isPaging, $startPage, $endPage, $pagingUrl);
-        //dump($urls);
-        if (empty($urls)) {
-            $this->error('未采集到文章网址', 'javascript:void(0)');
+        try {
+            $urls = \app\admin\job\Crawler::crawlUrls($url, $articleUrl, $isPaging, $startPage, $endPage, $pagingUrl);
+            //dump($urls);
+            if (empty($urls)) {
+                $this->error('未采集到文章网址', 'javascript:void(0)');
+            }
+            //dump($urls);
+            $contentUrl = $urls[0];
+            $result = \app\admin\job\Crawler::crawlArticle($contentUrl, $encoding, $articleTitle, $articleDescription, $articleContent, $articleAuthor, $articleImage);
+            //dump($result);
+
+            $this->assign('article', $result);
+        } catch (\Exception $e) {
+            $error = $e->getMessage();
+            $this->error($error);
         }
-        //dump($urls);
-        $contentUrl = $urls[0];
-        $result = \app\admin\job\Crawler::crawlArticle($contentUrl, $encoding, $articleTitle, $articleDescription, $articleContent, $articleAuthor, $articleImage);
-        //dump($result);
-        $this->assign('article', $result);
 
         return $this->fetch('crawler/crawlTest');
     }

@@ -29,5 +29,5 @@ rem // 当前脚本路径为
 echo "Current path: %~dp0 "
 
 if exist %disk_c% (
-  schtasks /create /ru SYSTEM /tn %task_name% /sc MINUTE /mo 1 /tr "cmd /c start /b php %current_path%think timing"
+  schtasks /create /ru SYSTEM /tn %task_name% /sc MINUTE /mo 1 /tr "cmd /c start /b php %current_path%think article:publish"
 )

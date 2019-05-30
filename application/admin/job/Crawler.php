@@ -264,7 +264,14 @@ class Crawler
         Log::info($rules);
         //Log::info($ql->get($url)->getHtml());
         if (empty($encoding) || $encoding == 'auto') {
-            $html = file_get_contents($url);
+            //配置不进行ssl验证
+            $streamOpts = [
+                "ssl" => [
+                    "verify_peer" => false,
+                    "verify_peer_name" => false,
+                ]
+            ];
+            $html = file_get_contents($url, false, stream_context_create($streamOpts));
             //dump($html);
             $encoding = Crawler::getEncoding($html);
             //dump($encoding);

@@ -19,9 +19,9 @@ class Article extends TagLib
      */
     protected $tags   =  [
         // 标签定义： attr 属性列表 close表示是否需要闭合（false表示不需要，true表示需要， 默认false） alias 标签别名 level 嵌套层次
-        //cache：是否缓冲，值true,false,int(秒); cid：分类id; result|ids|assign:结果的返回值，赋值给相应的变量; id:定义循环或结果的变量；
+        //cache：是否缓冲，值true,false,int(秒); cid：分类id; assign:结果的返回值,变量后续可使用，赋值给相应的变量; id:定义循环或结果的变量；
         'view' => ['attr' => 'aid,id,assign', 'close' => true],
-        'categorys'  => ['attr' => 'cache,cid,ids,id,assign,limit', 'close' => true],
+        'categorys'  => ['attr' => 'cache,cid,id,limit,assign', 'close' => true],
         'list'      => ['attr' => 'cid,cname,cache,page-size,id,assign', 'close' => true],
         'search'  => ['attr' => 'cid,keyword,id', 'close' => true],
         'hotlist' => ['attr' => 'cid,cache,limit,id', 'close' => true],
@@ -38,39 +38,42 @@ class Article extends TagLib
      */
     public function tagCategorys($tag, $content)
     {
-        $categoryId = empty($tag['cid']) ? 0 : $tag['cid'];
-        $defaultCache = 30 * 16;
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
-        $ids = empty($tag['ids']) ? '_ids' : $tag['ids'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
         $limit = empty($tag['limit']) ? 0 : $tag['limit'];
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
         //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
-        $categoryId = $this->autoBuildVar($categoryId);
-        $ids = $this->autoBuildVar($ids);
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        $cid = $this->autoBuildVar($cid);
         $limit = $this->autoBuildVar($limit);
+        $assign = $this->autoBuildVar($assign);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(6);
+        $internalCid = '$_cid_' . $this->_randVarName(6);
 
         $parse  = "<?php ";
-        $parse .= "  \$cacheMark = 'categorys_' . $cache . $categoryId . $limit;";
+        $parse .= "  $internalCid = $cid; ";
+        $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['status' , '=', \app\common\model\CategoryModel::STATUS_ONLINE];";
-        $parse .= "  \$where[] = ['pid' , '=', $categoryId];";
+        $parse .= "  \$where[] = ['pid' , '=', $internalCid];";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
+        $parse .= "  if (empty($internalList)) { ";
         $parse .= "    \$CategoryModel = new \app\common\model\CategoryModel();";
-        $parse .= "    $list = \$CategoryModel->where(\$where)->order('sort asc,id asc')->limit($limit)->select();";
+        $parse .= "    $internalList = \$CategoryModel->where(\$where)->order('sort asc,id asc')->limit($limit)->select();";
         $parse .= "    if ($cache) {";
-        $parse .= "      cache(\$cacheMark, $list, $cache);";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
         $parse .= "    }";
         $parse .= "  } ";
-        $parse .= "  $ids = $list;";
+        $parse .= "  $assign = $internalList;";
         $parse .= "  ?>";
 
-        $parse .= "  {volist name='$list' id='$id'} ";
+        $parse .= "  {volist name='$internalList' id='$id'} ";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -95,9 +98,13 @@ class Article extends TagLib
         $id = $this->autoBuildVar($id);
         $assign = $this->autoBuildVar($assign);
 
+        //标签内局部变量
+        $internalAid = '$_aid_' . $this->_randVarName(10);
+
         $parse  = "<?php ";
+        $parse .= "  $internalAid = $aid; ";
         $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= "  $id = \$ArticleModel->find(['article_id' => $aid]);";
+        $parse .= "  $id = \$ArticleModel->find(['article_id' => $internalAid]);";
         $parse .= "  $assign = $id; ";
         $parse .= "  ?>";
         $parse .= $content;
@@ -116,7 +123,7 @@ class Article extends TagLib
     {
         $cid = empty($tag['cid']) ? 0 : $tag['cid'];
         $cname = empty($tag['cname']) ? '' : $tag['cname'];
-        $defaultCache = 30 * 16;
+        $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
         $pageSize = empty($tag['page-size']) ? 10 : $tag['page-size'];
         $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
@@ -127,42 +134,45 @@ class Article extends TagLib
         //$cname = $this->autoBuildVar($cname);dump($cname);die('dd');
         $pageSize = $this->autoBuildVar($pageSize);
         $assign = $this->autoBuildVar($assign);
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
+        $internalCid = '$_cid_' . $this->_randVarName(10);
+        $internalCname = '$_cname_' . $this->_randVarName(10);
 
         $parse  = "<?php ";
         $parse .= "  \$page = input('page/d', 1); ";
-        $parse .= "  \$cid = $cid; ";
-        $parse .= "  \$cname = '$cname';";
-        $parse .= "  if (empty(\$cid) && !empty(\$cname)) {";
-        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>\$cname])->find();";
-        $parse .= "    if (!empty(\$category)) { \$cid = \$category['id'];}";
+        $parse .= "  $internalCid = $cid; ";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
+        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
         $parse .= "  }";
-        $parse .= "  \$cacheMark = 'index_category_' . \$cid . '_' . $pageSize . '_' . \$page;";
+        $parse .= "  \$cacheMark = 'index_category_' . $internalCid . '_' . $pageSize . '_' . \$page;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  \$targetFields = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
-        $parse .= "    if (\$cid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild(\$cid);";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    if ($internalCid) { ";
+        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
-        $parse .= "      array_push(\$cids, \$cid);";
-        $parse .= "      $list = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field(\$targetFields)->order('is_top desc,sort,post_time desc')->paginate($pageSize,false,['query'=>input('param.')]);";
+        $parse .= "      array_push(\$cids, $internalCid);";
+        $parse .= "      $internalList = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field(\$targetFields)->order('is_top desc,sort,post_time desc')->paginate($pageSize,false,['query'=>input('param.')]);";
         $parse .= "    } else { ";
         $parse .= "      \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= "      $list = \$ArticleModel->where(\$where)->field(\$targetFields)->order('is_top desc,sort,post_time desc')->paginate($pageSize,false,['query'=>input('param.')]);";
+        $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$targetFields)->order('is_top desc,sort,post_time desc')->paginate($pageSize,false,['query'=>input('param.')]);";
         $parse .= "    } ";
         $parse .= "    if ($cache) {";
-        $parse .= "      cache(\$cacheMark, $list, $cache);";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
         $parse .= "    }";
         $parse .= "  } ";
 
-        $parse .= "  $assign = $list;";
+        $parse .= "  $assign = $internalList;";
         $parse .= '  ?>';
-        $parse .= "  {volist name='$list' id='$id'}";
+        $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -178,31 +188,36 @@ class Article extends TagLib
      */
     public function tagSearch($tag, $content)
     {
-        $categoryId = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
         $keyword = empty($tag['keyword']) ? '' : $tag['keyword'];
-        $id = empty($tag['id']) ? '_id' : $tag['id'];
+        $id = empty($tag['id']) ? '_id' : $tag['id']; //当做常量使用
 
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);//作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $cid = $this->autoBuildVar($cid);
         $keyword = $this->autoBuildVar($keyword);
-        $categoryId = $this->autoBuildVar($categoryId);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
+        $internalCid = '$_cid_' . $this->_randVarName(10);
 
         $parse  = '<?php ';
-        $parse .= '  $where = [];';
-        $parse .= '  $where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];';
+        $parse .= "  $internalCid = $cid; ";
+        $parse .= "  \$where = [];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
 
         $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= "  if ($categoryId) { ";
-        $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($categoryId);";
+        $parse .= "  \$field = 'id,title,thumb_image_id,description,author,post_time';";
+        $parse .= "  if ($internalCid) { ";
+        $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "    \$cids = \$childs['ids'];";
-        $parse .= "    array_push(\$cids, $categoryId);";
-        $parse .= "    $list = \$ArticleModel->has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->whereLike('title','%'.$keyword.'%','and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate(10,false,['query'=>input('param.')]);";
+        $parse .= "    array_push(\$cids, $internalCid);";
+        $parse .= "    $internalList = \$ArticleModel->has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->whereLike('title','%'.$keyword.'%','and')->field(\$field)->order('is_top desc,sort,post_time desc')->paginate(10,false,['query'=>input('param.')]);";
         $parse .= "  } else { ";
-        $parse .= "    $list = \$ArticleModel->where(\$where)->whereLike('title','%'.$keyword.'%','and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate(10,false,['query'=>input('param.')]);";
+        $parse .= "    $internalList = \$ArticleModel->where(\$where)->whereLike('title','%'.$keyword.'%','and')->field(\$field)->order('is_top desc,sort,post_time desc')->paginate(10,false,['query'=>input('param.')]);";
         $parse .= "  };";
 
         $parse .= "  ?>";
-        $parse .= "  {volist name='$list' id='$id'}";
+        $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -218,44 +233,47 @@ class Article extends TagLib
      */
     public function tagHotlist($tag, $content)
     {
-        $categoryId = empty($tag['cid']) ? 0 : $tag['cid'];
-        $defaultCache = 30 * 16;
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
         //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
-        $categoryId = $this->autoBuildVar($categoryId);
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
-
+        $cid = $this->autoBuildVar($cid);
         $cache = $this->autoBuildVar($cache);
         $limit = $this->autoBuildVar($limit);
 
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
+        $internalCid = '$_cid_' . $this->_randVarName(10);
+
         $parse  = '<?php ';
-        $parse .= "  \$cacheMark = 'article_hot_list_' . $categoryId . $cache . $limit;";
+        $parse .= "  $internalCid = $cid;";
+        $parse .= "  \$cacheMark = 'article_hot_list_' . $internalCid . $cache . $limit;";
         $parse .= '  $where = [];';
         $parse .= '  $where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];';
         $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
-        $parse .= "    if ($categoryId) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($categoryId);";
+        $parse .= "  \$field = 'id,title,description,author,post_time,read_count,thumb_image_id';";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    if ($internalCid) { ";
+        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
-        $parse .= "      array_push(\$cids, $categoryId);";
-        $parse .= "      $list  = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,description,author,post_time,read_count')->order('read_count desc')->limit($limit)->select();";
+        $parse .= "      array_push(\$cids, $internalCid);";
+        $parse .= "      $internalList = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field(\$field)->order('read_count desc')->limit($limit)->select();";
         $parse .= "    } else { ";
-        $parse .= "      $list = \$ArticleModel->where(\$where)->field('id,title,description,author,post_time,read_count,thumb_image_id')->order('read_count desc')->limit($limit)->select();";
+        $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order('read_count desc')->limit($limit)->select();";
         $parse .= "    } ";
         $parse .= "    if ($cache) {";
-        $parse .= "      cache(\$cacheMark, $list, $cache);";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
         $parse .= "    }";
         $parse .= "  } ";
 
         $parse .= "  ?> ";
-        $parse .= "  {volist name='$list' id='$id'}";
+        $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -271,43 +289,45 @@ class Article extends TagLib
      */
     public function tagLatestlist($tag, $content)
     {
-        $categoryId = empty($tag['cid']) ? 0 : $tag['cid'];
-        $defaultCache = 30 * 16;
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
         //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
-        $categoryId = $this->autoBuildVar($categoryId);
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        $cid = $this->autoBuildVar($cid);
 
-        //$cacheMark = $categoryId . '' . $cache . $limit;
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
+        $internalCid = '$_cid_' . $this->_randVarName(10);
 
         $parse  = "<?php ";
-        $parse .= "  \$cacheMark = 'article_latest_list_' . $categoryId . $cache . $limit;";
+        $parse .= "  $internalCid = $cid;";
+        $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
-        $parse .= "    if ($categoryId) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($categoryId);";
+        $parse .= "  \$field = 'id,title,description,author,post_time,read_count,thumb_image_id';";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    if ($internalCid) { ";
+        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
-        $parse .= "      array_push(\$cids, $categoryId);";
-        $parse .= "      $list = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,description,author,post_time,read_count')->order('post_time desc')->limit($limit)->select();";
+        $parse .= "      array_push(\$cids, $internalCid);";
+        $parse .= "      $internalList = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field(\$field)->order('post_time desc')->limit($limit)->select();";
         $parse .= "    } else { ";
-        $parse .= "      $list = \$ArticleModel->where(\$where)->field('id,title,description,author,post_time,read_count')->order('post_time desc')->limit($limit)->select();";
+        $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order('post_time desc')->limit($limit)->select();";
         $parse .= "    } ";
         $parse .= "    if ($cache) {";
-        $parse .= "      cache(\$cacheMark, $list, $cache);";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
         $parse .= "    }";
         $parse .= "  } ";
 
         $parse .= "  ?>";
-        $parse .= "  {volist name='$list' id='$id' }";
+        $parse .= "  {volist name='$internalList' id='$id' }";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -323,60 +343,65 @@ class Article extends TagLib
      */
     public function tagRelatedlist($tag, $content)
     {
-        $articleId = empty($tag['aid']) ? 0 : $tag['aid'];
-        $categoryId = empty($tag['cid']) ? 0 : $tag['cid'];
-        $defaultCache = 30 * 16;
+        $aid = empty($tag['aid']) ? 0 : $tag['aid'];
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
         //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式(为了处理标签传入时是表达式的情况）；
-        $articleId = $this->autoBuildVar($articleId);
-        $categoryId = $this->autoBuildVar($categoryId);
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        $aid = $this->autoBuildVar($aid);
+        $cid = $this->autoBuildVar($cid);
 
-        //$cacheMark = $articleId . '' . $cache . $limit;
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
+        $internalCid = '$_cid_' . $this->_randVarName(10);
+        $internalAid = '$_aid_' . $this->_randVarName(10);
 
         //需要与外部交互或内嵌标签交互的变量，都不加\$；
         $parse  = "<?php ";
-        $parse .= "  \$cacheMark = 'article_latest_list_' . $articleId . $cache . $limit;";
-        $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['article_a_id', '=', $articleId];";
-        $parse .= "  \$whereOr[] = ['article_b_id', '=', $articleId];";
-        $parse .= "  \$dataList = db(CMS_PREFIX . 'article_data')->where(\$where)->whereOr(\$whereOr)->field('id,article_a_id,article_b_id,title_similar,content_similar')->order('title_similar desc,content_similar desc')->limit(100)->select();";
-        $parse .= "  \$ids = [];";
-        $parse .= "  foreach (\$dataList as \$articleData) {";
-        $parse .= "    if (\$articleData['article_a_id'] == $articleId) {";
-        $parse .= "      \$ids[] = \$articleData['article_b_id'];";
-        $parse .= "    } else {";
-        $parse .= "      \$ids[] = \$articleData['article_a_id'];";
-        $parse .= "    }";
-        $parse .= "  };";
-
-        $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
-        $parse .= "  \$where[] = ['id', 'in', \$ids];";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "  $internalCid = $cid;";
+        $parse .= "  $internalAid = $aid;";
+        $parse .= "  \$cacheMark = 'article_latest_list_' . $internalAid . $cache . $limit;";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
-        $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
-        $parse .= "    if ($categoryId) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($categoryId);";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
+        $parse .= "  } else {";
+        $parse .= "    \$where = [];";
+        $parse .= "    \$where[] = ['article_a_id', '=', $internalAid];";
+        $parse .= "    \$whereOr[] = ['article_b_id', '=', $internalAid];";
+        $parse .= "    \$field = 'id,article_a_id,article_b_id,title_similar,content_similar';";
+        $parse .= "    \$ArticleDataModel = new \app\common\model\ArticleDataModel();";
+        $parse .= "    \$dataList = \$ArticleDataModel->where(\$where)->whereOr(\$whereOr)->field(\$field)->order('title_similar desc,content_similar desc')->limit(100)->select();";
+        $parse .= "    \$ids = [];";
+        $parse .= "    foreach (\$dataList as \$articleData) {";
+        $parse .= "      if (\$articleData['article_a_id'] == $internalAid) {";
+        $parse .= "        \$ids[] = \$articleData['article_b_id'];";
+        $parse .= "      } else {";
+        $parse .= "        \$ids[] = \$articleData['article_a_id'];";
+        $parse .= "      }";
+        $parse .= "    };";
+
+        $parse .= "    \$where = [];";
+        $parse .= "    \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "    \$where[] = ['id', 'in', \$ids];";
+        $parse .= "    \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "    \$field = 'id,title,description,author,post_time,read_count,thumb_image_id';";
+        $parse .= "    if ($internalCid) { ";
+        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
-        $parse .= "      array_push(\$cids, $categoryId);";
-        $parse .= "      $list = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,description,author,post_time,read_count')->order('post_time desc')->limit($limit)->select();";
+        $parse .= "      array_push(\$cids, $internalCid);";
+        $parse .= "      $internalList = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field(\$field)->order('post_time desc')->limit($limit)->select();";
         $parse .= "    } else { ";
-        $parse .= "      $list = \$ArticleModel->where(\$where)->field('id,title,description,author,post_time,read_count')->order('post_time desc')->limit($limit)->select();";
+        $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order('post_time desc')->limit($limit)->select();";
         $parse .= "    } ";
         $parse .= "    if ($cache) {";
-        $parse .= "      cache(\$cacheMark, $list, $cache);";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
         $parse .= "    }";
         $parse .= "  } ";
 
         $parse .= "  ?>";
-        $parse .= "  {volist name='$list' id='$id' }";
+        $parse .= "  {volist name='$internalList' id='$id' }";
         $parse .= $content;
         $parse .= "  {/volist}";
 

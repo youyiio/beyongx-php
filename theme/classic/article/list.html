@@ -21,15 +21,14 @@
       <div class="title">
         <span class="layui-breadcrumb" lay-separator="|">
           <a href="{:url('index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
-          {article:categorys cache='120' id='vo'}
+          {article:categorys cache='true' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
             {$vo.title_cn}</a>
           {/article:categorys}
         </span>
       </div>
-
-      {article:list cache='120' page-size='10' id='art' assign='list'}
+      {article:list cache='120' page-size='10' id='art' assign='list' cid='cid'}
       <div class="list-item">
         <div class="item">
           <div class="layui-fluid">
@@ -56,12 +55,14 @@
         </div>
       </div>
       {/article:list}
-      <div style="text-align: center; padding:30px 0">
+      <div class="item-btn">
         {$list->render()|raw}
       </div>
 
     </div>
   </div>
+
+
 
 
 {/block}

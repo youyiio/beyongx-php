@@ -1,0 +1,55 @@
+{extend name="public/base" /}
+{block name="title"}{:get_config('site_name')}{/block}
+{block name="body"}
+
+  <div class="content whisper-content leacots-content">
+    <div class="cont w1000">
+      <div class="whisper-list">
+        <div class="item-box">
+          <div class="review-version">
+              <div class="form-box">
+                <img class="banner-img" src="__PUBLIC__/theme/classic/img/liuyan.jpg">
+                <div class="form">
+                  <form class="layui-form" action="{:url('Feedback/sendMsg')}" method="post">
+                    <div class="layui-form-item layui-form-text">
+                      <div class="layui-input-block">
+                        <textarea  name="content" placeholder="既然来了，就说几句" class="layui-textarea"></textarea>
+                      </div>
+                    </div>
+                    <div class="layui-form-item">
+                      <div class="layui-input-block" style="text-align: right;">
+                        <button type="submit" class="layui-btn layui-btn-normal">提交</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="volume">
+                全部留言
+              </div>
+
+            {volist name="msgList" id='msg'}
+              <div class="list-cont">
+                <div class="cont">
+                  <div class="img">
+                    <img src="__PUBLIC__/theme/classic/img/header.png" alt="">
+                  </div>
+                  <div class="text">
+                    <p class="tit"><span class="name">{$msg.send_client_id}</span><span class="data">{$msg.create_time}</span></p>
+                    <p class="ct">{$msg.content}</p>
+                  </div>
+                </div>
+              </div>
+            {/volist}
+            <div style="text-align: center; padding:30px 0">
+              {$msgList->render()|raw}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+{/block}

@@ -29,7 +29,9 @@
                         <span class="text-muted"> 创建时间{$info.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>
                         {/if}
                     </div>
-                    {$info.content|raw}
+                    <article style="word-wrap:break-word; word-break: break-all;overflow:hidden">
+                        {$info.content|raw}
+                    </article>
                     <hr>
                     <div class="row">
                         <div class="col-md-12">

@@ -9,20 +9,23 @@
 namespace app\admin\command;
 
 
-use app\common\model\ArticleMetaModel;
-use app\common\model\ArticleModel;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
+use think\console\input\Option;
 use think\facade\Log;
 
-class ArticlePublish extends Command
+use app\common\model\ArticleMetaModel;
+use app\common\model\ArticleModel;
+
+class Publish extends Command
 {
     protected function configure()
     {
-        $this->setName('timing')->setDescription('Timed publication of articles');
+        $this->setName('article:publish')
+            ->addOption('timing', null, Option::VALUE_OPTIONAL, 'The article to timing publish', null)
+            ->setDescription('Timed publication of articles');
     }
-
 
     protected function execute(Input $input, Output $output)
     {

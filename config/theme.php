@@ -8,5 +8,5 @@
 
 return [
     'adaptive' => false, //是否自适应：pc,mobile,tablet
-    'current_theme' => 'wenews'
+    'current_theme' => 'classic'
 ];

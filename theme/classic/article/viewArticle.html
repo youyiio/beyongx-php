@@ -1,53 +1,68 @@
+{extend name="public/base" /}
+{block name="title"}{article:view aid="aid" id='art' assign="article"}{/article:view}{$article.title}{/block}
+{block name='keywords'}{$article.keywords}{/block}
+{block name='description'}{$article.description}{/block}
+{block name="body"}
 
-{extend name='public/base'}
-{block name="title"}文章详情{/block}
-{block name="css"}
-
-{/block}
-
-{block name="top_nav"}
-    {include file="public/top_nav" /}
-{/block}
-
-{block name="main"}
-        <div class="blog-detail-container">
-
-            {article:view  aid="artId" id='vo'}
-            <div class="title-container">
-                <ul>
-                    <!--<li class="tag tag-small" style="background-color:rgb(251, 202, 4);">{$vo.categorys[0]['title_cn']}-->
-                    <!--</li>-->
-                    <span class="title">{$vo.title}</span>
-                </ul>
-                <span class="back"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxOCIgaGVpZ2h0PSIxMiIgdmlld0JveD0iMCAwIDE4IDEyIj4NCiAgICA8ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPg0KICAgICAgICA8cGF0aCBkPSJNLTMtNmgyNHYyNEgtM3oiLz4NCiAgICAgICAgPHBhdGggZmlsbD0iIzRCNTk1RiIgZmlsbC1ydWxlPSJub256ZXJvIiBkPSJNMTggNUgzLjgzbDMuNTgtMy41OUw2IDAgMCA2bDYgNiAxLjQxLTEuNDFMMy44MyA3SDE4eiIvPg0KICAgIDwvZz4NCjwvc3ZnPg0K" class="back-icon">返回
-                </span>
-            </div>
-            <div class="comment-container bga-back-top">
-                <div class="comment">
-                    <div class="comment-title">
-                        <div>作者 :  <span >{$vo.user.nickname}</span>  | 浏览量 : <span>{$vo.read_count}</span>
-                        </div>
-                        <span class="time">{$vo.create_time|date='Y-m-d H:i'}</span>
-                    </div>
-                    <article class="comment-body markdown-body">
-                           {$vo.content|raw}
-                    </article>
-                </div>
-                {/article:view}
-                <div  class="comment">
-                    <div class="comment-title">
-                        <div><a href="{:url('Article/comment',['artId' => $artId])}">评论</a></div>
-                        <span class="time">
-                            <a href="http://github.com/login/oauth/authorize?client_id=5b4cde4044d29cc1678d&amp;redirect_uri=file%3A%2F%2F%2FE%3A%2Fcompany%25E8%25B5%2584%25E6%2596%2599%2F%25E4%25BB%25BF%25E7%25AB%2599%2Fbeike11539%2Findex.html%23%2FBlog%2FBlogDetail%2F52&amp;scope=public_repo">Login
-                            </a>&nbsp;with GitHub
-                        </span>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-{/block}
-
-{block name="js"}
-
+<div class="content whisper-content leacots-content details-content">
+	<div class="cont w1000">
+		<div class="whisper-list">
+			<div class="item-box">
+				<div class="review-version">
+					<div class="form-box">
+						<div class="article-cont">
+							<div class="title">
+								<h3><a href="">{$article.title}</a></h3>
+								<p class="cont-info"><span class="data">{$article.create_time}</span><span class="author">{$article.user.nickname}</span></p>
+							</div>
+							<article>
+								{$article.content|raw}
+							</article>
+							<img src="{$article.thumbImage.full_thumb_image_url}" alt="">
+							<div class="count layui-clear">
+								<span class="pull-left" style="color: #8095a8">阅读 <em>{$article.read_count}</em></span>
+							</div>
+						</div>
+						<div class="form">
+							<form class="layui-form" action="{:url('cms/Comment/create')}" method="post">
+								<div class="layui-form-item layui-form-text">
+									<div class="layui-input-block">
+										<textarea name="content" class="layui-textarea"  style="resize:none" placeholder="既然来了，就说几句" required></textarea>
+									</div>
+								</div>
+								<div class="layui-form-item">
+									<div class="layui-input-block" style="text-align: right;">
+										<input type="hidden" name="aid" value="{$aid}">
+										<button type="submit" class="layui-btn" id="sure">提交</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="volume">
+						全部留言
+					</div>
+					<div class="list-cont" >
+						{if condition="$comments" empty="暂无评论留言！"}
+						{volist name='comments' id='comment'}
+						<div class="cont">
+							<div class="img">
+								<img src="__PUBLIC__/theme/xianyan/images/info-img.png" alt="">
+							</div>
+							<div class="text">
+								<p class="tit"><span class="name">{$comment.author}</span><span class="data">{$comment.create_time|date="Y-m-d H:i"}</span></p>
+								<p class="ct">{$comment.content}</p>
+							</div>
+						</div>
+						{/volist}
+						<div style="text-align: center; padding:30px 0">
+							{$comments->render()|raw}
+						</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 {/block}
