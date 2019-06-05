@@ -908,8 +908,8 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 #个人中心模块
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2, 0, '个人中心', 'admin/ShowNav/Person', 'fa-user', 1, 1, 14, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (21, 2, '个人首页', 'admin/Person/index', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (22, 2, '修改个人资料', 'admin/Person/profile', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (23, 2, '修改个人密码', 'admin/Person/password', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (22, 2, '修改资料', 'admin/Person/profile', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (23, 2, '修改密码', 'admin/Person/password', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (211, 21, '查看文章', 'admin/Person/viewArticle', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (212, 21, '编辑文章', 'admin/Person/editArticle', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (213, 21, '删除文章', 'admin/Person/deleteArticle', '', 1, 0, 1, 1,'','admin');

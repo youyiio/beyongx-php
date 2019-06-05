@@ -2,3 +2,6 @@
 composer.lock
 *.log
 thinkphp
+
+.svn
+public/upload/*
