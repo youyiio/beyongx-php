@@ -73,6 +73,8 @@
                                 <th><div class="th-inner">所属分类</div></th>
                                 <th><div class="th-inner">标题</div></th>
                                 <th><div class="th-inner">状态</div></th>
+                                <th><div class="th-inner">浏览量</div></th>
+                                <th><div class="th-inner">索引(？)</div></th>
                                 <th data-field="post_time"><div class="th-inner sortable both {$sortedFields.post_time}">发布时间</div></th>
                                 <th data-field="create_time"><div class="th-inner sortable both {$sortedFields.create_time}">创建时间</div></th>
                                 <th><div class="th-inner">操作</div></th>
@@ -89,10 +91,17 @@
                                 </td>
                                 <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}">{$al.title}</a>{eq name="al.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
                                 <td>{$al.status_text}</td>
+                                <td align="center">{$al.read_count}</td>
+                                <td align="center">
+                                    <a href="https://www.baidu.com/s?wd={:url('cms/Article/viewArticle', ['aid'=>$al.id], true, get_config('domain_name'))}" target="_blank">
+                                        {php}$index = $al->meta('baidu_index');{/php}
+                                        {:$index != true ? '否': '是'}
+                                    </a>
+                                </td>
                                 <td>{$al.post_time}{notempty name="$al.timing"}{$al.timing}<i class="fa fa-clock-o"></i>{/notempty}</td>
                                 <td>{$al.create_time}</td>
                                 <td>
-                                    <a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
+                                    <a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}" class="J_addMenuTab" data-menu-name="查看文章"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
                                     <a href="{:url(request()->controller().'/editArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
 
                                     <div class="btn-group">
@@ -133,7 +142,7 @@
                                     {else/}
                                     <button class="btn btn-xs btn-white ajax-btn" data-action="{:url(request()->controller().'/unsetTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
                                     {/eq}
-                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url(request()->controller().'/deleteArticle',['id'=>$al['id']])}" data-title="提示" data-text="您确认要删除文章吗"><i class="fa fa-remove"></i> 删除</button>
+                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Article/deleteArticle',['id'=>$al['id']])}" data-title="提示" data-text="您确认要删除文章吗"><i class="fa fa-remove"></i> 删除</button>
                                     {if condition="$al.status >= 0 &&  $al.status < 5"}
                                     <button class="btn btn-xs btn-info" onclick="showModel(this)" data-id="{$al['id']}"><i class="fa fa-clock-o"></i>定时发布</button>
                                     {/if}

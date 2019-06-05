@@ -25,6 +25,16 @@ class BaseModel extends Model
         }
     }
 
+    //字段自动完成或默认处理：update_time
+    protected function setUpdateTimeAttr($value, $data)
+    {
+        if (isset($data['update_time']) && !empty($date['update_time'])) {
+            return $data['update_time'];
+        } else {
+            return date_time();
+        }
+    }
+
     //字段自动完成或默认处理：last_update_time
     protected function setLastUpdateTimeAttr($value, $data)
     {
@@ -36,6 +46,7 @@ class BaseModel extends Model
     }
 
     //表扩展列：ext；需要表级字段支持【使用场景：扩展表model业务中常用的字段】
+    //@deprecated
     public function ext($key, $value='')
     {
         $fields = $this->getTableFields();
@@ -61,6 +72,21 @@ class BaseModel extends Model
         $pk = $this->getPk();
         $pkVal = $this->$pk;
         $this->where($pk, $pkVal)->setField('ext', json_encode($exts));
+    }
+
+    //meta扩展表
+    public function meta($metaKey, $metaValue='')
+    {
+        $pk = $this->pk;
+
+        //dump(substr(get_class($this), 0, -5));
+        $model = substr(get_class($this), 0, -5)  . 'MetaModel';
+        $MetaModel = new $model;
+        if ($metaValue === '') {
+            return $MetaModel->_meta($this->$pk, $metaKey);
+        }
+
+        $MetaModel->_meta($this->$pk, $metaKey, $metaValue);
     }
 
     /**

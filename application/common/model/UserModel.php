@@ -80,36 +80,6 @@ class UserModel extends Model
         $this->where('user_id', $this->user_id)->setField('ext', json_encode($exts));
     }
 
-    //meta扩展表
-    public function meta($metaKey, $metaValue='')
-    {
-        $uid = $this->user_id;
-        $Meta = Db::name($this->name . '_meta');
-        $meta = $Meta->find(['user_id' => $uid, 'meta_key' => $metaKey]);
-        if ($meta) {
-            if ($metaValue === '') {
-                return $meta['meta_value'];
-            } else if ($metaValue === null) {
-                $Meta->where('id', $meta['id'])->delete();
-            } else {
-                $Meta->where('id', $meta['id'])->setField(['meta_key'=>$metaKey, 'meta_value'=>$metaValue]);
-            }
-        } else {
-            if ($metaValue === '') {
-                return '';
-            } else if ($metaValue === null) {
-                return true;
-            } else {
-                $data['user_id'] = $uid;
-                $data['meta_key'] = $metaKey;
-                $data['meta_value'] = $metaValue;
-                $data['create_time'] = date_time();
-                $Meta->insert($data);
-            }
-        }
-
-    }
-
     public function createUser($mobile, $password, $nickname = '', $email = '', $account = '', $status = UserModel::STATUS_ACTIVED)
     {
         if (empty($nickname)) {

@@ -5,3 +5,4 @@ thinkphp
 
 .svn
 public/upload/*
+data/runtime/*

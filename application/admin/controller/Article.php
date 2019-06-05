@@ -42,7 +42,7 @@ class Article extends Base
             $map[] = ['status', '=', $status];
         }
 
-        $fields = 'id,ad_id, title,last_update_time,post_time,create_time,is_top,status,sort';
+        $fields = 'id,ad_id,title,last_update_time,post_time,create_time,is_top,status,read_count,sort';
         //$orders = 'is_top desc, post_time desc, last_update_time desc';
         $orders = [
             'is_top' => 'desc',
@@ -159,20 +159,33 @@ class Article extends Base
     //查看文章
     public function viewArticle($id)
     {
-        $info = ArticleModel::get(['id'=>$id]);
-        if (empty($info)) {
+        $article = ArticleModel::get(['id'=>$id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
-        $this->assign('info', $info);
+        $this->assign('info', $article);
 
         $CommentModel = new CommentModel();
 
+        $where = [
+            'article_id' => $id,
+            'status' => CommentModel::STATUS_PUBLISHED
+        ];
         $pageConfig = [
             'type' => '\\app\\common\\paginator\\BootstrapTable',
         ];
-        $comments = $CommentModel->where(['article_id' => $id, 'status' => CommentModel::STATUS_PUBLISHED])->order('create_time desc')->paginate(6, false, $pageConfig);
+        $comments = $CommentModel->where($where)->order('create_time desc')->paginate(6, false, $pageConfig);
         $this->assign('comments', $comments);
         $this->assign('id', $id);
+
+        //检测索引
+        $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+        $jobData = [
+            'id' => $id,
+            'url' => url('cms/Article/viewArticle', ['aid' => $id], true, get_config('domain_name')),
+        ];
+        $jobQueue = config('queue.default');
+        \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
 
         return $this->fetch('article/viewArticle');
     }

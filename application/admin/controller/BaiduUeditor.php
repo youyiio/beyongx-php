@@ -4,41 +4,47 @@
 */
 namespace app\admin\controller;
 
-use think\Controller;
 use think\facade\Env;
 use think\Image;
 
-class BaiduUeditor extends Controller
+class BaiduUeditor extends Base
 {
 
-    private $thumb;//缩略图模式(看手册)
-    private $water; //是否加水印(0:无水印,1:水印文字,2水印图片)
-    private $waterText;//水印文字
-    private $waterPosition;//水印位置
+    private $thumb; //缩略图模式(看手册)
+    private $water; //是否加水印(0:无水印,1:水印文字,2:水印图片)
+    private $waterText; //水印文字
+    private $waterPosition; //水印位置
 
     private $rootPath; //保存的根目录，默认为public/upload
     private $savePath; //保存位置
-    private $userid; //操作用户名
 
 
     public function initialize()
     {
-        // $this->userid=empty($_SESSION['uid'])? 'nobody' : $_SESSION['uid'];
-        $this->userid = "";
+        parent::initialize();
 
-        $this->rootPath = Env::get('root_path').'public';
-        $this->savePath = DIRECTORY_SEPARATOR . 'upload'.DIRECTORY_SEPARATOR . $this->userid;
+        $this->uid = ""; //置为"", 避免增加一个目录级;
+
         $this->thumb = 1;
-        $this->waterText = get_config('domain_name');
-        if (!empty($this->waterText)) {
-            $this->water = 1;
+        $this->water = intval(get_config('article_water', '0'));
+        $this->waterText = get_config('article_water_text', '');
+        if ($this->water != 0 && empty($this->waterText)) {
+            $this->waterText = get_config('domain_name');
         }
-        $this->waterPosition= 9;
+
+        $this->rootPath = Env::get('root_path') . 'public';
+        $this->savePath = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR . $this->uid;
+
+        // 水印位置, 9为右下角
+        $this->waterPosition = 9;
     }
 
     public function index()
     {
-        $CONFIG = json_decode(preg_replace("/\/\*[\s\S]+?\*\//", "", file_get_contents(Env::get('config_path')."config.json")), true);
+        $configJson = file_get_contents(Env::get('config_path') . "config.json");
+        $configJson = preg_replace("/\/\*[\s\S]+?\*\//", "", $configJson);
+        $CONFIG = json_decode($configJson, true);
+
         $action = htmlspecialchars($_GET['action']);
         switch ($action) {
             case 'config':
@@ -126,7 +132,8 @@ class BaiduUeditor extends Controller
                     $source = $_GET[$fieldName];
                 }
                 foreach ($source as $imgUrl) {
-                    $info=json_decode($this->saveRemote($config, $imgUrl),true);
+                    $remoteResult = $this->saveRemote($config, $imgUrl);
+                    $info = json_decode($remoteResult,true);
                     if ($info && isset($info["url"])) {
                         array_push($list, array(
                             "state" => $info["state"],
@@ -170,9 +177,13 @@ class BaiduUeditor extends Controller
      * 上传文件的主处理方法
      * @return mixed
      */
-    private function upFile($config, $fieldName){
+    private function upFile($config, $fieldName)
+    {
 
-        $validate = ['size' => $config['maxSize'],'ext' => $this->format_exts($config['allowFiles'])];
+        $validate = [
+            'size' => $config['maxSize'],
+            'ext' => $this->format_exts($config['allowFiles'])
+        ];
 
         $dirname = $this->rootPath . $this->savePath;
         $file = request()->file('upfile');
@@ -180,8 +191,7 @@ class BaiduUeditor extends Controller
         $info = $file->move($dirname);//tp方法会自动加上日期date('Ymd');$info->getSaveName()为date('Ymd')/name.ext;
         $savePath = $this->savePath;
         if ($info) {
-
-            $fname = $dirname.DIRECTORY_SEPARATOR.$info->getSaveName();
+            $fname = $dirname . DIRECTORY_SEPARATOR.$info->getSaveName();
             $imagearr = explode(',', 'jpg,gif,png,jpeg,bmp,ttf,tif');
             $ext = $info->getExtension();
 
@@ -189,25 +199,26 @@ class BaiduUeditor extends Controller
             if ($isimage) {
                 $image= Image::open($fname);
                 $image->thumb(680,680,$this->thumb)->save($fname);
-                if ($this->water==1) {
-                    $image->text($this->waterText,Env::get('VENDOR_PATH').'/topthink/think-captcha/assets/zhttfs/1.ttf',10,'#FFCC66',$this->waterPosition)->save($fname);
+                if ($this->water == 1) {
+                    $font = Env::get('VENDOR_PATH').'/topthink/think-captcha/assets/zhttfs/1.ttf';
+                    $image->text($this->waterText, $font,10,'#FFCC66', $this->waterPosition, [-8,-8])->save($fname);
                 }
-                if ($this->water==2) {
+                if ($this->water == 2) {
                     $image->water($this->waterImage)->save($fname);
                 }
             }
 
-            $data=array(
+            $data = array(
                 'state' =>'SUCCESS',
-                'url' => config('view_replace_str.__PUBLIC__').str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$info->getSaveName()),
+                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$info->getSaveName()),
                 'title' => $info->getFileName(),
                 'original' => $info->getInfo('name'),
-                'type' =>'.' . $ext,
+                'type' => '.' . $ext,
                 'size' => $info->getSize(),
             );
         } else {
             $data = array(
-                'state'=>$file->getError(),
+                'state' => $file->getError(),
             );
         }
         return json_encode($data);
@@ -217,54 +228,54 @@ class BaiduUeditor extends Controller
      * 处理base64编码的图片上传
      * @return mixed
      */
-    private function upBase64($config,$fieldName)
+    private function upBase64($config, $fieldName)
     {
         $base64Data = $_POST[$fieldName];
         $img = base64_decode($base64Data);
 
         $savePath = $this->savePath .date('Ymd').DIRECTORY_SEPARATOR;
-        $dirname=$this->rootPath . $savePath;
-        $file['filesize']=strlen($img);
-        $file['oriName']=$config['oriName'];
-        $file['ext']=strtolower(strrchr($config['oriName'], '.'));
-        $file['name']= uniqid() .  $file['ext'];
-        $file['fullName']=$dirname . $file['name'];
-        $fullName=$file['fullName'];
+        $dirname = $this->rootPath . $savePath;
+        $file['filesize'] = strlen($img);
+        $file['oriName'] = $config['oriName'];
+        $file['ext'] = strtolower(strrchr($config['oriName'], '.'));
+        $file['name'] = uniqid() .  $file['ext'];
+        $file['fullName'] = $dirname . $file['name'];
+        $fullName = $file['fullName'];
 
         //检查文件大小是否超出限制
         if ($file['filesize'] >= ($config["maxSize"])) {
-        $data=array(
-            'state'=>'文件大小超出网站限制',
-        );
-        return json_encode($data);
+            $data=array(
+                'state'=>'文件大小超出网站限制',
+            );
+            return json_encode($data);
         }
 
         //创建目录失败
         if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-               $data=array(
-            'state'=>'目录创建失败',
-        );
-        return json_encode($data);
+            $data = array(
+                'state'=>'目录创建失败',
+            );
+            return json_encode($data);
         } else if (!is_writeable($dirname)) {
-             $data=array(
-            'state'=>'目录没有写权限',
-        );
-        return json_encode($data);
+             $data = array(
+                'state'=>'目录没有写权限',
+            );
+            return json_encode($data);
         }
 
         //移动文件
         if (!(file_put_contents($fullName, $img) && file_exists($fullName))) { //移动失败
-            $data=array(
+            $data = array(
                 'state'=>'写入文件内容错误',
             );
         } else { //移动成功
             $data=array(
-                'state'=>'SUCCESS',
-                'url'=>config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file['name']),
-                'title'=>$file['name'],
-                'original'=>$file['oriName'],
-                'type'=>$file['ext'],
-                'size'=>$file['filesize'],
+                'state' => 'SUCCESS',
+                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file['name']),
+                'title' => $file['name'],
+                'original' => $file['oriName'],
+                'type' => $file['ext'],
+                'size' => $file['filesize'],
             );
         }
         return json_encode($data);
@@ -281,15 +292,15 @@ class BaiduUeditor extends Controller
 
         //http开头验证
         if (strpos($imgUrl, "http") !== 0) {
-             $data=array(
-                 'state'=>'链接不是http链接',
+             $data = array(
+                 'state' => '链接不是http链接',
              );
              return json_encode($data);
         }
         //获取请求头并检测死链
         $heads = get_headers($imgUrl, true);
         if (!(stristr($heads[0], "200") && stristr($heads[0], "OK"))) {
-             $data=array(
+             $data = array(
                 'state'=>'链接不可用',
             );
              return json_encode($data);
@@ -306,28 +317,28 @@ class BaiduUeditor extends Controller
 
         //打开输出缓冲区并获取远程图片
         ob_start();
-        $context = stream_context_create(
-            array('http' => array(
+        $context = stream_context_create([
+            'http' => array(
                 'follow_location' => false // don't follow redirects
-            ))
-        );
+            )
+        ]);
         readfile($imgUrl, false, $context);
         $img = ob_get_contents();
         ob_end_clean();
         preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/", $imgUrl, $m);
 
-        $savePath = $this->savePath .date('Ymd').DIRECTORY_SEPARATOR;
-        $dirname=$this->rootPath . $savePath;
-        $file['oriName']=$m ? $m[1]:"";
-        $file['filesize']=strlen($img);
-        $file['ext']=strtolower(strrchr($config['oriName'], '.'));
-        $file['name']= uniqid() .  $file['ext'];
-        $file['fullName']=$dirname . $file['name'];
-        $fullName=$file['fullName'];
+        $savePath = $this->savePath .date('Ymd') . DIRECTORY_SEPARATOR;
+        $dirname = $this->rootPath . $savePath;
+        $file['oriName'] = $m ? $m[1]:"";
+        $file['filesize'] = strlen($img);
+        $file['ext'] = strtolower(strrchr($config['oriName'], '.'));
+        $file['name'] = uniqid() . $file['ext'];
+        $file['fullName'] = $dirname . $file['name'];
+        $fullName = $file['fullName'];
 
         //检查文件大小是否超出限制
         if ($file['filesize'] >= ($config["maxSize"])) {
-            $data=array(
+            $data = array(
                 'state'=>'文件大小超出网站限制',
             );
             return json_encode($data);
@@ -335,12 +346,12 @@ class BaiduUeditor extends Controller
 
         //创建目录失败
         if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-            $data=array(
+            $data = array(
                 'state'=>'目录创建失败',
             );
             return json_encode($data);
         } else if (!is_writeable($dirname)) {
-            $data=array(
+            $data = array(
                 'state'=>'目录没有写权限',
             );
             return json_encode($data);
@@ -354,21 +365,28 @@ class BaiduUeditor extends Controller
             return json_encode($data);
         } else { //移动成功
             $data=array(
-                'state'=>'SUCCESS',
-                'url'=> config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file['name']),
-                'title'=>$file['name'],
-                'original'=>$file['oriName'],
-                'type'=>$file['ext'],
-                'size'=>$file['filesize'],
+                'state' => 'SUCCESS',
+                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file['name']),
+                'title' => $file['name'],
+                'original' => $file['oriName'],
+                'type' => $file['ext'],
+                'size' => $file['filesize'],
             );
         }
         return json_encode($data);
     }
-    private function file_list($allowFiles, $listSize, $get){
-        $dirname=$this->rootPath . $this->savePath ;
-        if ($this->userid!='admin') {
-            $dirname.=$this->userid . '/';
+
+    /**
+     * 返回文件列表
+     * @return mixed
+     */
+    private function file_list($allowFiles, $listSize, $get)
+    {
+        $dirname = $this->rootPath . $this->savePath ;
+        if ($this->uid != 'admin') {
+            $dirname .= $this->uid . '/';
         }
+
         $allowFiles = substr(str_replace(".", "|", join("", $allowFiles)), 1);
 
         /* 获取参数 */
@@ -416,11 +434,17 @@ class BaiduUeditor extends Controller
      * @param array $files
      * @return array
      */
-    private function getfiles( $path , $allowFiles, &$files = array() ) {
-        if ( !is_dir( $path ) ) return null;
-        if(substr($path, strlen($path) - 1) != '/') $path .= '/';
+    private function getfiles($path, $allowFiles, &$files = array())
+    {
+        if (!is_dir($path)) {
+            return null;
+        }
+        if (substr($path, strlen($path) - 1) != '/') {
+            $path .= '/';
+        }
+
         $handle = opendir( $path);
-        while ( false !== ( $file = readdir( $handle ) ) ) {
+        while (false !== ($file = readdir($handle))) {
             if ( $file != '.' && $file != '..' ) {
                 $path2 = $path . $file;
                 if ( is_dir( $path2)) {
@@ -435,34 +459,42 @@ class BaiduUeditor extends Controller
                 }
             }
         }
+
         return $files;
     }
+
     /**
      * [formatUrl 格式化url，用于将getfiles返回的文件路径进行格式化，起因是中文文件名的不支持浏览]
      * @param  [type] $files [文件数组]
-     * @return [type]        [格式化后的文件数组]
+     * @return [type]   [格式化后的文件数组]
      */
-    private function formatUrl($files){
-        if(!is_array($files)) return $files;
-        foreach ($files as  $key => $value) {
-            $data=array();
-            $data=explode('/', $value);
-            foreach ($data as $k=>$v) {
-                if($v!='.' && $v!='..'){
-                    $data[$k]=urlencode($v);
+    private function formatUrl($files)
+    {
+        if (!is_array($files)) {
+            return $files;
+        }
+
+        foreach ($files as $key => $value) {
+            $data = array();
+            $data = explode('/', $value);
+            foreach ($data as $k => $v) {
+                if ($v != '.' && $v != '..') {
+                    $data[$k] = urlencode($v);
                     $data[$k] = str_replace("+", "%20", $data[$k]);
                 }
             }
-            $files[$key]=implode('/', $data);
+            $files[$key] = implode('/', $data);
         }
+
         return $files;
     }
 
 
-    private function format_exts($exts){
-        $data=array();
+    private function format_exts($exts)
+    {
+        $data = array();
         foreach ($exts as $key => $value) {
-            $data[]=ltrim($value,'.');
+            $data[] = ltrim($value, '.');
         }
         return $data;
     }

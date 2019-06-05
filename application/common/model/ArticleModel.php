@@ -43,6 +43,23 @@ class ArticleModel extends BaseModel
             } else {
                 Log::info('文章相似度LCS更新入列失败！');
             }
+
+            //若文章已发布，提交链接|检测收录
+            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
+                //提交链接
+                $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+
+                //检测收录,延迟4,6,24小时
+                $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            }
         });
         self::event('after_update', function($article) {
             $id = $article->id;
@@ -60,6 +77,23 @@ class ArticleModel extends BaseModel
                 Log::info('文章相似度LCS更新Job入列成功...');
             } else {
                 Log::info('文章相似度LCS更新入列失败！');
+            }
+
+            //若文章已发布，提交链接|检测收录
+            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
+                //提交链接
+                $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+
+                //检测收录,延迟4,6,24小时
+                $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
             }
         });
     }

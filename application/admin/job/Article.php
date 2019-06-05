@@ -11,7 +11,6 @@ namespace app\admin\job;
 use app\common\model\ArticleDataModel;
 use think\queue\Job;
 use think\facade\Log;
-use think\Db;
 use app\common\model\ArticleModel;
 
 class Article
@@ -46,31 +45,6 @@ class Article
             return;
         }
 
-//        $lcs = new \app\common\library\LCS();
-//
-//        $ArticleModel = new ArticleModel();
-//        $list = $ArticleModel->where([['id', '<', $article->id]])->field('id,title')->select();
-//
-//        $ArticleDataModel = new ArticleDataModel();
-//        foreach ($list as $temp) {
-//            $titleSimilar = $lcs->getSimilar($article->title, $temp->title);
-//            //小0.4，不存储,减少数据量
-//            if ($titleSimilar < 0.4) {
-//                continue;
-//            }
-//
-//            $contentSimilar = $titleSimilar;
-//            $articleData = [
-//                'article_a_id' => $article->id,
-//                'article_b_id' => $temp->id,
-//                'title_similar' => $titleSimilar,
-//                'content_similar' => $contentSimilar,
-//                'last_update_time' => date_time(),
-//                'create_time' => date_time(),
-//            ];
-//            $ArticleDataModel->insert($articleData);
-//        }
-
         $this->fullSimilarCompute($article);
 
         $job->delete();
@@ -101,35 +75,6 @@ class Article
             $job->delete();
             return;
         }
-
-//        $lcs = new \app\common\library\LCS();
-//
-//        $ArticleDataModel = new ArticleDataModel();
-//        $articleBIds = $ArticleDataModel->where('article_a_id', $article->id)->column('id,create_time', 'article_b_id');
-//        $articleAIds = $ArticleDataModel->where('article_b_id', $article->id)->column('id,create_time', 'article_a_id');
-//        $ids = array_merge(array_keys($articleBIds), array_keys($articleAIds));
-//        //Log::debug($articleBIds);
-//        //Log::debug($articleAIds);
-//        //Log::debug($ids);
-//
-//        $ArticleModel = new ArticleModel();
-//        $list = $ArticleModel->where([['id', 'in', $ids]])->field('id,title')->select();
-//        foreach ($list as $temp) {
-//            $titleSimilar = $lcs->getSimilar($article->title, $temp->title);
-//            $contentSimilar = $titleSimilar;
-//            $articleDataId = null;
-//            if (array_key_exists($temp->id, $articleBIds)) {
-//                $articleDataId = $articleBIds[$temp->id]['id'];
-//            } else {
-//                $articleDataId = $articleAIds[$temp->id]['id'];
-//            }
-//            $articleData = [
-//                'title_similar' => $titleSimilar,
-//                'content_similar' => $contentSimilar,
-//                'last_update_time' => date_time(),
-//            ];
-//            $ArticleDataModel->where('id', $articleDataId)->update($articleData);
-//        }
 
         $this->fullSimilarCompute($article);
 

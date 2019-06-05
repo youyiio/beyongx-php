@@ -2,35 +2,22 @@
 /**
  * Created by PhpStorm.
  * User: cattong
- * Date: 2018-11-22
- * Time: 18:24
+ * Date: 2019-06-03
+ * Time: 14:31
  */
 
 namespace app\common\model;
 
 
-class ArticleMetaModel extends BaseMetaModel
+class UserMetaModel extends BaseMetaModel
 {
-    protected $name = CMS_PREFIX . 'article_meta';
-
-    const KEY_TIMING_POST = '__timing_post__'; //定时发布
-    const KEY_BAIDU_INDEX = 'baidu_index'; //百度索引key
-
-    public function getMetasByArticleId($aid)
-    {
-        return $this->where(['article_id' => $aid])->select();
-    }
-
-    public function getMeta($aid, $metaKey)
-    {
-        return $this->where(['article_id' => $aid, 'meta_key' => $metaKey])->find();
-    }
+    protected $name = CMS_PREFIX . 'user_meta';
 
     //读取|设置meta值
     public function _meta($fkId, $metaKey='', $metaValue='')
     {
-        $fk = 'article_id';
-        $meta = $this->where([$fk => $fkId, 'meta_key' => $metaKey])->find();
+        $fk = 'user_id';
+        $meta = $this->find([$fk => $fkId, 'meta_key' => $metaKey]);
         if ($meta) {
             if ($metaValue === '') {
                 return $meta['meta_value'];
@@ -57,7 +44,7 @@ class ArticleMetaModel extends BaseMetaModel
     //读取metas多值
     public function _metas($fkId, $metaKey='')
     {
-        $fk = 'article_id';
+        $fk = 'user_id';
         $where = [
             [$fk] => $fkId,
         ];

@@ -20,7 +20,7 @@
     <div class="cont w1000">
       <div class="title">
         <span class="layui-breadcrumb" lay-separator="|">
-          <a href="{:url('index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
+          <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
           {article:categorys cache='120' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>

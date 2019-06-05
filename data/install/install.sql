@@ -833,6 +833,8 @@ truncate table cms_config;
 INSERT INTO `cms_config` VALUES ('address', '厦门市思明区软件园二期望海路000号000室', '联系地址','text', 'contact', 1);
 INSERT INTO `cms_config` VALUES ('article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 'article', 0);
 INSERT INTO `cms_config` VALUES ('article_audit_switch', 'true', '文章审核', 'bool', 'article', 1);
+INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
+INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text', 'article', 3);
 INSERT INTO `cms_config` VALUES ('bank_card', 'xxx', '公司银行账号', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('contact', 'beyongx sir', '联系人', 'text', 'contact', 5);
@@ -904,6 +906,7 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (192, 19, '图片上传', 'admin/Image/upload', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (193, 19, '软件上传', 'admin/File/uploadSoftware', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (194, 19, '移动App上传', 'admin/File/uploadApp', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (195, 19, '百度编辑器接口', 'admin/BaiduUeditor/index', '', 1, 0, 1, 1,'','admin');
 
 #个人中心模块
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2, 0, '个人中心', 'admin/ShowNav/Person', 'fa-user', 1, 1, 14, 1,'','admin');

@@ -33,13 +33,28 @@
 <div class="row border-bottom">
     <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
-            <form role="search" class="navbar-form-custom" method="get" action="{:url('User/index')}">
+            <form role="search" class="navbar-form-custom" method="get" action="{:url('User/index')}" >
                 <div class="form-group">
                     <input type="hidden" name="type" value="email"/>
                     <input type="text" placeholder="请输入您需要查找的内容…" class="form-control" name="key" id="top-search" autocomplete="off">
                 </div>
             </form>
+            <script>
+                $('form[role=search]').submit(function () {
+                    var _this = $(this);
+                    var input = _this.serialize();
+                    var url = _this.attr('action') + '?' + input;
+                    var menuName = _this.data('menu-name');//不支持menuName驼峰定义
+                    menuName = typeof menuName == 'undefined' ? "搜索 \"" + _this.find("input[name=key]").val() + "\"" : menuName;
+
+                    window.addMenuTab(url, menuName, 0);
+
+                    _this.find("input[name=key]").val("");
+                    return false;
+                });
+            </script>
         </div>
+
         <ul class="nav navbar-top-links navbar-right">
             <li>
                 <a href="{:url('cms/Index/index', [], true, get_config('domain_name'))}" target="_blank">
