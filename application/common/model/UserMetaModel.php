@@ -17,7 +17,7 @@ class UserMetaModel extends BaseMetaModel
     public function _meta($fkId, $metaKey='', $metaValue='')
     {
         $fk = 'user_id';
-        $meta = $this->find([$fk => $fkId, 'meta_key' => $metaKey]);
+        $meta = $this->where([$fk => $fkId, 'meta_key' => $metaKey])->find();
         if ($meta) {
             if ($metaValue === '') {
                 return $meta['meta_value'];

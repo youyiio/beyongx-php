@@ -5,11 +5,11 @@
 <h3>找回密码</h3>
 <form class="m-t ajax-form" role="form" action="{:url('Sign/resetPwd')}" method="post">
     <div class="form-group">
-      <input type="email" class="form-control" name="email" placeholder="Email" required="">
+        <input type="email" class="form-control" name="email" placeholder="Email" required="">
     </div>
     <div class="form-group">
-      <div><a href="#" id="sendCode"><small>发送验证码</small></a></div>
-      <input type="text" class="form-control" name="code" autocomplete="off" placeholder="验证码" required="">
+        <div><a href="#" id="sendCode"><small>发送验证码</small></a></div>
+        <input type="text" class="form-control" name="code" autocomplete="off" placeholder="验证码" required="">
     </div>
     <button type="submit" class="btn btn-primary block full-width m-b">找回密码</button>
     <a class="btn btn-sm btn-white btn-block" href="{:url('Sign/index')}">返回登录</a>
@@ -20,7 +20,7 @@
 <script>
     $('#sendCode').click(function(e){
         $(this).prop('disabled',true);
-        $.post('{:url("Login/sendCode")}', {email: $('input[name="email"]').val()}, function(data) {
+        $.post('{:url("Sign/sendCode")}', {email: $('input[name="email"]').val()}, function(data) {
             console.log(data);
             if (data.code) {
                 layer.msg(data.msg);

@@ -4,70 +4,70 @@
 
 {/block}
 {block name="main"}
-
 <div class="wrapper wrapper-content animated fadeInRight">
-  <div class="ibox float-e-margins">
-    <div class="ibox-title">
-      <h5>{$info ? '修改' : '新增'}分类</h5>
-      <div class="ibox-tools">
-        <a class="collapse-link">
-          <i class="fa fa-chevron-up"></i>
-        </a>
-        <a class="close-link">
-          <i class="fa fa-times"></i>
-        </a>
-      </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>{$info ? '修改' : '新增'}分类</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <form class="form-horizontal ajax-form" action="{:url('Article/addCategory')}" method="post">
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="title_cn">分类名称</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="title_cn" name="title_cn" placeholder="分类名称" value="{$info.title_cn|default=''}" required>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="title_en">英文名称</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="title_en" name="title_en" placeholder="英文名称" value="{$info.title_en|default=''}" required>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="remark">备注</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="remark" name="remark" placeholder="备注" value="{$info.remark|default=''}">
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="sort">排序</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="number" id="sort" name="sort" placeholder="排序" value="{$info.sort|default=0}" required>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        {present name="info"}
+                        <input type="hidden" name="id" value="{$info.id}">
+                        <input type="hidden" name="pid" value="{$info.pid}">
+                        {else/}
+                        <input type="hidden" name="pid" value="{:input('param.pid/d',0)}">
+                        {/present}
+                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$info ? '修改' : '新增'}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="ibox-content">
-      <form class="form-horizontal ajax-form" action="{:url('Article/addCategory')}" method="post">
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" for="title_cn">分类名称</label>
-          <div class="col-lg-10">
-            <input class="form-control" type="text" id="title_cn" name="title_cn" placeholder="分类名称" value="{$info.title_cn|default=''}" required>
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" for="title_en">英文名称</label>
-          <div class="col-lg-10">
-            <input class="form-control" type="text" id="title_en" name="title_en" placeholder="英文名称" value="{$info.title_en|default=''}" required>
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" for="remark">备注</label>
-          <div class="col-lg-10">
-            <input class="form-control" type="text" id="remark" name="remark" placeholder="备注" value="{$info.remark|default=''}">
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" for="sort">排序</label>
-          <div class="col-lg-10">
-            <input class="form-control" type="number" id="sort" name="sort" placeholder="排序" value="{$info.sort|default=0}" required>
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="col-lg-offset-2 col-lg-10">
-            {present name="info"}
-              <input type="hidden" name="id" value="{$info.id}">
-              <input type="hidden" name="pid" value="{$info.pid}">
-            {else/}
-              <input type="hidden" name="pid" value="{:input('param.pid/d',0)}">
-            {/present}
-            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$info ? '修改' : '新增'}</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
 </div>
+
 {/block}
 
 {block name="js"}

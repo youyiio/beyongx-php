@@ -2,98 +2,97 @@
 {block name="title"}用户组成员管理{/block}
 {block name="css"}
 <!-- ladda   -->
-<link href="__PUBLIC__/static/admin/css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
 
-<link href="__PUBLIC__/static/admin/css/plugins/dataTables/datatables.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/dataTables/datatables.min.css" rel="stylesheet">
 {/block}
 {block name="main"}
 
 <div class="wrapper wrapper-content animated fadeInRight">
-  <div class="row">
-    <div class="ibox float-e-margins">
-      <div class="ibox-title">
-        <h5>用户组<span class="badge badge-danger">{$group_name}</span> 成员管理</h5>
-        <div class="ibox-tools">
-          <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-          </a>
-          <a class="close-link">
-            <i class="fa fa-times"></i>
-          </a>
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>用户组<span class="badge badge-danger">{$group_name}</span> 成员管理</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h2>分组成员</h2>
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-danger js-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover dataTables-example">
+                                <thead>
+                                <tr>
+                                    <th><input type="checkbox" class="i-checks js-check-all"></th>
+                                    <th>ID</th>
+                                    <th>用户名</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {volist name="userList" id="vo"}
+                                <tr>
+                                    <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
+                                    <td>{$vo.user_id}</td>
+                                    <td>{$vo.mobile}</td>
+                                    <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
+                                </tr>
+                                {/volist}
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h2>未加入分组用户</h2>
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-primary js-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover dataTables-example">
+                                <thead>
+                                <tr>
+                                    <th><input type="checkbox" class="i-checks js-check-all"></th>
+                                    <th>ID</th>
+                                    <th>用户名</th>
+                                    <th>操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                {volist name="outUserList" id="vo"}
+                                <tr>
+                                    <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
+                                    <td>{$vo.user_id}</td>
+                                    <td>{$vo.mobile}</td>
+                                    <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
+                                </tr>
+                                {/volist}
+
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="ibox-content" style="padding:10px">
-        <div class="row">
-          <div class="col-lg-6">
-            <h2>分组成员</h2>
-            <div data-toggle="buttons" class="btn-group">
-              <label class="ladda-button btn btn-sm btn-danger js-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-striped table-bordered table-hover dataTables-example">
-                <thead>
-                  <tr>
-                    <th><input type="checkbox" class="i-checks js-check-all"></th>
-                    <th>ID</th>
-                    <th>用户名</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                  {volist name="userList" id="vo"}
-                    <tr>
-                      <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
-                      <td>{$vo.user_id}</td>
-                      <td>{$vo.mobile}</td>
-                      <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
-                    </tr>
-                  {/volist}
-
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <h2>未加入分组用户</h2>
-            <div data-toggle="buttons" class="btn-group">
-              <label class="ladda-button btn btn-sm btn-primary js-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
-            </div>
-            <div class="table-responsive">
-              <table class="table table-striped table-bordered table-hover dataTables-example">
-                <thead>
-                  <tr>
-                    <th><input type="checkbox" class="i-checks js-check-all"></th>
-                    <th>ID</th>
-                    <th>用户名</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                  {volist name="outUserList" id="vo"}
-                    <tr>
-                      <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
-                      <td>{$vo.user_id}</td>
-                      <td>{$vo.mobile}</td>
-                      <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
-                    </tr>
-                  {/volist}
-
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </div>
-
-
 {/block}
+
 {block name="js"}
 <!-- Ladda -->
 <script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
@@ -103,73 +102,73 @@
 <script src="__PUBLIC__/static/inspinia/js/plugins/dataTables/datatables.min.js"></script>
 <script src="__PUBLIC__/static/inspinia/js/plugins/dataTables/datatables.zh_cn.js?20170412"></script>
 <script type="text/javascript">
-// 表单提交成功
-var groupName = "{$group_name}";
-function successForm(form,data){
-  var $userListTable = $('#userList');
-  $userListTable.find('tr:gt(0)').remove();
-  $.each(data.data,function(i,v){
-    var tr = '<tr><th>'+v.username+'</th>';
-    if (v.isInGroup) {
-      tr += '<td>已经是'+groupName+'</td>';
-    } else {
-      tr += '<td><a href="'+v.setUrl+'" class="ajax-a" data-success-callback="successSetGroupName">设置为['+groupName+']成员</a></td>';
+    // 表单提交成功
+    var groupName = "{$group_name}";
+    function successForm(form,data){
+        var $userListTable = $('#userList');
+        $userListTable.find('tr:gt(0)').remove();
+        $.each(data.data,function(i,v){
+            var tr = '<tr><th>'+v.username+'</th>';
+            if (v.isInGroup) {
+                tr += '<td>已经是'+groupName+'</td>';
+            } else {
+                tr += '<td><a href="'+v.setUrl+'" class="ajax-a" data-success-callback="successSetGroupName">设置为['+groupName+']成员</a></td>';
+            }
+            tr += '</tr>';
+            $userListTable.append(tr);
+        });
     }
-    tr += '</tr>';
-    $userListTable.append(tr);
-  });
-}
 
-/*function successSetGroupName(e,data){
-  admin.log(11);
-  e.prop('disabled',false).addClass('text-danger').text('成功设置为'+groupName);
-}*/
+    /*function successSetGroupName(e,data){
+      admin.log(11);
+      e.prop('disabled',false).addClass('text-danger').text('成功设置为'+groupName);
+    }*/
 
-//批量任务操作 审核,取消审核,删除
-var l = $('.js-batch-set').ladda();
-l.click(function(){
-  // Start loading
-  $(this).ladda( 'start' );
-  var uids = checkedValue(); //选择的任务
-  var action = $(this).data('action');
-  // admin.log(action);
-  $.each(uids, function(i, uid) {
-    $.post(action, {uid: uid}, function(data) {
-      admin.log(data);
-      if (data.code == 0 && uids.length == 1) {
-        layer.msg(data.msg, function(){});
-        location.reload();
-        return false;
-      }
+    //批量任务操作 审核,取消审核,删除
+    var l = $('.js-batch-set').ladda();
+    l.click(function(){
+        // Start loading
+        $(this).ladda( 'start' );
+        var uids = checkedValue(); //选择的任务
+        var action = $(this).data('action');
+        // admin.log(action);
+        $.each(uids, function(i, uid) {
+            $.post(action, {uid: uid}, function(data) {
+                admin.log(data);
+                if (data.code == 0 && uids.length == 1) {
+                    layer.msg(data.msg, function(){});
+                    location.reload();
+                    return false;
+                }
+            });
+        });
+
+        setTimeout(function(){
+            location.reload();
+        },800);
     });
-  });
 
-  setTimeout(function(){
-    location.reload();
-  },800);
-});
+    $('.dataTables-example').DataTable({
+        dom: '<"html5buttons"B>lTfgitp',
+        displayLength: 25,
+        language: datatables_zh_cn,
+        buttons: [
+            // {extend: 'copy'},
+            // {extend: 'csv'},
+            // {extend: 'excel', title: 'ExampleFile'},
+            // {extend: 'pdf', title: 'ExampleFile'},
+            // {extend: 'print',
+            //   customize: function (win){
+            //     $(win.document.body).addClass('white-bg');
+            //     $(win.document.body).css('font-size', '10px');
 
-$('.dataTables-example').DataTable({
-  dom: '<"html5buttons"B>lTfgitp',
-  displayLength: 25,
-  language: datatables_zh_cn,
-  buttons: [
-    // {extend: 'copy'},
-    // {extend: 'csv'},
-    // {extend: 'excel', title: 'ExampleFile'},
-    // {extend: 'pdf', title: 'ExampleFile'},
-    // {extend: 'print',
-    //   customize: function (win){
-    //     $(win.document.body).addClass('white-bg');
-    //     $(win.document.body).css('font-size', '10px');
+            //     $(win.document.body).find('table')
+            //     .addClass('compact')
+            //     .css('font-size', 'inherit');
+            //   }
+            // }
+        ]
 
-    //     $(win.document.body).find('table')
-    //     .addClass('compact')
-    //     .css('font-size', 'inherit');
-    //   }
-    // }
-  ]
-
-});
+    });
 </script>
 {/block}

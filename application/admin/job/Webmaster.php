@@ -87,7 +87,7 @@ class Webmaster
         $site = get_config('zhanzhang_site', '');
         $token = get_config('zhanzhang_token', '');
         if (empty($site) || empty($token)) {
-            Log:: info("zhanzhang_site 或 zhanzhang_token  未配置！！！");
+            Log::info("zhanzhang_site 或 zhanzhang_token  未配置！！！");
             return false;
         }
 
@@ -95,6 +95,7 @@ class Webmaster
 
         $output = $this->httpPost($api, implode("\n", $links));
         Log::debug($api);
+        Log::debug($links);
         Log::debug($output);
 
         return $output;

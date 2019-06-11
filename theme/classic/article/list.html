@@ -1,68 +1,63 @@
 {extend name="public/base" /}
 {block name="title"}{:get_config('site_name')}{/block}
+
 {block name="body"}
-
-
-  <div class="banner">
+<div class="banner">
     <div class="cont w1000">
-      <div class="title">
-        <h3>MY<br />BLOG</h3>
-        <h4>well-balanced heart</h4>
-      </div>
-      <div class="amount">
-        <p><span class="text">访问量</span><span class="access">1000</span></p>
-        <p><span class="text">日志</span><span class="daily-record">1000</span></p>
-      </div>
+        <div class="title">
+            <h3>MY<br />BLOG</h3>
+            <h4>well-balanced heart</h4>
+        </div>
+        <div class="amount">
+            <p><span class="text">访问量</span><span class="access">1000</span></p>
+            <p><span class="text">日志</span><span class="daily-record">1000</span></p>
+        </div>
     </div>
-  </div>
+</div>
 
-  <div class="content">
+<div class="content">
     <div class="cont w1000">
-      <div class="title">
+        <div class="title">
         <span class="layui-breadcrumb" lay-separator="|">
-          <a href="{:url('index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
+          <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
           {article:categorys cache='true' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
             {$vo.title_cn}</a>
           {/article:categorys}
         </span>
-      </div>
-      {article:list cache='120' page-size='10' id='art' assign='list' cid='cid'}
-      <div class="list-item">
-        <div class="item">
-          <div class="layui-fluid">
-            <div class="layui-row">
-              <div class="layui-col-xs12 layui-col-sm4 layui-col-md5">
-                <div class="img"><img src="__PUBLIC__/theme/classic/img/sy_img1.jpg" alt=""></div>
-              </div>
-              <div class="layui-col-xs12 layui-col-sm8 layui-col-md7">
-                <div class="item-cont">
-                  <h3><a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}">{$art.title}</a></h3>
-                  <h5>发布于：<span> {$art.post_time|date='Y-m-d H:i'}</span></h5>
-                  <p><article style="overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">
-                    {$art.description|raw}
-                  </article></p>
-                  <a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}" class="go-icon"></a>
-                  <div class="comment count" style="font-size: 20px;margin: 0px 6px;background: transparent;color: #0d8ddb">
-                    <a style="width: 360px; height: 56px" href="{:url('cms/Article/viewArticle',['aid' => $art.id])} ">评论</a>
-                    <a style="margin: 0 50px; width: 360px; height: 56px" href="javascript:;" class="like">点赞</a>
-                  </div>
+        </div>
+        {article:list cache='120' page-size='10' id='art' assign='list' cid='cid'}
+        <div class="list-item">
+            <div class="item">
+                <div class="layui-fluid">
+                    <div class="layui-row">
+                        <div class="layui-col-xs12 layui-col-sm4 layui-col-md5">
+                            <div class="img"><img src="__PUBLIC__/theme/classic/img/sy_img1.jpg" alt=""></div>
+                        </div>
+                        <div class="layui-col-xs12 layui-col-sm8 layui-col-md7">
+                            <div class="item-cont">
+                                <h3><a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}">{$art.title}</a></h3>
+                                <h5>发布于：<span> {$art.post_time|date='Y-m-d H:i'}</span></h5>
+                                <p><article style="overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">
+                                    {$art.description|raw}
+                                </article></p>
+                                <a href="{:url('cms/Article/viewArticle',['aid' => $art.id])}" class="go-icon"></a>
+                                <div class="comment count" style="font-size: 20px;margin: 0px 6px;background: transparent;color: #0d8ddb">
+                                    <a style="width: 360px; height: 56px" href="{:url('cms/Article/viewArticle',['aid' => $art.id])} ">评论</a>
+                                    <a style="margin: 0 50px; width: 360px; height: 56px" href="javascript:;" class="like">点赞</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            </div>
-           </div>
         </div>
-      </div>
-      {/article:list}
-      <div class="item-btn">
-        {$list->render()|raw}
-      </div>
+        {/article:list}
+        <div class="item-btn">
+            {$list->render()|raw}
+        </div>
 
     </div>
-  </div>
-
-
-
-
+</div>
 {/block}

@@ -1,62 +1,62 @@
 {extend name="public/base" /}
 {block name="title"}{$columnTitle|default="文档管理"}{/block}
 {block name="css"}
-<link href="__PUBLIC__/static/admin/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
-<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
-<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
 {/block}
+
 {block name="main"}
-
 <div class="wrapper wrapper-content animated fadeInRight">
-  <div class="ibox float-e-margins">
-    <div class="ibox-title">
-      <h5>文档上传</h5>
-      <div class="ibox-tools">
-        <a class="collapse-link">
-          <i class="fa fa-chevron-up"></i>
-        </a>
-        <a class="close-link">
-          <i class="fa fa-times"></i>
-        </a>
-      </div>
-    </div>
-    <div class="ibox-content">
-      <form class="form-horizontal ajax-form" enctype="multipart/form-data"  method="post">
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" >上传文件</label>
-          <div class="col-lg-10">
-            <input type="hidden" name="fileId" id="fileId" value="">
-
-            <div class="dropzone needsclick dz-clickable" id="uploadFile" data-input-name="fileId"  >
-              <div class="dz-message needsclick">
-
-                点击此处上传文档 <br>
-                <span class="note needsclick"></span>
-
-              </div>
-              <div class="text fileName"></div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>文档上传</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
             </div>
-            <span class="help-block m-b-none">文件类型:doc,docx,ppt,pptx,txt,avi,pdf,mp3,zip,mp4,xlsx; &nbsp;&nbsp;&nbsp;&nbsp;   文件小于200M</span>
-          </div>
         </div>
+        <div class="ibox-content">
+            <form class="form-horizontal ajax-form" enctype="multipart/form-data"  method="post">
 
-        <div class="form-group">
-          <label class="col-lg-2 control-label">备注</label>
-          <div class="col-lg-10">
-            <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" >上传文件</label>
+                    <div class="col-lg-10">
+                        <input type="hidden" name="fileId" id="fileId" value="">
 
-        <div class="form-group">
-          <div class="col-lg-offset-2 col-lg-10">
-            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
-          </div>
+                        <div class="dropzone needsclick dz-clickable" id="uploadFile" data-input-name="fileId"  >
+                            <div class="dz-message needsclick">
+
+                                点击此处上传文档 <br>
+                                <span class="note needsclick"></span>
+
+                            </div>
+                            <div class="text fileName"></div>
+                        </div>
+                        <span class="help-block m-b-none">文件类型:doc,docx,ppt,pptx,txt,avi,pdf,mp3,zip,mp4,xlsx; &nbsp;&nbsp;&nbsp;&nbsp;   文件小于200M</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">备注</label>
+                    <div class="col-lg-10">
+                        <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
+                    </div>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>
 {/block}
 

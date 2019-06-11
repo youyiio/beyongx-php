@@ -32,7 +32,7 @@ class Publish extends Command
         $output->writeln('article timing post Crontab job start...');
         Log::info('article timing post Crontab job start...');
 
-        request()->module('admin');//设置当前模块，以使model可用；
+        //request()->module('admin');//设置当前模块，以使model可用；
 
         $currentTime = date_time();
         $where = [
@@ -49,12 +49,18 @@ class Publish extends Command
 
         foreach ($metas as $meta) {
             $articleId = $meta->article_id;
+
+            $ArticleModel = ArticleModel::get($articleId);
+            if ($ArticleModel['status'] == ArticleModel::STATUS_PUBLISHED) {
+                ArticleMetaModel::destroy(['id' => $meta->id]);
+                continue;
+            }
+
             $data = [
                 'status' => ArticleModel::STATUS_PUBLISHED,
                 'post_time' => $meta->meta_value,
             ];
 
-            $ArticleModel = ArticleModel::get($articleId);
             $result = $ArticleModel->isUpdate(true)->save($data, ['id' => $articleId]);
             if ($result) {
                 $count++;

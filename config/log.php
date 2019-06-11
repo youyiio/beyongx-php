@@ -14,13 +14,13 @@
 // +----------------------------------------------------------------------
 return [
     // 日志记录方式，内置 file socket 支持扩展
-    'type'  => 'File',
+    'type'  => 'app\\common\\thinkphp\\log\\driver\\File',
     // 日志保存目录
     'path'  => '',
     //日志内的时间格式
     'time_format' => 'Y-m-d H:i:s',
     // 日志记录级别
-    'level' => [],
+    'level' => ['error', 'notice', 'info', 'log', 'debug', 'sql'],
     //独立日志
     'apart_level'   =>  ['error'],
 ];

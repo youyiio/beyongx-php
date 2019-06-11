@@ -1,84 +1,84 @@
 {extend name="public/base" /}
 {block name="title"}每日新增用户{/block}
 {block name="css"}
-<link href="__PUBLIC__/static/admin/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
 {/block}
 {block name="main"}
 
 <div class="wrapper wrapper-content animated fadeInRight">
-  <div class="row">
-    <div class="ibox float-e-margins">
-      <div class="ibox-title">
-        <h5>新增用户 </h5>
-        <div class="ibox-tools">
-          <a class="collapse-link">
-            <i class="fa fa-chevron-up"></i>
-          </a>
-          <a class="close-link">
-            <i class="fa fa-times"></i>
-          </a>
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>新增用户 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8">
+                        <form method="get" action="{:url('User/newUsers')}" role="form" class="form-inline">
+                            <div class="form-group">
+                                <label>开始日期</label>
+                                <input type="text" name="timeStart" class="form-control form-datetime-day" placeholder="开始日期" value="{:input('param.timeStart',date('Y-m-d'))}"  required />
+                            </div>
+                            <div class="form-group">
+                                <label>结束日期</label>
+                                <input type="text" name="timeEnd" class="form-control form-datetime-day" placeholder="结束日期" value="{:input('param.timeEnd',date('Y-m-d'))}" />
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-bottom: 0px">查找</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped table-border">
+                        <thead>
+                        <tr>
+                            <th><input type="checkbox" class="i-checks js-check-all"></th>
+                            <th>用户ID</th>
+                            <th>类型</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>最后登录</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {empty name="list"}
+                        <tr>
+                            <td colspan="8">暂无数据</td>
+                        </tr>
+                        {else/}
+                        {volist name="list" id="vo"}
+                        <tr>
+                            <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
+                            <td>{$vo.user_id}</td>
+                            <td>{$vo.user_type_text}</td>
+                            <td>{$vo.username}</td>
+                            <td>{$vo.email}</td>
+                            <td>{$vo.last_login_time}</td>
+                            <td>{$vo.status_label}</td>
+                            <td>
+                                <a href="{:url('User/viewUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-info">详情</a>
+                                <a href="{:url('User/editUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-warning">修改</a>
+                                <button data-action="{:url('User/deleteUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-danger js-btn-delete">删除</button>
+                            </td>
+                        </tr>
+                        {/volist}
+                        {/empty}
+                        </tbody>
+                    </table>
+                    {$pages|raw}
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="ibox-content" style="padding:10px">
-        <div class="row">
-          <div class="col-lg-8 col-md-8">
-            <form method="get" action="{:url('User/newUsers')}" role="form" class="form-inline">
-              <div class="form-group">
-                <label>开始日期</label>
-                <input type="text" name="timeStart" class="form-control form-datetime-day" placeholder="开始日期" value="{:input('param.timeStart',date('Y-m-d'))}"  required />
-              </div>
-              <div class="form-group">
-                <label>结束日期</label>
-                <input type="text" name="timeEnd" class="form-control form-datetime-day" placeholder="结束日期" value="{:input('param.timeEnd',date('Y-m-d'))}" />
-              </div>
-              <button type="submit" class="btn btn-primary" style="margin-bottom: 0px">查找</button>
-            </form>
-          </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover table-striped table-border">
-            <thead>
-              <tr>
-                <th><input type="checkbox" class="i-checks js-check-all"></th>
-                <th>用户ID</th>
-                <th>类型</th>
-                <th>用户名</th>
-                <th>邮箱</th>
-                <th>最后登录</th>
-                <th>状态</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {empty name="list"}
-                <tr>
-                  <td colspan="8">暂无数据</td>
-                </tr>
-              {else/}
-                {volist name="list" id="vo"}
-                  <tr>
-                    <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
-                    <td>{$vo.user_id}</td>
-                    <td>{$vo.user_type_text}</td>
-                    <td>{$vo.username}</td>
-                    <td>{$vo.email}</td>
-                    <td>{$vo.last_login_time}</td>
-                    <td>{$vo.status_label}</td>
-                    <td>
-                      <a href="{:url('User/viewUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-info">详情</a>
-                      <a href="{:url('User/editUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-warning">修改</a>
-                      <button data-action="{:url('User/deleteUser',['uid'=>$vo['user_id']])}" class="btn btn-xs btn-danger js-btn-delete">删除</button>
-                    </td>
-                  </tr>
-                {/volist}
-              {/empty}
-            </tbody>
-          </table>
-          {$pages|raw}
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 {/block}
 {block name="js"}

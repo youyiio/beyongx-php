@@ -1,62 +1,62 @@
 {extend name="public/base" /}
 {block name="title"}{$columnTitle|default="图片管理"}{/block}
 {block name="css"}
-<link href="__PUBLIC__/static/admin/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
-<link href="__PUBLIC__/static/admin/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
-<link href="__PUBLIC__/static/admin/css/plugins/chosen/chosen.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
 {/block}
+
 {block name="main"}
-
 <div class="wrapper wrapper-content animated fadeInRight">
-  <div class="ibox float-e-margins">
-    <div class="ibox-title">
-      <h5>图片上传</h5>
-      <div class="ibox-tools">
-        <a class="collapse-link">
-          <i class="fa fa-chevron-up"></i>
-        </a>
-        <a class="close-link">
-          <i class="fa fa-times"></i>
-        </a>
-      </div>
-    </div>
-    <div class="ibox-content">
-      <form class="form-horizontal ajax-form" action="{:url('uploadImage')}" method="post">
-
-        <div class="form-group">
-          <label class="col-lg-2 control-label" >上传图片</label>
-          <div class="col-lg-10">
-            <input type="hidden" name="imageId" id="imageId" value="" >
-            {assign name="dropzone_thumb_width" value="140"/}
-            {assign name="dropzone_thumb_height" value="140"/}
-            <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="imageId"  data-thumb-width="{$dropzone_thumb_width}" data-thumb-height="{$dropzone_thumb_height}">
-              <div class="dz-message needsclick">
-
-                点击此处上传图片 <br>
-                <span class="note needsclick"></span>
-
-              </div>
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>图片上传</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link">
+                    <i class="fa fa-chevron-up"></i>
+                </a>
+                <a class="close-link">
+                    <i class="fa fa-times"></i>
+                </a>
             </div>
-            <span class="help-block m-b-none"> 图片大小限5M</span>
-          </div>
         </div>
+        <div class="ibox-content">
+            <form class="form-horizontal ajax-form" action="{:url('uploadImage')}" method="post">
 
-        <div class="form-group">
-          <label class="col-lg-2 control-label">备注</label>
-          <div class="col-lg-10">
-            <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
-            <span class="help-block m-b-none"></span>
-          </div>
-        </div>
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" >上传图片</label>
+                    <div class="col-lg-10">
+                        <input type="hidden" name="imageId" id="imageId" value="" >
+                        {assign name="dropzone_thumb_width" value="140"/}
+                        {assign name="dropzone_thumb_height" value="140"/}
+                        <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="imageId"  data-thumb-width="{$dropzone_thumb_width}" data-thumb-height="{$dropzone_thumb_height}">
+                            <div class="dz-message needsclick">
 
-        <div class="form-group">
-          <div class="col-lg-offset-2 col-lg-10">
-            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
-          </div>
+                                点击此处上传图片 <br>
+                                <span class="note needsclick"></span>
+
+                            </div>
+                        </div>
+                        <span class="help-block m-b-none"> 图片大小限5M</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-lg-2 control-label">备注</label>
+                    <div class="col-lg-10">
+                        <textarea class="form-control" name="remark" placeholder="请填写备注"></textarea>
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-2 col-lg-10">
+                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">上传</button>
+                    </div>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
-  </div>
 </div>
 {/block}
 
