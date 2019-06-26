@@ -115,7 +115,7 @@ class Article extends Base
             'article_id' => $id,
             'meta_key' => 'read_ip',
             'meta_value' => $ip,
-            'last_update_time' => date_time(),
+            'update_time' => date_time(),
             'create_time' => date_time()
         ];
         $ArticleMetaModel->insert($data);

@@ -87,7 +87,7 @@
                                 {else/}
                                 {volist name="list" id="vo"}
                                 <tr>
-                                    <td>{$vo.last_update_time}</td>
+                                    <td>{$vo.update_time}</td>
                                     <td><span title="{$vo.meta_value}">{$vo.meta_value|ip_to_address=###, 'province,city'}({$vo.meta_value})</span>
                                     </td>
                                 </tr>

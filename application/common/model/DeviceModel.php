@@ -11,7 +11,7 @@ class DeviceModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'device';
 
-    protected $auto   = ['last_update_time'];
+    protected $auto   = ['update_time'];
     protected $insert = ['create_time'];
     protected $update = [];
 

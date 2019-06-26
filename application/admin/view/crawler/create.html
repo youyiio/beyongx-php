@@ -64,10 +64,14 @@
                     <div class="form-group">
                         <label class="control-label col-lg-2">是否采集分页:</label>
                         <div class="col-lg-10">
-                            <input type="checkbox" class="switch" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
+                            {empty name="$crawler.paging_url"}
+                            <input type="checkbox" class="switch1" value="0" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
+                            {else}
+                            <input type="checkbox" class="switch1" value="1" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
+                            {/empty}
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="startPage">
                         <label class="control-label col-lg-2">分页页码(始-终):</label>
                         <div class="col-lg-2">
                             <input type="number" class="form-control" name="start_page" value="{$crawler.start_page|default=''}" placeholder="开始页码">
@@ -76,7 +80,7 @@
                             <input type="number" class="form-control" name="end_page" value="{$crawler.end_page|default=''}"  placeholder="结束页码">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="pagingUrl">
                         <label class="col-lg-2 control-label">分页网址规则:</label>
                         <div class="col-lg-10">
                             <input class="form-control" type="text" name="paging_url" value="{$crawler.paging_url|default=''}" placeholder="请输入分页采集规则，例：https://www.xxx.com/list/{page}.html" autocomplete="off">
@@ -157,6 +161,36 @@
             // checkbox.onchange = function() {
             //     changeConfig(this.name, this.checked);
             // }
+        }
+    });
+
+    //分页开关显示/隐藏分页选项
+    $(document).ready(function() {
+        var auditCheckbox = document.querySelector('.switch1');
+        var auditSwitchery = new Switchery(auditCheckbox, {color: '#1AB394'});
+
+        $("#startPage").hide();
+        $("#pagingUrl").hide();
+        $(auditCheckbox).change(function () {
+            if (auditCheckbox.value == '0') {
+                $("#startPage").hide();
+                $("#pagingUrl").hide();
+                $(auditCheckbox).val(value = '1');
+            } else {
+                $("#startPage").show();
+                $("#pagingUrl").show();
+                $(auditCheckbox).val(value = '0');
+            }
+        });
+
+        if (auditCheckbox.value == '1') {
+            $("#startPage").show();
+            $("#pagingUrl").show();
+            $(auditCheckbox).val(value = '1');
+        } else {
+            $("#startPage").hide();
+            $("#pagingUrl").hide();
+            $(auditCheckbox).val(value = '1');
         }
     });
 

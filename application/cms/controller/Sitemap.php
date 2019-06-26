@@ -77,7 +77,7 @@ class Sitemap extends Base
         foreach ($resultset as $article) {
             $priority = $this->priority[1];
             $loc = url('cms/Article/viewArticle', ['aid' => $article->id]);
-            $sitemap->addItem($loc, $priority, "daily", $article->last_update_time);
+            $sitemap->addItem($loc, $priority, "daily", $article->update_time);
         }
 
         $sitemap->endSitemap();

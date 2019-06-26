@@ -221,7 +221,7 @@ create table cms_article
    content              mediumtext not null,
    post_time            datetime,
    create_time          datetime not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    status               tinyint,
    is_top               boolean default 0,
    thumb_image_id       int,
@@ -248,7 +248,7 @@ create table cms_article_data
    article_b_id         int not null,
    title_similar        float not null,
    content_similar      float not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -266,7 +266,7 @@ create table cms_article_meta
    article_id           int not null,
    meta_key             varchar(255) not null,
    meta_value           longtext,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -463,7 +463,7 @@ create table cms_crawler
    article_image        varchar(128),
    category_id          int,
    create_time          datetime not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    primary key (id)
 )
 ENGINE = InnoDB
@@ -481,7 +481,7 @@ create table cms_crawler_meta
    meta_key             varchar(32) not null,
    meta_value           text not null,
    remark               varchar(128),
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -516,7 +516,7 @@ create table cms_device
    ram                  bigint,
    rom                  bigint,
    create_time          datetime not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    primary key (device_id)
 )
 ENGINE = InnoDB
@@ -768,7 +768,7 @@ create table cms_user_push_token
    os                   int not null,
    push_token           varchar(128) not null,
    create_time          datetime not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    primary key (user_id, access_id, device_id)
 )
 ENGINE = InnoDB
@@ -788,7 +788,7 @@ create table cms_user_token_info
    token                varchar(64) not null,
    expire_time          datetime not null,
    create_time          datetime not null,
-   last_update_time     datetime not null,
+   update_time     datetime not null,
    primary key (user_id, access_id, device_id)
 )
 ENGINE = InnoDB
@@ -971,9 +971,10 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (62, 6, '友情链接', 'admin/System/links', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (621, 62, '添加友链', 'admin/System/addLinks', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (622, 62, '修改友链', 'admin/System/editLinks', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (623, 62, '排序友链', 'admin/System/orderLi0nks', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (623, 62, '排序友链', 'admin/System/orderLinks', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (624, 62, '删除友链', 'admin/System/deleteLinks', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (63, 6, '清理缓存', 'admin/System/clearCache', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (64, 6, '日志审计', 'admin/System/actionLogs', '', 1, 1, 1, 1,'','admin');
 
 #文章管理
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7, 0, '文章管理', 'admin/ShowNav/Article', 'fa-file-text', 1, 1, 11, 1,'','admin');

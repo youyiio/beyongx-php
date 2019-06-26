@@ -21,9 +21,9 @@ class CrawlerMetaModel extends BaseModel
     const STATUS_FAIL = 'fail'; //失败或未有内容
     const STATUS_COMPLETE = 'complete'; //完成
 
-    protected $auto = ['last_update_time'];
-    protected $insert = ['create_time', 'last_update_time'];
-    protected $update = ['last_update_time'];
+    protected $auto = ['update_time'];
+    protected $insert = ['create_time', 'update_time'];
+    protected $update = ['update_time'];
 
 
 }

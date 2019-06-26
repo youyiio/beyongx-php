@@ -108,7 +108,7 @@ class Article
                     'article_b_id' => $temp->id,
                     'title_similar' => $titleSimilar,
                     'content_similar' => $contentSimilar,
-                    'last_update_time' => date_time(),
+                    'update_time' => date_time(),
                     'create_time' => date_time(),
                 ];
             } else {
@@ -117,7 +117,7 @@ class Article
                     'article_b_id' => $article->id,
                     'title_similar' => $titleSimilar,
                     'content_similar' => $contentSimilar,
-                    'last_update_time' => date_time(),
+                    'update_time' => date_time(),
                     'create_time' => date_time(),
                 ];
             }
@@ -141,7 +141,7 @@ class Article
 
         $last = count($articleDatas) - 1;
         if ($data['title_similar'] < $articleDatas[$last]['title_similar'] && count($articleDatas) >= 20) {
-            Log::debug("title similar is too little,pass");
+            //Log::debug("title similar is too little,pass");
             return;
         }
 

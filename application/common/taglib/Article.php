@@ -366,7 +366,8 @@ class Article extends TagLib
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalAid . $cache . $limit;";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
-        $parse .= "  } else {";
+        $parse .= "  } ";
+        $parse .= "  if (empty($internalList)) { ";
         $parse .= "    \$where = [];";
         $parse .= "    \$where[] = ['article_a_id', '=', $internalAid];";
         $parse .= "    \$whereOr[] = ['article_b_id', '=', $internalAid];";

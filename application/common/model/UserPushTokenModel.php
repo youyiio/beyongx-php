@@ -22,7 +22,7 @@ class UserPushTokenModel extends Model
             $data['device_id'] = $deviceId;
             $data['status'] = UserPushTokenModel::STATUS_LOGIN;
             $data['push_token'] = $pushToken;
-            $data['last_update_time'] = date('Y-m-d H:i:s');
+            $data['update_time'] = date('Y-m-d H:i:s');
 
             $this->isUpdate(true)->save($data);
         } else {
@@ -33,7 +33,7 @@ class UserPushTokenModel extends Model
             $data['os'] = $os;
             $data['push_token'] = $pushToken;
             $data['create_time'] = date('Y-m-d H:i:s');
-            $data['last_update_time'] = $data['create_time'];
+            $data['update_time'] = $data['create_time'];
 
             $result = $this->save($data);
             if (!$result) {
@@ -90,7 +90,7 @@ class UserPushTokenModel extends Model
         ];
 
         $UserPushTokenModel = new UserPushTokenModel();
-        $resultSet = $UserPushTokenModel->where($where)->order('last_update_time desc')->select();
+        $resultSet = $UserPushTokenModel->where($where)->order('update_time desc')->select();
         if (count($resultSet) == 0) {
             return false;
         }
@@ -111,7 +111,7 @@ class UserPushTokenModel extends Model
         ];
 
         $UserPushTokenModel = new UserPushTokenModel();
-        $resultSet = $UserPushTokenModel->where($where)->order('last_update_time desc')->select();
+        $resultSet = $UserPushTokenModel->where($where)->order('update_time desc')->select();
         if (count($resultSet) == 0) {
             return false;
         }

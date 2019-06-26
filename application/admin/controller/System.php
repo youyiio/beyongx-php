@@ -208,4 +208,10 @@ class System extends Base
             $this->error('删除失败');
         }
     }
+
+    //日志审计
+    public function actionLogs()
+    {
+        return $this->fetch('actionLogs');
+    }
 }

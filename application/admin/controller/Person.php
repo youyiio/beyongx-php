@@ -21,7 +21,7 @@ class Person extends Base
 
         //个人文章
         $ArticleModel = new ArticleModel();
-        $articleList = $ArticleModel->where('user_id', $uid)->where('status','>=',0)->order('last_update_time desc')->paginate(20, false);
+        $articleList = $ArticleModel->where('user_id', $uid)->where('status','>=',0)->order('update_time desc')->paginate(20, false);
         $this->assign('articleList', $articleList);
 
         return $this->fetch('index');

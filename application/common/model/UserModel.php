@@ -95,7 +95,7 @@ class UserModel extends Model
         }
         if (empty($account)) {
             $account = StringUtil::getRandString(12);
-        } else if ($this->find(['account' => $account])) {
+        } else if ($this->where(['account' => $account])->find()) {
             throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
         }
 

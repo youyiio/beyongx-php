@@ -20,9 +20,9 @@ class CrawlerModel extends BaseModel
     const STATUS_CRAWL_FAIL  = 3;  //采集失败
     const STATUS_CRAWL_SUCCESS  = 4;  //采集完成
 
-    protected $auto = ['last_update_time'];
-    protected $insert = ['status' => CrawlerModel::STATUS_WAITING, 'create_time', 'last_update_time'];
-    protected $update = ['last_update_time'];
+    protected $auto = ['update_time'];
+    protected $insert = ['status' => CrawlerModel::STATUS_WAITING, 'create_time', 'update_time'];
+    protected $update = ['update_time'];
 
     //属性：status_text
     public function getStatusTextAttr($value, $data)

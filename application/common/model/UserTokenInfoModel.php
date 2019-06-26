@@ -24,7 +24,7 @@ class UserTokenInfoModel extends Model
         $expireTime = Time::daysAfter(30);
         $data['expire_time'] = date('Y-m-d H:i:s', $expireTime); //30天后过期
         $data['create_time'] = date('Y-m-d H:i:s');
-        $data['last_update_time'] = $data['create_time'];
+        $data['update_time'] = $data['create_time'];
 
         //成功返回1
         $result = $this->save($data);
@@ -48,7 +48,7 @@ class UserTokenInfoModel extends Model
         $expireTime = Time::daysAfter(30);
         $data['expire_time'] = date('Y-m-d H:i:s', $expireTime); //30天后过期
         $data['create_time'] = date('Y-m-d H:i:s');
-        $data['last_update_time'] = $data['create_time'];
+        $data['update_time'] = $data['create_time'];
 
         //成功返回1
         $result = $this->isUpdate(true)->save($data);
@@ -82,7 +82,7 @@ class UserTokenInfoModel extends Model
         $data['token'] = String::randString(18);
         $expireTime = Time::daysAfter(30);
         $data['expire_time'] = date('Y-m-d H:i:s', $expireTime);; //30天后过期
-        $data['last_update_time'] = date('Y-m-d H:i:s');
+        $data['update_time'] = date('Y-m-d H:i:s');
 
         //成功返回1
         $result = $this->save($data);

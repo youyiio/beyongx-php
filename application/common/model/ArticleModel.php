@@ -18,9 +18,9 @@ class ArticleModel extends BaseModel
 
     protected $pk = 'id';
 
-    protected $auto = ['last_update_time'];
+    protected $auto = ['update_time'];
     protected $insert = ['status','create_time','user_id'];
-    protected $update = ['last_update_time'];
+    protected $update = ['update_time'];
 
     //静态初始化时，依赖注入事件
     public static function init()
@@ -44,22 +44,24 @@ class ArticleModel extends BaseModel
                 Log::info('文章相似度LCS更新入列失败！');
             }
 
-            //若文章已发布，提交链接|检测收录
-            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
-                //提交链接
-                $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
-                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-                $jobQueue = config('queue.default');
-                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            //若文章已发布，提交链接|检测收录，$article['status'] == ArticleModel::STATUS_PUBLISHED 此时做这个判断会有延迟
 
-                //检测收录,延迟4,6,24小时
-                $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
-                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-                $jobQueue = config('queue.default');
-                \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-                \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-                \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            }
+            //提交链接
+            $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
+            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+            $jobQueue = config('queue.default');
+            \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+
+            //检测收录,延迟4,6,24小时
+            $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+            $jobQueue = config('queue.default');
+            \think\Queue::later(1 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(8 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+
         });
         self::event('after_update', function($article) {
             $id = $article->id;
@@ -79,22 +81,25 @@ class ArticleModel extends BaseModel
                 Log::info('文章相似度LCS更新入列失败！');
             }
 
-            //若文章已发布，提交链接|检测收录
-            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
-                //提交链接
-                $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
-                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-                $jobQueue = config('queue.default');
-                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            //若文章已发布，提交链接|检测收录，$article['status'] == ArticleModel::STATUS_PUBLISHED 此时做这个判断会有延迟
 
-                //检测收录,延迟4,6,24小时
-                $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
-                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-                $jobQueue = config('queue.default');
-                \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-                \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-                \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            }
+            //提交链接
+            $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
+            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+            $jobQueue = config('queue.default');
+            \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+
+            //检测收录,延迟4,6,24小时
+            $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+            $jobQueue = config('queue.default');
+            \think\Queue::later(1 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(8 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+
         });
     }
 

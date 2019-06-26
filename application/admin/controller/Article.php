@@ -42,19 +42,19 @@ class Article extends Base
             $map[] = ['status', '=', $status];
         }
 
-        $fields = 'id,ad_id,title,last_update_time,post_time,create_time,is_top,status,read_count,sort';
-        //$orders = 'is_top desc, post_time desc, last_update_time desc';
+        $fields = 'id,ad_id,title,update_time,post_time,create_time,is_top,status,read_count,sort';
+        //$orders = 'is_top desc, post_time desc, update_time desc';
         $orders = [
             'is_top' => 'desc',
             'post_time' => 'desc',
-            'last_update_time' => 'desc'
+            'update_time' => 'desc'
         ];
 
         $sortedFields = ['post_time' => '', 'create_time' => ''];
         $field =input('field');
         $sort = input('sort');
         if ($field && $sort) {
-            unset($orders['last_update_time']);
+            unset($orders['update_time']);
             unset($orders['post_time']);
             $orders = array_merge($orders, [$field => $sort]);
             $sortedFields[$field] = $sort;
@@ -229,10 +229,10 @@ class Article extends Base
         $ArticleMetaModel = new ArticleMetaModel();
         $meta = $ArticleMetaModel->where($where)->find(); //$ArticleMetaModel->find($where) 这种写法要求$where是主键值
         if ($meta) {
-            $data['last_update_time'] = date_time();
+            $data['update_time'] = date_time();
             $res = $ArticleMetaModel->isUpdate(true)->save($data, ['id' => $meta->id]);
         } else {
-            $data['last_update_time'] = date_time();
+            $data['update_time'] = date_time();
             $data['create_time'] = date_time();
             $res = ArticleMetaModel::create($data);
         }
@@ -734,7 +734,7 @@ class Article extends Base
         $endDatetime = date('Y-m-d 23:59:59', strtotime($endTime));
 
         $where = [
-            ['last_update_time', 'between', [$startDatetime, $endDatetime]]
+            ['update_time', 'between', [$startDatetime, $endDatetime]]
         ];
 
         $pageConfig = [
@@ -742,7 +742,7 @@ class Article extends Base
         ];
 
         $ArticleMetaModel = new ArticleMetaModel();
-        $list = $ArticleMetaModel->where(['article_id' => $id, 'meta_key' => 'read_ip'])->where($where)->order('last_update_time desc')->paginate(15, false, $pageConfig);
+        $list = $ArticleMetaModel->where(['article_id' => $id, 'meta_key' => 'read_ip'])->where($where)->order('update_time desc')->paginate(15, false, $pageConfig);
         $startTimestamp = strtotime($startTime);
         $endTimestamp = strtotime($endTime);
 
@@ -784,7 +784,7 @@ class Article extends Base
             $endTime = mktime(23, 59, 59, date('m',$i), date('d',$i), date('Y',$i));
 
             unset($where);
-            $where[] = ['last_update_time','between', [date_time($beginTime), date_time($endTime)]];
+            $where[] = ['update_time','between', [date_time($beginTime), date_time($endTime)]];
             $inquiryCount = $ArticleMetaModel->where(['article_id' => $id, 'meta_key' => 'read_ip'])->where($where)->count();
 
             array_push($option['xAxis']['data'], $day);
