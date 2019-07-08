@@ -42,8 +42,16 @@ class Article extends Base
             $map[] = ['status', '=', $status];
         }
 
+        $startTime = input('param.startTime', '');
+        $endTime = input('param.endTime', '');
+        if (!empty($endTime)) {
+            $map[] = ['create_time', '<=', $endTime . ' 23:59:59'];
+        }
+        if (!empty($startTime)) {
+            $map[] = ['create_time', '>=', $startTime . ' 00:00:00'];
+        }
+
         $fields = 'id,ad_id,title,update_time,post_time,create_time,is_top,status,read_count,sort';
-        //$orders = 'is_top desc, post_time desc, update_time desc';
         $orders = [
             'is_top' => 'desc',
             'post_time' => 'desc',
@@ -70,6 +78,8 @@ class Article extends Base
         $this->assign('list', $list);
         $this->assign('pages', $list->render());
         $this->assign('sortedFields', $sortedFields);
+        $this->assign('startTime', $startTime);
+        $this->assign('endTime', $endTime);
 
         //文章分类列表
         $CategoryModel = new CategoryModel();
@@ -134,14 +144,15 @@ class Article extends Base
                 $this->error('更新失败:' . $ArticleModel->getError());
             }
         }
-        $info = ArticleModel::get(['id'=>$id]);
-        if (empty($info)) {
+
+        $article = ArticleModel::get(['id'=>$id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
-        $this->assign('info', $info);
+        $this->assign('article', $article);
 
         //文章分类id
-        $categoryList = $info->categorys;
+        $categoryList = $article->categorys;
         $oldCategoryIds = [];
         foreach ($categoryList as $cate) {
             $oldCategoryIds[] = $cate['id'];
@@ -209,35 +220,48 @@ class Article extends Base
     //设定定时发布
     public function setTimingPost()
     {
-        $id = input('id/d', 0);
+        $id = input('id/s', 0);
         $postTime = input('postTime/s', '');
-        $art = ArticleModel::get(['id' => $id]);
-        if (empty($art)) {
-            $this->error('文章不存在');
-        }
 
-        $where = [
-            'article_id' => $id,
-            'meta_key' => ArticleMetaModel::KEY_TIMING_POST,
-        ];
-        $data = [
-            'article_id' => $id,
-            'meta_key' => ArticleMetaModel::KEY_TIMING_POST,
-            'meta_value' => $postTime
-        ];
+        $ids = [];
+        if (is_int($id)) {
+            $art = ArticleModel::get(['id' => $id]);
+            if (empty($art)) {
+                $this->error('文章不存在');
+            }
 
-        $ArticleMetaModel = new ArticleMetaModel();
-        $meta = $ArticleMetaModel->where($where)->find(); //$ArticleMetaModel->find($where) 这种写法要求$where是主键值
-        if ($meta) {
-            $data['update_time'] = date_time();
-            $res = $ArticleMetaModel->isUpdate(true)->save($data, ['id' => $meta->id]);
+            $ids[] = $id;
         } else {
-            $data['update_time'] = date_time();
-            $data['create_time'] = date_time();
-            $res = ArticleMetaModel::create($data);
+            $ids = explode(',', $id);
         }
 
-        if ($res) {
+        $numRows = 0;
+        foreach ($ids as $id) {
+            $where = [
+                'article_id' => $id,
+                'meta_key' => ArticleMetaModel::KEY_TIMING_POST,
+            ];
+            $data = [
+                'article_id' => $id,
+                'meta_key' => ArticleMetaModel::KEY_TIMING_POST,
+                'meta_value' => $postTime
+            ];
+
+            $ArticleMetaModel = new ArticleMetaModel();
+            $meta = $ArticleMetaModel->where($where)->find(); //$ArticleMetaModel->find($where) 这种写法要求$where是主键值
+            if ($meta) {
+                $data['update_time'] = date_time();
+                $res = $ArticleMetaModel->isUpdate(true)->save($data, ['id' => $meta->id]);
+                $numRows++;
+            } else {
+                $data['update_time'] = date_time();
+                $data['create_time'] = date_time();
+                $res = ArticleMetaModel::create($data);
+                $numRows++;
+            }
+        }
+
+        if ($numRows > 0) {
             $this->success('设置成功');
         } else {
             $this->error('设置失败');

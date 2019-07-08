@@ -21,4 +21,5 @@ return [
     'level' => ['error', 'notice', 'info', 'log', 'debug'],
     //独立日志
     'apart_level'   =>  ['error'],
+    'json' => false,
 ];

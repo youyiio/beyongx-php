@@ -9,7 +9,7 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="ibox float-e-margins">
         <div class="ibox-title">
-            <h5>{$info ? '修改' : '新增'}文章</h5>
+            <h5>{$article ? '修改' : '新增'}文章</h5>
             <div class="ibox-tools">
                 <a class="collapse-link">
                     <i class="fa fa-chevron-up"></i>
@@ -21,7 +21,7 @@
         </div>
         <div class="ibox-content">
             <form class="form-horizontal ajax-form" action="{:url(request()->controller().'/'.request()->action())}" method="post">
-                {present name="info"}
+                {present name="article"}
                 <!--编辑-->
                 <div class="form-group">
                     <label class="col-lg-2 control-label">所属分类</label>
@@ -51,21 +51,21 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label" for="title">文章标题</label>
                     <div class="col-lg-10">
-                        <input class="form-control" type="text" id="title" name="title" placeholder="文章标题" value="{$info.title|default=''}" required>
+                        <input class="form-control" type="text" id="title" name="title" placeholder="文章标题" value="{$article.title|default=''}" required>
                         <span class="help-block m-b-none"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-lg-2 control-label" for="author">文章作者</label>
                     <div class="col-lg-10">
-                        <input class="form-control" type="text" id="author" name="author" placeholder="文章作者" value="{$info.author|default=$myself['nickname']}">
+                        <input class="form-control" type="text" id="author" name="author" placeholder="文章作者" value="{$article.author|default=$myself['nickname']}">
                         <span class="help-block m-b-none"></span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-lg-2 control-label" for="keywords">关键词</label>
                     <div class="col-lg-10">
-                        <input class="form-control" type="text" id="keywords" name="keywords" placeholder="关键词" value="{$info.keywords|default=''}">
+                        <input class="form-control" type="text" id="keywords" name="keywords" placeholder="关键词" value="{$article.keywords|default=''}">
                         <span class="help-block m-b-none">多个关键词以英文逗号(,)分隔</span>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">摘要</label>
                     <div class="col-lg-10">
-                        <textarea class="form-control" name="description">{$info.description|default=''}</textarea>
+                        <textarea class="form-control" name="description">{$article.description|default=''}</textarea>
                         <span class="help-block m-b-none"></span>
                     </div>
                 </div>
@@ -82,8 +82,8 @@
                     <label class="col-lg-2 control-label">是否发布</label>
                     <div class="col-lg-10">
                         <select class="form-control" name="status">
-                            <option value="0" {present name="info"}{eq name="info.status" value="0"}selected{/eq}{/present}>存草稿</option>
-                            <option value="5" {present name="info"}{neq name="info.status" value="0"}selected{/neq}{/present}>立即发布</option>
+                            <option value="0" {present name="article"}{eq name="article.status" value="0"}selected{/eq}{/present}>存草稿</option>
+                            <option value="5" {present name="article"}{neq name="article.status" value="0"}selected{/neq}{/present}>立即发布</option>
                         </select>
                     </div>
                 </div>
@@ -91,13 +91,13 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">缩略图</label>
                     <div class="col-lg-10">
-                        <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$info.thumb_image_id|default=''}">
+                        <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$article.thumb_image_id|default=''}">
                         {php}$article_thumb_image = json_decode(get_config('article_thumb_image'), true){/php}
                         <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="thumb_image_id" data-width="{$article_thumb_image.width}" data-height="{$article_thumb_image.height}"
                              data-thumb-width="{$article_thumb_image.thumb_width}" data-thumb-height="{$article_thumb_image.thumb_height}">
                             <div class="dz-message needsclick">
-                                {if isset($info) && $info.thumb_image_id > 0}
-                                <img src="{$info.thumb_image.full_image_url}" style="border:1px solid #ccc;{$article_thumb_image.thumb_width}px;height:{$article_thumb_image.thumb_height}px">
+                                {if isset($article) && $article.thumb_image_id > 0}
+                                <img src="{$article.thumb_image.full_image_url}" style="border:1px solid #ccc;{$article_thumb_image.thumb_width}px;height:{$article_thumb_image.thumb_height}px">
                                 {else/}
                                 点击此处上传文章缩略图 {$article_thumb_image.width}*{$article_thumb_image.height}<br>
                                 <span class="note needsclick"></span>
@@ -111,17 +111,17 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label">内容</label>
                     <div class="col-lg-10">
-                        <script id="container" name="content" type="text/plain">{$info ? html_entity_decode($info['content']) : ''}</script>
+                        <script id="container" name="content" type="text/plain">{$article ? html_entity_decode($article['content']) : ''}</script>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <div class="col-lg-offset-2 col-lg-10">
-                        {present name="info"}
-                        <input type="hidden" name="id" value="{$info.id}">
+                        {present name="article"}
+                        <input type="hidden" name="id" value="{$article.id}">
                         <input type="hidden" name="oldCategoryIds" value="{$oldCategoryIds|json_encode}">
                         {/present}
-                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$info ? '修改' : '新增'}</button>
+                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$article ? '修改' : '新增'}</button>
                     </div>
                 </div>
             </form>

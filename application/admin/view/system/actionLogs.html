@@ -1,0 +1,169 @@
+{extend name="public/base" /}
+{block name="title"}{$columnTitle|default="日志审计"}{/block}
+{block name="css"}
+<link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css">
+
+{/block}
+{block name="main"}
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>日志列表 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li></li>
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12 text-right">
+                        <form method="get" role="form" class="form-inline">
+                            <div class="form-group" style="margin-top: -5px">
+                                <input style="margin-top: 5px" type="text" name="key" placeholder="关键字" class="form-control m-b-xs" value="{$Think.get.key|default=''}">
+                            </div>
+                            <div class="form-group" >
+                                <select name="action" class="form-control m-b-xs" >
+                                    <option value="">操作类型</option>
+                                    <option value="login" {heq name="Think.get.action" value="login"}selected{/heq}>登录</option>
+                                    <option value="logout" {heq name="Think.get.action" value="logout"}selected{/heq}>登出</option>
+                                    <option value="check_in" {heq name="Think.get.action" value="check_in"}selected{/heq}>签到</option>
+                                    <option value="access" {heq name="Think.get.action" value="access"}selected{/heq}>浏览</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-top: -5px;">
+                                <input type="text" autocomplete="off" class="form-datetime form-control" placeholder="起始日期" id="queryDate" name="startTime" value="{$Think.get.startTime |default=$startTime}">
+                            </div>
+                            <div class="form-group" style="margin-top: -5px">
+                                <input type="text" autocomplete="off" class="form-datetime form-control" placeholder="终止日期" name="endTime" value="{$Think.get.endTime |default=$endTime}">
+                            </div>
+                            <button type="submit" class="btn btn-primary m-b-xs">查找</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                    <div class="fixed-table-container">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                            <tr>
+                                <!-- <th><input type="checkbox" class="ajax-check-all" id="0"></th> -->
+                                <th><div class="th-inner">ID</div></th>
+                                <th><div class="th-inner">操作用户</div></th>
+                                <th><div class="th-inner">操作类型</div></th>
+                                <th><div class="th-inner">模块</div></th>
+                                <th><div class="th-inner">IP</div></th>
+                                <th><div class="th-inner">备注</div></th>
+                                <th><div class="th-inner">操作内容</div></th>
+                                <th><div class="th-inner">创建时间</div></th>
+                            </tr>
+                            </thead>
+                            {foreach name="list" item="al"}
+                            <tr>
+                                <!-- <td><input type="checkbox" class="ajax-check" id="{$al.id}"></td> -->
+                                <td>{$al.id}</td>
+                                <td><a href="{:url('admin/User/viewUser',['uid'=>$al.user_id])}">{$al.user.nickname}</a></td>
+                                <td>{$al.action_text}</td>
+                                <td>{$al.module}</td>
+                                <td>{$al.ip}</td>
+                                <td>{$al.remark}</td>
+                                <td>{$al.data}</td>
+                                <td>{$al.create_time}</td>
+                            </tr>
+                            {/foreach}
+                        </table>
+                    </div>
+                    {$pages|raw}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name="js"}
+<!--日期选择器-->
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/bootstrap-datetimepicker.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+<script src="__PUBLIC__/static/inspinia/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+
+<script>
+    // 排序
+    $(function(){
+        $(".bootstrap-table").on('click', 'div.sortable', function(event) {
+            event.preventDefault();
+            /* Act on the event */
+            // 获取排序方式
+            var field = $(this).parent().data("field");
+            var sort = "asc";
+            // alert(field);return;
+            if ($(this).hasClass("desc")) {
+                $(this).removeClass("desc");
+                $(this).addClass("asc");
+                sort = "asc";
+            } else if ($(this).hasClass("asc")) {
+                $(this).removeClass("asc");
+                $(this).addClass("desc");
+                sort = "desc";
+            } else {
+                $(this).addClass("asc");
+                sort = "asc";
+            }
+
+            //get的方式传参数到后台
+            var url = window.location.href;
+            url += (url.indexOf('?') < 0 ? '?' : '&') + "field=" + field + "&sort=" + sort;
+            window.location.href = url;
+        });
+    });
+
+    //日期控件
+    $('.form-datetime').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        startView: 'month',
+        minView: 2,
+        autoclose: true,
+        todayBtn: true
+    });
+
+    $('#dateType').change(function () {
+        if ($('#dateType').val() == "day")
+        {
+            $('.form-datetime').datetimepicker({
+                language: 'zh-CN',
+                format: 'yyyy-mm-dd',
+                startView: 'month',
+                minView: 3,
+                autoclose: true,
+                todayBtn: true
+            });
+        } else {
+            $('.form-datetime').datetimepicker({
+                language: 'zh-CN',
+                format: 'yyyy-mm',
+                startView: 'year',
+                minView: 3,
+                autoclose: true,
+                todayBtn: false
+            });
+        }
+    })
+
+</script>
+{/block}

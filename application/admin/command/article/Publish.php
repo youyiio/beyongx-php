@@ -6,8 +6,7 @@
  * Time: 11:14
  */
 
-namespace app\admin\command;
-
+namespace app\admin\command\article;
 
 use think\console\Command;
 use think\console\Input;

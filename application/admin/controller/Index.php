@@ -48,26 +48,52 @@ class Index extends Base
         list($curWeekBeginTime, $curWeekEndTime) = Time::week();
         list($curMonthBeginTime, $curMonthEndTime) = Time::month();
 
+        list($yesterdayBeginTime, $yesterdayEndTime) = Time::yesterday();
+        list($lastWeekBeginTime, $lastWeekEndTime) = Time::lastWeek();
+        list($lastMonthBeginTime, $lastMonthEndTime) = Time::lastMonth();
+
         $where = [];
         $where[] = ['create_time','between', [date_time($todayBeginTime), date_time($todayEndTime)]];
+        $yesterdayWhere[] = ['create_time','between', [date_time($yesterdayBeginTime), date_time($yesterdayEndTime)]];
+
         $ArticleModel = new ArticleModel();
         $todayCount = $ArticleModel->where($where)->count();
+        $yesterdayCount = $ArticleModel->where($yesterdayWhere)->count();
+        if ($yesterdayCount === 0) { //除数不能为0
+            $dayPercent = $todayCount * 100;
+        } else {
+            $dayPercent = (($todayCount - $yesterdayCount) / $yesterdayCount) * 100;
+        }
 
         unset($where);
         $where[] = ['create_time','between', [date_time($curWeekBeginTime), date_time($curWeekEndTime)]];
+        $lastWeekWhere[] = ['create_time','between', [date_time($lastWeekBeginTime), date_time($lastWeekEndTime)]];
         $curWeekCount = $ArticleModel->where($where)->count();
+        $lastWeekCount = $ArticleModel->where($lastWeekWhere)->count();
+        if ($lastWeekCount === 0) {//除数不能为0
+            $weekPercent = $curWeekCount * 100;
+        } else {
+            $weekPercent = (($curWeekCount - $lastWeekCount) / $lastWeekCount) * 100;
+        }
 
         unset($where);
-        $where[] = ['create_time','between', [date_time($curMonthBeginTime), date_time($curMonthEndTime)]];
+        $where[] = ['create_time', 'between', [date_time($curMonthBeginTime), date_time($curMonthEndTime)]];
+        $lastMonthWhere[] = ['create_time', 'between', [date_time($lastMonthBeginTime), date_time($lastMonthEndTime)]];
         $curMonthCount = $ArticleModel->where($where)->count();
+        $lastMonthCount = $ArticleModel->where($lastMonthWhere)->count();
+        if ($lastMonthCount === 0) {//除数不能为0
+            $monthPercent = $curMonthCount * 100;
+        } else {
+            $monthPercent = (($curMonthCount - $lastMonthCount) / $lastMonthCount) * 100;
+        }
 
         unset($where);
-        $where[] = ['status','=', ArticleModel::STATUS_PUBLISHING];
+        $where[] = ['status', '=', ArticleModel::STATUS_PUBLISHING];
         $waitForPublishCount = $ArticleModel->where($where)->count();
 
         unset($where);
-        $where[] = ['status','>=', ArticleModel::STATUS_PUBLISHING];
-        $where[] = ['status','<', ArticleModel::STATUS_PUBLISHED];
+        $where[] = ['status', '>=', ArticleModel::STATUS_PUBLISHING];
+        $where[] = ['status', '<', ArticleModel::STATUS_PUBLISHED];
         $waitForAuditCount = $ArticleModel->where($where)->count();
 
         $this->assign('todayCount', $todayCount);
@@ -76,6 +102,10 @@ class Index extends Base
 
         $this->assign('waitForPublishCount', $waitForPublishCount);
         $this->assign('waitForAuditCount', $waitForAuditCount);
+
+        $this->assign('dayPercent', $dayPercent);
+        $this->assign('weekPercent', $weekPercent);
+        $this->assign('monthPercent', $monthPercent);
 
         return view();
     }

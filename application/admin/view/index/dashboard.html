@@ -15,7 +15,11 @@
             </div>
             <div class="ibox-content">
                 <h1 class="no-margins">{$todayCount}</h1>
-                <div class="stat-percent font-bold text-navy">44% <i class="fa fa-level-up"></i></div>
+                {if $dayPercent > 0}
+                <div class="stat-percent font-bold text-navy">{$dayPercent}% <i class="fa fa-level-up"></i></div>
+                {else /}
+                <div class="stat-percent font-bold text-success">{$dayPercent}% <i class="fa fa-bolt"></i></div>
+                {/if}
                 <small>新增单数</small>
             </div>
         </div>
@@ -28,7 +32,11 @@
             </div>
             <div class="ibox-content">
                 <h1 class="no-margins">{$curWeekCount}</h1>
-                <div class="stat-percent font-bold text-info">20% <i class="fa fa-level-up"></i></div>
+                {if $weekPercent > 0}
+                <div class="stat-percent font-bold text-navy">{$weekPercent}% <i class="fa fa-level-up"></i></div>
+                {else /}
+                <div class="stat-percent font-bold text-success">{$weekPercent}% <i class="fa fa-bolt"></i></div>
+                {/if}
                 <small>新增单数</small>
             </div>
         </div>
@@ -41,7 +49,11 @@
             </div>
             <div class="ibox-content">
                 <h1 class="no-margins">{$curMonthCount}</h1>
-                <div class="stat-percent font-bold text-success">98% <i class="fa fa-bolt"></i></div>
+                {if $monthPercent > 0}
+                <div class="stat-percent font-bold text-navy">{$monthPercent}% <i class="fa fa-level-up"></i></div>
+                {else /}
+                <div class="stat-percent font-bold text-success">{$monthPercent}% <i class="fa fa-bolt"></i></div>
+                {/if}
                 <small>新增单数</small>
             </div>
         </div>

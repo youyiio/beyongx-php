@@ -64,11 +64,7 @@
                     <div class="form-group">
                         <label class="control-label col-lg-2">是否采集分页:</label>
                         <div class="col-lg-10">
-                            {empty name="$crawler.paging_url"}
-                            <input type="checkbox" class="switch1" value="0" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
-                            {else}
-                            <input type="checkbox" class="switch1" value="1" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
-                            {/empty}
+                            <input type="checkbox" class="switch1" name="is_paging" {if isset($crawler) && $crawler.is_paging}checked{/if}>
                         </div>
                     </div>
                     <div class="form-group" id="startPage">
@@ -166,32 +162,26 @@
 
     //分页开关显示/隐藏分页选项
     $(document).ready(function() {
-        var auditCheckbox = document.querySelector('.switch1');
-        var auditSwitchery = new Switchery(auditCheckbox, {color: '#1AB394'});
+        var pagingCheckbox = document.querySelector('.switch1');
+        new Switchery(pagingCheckbox, {color: '#1AB394'});
 
-        $("#startPage").hide();
-        $("#pagingUrl").hide();
-        $(auditCheckbox).change(function () {
-            if (auditCheckbox.value == '0') {
-                $("#startPage").hide();
-                $("#pagingUrl").hide();
-                $(auditCheckbox).val(value = '1');
-            } else {
-                $("#startPage").show();
-                $("#pagingUrl").show();
-                $(auditCheckbox).val(value = '0');
-            }
-        });
-
-        if (auditCheckbox.value == '1') {
+        if (pagingCheckbox.checked) {
             $("#startPage").show();
             $("#pagingUrl").show();
-            $(auditCheckbox).val(value = '1');
         } else {
             $("#startPage").hide();
             $("#pagingUrl").hide();
-            $(auditCheckbox).val(value = '1');
         }
+
+        pagingCheckbox.onchange = function() {
+            if (this.checked) {
+                $("#startPage").show();
+                $("#pagingUrl").show();
+            } else {
+                $("#startPage").hide();
+                $("#pagingUrl").hide();
+            }
+        };
     });
 
     $('#test').on('click', function() {

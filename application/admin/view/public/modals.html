@@ -1,6 +1,6 @@
 <!-- .link-a modal 使用-->
-<div class="modal inmodal" id="linkModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal inmodal" id="viewModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog"><!-- 窗口大小控制：modal-lg modal-sm -->
         <div class="modal-content animated fadeIn">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
@@ -8,6 +8,7 @@
                 <small class="font-bold">子标题，说明备注</small>
             </div>
             <div class="modal-body">
+                <!--加载进度显示-->
                 <div class="sk-spinner sk-spinner-wave">
                     <div class="sk-rect1"></div>
                     <div class="sk-rect2"></div>
@@ -18,29 +19,34 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal inmodal" id="linkModalDemo" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal inmodal fade" id="formModal" tabindex="-1" role="dialog"  aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content animated fadeIn">
+        <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">Modal title</h4>
-                <small class="font-bold">Lorem Ipsum is simply dummy text of the printing and typesetting industry.</small>
+                <h4 class="modal-title">标题</h4>
+                <small class="font-bold">子标题，说明备注</small>
             </div>
             <div class="modal-body">
-                <p><strong>Lorem Ipsum is simply dummy</strong> text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown
-                    printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting,
-                    remaining essentially unchanged.</p>
-                <div class="form-group"><label>Sample Input</label> <input type="email" placeholder="Enter your email" class="form-control"></div>
+                <!--加载进度显示-->
+                <div class="sk-spinner sk-spinner-wave">
+                    <div class="sk-rect1"></div>
+                    <div class="sk-rect2"></div>
+                    <div class="sk-rect3"></div>
+                    <div class="sk-rect4"></div>
+                    <div class="sk-rect5"></div>
+                </div>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" >Save changes</button>
+                <button type="button" class="btn btn-white" data-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">确定</button>
             </div>
         </div>
     </div>

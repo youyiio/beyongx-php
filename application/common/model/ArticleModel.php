@@ -1,8 +1,9 @@
 <?php
 namespace app\common\model;
 
-use app\common\exception\ModelException;
 use think\facade\Log;
+use think\facade\Cache;
+use app\common\exception\ModelException;
 
 class ArticleModel extends BaseModel
 {
@@ -47,10 +48,12 @@ class ArticleModel extends BaseModel
             //若文章已发布，提交链接|检测收录，$article['status'] == ArticleModel::STATUS_PUBLISHED 此时做这个判断会有延迟
 
             //提交链接
-            $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
-            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-            $jobQueue = config('queue.default');
-            \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
+                $jobHandlerClass = 'app\admin\job\Webmaster@pushLinks';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            }
 
             //检测收录,延迟4,6,24小时
             $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
@@ -84,10 +87,13 @@ class ArticleModel extends BaseModel
             //若文章已发布，提交链接|检测收录，$article['status'] == ArticleModel::STATUS_PUBLISHED 此时做这个判断会有延迟
 
             //提交链接
-            $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
-            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-            $jobQueue = config('queue.default');
-            \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
+                $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+            }
+
 
             //检测收录,延迟4,6,24小时
             $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
@@ -220,46 +226,6 @@ class ArticleModel extends BaseModel
         return true;
     }
 
-
-    //文章列表获取
-//    public static function getList($cateId,$limit = 7, $map = '=')
-//    {
-//        $cacheMark = 'article_cate_'.$cateId;
-//        if (session('uid')) {
-//            $tag = 'login_';
-//        } else {
-//            $tag = 'logout_';
-//        }
-//
-//        if (!Cache::has($tag.$cacheMark)) {
-//            $childCate = CategoryModel::getChild($cateId);
-//            $articleModel = ArticleModel::has('categoryArticle',['category_id'=>['in',$childCate['ids']]]);
-//            if ($tag == 'login_') {
-//                $where['post_type'] = ['egt',0];
-//            } else {
-//                $where['post_type'] = 0;
-//            }
-//            $list = $articleModel->where('status',['=', ArticleModel::STATUS_PUBLISHED_OLD], ['=', ArticleModel::STATUS_PUBLISHED], 'or')
-//                ->where($where)->field('id,category_id,title,author,post_time,thumb_image_id,description')->order('is_top desc,post_time desc')->limit($limit)->select();
-//
-//            // dump($list);die;
-//            foreach ($list as $k => $v) {
-//                $list[$k] = $v->toArray();
-//                if ($v['thumb_image_id'] > 0) {
-//                    $list[$k]['image_url'] = url_add_domain($v->image->image_url);
-//                    $list[$k]['thumb_image_url'] = url_add_domain($v->image->thumbnail_image_url);
-//                } else {
-//                    $list[$k]['image_url'] = '';
-//                    $list[$k]['thumb_image_url'] = '';
-//                }
-//            }
-//            Cache::set($tag.$cacheMark,$list);
-//        }
-//        $artList = Cache::get($tag.$cacheMark);
-//
-//        return $artList;
-//    }
-
     //删除文章缓存
     public static function clearArticleCache($cateIds)
     {
@@ -267,13 +233,13 @@ class ArticleModel extends BaseModel
             if ($cateId instanceof \think\Model) {
                 $cateId = $cateId['id'];
             }
-            $cate = CategoryModel::getParent($cateId);
+            $cate = CategoryModel::getParent1($cateId);
             foreach ($cate['ids'] as $k => $v) {
-                if (Cache::has('login_article_cate_'.$v)) {
-                    Cache::rm('login_article_cate_'.$v);
+                if (Cache::has('login_article_cate_' . $v)) {
+                    Cache::rm('login_article_cate_' . $v);
                 }
-                if (Cache::has('logout_article_cate_'.$v)) {
-                    Cache::rm('logout_article_cate_'.$v);
+                if (Cache::has('logout_article_cate_' . $v)) {
+                    Cache::rm('logout_article_cate_' . $v);
                 }
             }
         }

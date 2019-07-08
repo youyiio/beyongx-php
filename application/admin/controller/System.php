@@ -1,6 +1,7 @@
 <?php
 namespace app\admin\controller;
 
+use app\common\model\ActionLogModel;
 use app\common\model\ConfigModel;
 use app\common\model\LinksModel;
 use think\Controller;
@@ -212,6 +213,56 @@ class System extends Base
     //日志审计
     public function actionLogs()
     {
+        $ActionLogModel = new ActionLogModel();
+
+        $key = input('param.key');
+        $action = input('param.action','');
+
+        $startTime = input('param.startTime');
+        $endTime = input('param.endTime');
+        if (!(isset($startTime) && isset($endTime))) {
+            $startTime  = date('Y-m-d',strtotime('-31 day'));
+            $endTime   = date('Y-m-d');
+        }
+
+        $startDatetime = date('Y-m-d 00:00:00', strtotime($startTime));
+        $endDatetime = date('Y-m-d 23:59:59', strtotime($endTime));
+
+        $where = [
+            ['remark', 'like', "%{$key}%"],
+            ['action', '=', $action],
+            ['create_time', 'between', [$startDatetime, $endDatetime]],
+        ];
+        if ($action == '' && $key == '') {
+            $where = [
+                ['create_time', 'between', [$startDatetime, $endDatetime]],
+            ];
+        } else if ($action == ''){
+            $where = [
+                ['remark', 'like', "%{$key}%"],
+                ['create_time', 'between', [$startDatetime, $endDatetime]],
+            ];
+        }
+
+        $fields = 'id, user_id, action, module, ip, remark, data, create_time';
+        $pageConfig = [
+            'type' => '\\app\\common\\paginator\\BootstrapTable',
+            'query' => input('param.')
+        ];
+        $listRow = input('param.list_rows/d') ? input('param.list_rows/d') : 20;
+
+        $list = $ActionLogModel->where($where)->field($fields)->order('id desc')->paginate($listRow, false, $pageConfig);
+        $startTimestamp = strtotime($startTime);
+        $endTimestamp = strtotime($endTime);
+
+        $this->assign('startTime', $startTime);
+        $this->assign('endTime', $endTime);
+        $this->assign('startTimestamp', $startTimestamp);
+        $this->assign('endTimestamp', $endTimestamp);
+        $this->assign('list', $list);
+        $this->assign('pages', $list->render());
+
+
         return $this->fetch('actionLogs');
     }
 }

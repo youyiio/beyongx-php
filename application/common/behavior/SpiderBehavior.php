@@ -8,6 +8,7 @@
 
 namespace app\common\behavior;
 
+use app\common\model\ActionLogModel;
 use think\facade\Request;
 
 use app\common\logic\ActionLogLogic;
@@ -24,6 +25,6 @@ class SpiderBehavior
 
         //登录日志
         $actionLog = new ActionLogLogic();
-        $actionLog->addLog(0, 'access', $userAgent, $params);
+        $actionLog->addLog(0, ActionLogModel::ACTION_ACCESS, $userAgent, $params);
     }
 }

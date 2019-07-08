@@ -3,7 +3,8 @@
 {block name="css"}
 <link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css">
-
+<!-- ladda   -->
+<link href="__PUBLIC__/static/inspinia/css/plugins/ladda/ladda-themeless.min.css" rel="stylesheet">
 {/block}
 {block name="main"}
 
@@ -29,10 +30,26 @@
             </div>
             <div class="ibox-content" style="padding:10px">
                 <div class="row">
-                    <div class="col-lg-3 col-md-3">
-                        <a class="btn btn-primary J_addMenuTab" href="{:url(request()->controller().'/addArticle')}">新增文章</a>
+                    <div class="col-lg-4 col-md-12">
+                        <a class="btn btn-sm btn-primary J_addMenuTab" href="{:url(request()->controller().'/addArticle')}">新增文章</a>
+                        <div class="btn-group">
+                            <button data-toggle="dropdown" class="btn btn-success btn-sm dropdown-toggle">
+                                <i class="fa fa-check"></i>发布操作<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a href="javascript:void(0)" class="ajax-batch-set" data-action="{:url(request()->controller().'/postArticle')}">立即发布</a></li>
+                                <li><a href="javascript:void(0)" class="ajax-batch-set" data-action="{:url(request()->controller().'/auditFirst')}">初审</a></li>
+                                <li><a href="javascript:void(0)" class="ajax-batch-set" data-action="{:url(request()->controller().'/auditSecond')}">终审</a></li>
+                            </ul>
+                        </div>
+
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-warning ajax-batch-set" data-style="zoom-in" data-action="{:url('Article/setTop')}"> <i class="fa fa-arrow-circle-up"></i> 置顶 </label>
+                            <label class="ladda-button btn btn-sm btn-info" data-style="zoom-in" data-action="{:url('Article/setTimingPost')}" onclick="showTimingPostModel(this)"> <i class="fa fa-clock-o"></i> 定时发布 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in" data-action="{:url('Article/deleteArticle')}"> <i class="fa fa-trash"></i> 删除 </label>
+                        </div>
                     </div>
-                    <div class="col-lg-9 col-md-9 text-right">
+                    <div class="col-lg-8 col-md-12 text-right">
                         <form method="get" role="form" class="form-inline">
                             <div class="form-group">
                                 <input type="text" name="key" placeholder="关键字" class="form-control m-b-xs" value="{$Think.get.key|default=''}">
@@ -58,7 +75,16 @@
                                     {/volist}
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary m-b-xs">查找</button>
+                            <div class="form-group">
+                                <input type="text" autocomplete="off" class="form-control m-b-xs form-datetime" placeholder="起始日期" id="queryDate" name="startTime" value="{$Think.get.startTime |default=$startTime}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" autocomplete="off" class="form-control m-b-xs form-datetime" placeholder="终止日期" name="endTime" value="{$Think.get.endTime |default=$endTime}">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary m-b-xs">查找</button>
+                            </div>
+
                         </form>
                     </div>
                 </div>
@@ -68,7 +94,7 @@
                         <table class="table table-bordered table-hover table-striped table-condensed">
                             <thead>
                             <tr>
-                                <!-- <th><input type="checkbox" class="ajax-check-all" id="0"></th> -->
+                                <th><div class="th-inner"><input type="checkbox" class="ajax-check-all" id="0"></div></th>
                                 <th><div class="th-inner">ID</div></th>
                                 <th><div class="th-inner">所属分类</div></th>
                                 <th><div class="th-inner">标题</div></th>
@@ -80,45 +106,50 @@
                                 <th><div class="th-inner">操作</div></th>
                             </tr>
                             </thead>
-                            {foreach name="list" item="al"}
+                            {foreach name="list" item="vo"}
                             <tr>
-                                <!-- <td><input type="checkbox" class="ajax-check" id="{$al.id}"></td> -->
-                                <td>{$al.id}</td>
+                                <td><input type="checkbox" class="ajax-check" value="{$vo.id}"></td>
+                                <td>{$vo.id}</td>
                                 <td>
-                                    {volist name="al.categorys" id="vo" empty="未分类"}
-                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$vo.title_cn}</span>
+                                    {volist name="vo.categorys" id="categoryVo" empty="未分类"}
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
                                     {/volist}
                                 </td>
-                                <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}">{$al.title}</a>{eq name="al.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
-                                <td>{$al.status_text}</td>
-                                <td align="center">{$al.read_count}</td>
+                                <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a>{eq name="vo.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
+                                <td>{$vo.status_text}</td>
+                                <td align="center">{$vo.read_count}</td>
                                 <td align="center">
-                                    <a href="https://www.baidu.com/s?wd={:url('cms/Article/viewArticle', ['aid'=>$al.id], true, get_config('domain_name'))}" target="_blank">
-                                        {php}$index = $al->meta('baidu_index');{/php}
+                                    <a href="https://www.baidu.com/s?wd={:url('cms/Article/viewArticle', ['aid'=>$vo.id], true, get_config('domain_name'))}" target="_blank">
+                                        {php}$index = $vo->meta('baidu_index');{/php}
                                         {:$index != true ? '否': '是'}
                                     </a>
                                 </td>
-                                <td>{$al.post_time}{notempty name="$al.timing"}{$al.timing}<i class="fa fa-clock-o"></i>{/notempty}</td>
-                                <td>{$al.create_time}</td>
+                                <td>{if $vo.status == \app\common\model\ArticleModel::STATUS_PUBLISHED}
+                                    {$vo.post_time}
+                                    {else /}
+                                    {notempty name="$vo.timing"}{$vo.timing}<i class="fa fa-clock-o"></i>{/notempty}
+                                    {/if}
+                                </td>
+                                <td>{$vo.create_time}</td>
                                 <td>
-                                    <a href="{:url(request()->controller().'/viewArticle',['id'=>$al['id']])}" class="J_addMenuTab" data-menu-name="查看文章"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
-                                    <a href="{:url(request()->controller().'/editArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
+                                    <a href="{:url(request()->controller().'/viewArticle',['id'=>$vo['id']])}" class="J_addMenuTab" data-menu-name="查看文章"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
+                                    <a href="{:url(request()->controller().'/editArticle',['id'=>$vo['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
 
                                     <div class="btn-group">
-                                        <button data-toggle="dropdown" class="btn btn-primary btn-xs dropdown-toggle">
-                                            {$al.status_text}<span class="caret"></span>
+                                        <button data-toggle="dropdown" class="btn btn-success btn-xs dropdown-toggle">
+                                            {$vo.status_text}<span class="caret"></span>
                                         </button>
 
                                         <ul class="dropdown-menu">
-                                            {eq name="al.status" value="0"}
+                                            {eq name="vo.status" value="0"}
                                             <li>
-                                                <a href="{:url(request()->controller().'/postArticle',['id'=>$al['id']])}" class="ajax-a" style="color: black">立即发布</a>
+                                                <a href="{:url(request()->controller().'/postArticle',['id'=>$vo['id']])}" class="ajax-a" style="color: black">立即发布</a>
                                             </li>
                                             {/eq}
                                             <li>
-                                                {if $al.status == 1}
-                                                <a href="{:url(request()->controller().'/auditFirst',['id'=>$al['id']])}" class="ajax-a" style="color: black">初审</a>
-                                                {elseif $al.status >= 3/}
+                                                {if $vo.status == 1}
+                                                <a href="{:url(request()->controller().'/auditFirst',['id'=>$vo['id']])}" class="ajax-a" style="color: black">初审</a>
+                                                {elseif $vo.status >= 3/}
                                                 <a class="firstTrial">已初审</a>
                                                 {else /}
                                                 <a class="trial">初审</a>
@@ -126,9 +157,9 @@
                                             </li>
                                             <li class="divider"></li>
                                             <li>
-                                                {if $al.status == 3}
-                                                <a href="{:url(request()->controller().'/auditSecond',['id'=>$al['id']])}" class="ajax-a" style="color: black">终审</a>
-                                                {elseif $al.status >= 5/}
+                                                {if $vo.status == 3}
+                                                <a href="{:url(request()->controller().'/auditSecond',['id'=>$vo['id']])}" class="ajax-a" style="color: black">终审</a>
+                                                {elseif $vo.status >= 5/}
                                                 <a class="secondTrial">已终审</a>
                                                 {else /}
                                                 <a class="trial">终审</a>
@@ -137,14 +168,14 @@
                                         </ul>
                                     </div>
 
-                                    {eq name="al.is_top" value="0"}
-                                    <button class="btn btn-xs btn-info ajax-btn" data-action="{:url(request()->controller().'/setTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-up"></i> 置顶</button>
+                                    {eq name="vo.is_top" value="0"}
+                                    <button class="btn btn-xs btn-info ajax-btn" data-action="{:url(request()->controller().'/setTop',['id'=>$vo['id']])}"><i class="fa fa-arrow-circle-up"></i> 置顶</button>
                                     {else/}
-                                    <button class="btn btn-xs btn-white ajax-btn" data-action="{:url(request()->controller().'/unsetTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
+                                    <button class="btn btn-xs btn-white ajax-btn" data-action="{:url(request()->controller().'/unsetTop',['id'=>$vo['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
                                     {/eq}
-                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Article/deleteArticle',['id'=>$al['id']])}" data-title="提示" data-text="您确认要删除文章吗"><i class="fa fa-remove"></i> 删除</button>
-                                    {if condition="$al.status >= 0 &&  $al.status < 5"}
-                                    <button class="btn btn-xs btn-info" onclick="showModel(this)" data-id="{$al['id']}"><i class="fa fa-clock-o"></i>定时发布</button>
+                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Article/deleteArticle',['id'=>$vo['id']])}" data-title="提示" data-text="您确认要删除文章吗"><i class="fa fa-remove"></i> 删除</button>
+                                    {if condition="$vo.status >= 0 &&  $vo.status < 5"}
+                                    <button class="btn btn-xs btn-info" onclick="showTimingPostModel(this)" data-id="{$vo['id']}"><i class="fa fa-clock-o"></i>定时发布</button>
                                     {/if}
                                 </td>
                             </tr>
@@ -161,9 +192,10 @@
     </div>
 </div>
 
+{include file="public/modals" /}
 
 <!-- 定时设置模态框开始 -->
-<div class="modal fade" id="bjy-set" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="timingPostModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -175,11 +207,13 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <form id="bjy-form" class="form-horizontal ajax-form" action="{:url('Article/setTimingPost')}" method="post">
+                <form class="form-horizontal ajax-form" action="{:url('Article/setTimingPost')}" method="post">
                     <input type="hidden" name="id" value="">
                     <div class="form-group">
                         <label class="col-lg-2 control-label">选择时间:</label>
-                        <div class="col-lg-10"><input type="text" name="postTime" autocomplete="off" placeholder="点击输入框选择" class="form-datetime form-control" readonly> <span class="help-block m-b-none"></span>
+                        <div class="col-lg-10">
+                            <input type="text" name="postTime" autocomplete="off" placeholder="点击输入框选择" class="form-datetime-timing form-control" readonly>
+                            <span class="help-block m-b-none"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -202,10 +236,44 @@
 <script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
 
 <script src="__PUBLIC__/static/inspinia/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<!-- Ladda -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.jquery.min.js"></script>
 
+<script src="__PUBLIC__/static/inspinia/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
 <script>
     // 排序
-    $(function(){
+    $(function() {
+        //批量操作 审核,取消审核,删除
+        var laddaBtn = $('.ajax-batch-set').ladda();
+        laddaBtn.click(function() {
+            // Start loading
+            $(this).ladda('start');
+
+            var ids = getAjaxCheckedValues();
+            if (!ids) {
+                layer.msg('请选择要操作的文章!', function(){});
+                $(this).ladda('stop');
+                return;
+            }
+            var action = $(this).data('action');
+            $.each(ids, function (i, id) {
+                $.post(action, {id: id}, function (data) {
+                    //console.log(data);
+                    if (data.code == 0 && uids.length == 1) {
+                        layer.msg(data.msg, function(){});
+                        location.reload();
+                        return false;
+                    }
+                });
+            });
+
+            setTimeout(function () {
+                location.reload();
+            }, 800);
+        });
+
         $(".bootstrap-table").on('click', 'div.sortable', function(event) {
             event.preventDefault();
             /* Act on the event */
@@ -234,15 +302,35 @@
     });
 
     // 定时模态框
-    function showModel(obj){
-        var artId = $(obj).data('id');
-        $("input[name='id']").val(artId);
+    function showTimingPostModel(obj) {
+        if ($(obj).prop('tagName') == 'LABEL') {
+            var ids = getAjaxCheckedValues();
+            if (!ids) {
+                layer.msg('请选择要操作的文章!', function(){});
+                return;
+            }
 
-        $('#bjy-set').modal('show');
+            $("input[name='id']").val(ids.join(','));
+        } else {
+            var aid = $(obj).data('id');
+            $("input[name='id']").val(aid);
+        }
+
+        $('#timingPostModal').modal('show');
     }
 
-    //日期控件
+    //日期控件（查询）
     $('.form-datetime').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        startView: 'month',
+        minView: 2,
+        autoclose: true,
+        todayBtn: true
+    });
+
+    //日期控件（定时器）
+    $('.form-datetime-timing').datetimepicker({
         language: 'zh-CN',
         format: 'yyyy-mm-dd hh:ii:ss',
         startView: 'month',
@@ -250,7 +338,6 @@
         autoclose: true,
         todayBtn: true
     });
-
 
     $('.addHeadline').click(function(e){
         e.preventDefault();
@@ -272,7 +359,6 @@
 
     $('.trial').attr("disabled", true);
     $('.trial').css("pointer-events", "none");
-
 
 </script>
 {/block}
