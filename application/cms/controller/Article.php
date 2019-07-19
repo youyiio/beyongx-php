@@ -45,8 +45,12 @@ class Article extends Base
      * @return \think\response\View
      * @throws \think\Exception
      * */
-    public function articleList($cid=0, $cname='')
+    public function articleList($cid=0, $cname='', $csubname='')
     {
+        if (!empty($cname) && !empty($csubname)) {
+            return $this->articleSublist($cname, $csubname);
+        }
+
         if (empty($cid) && !empty($cname)) {
             $CategoryModel = new CategoryModel();
             $category = $CategoryModel->where(['title_en' => $cname])->find();
@@ -68,7 +72,45 @@ class Article extends Base
 
         //核心数据的查询，使用标签操作
 
-        return view('list');
+        return $this->fetch('list');
+    }
+
+    /**
+     * 文章二级子列表，根据cname|csubname栏目分类
+     * @param $cname: 分类名
+     * @param $csubname: 子分类名
+     * @return \think\response\View
+     * @throws \think\Exception
+     * */
+    private function articleSublist($cname='', $csubname='')
+    {
+        if (empty($cname) || empty($csubname)) {
+            $this->error('参数错误');
+        }
+
+        $CategoryModel = new CategoryModel();
+        $child = $CategoryModel->where(['title_en' => $csubname])->find();
+        if (empty($child)) {
+            $this->error('子分类名不存在');
+        }
+
+        $category = $child['parent'];
+        if (empty($category) || $category->title_en != $cname) {
+            $this->error('两个分类不存在父子关系!');
+        }
+
+        $cid = $child['id'];
+        $this->assign('cid', $cid);
+        $this->assign('cname', $cname);
+        $this->assign('csubname', $csubname);
+
+
+        $this->assign('category', $category);
+        $this->assign('subcategory', $child);
+
+        //核心数据的查询，使用标签操作
+
+        return $this->fetch('sublist');
     }
 
     /**

@@ -174,7 +174,7 @@ class Article extends Base
         if (empty($article)) {
             $this->error('文章不存在');
         }
-        $this->assign('info', $article);
+        $this->assign('article', $article);
 
         $CommentModel = new CommentModel();
 

@@ -60,7 +60,7 @@
                         <input type="hidden" name="image_id" id="image_id" value="{$ad.image_id|default=''}">
                         {php}$ad_image = ['width'=>1000,'height'=>300,'thumb_width'=>500,'thumb_height'=>150];{/php}
                         <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="image_id" data-width="{$ad_image.width}" data-height="{$ad_image.height}"
-                             data-thumb-width="{$ad_image.thumb_width}" data-thumb-width-height="{$ad_image.thumb_height}">
+                             data-thumb-width="{$ad_image.thumb_width}" data-thumb-height="{$ad_image.thumb_height}">
                             <div class="dz-message needsclick">
                                 {if isset($ad) && $ad.image_id > 0}
                                 <img src="{$ad.image.full_image_url}" style="border:1px solid #ccc;width:{$ad_image.thumb_width}px;height:{$ad_image.thumb_height}px">

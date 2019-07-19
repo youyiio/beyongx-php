@@ -11,4 +11,5 @@
 
 return [
     'app\admin\command\Publish',
+    'app\admin\command\Article',
 ];

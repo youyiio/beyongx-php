@@ -23,6 +23,10 @@ class SpiderBehavior
             $params['password'] = '********';
         }
 
+        if (strlen($userAgent) > 255) {
+            $userAgent = substr($userAgent, 0, 255);
+        }
+
         //登录日志
         $actionLog = new ActionLogLogic();
         $actionLog->addLog(0, ActionLogModel::ACTION_ACCESS, $userAgent, $params);

@@ -174,7 +174,7 @@ class Crawler extends Base
         if ($isPushed !== false) {
             $this->success('采集任务已经启动...');
         } else {
-            $this->success('采集失败！');
+            $this->error('采集失败！');
         }
     }
 
@@ -182,7 +182,7 @@ class Crawler extends Base
     public function deleteCrawler()
     {
         $cid = input('id/d',0);
-        if ($cid == 0) {
+        if ($cid <= 0) {
             $this->error('参数错误');
         }
 
@@ -190,9 +190,36 @@ class Crawler extends Base
         if ($res) {
             $this->success('成功删除规则');
         } else {
-            $this->success('删除失败');
+            $this->error('删除失败');
         }
     }
 
+    //克隆采集规则
+    public function cloneCrawler()
+    {
+        $cid = input('id/d',0);
+        if ($cid <= 0) {
+            $this->error('参数错误');
+        }
+
+        $crawler = CrawlerModel::get($cid);
+        if (empty($crawler)) {
+            $this->error('采集规则不存在!');
+        }
+
+        $data = $crawler->toArray();
+        unset($data['id']);
+        $data['title'] = $data['title'] . ' 副本';
+        $data['update_time'] = date_time();
+        $data['create_time'] = date_time();
+
+        $CrawlerModel = new CrawlerModel();
+        $res = $CrawlerModel->save($data);
+        if ($res) {
+            $this->success('克隆规则成功!');
+        } else {
+            $this->error('克隆规则失败');
+        }
+    }
 }
 

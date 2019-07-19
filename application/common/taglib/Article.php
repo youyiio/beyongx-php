@@ -24,12 +24,13 @@ class Article extends TagLib
         'categorys'  => ['attr' => 'cache,cid,id,limit,assign', 'close' => true],
         'list'      => ['attr' => 'cid,cname,cache,page-size,id,assign', 'close' => true],
         'search'  => ['attr' => 'cid,keyword,id', 'close' => true],
-        'hotlist' => ['attr' => 'cid,cache,limit,id', 'close' => true],
-        'latestlist' => ['attr' => 'cid,cache,limit,id', 'close' => true],
-        'relatedlist' => ['attr' => 'aid,cid,cache,limit,id', 'close' => true],
+        'hotlist' => ['attr' => 'cid,cname,cache,limit,id', 'close' => true],
+        'latestlist' => ['attr' => 'cid,cname,cache,limit,id', 'close' => true],
+        'relatedlist' => ['attr' => 'aid,cid,cname,cache,limit,id', 'close' => true],
     ];
 
     /**
+     * @deprecated
      * 查询文章分类列表,cid有值，获取二级分类
      * {article:categorys cache='true' id='vo'} {/article:categorys}
      * @param $tag
@@ -144,9 +145,10 @@ class Article extends TagLib
         $parse .= "  \$page = input('page/d', 1); ";
         $parse .= "  $internalCid = $cid; ";
         $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
         $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
-        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];} else { $internalCid = -1;}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'index_category_' . $internalCid . '_' . $pageSize . '_' . \$page;";
         $parse .= "  \$where = [];";
@@ -171,7 +173,7 @@ class Article extends TagLib
         $parse .= "  } ";
 
         $parse .= "  $assign = $internalList;";
-        $parse .= '  ?>';
+        $parse .= "  ?> ";
         $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
@@ -202,6 +204,7 @@ class Article extends TagLib
 
         $parse  = '<?php ';
         $parse .= "  $internalCid = $cid; ";
+        $parse .= "  $internalList = [];";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
 
@@ -234,6 +237,7 @@ class Article extends TagLib
     public function tagHotlist($tag, $content)
     {
         $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cname = empty($tag['cname']) ? '' : $tag['cname'];
         $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
@@ -247,9 +251,16 @@ class Article extends TagLib
         //标签内局部变量
         $internalList = '$_list_' . $this->_randVarName(10);
         $internalCid = '$_cid_' . $this->_randVarName(10);
+        $internalCname = '$_cname_' . $this->_randVarName(10);
 
         $parse  = '<?php ';
         $parse .= "  $internalCid = $cid;";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  $internalList = [];";
+        $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
+        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_hot_list_' . $internalCid . $cache . $limit;";
         $parse .= '  $where = [];';
         $parse .= '  $where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];';
@@ -290,6 +301,7 @@ class Article extends TagLib
     public function tagLatestlist($tag, $content)
     {
         $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cname = empty($tag['cname']) ? '' : $tag['cname'];
         $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
@@ -301,9 +313,16 @@ class Article extends TagLib
         //标签内局部变量
         $internalList = '$_list_' . $this->_randVarName(10);
         $internalCid = '$_cid_' . $this->_randVarName(10);
+        $internalCname = '$_cname_' . $this->_randVarName(10);
 
         $parse  = "<?php ";
         $parse .= "  $internalCid = $cid;";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  $internalList = [];";
+        $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
+        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
@@ -345,6 +364,7 @@ class Article extends TagLib
     {
         $aid = empty($tag['aid']) ? 0 : $tag['aid'];
         $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cname = empty($tag['cname']) ? '' : $tag['cname'];
         $defaultCache = 10 * 60;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache']=='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
@@ -357,12 +377,19 @@ class Article extends TagLib
         //标签内局部变量
         $internalList = '$_list_' . $this->_randVarName(10);
         $internalCid = '$_cid_' . $this->_randVarName(10);
+        $internalCname = '$_cname_' . $this->_randVarName(10);
         $internalAid = '$_aid_' . $this->_randVarName(10);
 
         //需要与外部交互或内嵌标签交互的变量，都不加\$；
         $parse  = "<?php ";
         $parse .= "  $internalCid = $cid;";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
+        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "  }";
         $parse .= "  $internalAid = $aid;";
+        $parse .= "  $internalList = [];";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalAid . $cache . $limit;";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";

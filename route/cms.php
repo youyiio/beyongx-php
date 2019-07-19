@@ -20,11 +20,11 @@ return [
 
     //文章
     'list/index' => ['cms/Article/index', ['method'=>'get']],
-    'list/<cid>' => ['cms/Article/articleList', ['method'=>'get']],
-    'list/<cname>' => ['cms/Article/articleList', ['method'=>'get']],
+    'list/:cid' => ['cms/Article/articleList', ['method'=>'get']],
+    'list/:cname/[:csubname]' => ['cms/Article/articleList', ['method'=>'get']], //:cname 为必须参数，csubname加[]为可选参数
 
-    'article/<aid>' => ['cms/Article/viewArticle', ['method'=>'get']],
-    'article/<cname>/<aid>' => ['cms/Article/viewArticle', ['method'=>'get']],
+    'articles/:cname/:aid' => ['cms/Article/viewArticle', ['method'=>'get']], //与以下规则，不能对换；只匹配最先匹配，而非最优配置
+    'article/:aid' => ['cms/Article/viewArticle', ['method'=>'get']],
 
     //站点地图
     'sitemap.xml' => ['cms/Sitemap/index', ['method'=>'get']],

@@ -20,6 +20,7 @@ class Cms extends TagLib
     protected $tags   =  [
         // 标签定义： attr 属性列表 close表示是否需要闭合（false表示不需要，true表示需要， 默认false） alias 标签别名 level 嵌套层次
         'search'  => ['attr' => 'keyword,id', 'close' => true], //文章搜索标签
+        'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true],
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
         'ads'  => ['attr' => 'cache,type,limit,id', 'close' => true], //广告链接标签
     ];
@@ -48,6 +49,65 @@ class Cms extends TagLib
         $parse .= '$' . $list . " = \$ArticleModel->where(\$where)->whereLike('title','%$keyword%', 'and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate($pageSize, false,['query'=>input('param.')]);";
         $parse .= "  ?> ";
         $parse .= "  {volist name='$list' id='$id'}";
+        $parse .= $content;
+        $parse .= "  {/volist}";
+
+        return $parse;
+    }
+
+    /**
+     * 查询文章分类列表,cid|cname有值，获取二级分类
+     * {article:categorys cache='true' id='vo'} {/article:categorys}
+     * @param $tag
+     * @param $content
+     * @return string
+     */
+    public function tagCategorys($tag, $content)
+    {
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cname = empty($tag['cname']) ? '' : $tag['cname'];
+        $defaultCache = 10 * 60;
+        $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
+        $id = empty($tag['id']) ? '_id' : $tag['id'];
+        $limit = empty($tag['limit']) ? 0 : $tag['limit'];
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
+
+        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $cid = $this->autoBuildVar($cid);
+        $limit = $this->autoBuildVar($limit);
+        $assign = $this->autoBuildVar($assign);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(6);
+        $internalCid = '$_cid_' . $this->_randVarName(6);
+        $internalCname = '$_cname_' . $this->_randVarName(6);
+
+        $parse  = "<?php ";
+        $parse .= "  $internalCid = $cid; ";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  $internalList = [];";
+        $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
+        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "  }";
+        $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
+        $parse .= "  \$where = [];";
+        $parse .= "  \$where[] = ['status' , '=', \app\common\model\CategoryModel::STATUS_ONLINE];";
+        $parse .= "  \$where[] = ['pid' , '=', $internalCid];";
+        $parse .= "  if ($cache) { ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
+        $parse .= "  } ";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    \$CategoryModel = new \app\common\model\CategoryModel();";
+        $parse .= "    $internalList = \$CategoryModel->where(\$where)->order('sort asc,id asc')->limit($limit)->select();";
+        $parse .= "    if ($cache) {";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
+        $parse .= "    }";
+        $parse .= "  } ";
+        $parse .= "  $assign = $internalList;";
+        $parse .= "  ?>";
+
+        $parse .= "  {volist name='$internalList' id='$id'} ";
         $parse .= $content;
         $parse .= "  {/volist}";
 

@@ -19,14 +19,14 @@ trait Image
         }
 
         //图片规定尺寸
-        $imgWidth = request()->param('width/d',0);
-        $imgHeight = request()->param('height/d',0);
+        $imgWidth = request()->param('width/d', 0);
+        $imgHeight = request()->param('height/d', 0);
 
         //缩略图尺寸
-        $tbWidth = request()->param('thumbWidth/d',0);
-        $tbHeight = request()->param('thumbHeight/d',0);
+        $tbWidth = request()->param('thumbWidth/d', 0);
+        $tbHeight = request()->param('thumbHeight/d', 0);
 
-        $path = Env::get('root_path').'public'.DIRECTORY_SEPARATOR.'upload';
+        $path = Env::get('root_path') . 'public' . DIRECTORY_SEPARATOR . 'upload';
 
         $check = $this->validate(
             ['file' => $file],
@@ -56,26 +56,28 @@ trait Image
         }
 
         $saveName = $info->getSaveName();
-        $imgUrl = $path.DIRECTORY_SEPARATOR.$saveName;
+        $imgUrl = $path . DIRECTORY_SEPARATOR . $saveName;
 
         //图片缩放处理
         $image = \think\Image::open($info);
+        $quality = 80;
+        $type = image_type_to_extension($type, false); //png格式时，quality不影响值；jpg|jpeg有效果
         if ($imgWidth > 0 && $imgHeight > 0) {
             //缩放至指定的宽高
-            $image->thumb($imgWidth,$imgHeight,6);//固定尺寸缩放
-            $image->save($imgUrl);
+            $image->thumb($imgWidth, $imgHeight, \think\Image::THUMB_FIXED);//固定尺寸缩放
+            $image->save($imgUrl, $type, $quality, true);
         }
 
         //缩略图
         if ($tbWidth > 0 && $tbHeight > 0) {
             // $image = \think\Image::open($info);
 
-            $tbImgUrl = $info->getPath().DIRECTORY_SEPARATOR.'tb_'.$info->getFilename();
+            $tbImgUrl = $info->getPath() . DIRECTORY_SEPARATOR . 'tb_' . $info->getFilename();
 
             //缩放至指定的宽高
-            $image->thumb($tbWidth,$tbHeight,6);//固定尺寸缩放
+            $image->thumb($tbWidth, $tbHeight, \think\Image::THUMB_FIXED);//固定尺寸缩放
 
-            $image->save($tbImgUrl);
+            $image->save($tbImgUrl, $type, $quality, true);
 
             $data = [
                 'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$info->getFilename(),

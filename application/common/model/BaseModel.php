@@ -36,14 +36,14 @@ class BaseModel extends Model
     }
 
     //字段自动完成或默认处理：last_update_time
-    protected function setLastUpdateTimeAttr($value, $data)
-    {
-        if (isset($data['last_update_time']) && !empty($date['last_update_time'])) {
-            return $data['last_update_time'];
-        } else {
-            return date_time();
-        }
-    }
+//    protected function setLastUpdateTimeAttr($value, $data)
+//    {
+//        if (isset($data['last_update_time']) && !empty($date['last_update_time'])) {
+//            return $data['last_update_time'];
+//        } else {
+//            return date_time();
+//        }
+//    }
 
     //表扩展列：ext；需要表级字段支持【使用场景：扩展表model业务中常用的字段】
     //@deprecated

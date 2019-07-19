@@ -87,24 +87,29 @@ class ArticleModel extends BaseModel
             //若文章已发布，提交链接|检测收录，$article['status'] == ArticleModel::STATUS_PUBLISHED 此时做这个判断会有延迟
 
             //提交链接
-            if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
+            if (!isset($article->status)) {
+                Log::info('article -> status 未有值 isset false!');
+                $article = ArticleModel::where(['id' => $id])->field('id,status')->find();
+            }
+            if ($article->status == ArticleModel::STATUS_PUBLISHED) {
                 $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
                 $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
                 $jobQueue = config('queue.default');
                 \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
+
+                //检测收录,延迟4,6,24小时
+                $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
+                $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
+                $jobQueue = config('queue.default');
+                \think\Queue::later(1 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(8 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+                \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
+            } else {
+                Log::info('上次更新无需提交链接，状态值 为:' . $article->status_text);
             }
-
-
-            //检测收录,延迟4,6,24小时
-            $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
-            $jobData = ['id' => $id, 'url' => url('cms/Article/viewArticle', ['aid' => $id])];
-            $jobQueue = config('queue.default');
-            \think\Queue::later(1 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            \think\Queue::later(6 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            \think\Queue::later(8 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
-            \think\Queue::later(24 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
 
         });
     }

@@ -10,34 +10,34 @@
         <div class="col-lg-10 col-lg-offset-1">
             <div class="ibox-content" style="padding:10px">
                 <div class="ibox">
-                    <a class="btn btn-sm btn-primary" href="{:url('article/articleStat',['id'=>$id])}">文章访问用户统计</a>
+                    <a class="btn btn-sm btn-primary" href="{:url('article/articleStat',['id'=>$id])}">查看访问统计</a>
                     <div class="pull-right">
-                        {volist name="info.categorys" id="vo"}
+                        {volist name="article.categorys" id="vo"}
                         <span class="label">{$vo.title_cn}</span>
                         {/volist}
-                        <button class="btn btn-white btn-xs" id="btnCopy" data-clipboard-text="{:url('cms/Article/viewArticle', ['aid'=>$info.id], true, get_config('domain_name'))}">
+                        <button class="btn btn-white btn-xs" id="btnCopy" data-clipboard-text="{:url('cms/Article/viewArticle', ['aid'=>$article.id], true, get_config('domain_name'))}">
                             复制文章地址
                         </button>
                     </div>
                     <div class="text-center article-title">
                         <h1>
-                            {$info.title}
+                            {$article.title}
                         </h1>
-                        {if $info.status == 5}
-                        <span class="text-muted"> 创建时间{$info.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：{$info.update_time}</span>
+                        {if $article.status == 5}
+                        <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：{$article.update_time}</span>
                         {else if}
-                        <span class="text-muted"> 创建时间{$info.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>
+                        <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>
                         {/if}
                     </div>
                     <article style="word-wrap:break-word; word-break: break-all;overflow:hidden">
-                        {$info.content|raw}
+                        {$article.content|raw}
                     </article>
                     <hr>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="small text-right">
-                                <h5>Stats:{$info.status_text}</h5>
-                                <i class="fa fa-eye"> </i> {$info.read_count|default=0} views
+                                <h5>Stats:{$article.status_text}</h5>
+                                <i class="fa fa-eye"> </i> {$article.read_count|default=0} views
                             </div>
                         </div>
                     </div>

@@ -70,17 +70,17 @@
                                 <th><div class="th-inner">创建时间</div></th>
                             </tr>
                             </thead>
-                            {foreach name="list" item="al"}
+                            {foreach name="list" item="vo"}
                             <tr>
-                                <!-- <td><input type="checkbox" class="ajax-check" id="{$al.id}"></td> -->
-                                <td>{$al.id}</td>
-                                <td><a href="{:url('admin/User/viewUser',['uid'=>$al.user_id])}">{$al.user.nickname}</a></td>
-                                <td>{$al.action_text}</td>
-                                <td>{$al.module}</td>
-                                <td>{$al.ip}</td>
-                                <td>{$al.remark}</td>
-                                <td>{$al.data}</td>
-                                <td>{$al.create_time}</td>
+                                <!-- <td><input type="checkbox" class="ajax-check" id="{$vo.id}"></td> -->
+                                <td>{$vo.id}</td>
+                                <td><a href="{:url('admin/User/viewUser',['uid'=>$vo.user_id])}">{$vo.user.nickname}</a></td>
+                                <td>{$vo.action_text}</td>
+                                <td>{$vo.module}</td>
+                                <td>{$vo.ip} [{$vo.ip|ip_to_address=###,'province,city'}]</td>
+                                <td>{$vo.remark}</td>
+                                <td>{$vo.data}</td>
+                                <td>{$vo.create_time}</td>
                             </tr>
                             {/foreach}
                         </table>

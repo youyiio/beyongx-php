@@ -838,6 +838,8 @@ INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text
 INSERT INTO `cms_config` VALUES ('bank_card', 'xxx', '公司银行账号', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('contact', 'beyongx sir', '联系人', 'text', 'contact', 5);
+INSERT INTO `cms_config` VALUES ('contact_qq', 'qq_xxx', '联系人QQ', 'text', 'contact', 6);
+INSERT INTO `cms_config` VALUES ('contact_weixin', 'weixin_xx', '联系人微信', 'text', 'contact', 7);
 INSERT INTO `cms_config` VALUES ('description', 'BeyongX内容管理系统|Beyongx,ThinkPHP,CMS，可二次开发的扩展框架，包含用户管理，权限角色管理及内容管理等', '网站描述', 'muti_text', 'seo', 3);
 INSERT INTO `cms_config` VALUES ('domain_name', 'www.beyongx.com', '域名', 'text', 'base', 2);
 INSERT INTO `cms_config` VALUES ('email_addr', 'service@beyongx.com', '发件邮箱地址', 'text', 'email', 3);
@@ -874,6 +876,10 @@ INSERT INTO `cms_config` VALUES ('qiniu_bucket', 'Bucket名称', '七牛oss Buck
 INSERT INTO `cms_config` VALUES ('qiniu_key_id', '', '七牛oss Accesskey', 'text', 'qiniuyun_oss', 1);
 INSERT INTO `cms_config` VALUES ('qiniu_key_secret', '', '七牛oss Secretkey', 'text', 'qiniuyun_oss', 2);
 INSERT INTO `cms_config` VALUES ('qiniu_url', '七牛域名地址', '七牛oss 访问的地址', 'text', 'qiniuyun_oss', 4);
+
+#百度站长资源push
+INSERT INTO `cms_config` VALUES ('zhanzhang_site', '', '站长域名', 'text', '', 0);
+INSERT INTO `cms_config` VALUES ('zhanzhang_token', '', '', '站长token', 'text', 0);
 
 
 /* ================================================================================================*/
@@ -1029,17 +1035,19 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1011, 101, '编辑规则', 'admin/Crawler/edit', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1012, 101, '采集操作', 'admin/Crawler/startCrawl', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1013, 101, '删除规则', 'admin/Crawler/deleteCrawler', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1014, 101, '克隆规则', 'admin/Crawler/cloneCrawler', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (102, 10, '新增规则', 'admin/Crawler/create', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1021, 102, '采集测试', 'admin/Crawler/crawlTest', '', 1, 1, 1, 1,'','admin');
 
 
 #系统定制,从200开始
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (100, 0, '推广管理', 'admin/ShowNav/Promotion', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (1001, 100, '询价记录', 'admin/Promotion/inquiryList', '', 1, 0, 1, 1,'','')s;
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (10011, 1001, '新增询价记录', 'admin/Promotion/addInquiry', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (10012, 1001, '编辑询价记录', 'admin/Promotion/editInquiry', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (10013, 1001, '删除询价记录', 'admin/Promotion/deleteInquiry', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto)` VALUES (10014, 1001, '增加询价备注', 'admin/Promotion/addRemark', '', 1, 0, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (200, 0, 'CRM管理', 'admin/ShowNav/Crm', 'fa-suitcase', 1, 1, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2001, 200, '产品列表', 'admin/Crm/goodsList', '', 1, 1, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2002, 2001, '新增产品', 'admin/Crm/createGoods', '', 1, 0, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2003, 2001, '编辑产品', 'admin/Crm/editGoods', '', 1, 0, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2004, 2001, '删除产品', 'admin/Crm/deleteGoods', '', 1, 0, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2005, 2001, '上架产品', 'admin/Crm/putOn', '', 1, 0, 1, 1,'','admin');
+#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2006, 2001, '下架产品', 'admin/Crm/takeOff', '', 1, 0, 1, 1,'','admin');
 
 
 truncate table cms_auth_group;
@@ -1048,6 +1056,7 @@ INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (1, '超级�
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (2, '普通管理员', 1, '');
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (3, '网站编辑', 1, '');
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (4, '普通用户', 1, '');
+#update `cms_auth_group` set rules=(select GROUP_CONCAT(DISTINCT id SEPARATOR ',') from cms_auth_rule) where id = 1;
 
 truncate table cms_auth_group_access;
 

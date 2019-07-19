@@ -22,7 +22,8 @@ return [
         'uid' => '\d+',
         'aid' => '\d+',
         'cid' => '\d+',
-        'cname' => '\w+'
+        'cname' => '\w+',
+        'csubname' => '\w+'
     ],
 
 ];

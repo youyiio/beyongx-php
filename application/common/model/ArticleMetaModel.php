@@ -16,6 +16,10 @@ class ArticleMetaModel extends BaseMetaModel
     const KEY_TIMING_POST = '__timing_post__'; //定时发布
     const KEY_BAIDU_INDEX = 'baidu_index'; //百度索引key
 
+    protected $auto = ['update_time'];
+    protected $insert = ['create_time', 'update_time'];
+    protected $update = ['update_time'];
+
     public function getMetasByArticleId($aid)
     {
         return $this->where(['article_id' => $aid])->select();
@@ -37,7 +41,12 @@ class ArticleMetaModel extends BaseMetaModel
             } else if ($metaValue === null) {
                 $this->where('id', $meta['id'])->delete();
             } else {
-                $this->where('id', $meta['id'])->setField(['meta_key'=>$metaKey, 'meta_value'=>$metaValue]);
+                $data = [
+                    'meta_key' => $metaKey,
+                    'meta_value' => $metaValue,
+                    'update_time' => date_time()
+                ];
+                $this->where('id', $meta['id'])->setField($data);
             }
         } else {
             if ($metaValue === '') {
@@ -48,6 +57,7 @@ class ArticleMetaModel extends BaseMetaModel
                 $data[$fk] = $fkId;
                 $data['meta_key'] = $metaKey;
                 $data['meta_value'] = $metaValue;
+                $data['update_time'] = date_time();
                 $data['create_time'] = date_time();
                 $this->insert($data);
             }

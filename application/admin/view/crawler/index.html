@@ -24,14 +24,14 @@
             </div>
             <div class="ibox-content" style="padding:10px">
                 <div class="btn-group">
-                    <a href="{:url('crawler/create')}" class="btn btn-success btn-sm"><i class="fa fa-plus"></i>
+                    <a href="{:url('crawler/create')}" class="btn btn-primary"><i class="fa fa-plus"></i>
                         新增规则</a>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-hover table-striped table-border">
+                    <table class="table table-bordered table-hover table-striped">
                         <thead>
                         <tr>
-                            <th><input type="checkbox" class="i-checks js-check-all"></th>
+                            <!--th><input type="checkbox" class="i-checks js-check-all"></th-->
                             <th>ID</th>
                             <th>标题</th>
                             <th>定时更新？</th>
@@ -45,12 +45,12 @@
                             <tbody>
                             {empty name="list"}
                             <tr>
-                                <td colspan="9" align="center">暂无数据</td>
+                                <td colspan="8" align="center">暂无数据</td>
                             </tr>
                             {else/}
                             {volist name="list" id="vo"}
                             <tr>
-                                <td><input type="checkbox" class="i-checks js-check"></td>
+                                <!--td><input type="checkbox" class="i-checks js-check"></td-->
                                 <td>{$vo.id}</td>
                                 <td>{$vo.title}</td>
                                 <td>{$vo.is_timing?'是':'否'}</td>
@@ -62,11 +62,12 @@
                                     {if $vo.status == 2}
                                     <a href="" class="btn btn-xs btn-primary ajax-a" disabled="">采集中</a>
                                     {else if}
-                                    <a href="{:url('Crawler/startCrawl',['id'=>$vo['id']])}" class="btn btn-xs btn-primary ajax-a">采集</a>
+                                    <a href="{:url('Crawler/startCrawl',['id'=>$vo['id']])}" class="btn btn-xs btn-primary ajax-a"><i class="fa fa-play"></i> 采集</a>
                                     {/if}
-                                    <a href="{:url('Crawler/edit',['id'=>$vo['id']])}" class="btn btn-xs btn-success"><span class="glyphicon glyphicon-edit"></span></a>
+                                    <a href="{:url('Crawler/edit',['id'=>$vo['id']])}" class="btn btn-xs btn-success"><i class="fa fa-edit"></i> 编辑</a>
+                                    <a href="{:url('Crawler/cloneCrawler',['id'=>$vo['id']])}" class="btn btn-xs btn-info ajax-a"><i class="fa fa-copy"></i> 克隆</a>
                                     <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Crawler/deleteCrawler',['id'=>$vo['id']])}"
-                                            data-title="确定删除此规则吗？" data-text="请三思">删除
+                                            data-title="提示" data-text="确定删除此规则吗？">删除
                                     </button>
                                 </td>
                             </tr>

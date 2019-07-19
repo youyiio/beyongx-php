@@ -32,6 +32,8 @@ class InstallLogic extends Model
             return false;
         }
 
+        $site['title'] = $site['site_name'];
+
         session('site', $site);
         session('admin', $admin);
 

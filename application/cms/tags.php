@@ -19,6 +19,7 @@ return [
     'module_init'  => [],
     // 操作开始执行
     'action_begin' => [
+        'app\\common\\behavior\\SpiderBehavior',
         'app\\common\\behavior\\LogBehavior',
         'app\\cms\\behavior\\FromBehavior',
         'app\\cms\\behavior\\ThemeBehavior',

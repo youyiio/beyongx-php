@@ -46,7 +46,7 @@
                         <div data-toggle="buttons" class="btn-group">
                             <label class="ladda-button btn btn-sm btn-warning ajax-batch-set" data-style="zoom-in" data-action="{:url('Article/setTop')}"> <i class="fa fa-arrow-circle-up"></i> 置顶 </label>
                             <label class="ladda-button btn btn-sm btn-info" data-style="zoom-in" data-action="{:url('Article/setTimingPost')}" onclick="showTimingPostModel(this)"> <i class="fa fa-clock-o"></i> 定时发布 </label>
-                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in" data-action="{:url('Article/deleteArticle')}"> <i class="fa fa-trash"></i> 删除 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set-prompt" data-style="zoom-in" data-title="提示" data-text="确认要批量删除文章吗？" data-action="{:url('Article/deleteArticle')}"> <i class="fa fa-trash"></i> 删除 </label>
                         </div>
                     </div>
                     <div class="col-lg-8 col-md-12 text-right">
@@ -261,7 +261,7 @@
             $.each(ids, function (i, id) {
                 $.post(action, {id: id}, function (data) {
                     //console.log(data);
-                    if (data.code == 0 && uids.length == 1) {
+                    if (data.code == 0 && ids.length == 1) {
                         layer.msg(data.msg, function(){});
                         location.reload();
                         return false;
@@ -273,6 +273,51 @@
                 location.reload();
             }, 800);
         });
+
+        //删除前提示
+        $('.ajax-batch-set-prompt').click(function() {
+            var title = $(this).data('title') != undefined ? $(this).data('title') : '提示';
+            var text = $(this).data('text') != undefined ? $(this).data('text') : '确认要执行此操作吗?';
+
+            layer.confirm(text, {
+                title: title,
+                btn: ['确认', '取消']
+            }, function() {
+                layer.closeAll('dialog');
+
+                var laddaBtn = $('.ajax-batch-set-prompt').ladda();
+
+                // Start loading
+                $(laddaBtn).ladda('start');
+
+                var ids = getAjaxCheckedValues();
+                if (!ids) {
+                    layer.msg('请选择要操作的文章!', function(){});
+                    $(laddaBtn).ladda('stop');
+                    return;
+                }
+                var action = $(laddaBtn).data('action');
+                $.each(ids, function (i, id) {
+                    $.post(action, {id: id}, function (data) {
+                        //console.log(data);
+                        if (data.code == 0 && ids.length == 1) {
+                            layer.msg(data.msg, function(){});
+                            location.reload();
+                            return false;
+                        }
+                    });
+                });
+
+                setTimeout(function () {
+                    location.reload();
+                }, 800);
+
+            }, function () {
+                layer.closeAll('dialog');
+            });
+
+        });
+
 
         $(".bootstrap-table").on('click', 'div.sortable', function(event) {
             event.preventDefault();

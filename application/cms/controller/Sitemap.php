@@ -9,6 +9,7 @@ namespace app\cms\controller;
 
 use app\common\model\ArticleModel;
 
+use app\common\model\CategoryModel;
 use think\facade\Env;
 use think\facade\Log;
 use XMLWriter;
@@ -68,16 +69,34 @@ class Sitemap extends Base
         $sitemap->setIsChemaMore($this->config['isschemamore']);	// 设置是否写入额外的Schema头信息（可选）
 
 
-        //生成sitemap item: 文章item
+        //生成index 首页
+        $sitemap->addItem(url('cms/Index/index'), 1, "hourly", date_time());
+        $sitemap->addItem(url('cms/Index/about'), 1, "monthly", date_time());
+        $sitemap->addItem(url('cms/Index/contact'), 1, "monthly", date_time());
+        $sitemap->addItem(url('cms/Index/about'), 1, "monthly", date_time());
+
+        //生成栏目item
+        $CategoryModel = new CategoryModel();
+        $resultSet = $CategoryModel->where(['status' => CategoryModel::STATUS_ONLINE])->order('sort asc')->select();
+        foreach ($resultSet as $category) {
+            $priority = $this->priority[1];
+            $loc = url('cms/Article/articleList', ['cid' => $category->id]);
+            $sitemap->addItem($loc, $priority, "daily", date_time());
+
+            $loc = url('cms/Article/articleList', ['cname' => $category->title_en]);
+            $sitemap->addItem($loc, $priority, "daily", date_time());
+        }
+
+        //生成文章item
         $ArticleModel = new ArticleModel();
         $where = [
             'status' => ArticleModel::STATUS_PUBLISHED
         ];
-        $resultset = $ArticleModel->where($where)->order('sort desc, id desc')->select();
-        foreach ($resultset as $article) {
-            $priority = $this->priority[1];
+        $resultSet = $ArticleModel->where($where)->order('sort desc, id desc')->select();
+        foreach ($resultSet as $article) {
+            $priority = $this->priority[2];
             $loc = url('cms/Article/viewArticle', ['aid' => $article->id]);
-            $sitemap->addItem($loc, $priority, "daily", $article->update_time);
+            $sitemap->addItem($loc, $priority, "weekly", $article->update_time);
         }
 
         $sitemap->endSitemap();
