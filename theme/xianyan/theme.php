@@ -14,6 +14,7 @@ return [
     'article_thumb_image' => ["width" => 300, "height" => 250, "thumb_width" => 180, "thumb_height" => 120],
 
     //广告
-    'ads' => [
+    'ad_images' => [
+        'banner_headline' => ["width" => 980, "height" => 335, "thumb_width" => 490, "thumb_height" => 167.5],
      ],
 ];

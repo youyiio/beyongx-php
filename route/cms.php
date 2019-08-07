@@ -26,6 +26,9 @@ return [
     'articles/:cname/:aid' => ['cms/Article/viewArticle', ['method'=>'get']], //与以下规则，不能对换；只匹配最先匹配，而非最优配置
     'article/:aid' => ['cms/Article/viewArticle', ['method'=>'get']],
 
+    //搜索
+    'aq/:q/[:p]' => ['cms/Search/index', ['method' => ['get', 'post']]],
+
     //站点地图
     'sitemap.xml' => ['cms/Sitemap/index', ['method'=>'get']],
 

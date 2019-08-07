@@ -39,9 +39,14 @@
                 <div class="form-group">
                     <label class="col-lg-2 control-label" for="types">显示位置</label>
                     <div class="col-lg-10">
+                        {php}
+                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.current_theme') . DIRECTORY_SEPARATOR;
+                        $themeConfig = require($themePath . 'theme.php');
+                        $adImages = $themeConfig['ad_images'];
+                        {/php}
                         <select name="types[]" id="types" data-placeholder="请选择显示位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple >
                             {volist name="typeList" id="vo"}
-                            <option value="{$vo.type}" data-image-size="{$vo.image_size}" {present name="$ad"}{in name="vo.type" value="$oldTypes"}selected{/in}{/present}>{$vo.title_cn}</option>
+                            <option value="{$vo.type}" data-image-size="{if isset($adImages[$vo['title_en']])}{:htmlspecialchars(json_encode($adImages[$vo['title_en']]))}{/if}" {present name="$ad"}{in name="vo.type" value="$oldTypes"}selected{/in}{/present}>{$vo.title_cn}</option>
                             {/volist}
                         </select>
                         <span class="help-block m-b-none"></span>
@@ -144,6 +149,10 @@
                 var imageUrl = ""+response.data.image_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
+                if (thumbWidth == 0) {
+                    //按500等比例缩放
+                    displayHtml = '<img src="'+imageUrl+'" width="500" style="border:1px solid #ccc;max-width:100%">';
+                }
                 displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
                 displayHtml = displayHtml.replace('_thumbHeight_', thumbHeight);
                 $element.find('.dz-message').html('').append(displayHtml);
@@ -169,13 +178,20 @@
     $("#types").chosen().on("change", function (evt, params) {
         var imageSize = $("#types option:selected").data("image-size");
         if (imageSize == undefined || imageSize == "") {
+            //图片不做限制
+            $("#uploadImage").data('width', 0);
+            $("#uploadImage").data('height', 0);
+            $("#uploadImage").data('thumb-width', 0);
+            $("#uploadImage").data('thumb-height', 0);
+            $(".dz-message").html('点击此处上传图片规格 未设定 <br><span class="note needsclick"></span');
+            $("#uploadDesc").html('图片规格 未设定');
             return;
         }
 
         var width = imageSize["width"];
         var height = imageSize["height"];
-        var thumbWidth = imageSize["thumbWidth"];
-        var thumbHeight = imageSize["thumbHeight"];
+        var thumbWidth = imageSize["thumb_width"];
+        var thumbHeight = imageSize["thumb_height"];
 
         $("#uploadImage").data('width', width);
         $("#uploadImage").data('height', height);

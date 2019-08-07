@@ -202,7 +202,8 @@ class Crawler
     public static function crawlUrls($url, $articleUrl, $isPaging, $startPage, $endPage, $pagingUrl)
     {
         $urlArr = explode('/', $url);
-        $baseUrl = $urlArr[0] . '//' . $urlArr[2];
+        $protocol = str_replace(':', '', $urlArr[0]);
+        $baseUrl = $protocol . ':' . '//' . $urlArr[2];
 
         $urls = [];
         if ($isPaging) {
@@ -234,7 +235,9 @@ class Crawler
 
             foreach ($result as $vo) {
                 $val = $vo['url'];
-                if (strpos($val, '/') === 0) {
+                if (strpos($val, '//') === 0) {
+                    $val = $protocol . ':' . $val;
+                } else if (strpos($val, '/') === 0) {
                     $val = $baseUrl . $val;
                 }
                 $articleUrls[] = $val;

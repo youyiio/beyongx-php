@@ -835,6 +835,8 @@ INSERT INTO `cms_config` VALUES ('article_thumb_image', '{\"width\":280,\"height
 INSERT INTO `cms_config` VALUES ('article_audit_switch', 'true', '文章审核', 'bool', 'article', 1);
 INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
 INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text', 'article', 3);
+INSERT INTO `cms_config` VALUES ('image_upload_quality', '80', '上传图片质量', 'text', 'article', 4);
+INSERT INTO `cms_config` VALUES ('image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 'article', 5);
 INSERT INTO `cms_config` VALUES ('bank_card', 'xxx', '公司银行账号', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('contact', 'beyongx sir', '联系人', 'text', 'contact', 5);
@@ -1089,11 +1091,15 @@ INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_ti
 truncate table cms_adtype;
 
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动', '{"width":1000,"height":300,"thumb_width":500,"thumb_height":150}');
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2, '首页中间广告', 'banner_center', '首页baner广告左右滚动', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (10, '搜索框', 'link_search', '显示于搜索框下面', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '资讯列表页', 'link_article_list', '显示于资讯列表页', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '资讯分类列表页', 'link_article_category_list', '显示于资讯分类列表页', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (13, '资讯详情页', 'link_article_detail', '显示于资讯详情页', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2, '首页顶部广告', 'banner_header', '首页顶部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (3, '首页中间广告', 'banner_center', '首页中间广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (4, '首页底部广告', 'banner_footer', '首页底部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (6, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '分类列表页', 'category_list', '显示于分类列表页', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '文章列表页', 'article_list', '显示于文章列表页', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (13, '文章详细页', 'article_view', '显示于文章详细页', null);
 
 /* ================================================================================================*/
 /* =========================================数据初始脚本：设置自增起始=============================*/

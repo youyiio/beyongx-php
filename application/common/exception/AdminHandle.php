@@ -13,6 +13,7 @@ use Exception;
 use think\exception\DbException;
 use think\exception\Handle;
 use think\exception\HttpException;
+use think\exception\PDOException;
 use think\exception\ValidateException;
 use think\facade\Config;
 use think\facade\Log;
@@ -29,9 +30,10 @@ class AdminHandle extends Handle
             'message' => $this->getMessage($e),
             'code'    => $this->getCode($e),
         ];
-        $detailError = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+        $detailError = "[{$data['file']}:{$data['line']}] \n   [code: {$data['code']}] : \n {$data['message']}";
 
-        Log::error('##### ExceptionHandle #### error code:'. $data['code'] . '; message: '. $e->getMessage());
+        Log::error('##### ExceptionHandle #### exception class: ' . get_class($e));
+        Log::error('print: [file][line] [error code]: message');
         Log::error($detailError);
 
         // 参数验证错误
@@ -51,7 +53,7 @@ class AdminHandle extends Handle
         }
 
         //数据库操作异常
-        if ($e instanceof DbException) {
+        if ($e instanceof DbException || $e instanceof PDOException) {
             $response = $this->getResponse($e->getMessage(), null);
             return $response;
         }
@@ -68,7 +70,7 @@ class AdminHandle extends Handle
      * @param mixed     $data 返回的数据
      * @param integer   $wait 跳转等待时间
      * @param array     $header 发送的Header信息
-     * @return void
+     * @return \think\Response
      */
     protected function getResponse($msg = '', $url = null, $data = '', $wait = 3, array $header = [])
     {

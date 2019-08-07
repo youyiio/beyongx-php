@@ -19,45 +19,76 @@ class Cms extends TagLib
      */
     protected $tags   =  [
         // 标签定义： attr 属性列表 close表示是否需要闭合（false表示不需要，true表示需要， 默认false） alias 标签别名 level 嵌套层次
+        'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //获取分类列表，cid|cname有值时，获取二级分类列表
+        'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息
         'search'  => ['attr' => 'keyword,id', 'close' => true], //文章搜索标签
-        'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true],
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
         'ads'  => ['attr' => 'cache,type,limit,id', 'close' => true], //广告链接标签
     ];
 
+
     /**
-     * 关键词搜索
-     * <cms:search keyword='' page-size='10' id=''></cms:search>
+     * 根据cid|cname,查询分类信息
+     * {cms:category cache='true' cname='company'} {/cms:category}
      * @param $tag
      * @param $content
      * @return string
      */
-    public function tagSearch($tag, $content)
+    public function tagCategory($tag, $content)
     {
-        $keyword = empty($tag['keyword']) ? '' : $tag['keyword'];
-        $pageSize = empty($tag['page-size']) ? 10 : $tag['page-size'];
+        $cid = empty($tag['cid']) ? 0 : $tag['cid'];
+        $cname = empty($tag['cname']) ? '' : $tag['cname'];
+        $defaultCache = 10 * 60;
+        $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
-        $id = empty($tag['id']) ? '_id' : $tag['id'];
+        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $cid = $this->autoBuildVar($cid);
+        $assign = $this->autoBuildVar($assign);
 
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        //标签内局部变量
+        $internalCid = '$_cid_' . $this->_randVarName(6);
+        $internalCname = '$_cname_' . $this->_randVarName(6);
+        $internalCategory = '$_category_' . $this->_randVarName(6);
 
         $parse  = "<?php ";
-        $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= '$' . $list . " = \$ArticleModel->where(\$where)->whereLike('title','%$keyword%', 'and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate($pageSize, false,['query'=>input('param.')]);";
+        $parse .= "  $internalCid = $cid; ";
+        $parse .= "  $internalCname = \"$cname\";";
+        $parse .= "  $internalCategory = null;";
+        $parse .= "  \$cacheMark = 'category_' . $cache . $internalCid;";
+        $parse .= "  if ($cache) { ";
+        $parse .= "    $internalCategory = cache(\$cacheMark); ";
+        $parse .= "  } ";
+        $parse .= "  if (!empty($internalCname)) {";
+        $parse .= "    \$where = ['title_en'=>$internalCname,'status'=>\app\common\model\CategoryModel::STATUS_ONLINE];";
+        $parse .= "    $internalCategory = \app\common\model\CategoryModel::where(\$where)->find();";
+        $parse .= "    if ($cache && $internalCategory) {";
+        $parse .= "      cache(\$cacheMark, $internalCategory, $cache);";
+        $parse .= "    }";
+        $parse .= "  } else if (!empty($internalCid)) { ";
+        $parse .= "    \$where = ['id'=>$internalCid,'status'=>\app\common\model\CategoryModel::STATUS_ONLINE];";
+        $parse .= "    \$CategoryModel = new \app\common\model\CategoryModel();";
+        $parse .= "    $internalCategory = \$CategoryModel->where(\$where)->find();";
+        $parse .= "    if ($cache && $internalCategory) {";
+        $parse .= "      cache(\$cacheMark, $internalCategory, $cache);";
+        $parse .= "    }";
+        $parse .= "  } ";
+
+        $parse .= "  $assign = $internalCategory;";
+        $parse .= "  if (!empty($assign)) { ";
         $parse .= "  ?> ";
-        $parse .= "  {volist name='$list' id='$id'}";
         $parse .= $content;
-        $parse .= "  {/volist}";
+        $parse .= "  <?php ";
+        $parse .= "  }";
+        $parse .= "  ?>";
+
 
         return $parse;
     }
 
     /**
      * 查询文章分类列表,cid|cname有值，获取二级分类
-     * {article:categorys cache='true' id='vo'} {/article:categorys}
+     * {cms:categorys cache='true' id='vo'} {/cms:categorys}
      * @param $tag
      * @param $content
      * @return string
@@ -87,8 +118,8 @@ class Cms extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
-        $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];}";
+        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$category['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
         $parse .= "  \$where = [];";
@@ -108,6 +139,36 @@ class Cms extends TagLib
         $parse .= "  ?>";
 
         $parse .= "  {volist name='$internalList' id='$id'} ";
+        $parse .= $content;
+        $parse .= "  {/volist}";
+
+        return $parse;
+    }
+
+    /**
+     * 关键词搜索
+     * <cms:search keyword='' page-size='10' id=''></cms:search>
+     * @param $tag
+     * @param $content
+     * @return string
+     */
+    public function tagSearch($tag, $content)
+    {
+        $keyword = empty($tag['keyword']) ? '' : $tag['keyword'];
+        $pageSize = empty($tag['page-size']) ? 10 : $tag['page-size'];
+
+        $id = empty($tag['id']) ? '_id' : $tag['id'];
+
+        $list = $this->_randVarName(10);
+        $list = $this->autoBuildVar($list);
+
+        $parse  = "<?php ";
+        $parse .= "  \$where = [];";
+        $parse .= "  \$where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= '$' . $list . " = \$ArticleModel->where(\$where)->whereLike('title','%$keyword%', 'and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate($pageSize, false,['query'=>input('param.')]);";
+        $parse .= "  ?> ";
+        $parse .= "  {volist name='$list' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 

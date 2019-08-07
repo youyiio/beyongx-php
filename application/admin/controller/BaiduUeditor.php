@@ -10,7 +10,7 @@ use think\Image;
 class BaiduUeditor extends Base
 {
 
-    private $thumb; //缩略图模式(看手册)
+    private $thumb; //缩略图模式：1、标识缩略图等比例缩放类型，2、标识缩略图缩放后填充类型
     private $water; //是否加水印(0:无水印,1:水印文字,2:水印图片)
     private $waterText; //水印文字
     private $waterPosition; //水印位置
@@ -194,22 +194,28 @@ class BaiduUeditor extends Base
             $fname = $dirname . DIRECTORY_SEPARATOR.$info->getSaveName();
             $imagearr = explode(',', 'jpg,gif,png,jpeg,bmp,ttf,tif');
             $ext = $info->getExtension();
+            $quality = get_config('image_upload_quality', 80); //获取图片清晰度设置，默认是80
 
-            $isimage = in_array($ext,$imagearr) ? 1 : 0;
-            if ($isimage) {
-                $image= Image::open($fname);
-                $image->thumb(680,680,$this->thumb)->save($fname);
-                if ($this->water == 1) {
-                    $font = Env::get('VENDOR_PATH').'/topthink/think-captcha/assets/zhttfs/1.ttf';
-                    $image->text($this->waterText, $font,10,'#FFCC66', $this->waterPosition, [-8,-8])->save($fname);
+            $isImage = in_array($ext, $imagearr) ? 1 : 0;
+            if ($isImage) {
+                $maxLimit = get_config('image_upload_max_limit', 680); //获取图片宽高的最大限制值，0为不限制
+
+                $image = Image::open($fname);
+                if ($maxLimit > 0) {
+                    $image->thumb($maxLimit, $maxLimit, $this->thumb);//设置缩略图模式，按宽最大680或高最大680压缩
                 }
-                if ($this->water == 2) {
-                    $image->water($this->waterImage)->save($fname);
+                if ($this->water == 1) {
+                    $font = Env::get('VENDOR_PATH') . '/topthink/think-captcha/assets/zhttfs/1.ttf';
+                    $image->text($this->waterText, $font,10,'#FFCC66', $this->waterPosition, [-8,-8])->save($fname, $ext, $quality);
+                } else if ($this->water == 2) {
+                    $image->water($this->waterImage)->save($fname, $ext, $quality);
+                } else {
+                    $image->save($fname, $ext, $quality);
                 }
             }
 
             $data = array(
-                'state' =>'SUCCESS',
+                'state' => 'SUCCESS',
                 'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$info->getSaveName()),
                 'title' => $info->getFileName(),
                 'original' => $info->getInfo('name'),

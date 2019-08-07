@@ -78,7 +78,8 @@ class Article extends Command
             $articleId = $meta->article_id;
 
             $ArticleModel = ArticleModel::get($articleId);
-            if ($ArticleModel['status'] == ArticleModel::STATUS_PUBLISHED) {
+            if ($ArticleModel['status'] == ArticleModel::STATUS_PUBLISHED
+                || $ArticleModel['status'] == ArticleModel::STATUS_DELETED) {
                 ArticleMetaModel::destroy(['id' => $meta->id]);
                 continue;
             }

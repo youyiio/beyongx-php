@@ -60,7 +60,7 @@ trait Image
 
         //图片缩放处理
         $image = \think\Image::open($info);
-        $quality = 80;
+        $quality = get_config('image_upload_quality', 80); //获取图片清晰度设置，默认是80
         $type = image_type_to_extension($type, false); //png格式时，quality不影响值；jpg|jpeg有效果
         if ($imgWidth > 0 && $imgHeight > 0) {
             //缩放至指定的宽高

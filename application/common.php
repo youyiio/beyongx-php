@@ -294,7 +294,7 @@ function get_config($key = '', $default = null)
     if (empty($key)) {
         return $config;
     } else {
-        if (empty($config[$key]) && $default !== null) {
+        if (!isset($config[$key]) && $default !== null) {
             return $default;
         }
         return isset($config[$key]) ? $config[$key] : "null";

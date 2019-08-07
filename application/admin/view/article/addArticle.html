@@ -92,19 +92,24 @@
                     <label class="col-lg-2 control-label">缩略图</label>
                     <div class="col-lg-10">
                         <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$article.thumb_image_id|default=''}">
-                        {php}$article_thumb_image = json_decode(get_config('article_thumb_image'), true){/php}
-                        <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="thumb_image_id" data-width="{$article_thumb_image.width}" data-height="{$article_thumb_image.height}"
-                             data-thumb-width="{$article_thumb_image.thumb_width}" data-thumb-height="{$article_thumb_image.thumb_height}">
+                        {php}
+                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.current_theme') . DIRECTORY_SEPARATOR;
+                        $themeConfig = require($themePath . 'theme.php');
+                        $articleThumbImage = $themeConfig['article_thumb_image'];
+                        //$articleThumbImage = json_decode(get_config('article_thumb_image'), true)
+                        {/php}
+                        <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="thumb_image_id" data-width="{$articleThumbImage.width}" data-height="{$articleThumbImage.height}"
+                             data-thumb-width="{$articleThumbImage.thumb_width}" data-thumb-height="{$articleThumbImage.thumb_height}">
                             <div class="dz-message needsclick">
                                 {if isset($article) && $article.thumb_image_id > 0}
-                                <img src="{$article.thumb_image.full_image_url}" style="border:1px solid #ccc;{$article_thumb_image.thumb_width}px;height:{$article_thumb_image.thumb_height}px">
+                                <img src="{$article.thumb_image.full_image_url}" style="border:1px solid #ccc;{$articleThumbImage.thumb_width}px;height:{$articleThumbImage.thumb_height}px">
                                 {else/}
-                                点击此处上传文章缩略图 {$article_thumb_image.width}*{$article_thumb_image.height}<br>
+                                点击此处上传文章缩略图 {$articleThumbImage.width}*{$articleThumbImage.height}<br>
                                 <span class="note needsclick"></span>
                                 {/if}
                             </div>
                         </div>
-                        <span class="help-block m-b-none">文章缩略图 {$article_thumb_image.width}*{$article_thumb_image.height}</span>
+                        <span class="help-block m-b-none">文章缩略图 {$articleThumbImage.width}*{$articleThumbImage.height}</span>
                     </div>
                 </div>
 

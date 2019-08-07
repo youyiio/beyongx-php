@@ -51,7 +51,9 @@ class Webmaster
         $url = $data['url'];
         $indexed = $this->baiduCheckIndex($url);
         if ($indexed) {
-            $article->meta(ArticleMetaModel::KEY_BAIDU_INDEX, $indexed);
+            $article->meta(ArticleMetaModel::KEY_BAIDU_INDEX, 1);
+        } else {
+            $article->meta(ArticleMetaModel::KEY_BAIDU_INDEX, 0);
         }
 
         $job->delete();
@@ -203,7 +205,7 @@ class Webmaster
         if (empty($domain) || !preg_match($this->domainPreg,$domain)) {
             return $this->error('域名格式错误');
         }
-        $cacheMark = 'mb_rank_'.md5($domain);
+        $cacheMark = 'mb_rank_' . md5($domain);
         if (cache("?$cacheMark") && !config('app_debug')) {
             return $this->success(cache($cacheMark));
         }
@@ -307,13 +309,13 @@ class Webmaster
     }
 
     //360移动权重
-    public function soMobileRank($domain = 'www.rbhj.com')
+    public function soMobileRank($domain = 'www.baidu.com')
     {
         //$domain = input('domain/s');
-        if (empty($domain) || !preg_match($this->domainPreg,$domain)) {
+        if (empty($domain) || !preg_match($this->domainPreg, $domain)) {
             return $this->error('域名格式错误');
         }
-        $cacheMark = 'smRank_'.md5($domain);
+        $cacheMark = 'smRank_' . md5($domain);
         if (cache("?$cacheMark") && !config('app_debug')) {
             return $this->success(cache($cacheMark));
         }

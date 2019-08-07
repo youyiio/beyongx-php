@@ -8,8 +8,7 @@ use app\common\model\ArticleMetaModel;
 use app\common\model\CommentModel;
 use app\common\model\MessageModel;
 use app\common\model\UserModel;
-use think\Db;
-use app\common\model\ArticleModel as ArticleModel;
+use app\common\model\ArticleModel;
 use app\common\model\CategoryModel;
 
 /**
@@ -204,12 +203,12 @@ class Article extends Base
     //删除文章
     public function deleteArticle($id)
     {
-        $art = ArticleModel::get(['id'=>$id]);
-        if (empty($art)) {
+        $article = ArticleModel::get(['id'=>$id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
-        $art->status = ArticleModel::STATUS_DELETED;
-        $res = $art->save();
+        $article->status = ArticleModel::STATUS_DELETED;
+        $res = $article->save();
         if ($res) {
             $this->success('成功删除');
         } else {
@@ -225,8 +224,8 @@ class Article extends Base
 
         $ids = [];
         if (is_int($id)) {
-            $art = ArticleModel::get(['id' => $id]);
-            if (empty($art)) {
+            $article = ArticleModel::get(['id' => $id]);
+            if (empty($article)) {
                 $this->error('文章不存在');
             }
 
@@ -271,8 +270,8 @@ class Article extends Base
     //发布文章
     public function postArticle($id)
     {
-        $art = ArticleModel::get($id);
-        if (empty($art)) {
+        $article = ArticleModel::get($id);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
 
@@ -285,7 +284,7 @@ class Article extends Base
             $data['status'] = ArticleModel::STATUS_PUBLISHED;
         }
 
-        $res = $art->isUpdate(true)->save($data, ['id' => $id]);
+        $res = $article->isUpdate(true)->save($data, ['id' => $id]);
         if ($res) {
             $this->success('成功发布');
         } else {
@@ -296,22 +295,22 @@ class Article extends Base
     //文章初审
     public function auditFirst($id = 0, $pass = 1)
     {
-        $art = ArticleModel::get(['id'=>$id]);
-        if (empty($art)) {
+        $article = ArticleModel::get(['id'=>$id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
 
-        if ($art->status != ArticleModel::STATUS_PUBLISHING) {
+        if ($article->status != ArticleModel::STATUS_PUBLISHING) {
             $this->error('文章状态不正确，无法进行初审');
         }
 
         if ($pass) {
-            $art->status = ArticleModel::STATUS_FIRST_AUDITED;
+            $article->status = ArticleModel::STATUS_FIRST_AUDITED;
         } else {
-            $art->status = ArticleModel::STATUS_FIRST_AUDIT_REJECT;
+            $article->status = ArticleModel::STATUS_FIRST_AUDIT_REJECT;
         }
 
-        $res = $art->save();
+        $res = $article->save();
         if ($res !== false) {
             $this->success('操作成功');
         } else {
@@ -322,22 +321,22 @@ class Article extends Base
     //文章终审
     public function auditSecond($id = 0, $pass = 1)
     {
-        $art = ArticleModel::get(['id'=>$id]);
-        if (empty($art)) {
+        $article = ArticleModel::get(['id'=>$id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
 
-        if ($art->status != ArticleModel::STATUS_FIRST_AUDITED) {
+        if ($article->status != ArticleModel::STATUS_FIRST_AUDITED) {
             $this->error('文章状态未初审通过，无法进行终审');
         }
 
         if ($pass) {
-            $art->status = ArticleModel::STATUS_PUBLISHED;
+            $article->status = ArticleModel::STATUS_PUBLISHED;
         } else {
-            $art->status = ArticleModel::STATUS_SECOND_AUDIT_REJECT;
+            $article->status = ArticleModel::STATUS_SECOND_AUDIT_REJECT;
         }
 
-        $res = $art->save();
+        $res = $article->save();
         if ($res !== false) {
             $this->success('操作成功');
         } else {
@@ -393,9 +392,9 @@ class Article extends Base
     public function setTop()
     {
         $artId = input('param.id/d');
-        $art = ArticleModel::get(['id'=>$artId]);
-        $art->is_top = 1;
-        $res = $art->save();
+        $article = ArticleModel::get(['id'=>$artId]);
+        $article->is_top = 1;
+        $res = $article->save();
         if ($res) {
             $this->success('成功置顶');
         } else {
@@ -407,9 +406,9 @@ class Article extends Base
     public function unsetTop()
     {
         $artId = input('param.id/d');
-        $art = ArticleModel::get(['id'=>$artId]);
-        $art->is_top = 0;
-        $res = $art->save();
+        $article = ArticleModel::get(['id'=>$artId]);
+        $article->is_top = 0;
+        $res = $article->save();
         if ($res) {
             $this->success('成功取消置顶');
         } else {
@@ -652,7 +651,7 @@ class Article extends Base
 
         //类型列表
         $AdtypeModel = new AdtypeModel();
-        $typeList = $AdtypeModel->order('type asc')->field('type, title_cn, image_size')->select();
+        $typeList = $AdtypeModel->order('type asc')->field('type,title_cn,title_en,image_size')->select();
         $this->assign('typeList', $typeList);
 
         return view('addAd');
@@ -707,7 +706,7 @@ class Article extends Base
 
         //类型列表
         $AdtypeModel = new AdtypeModel();
-        $typeList = $AdtypeModel->order('type asc')->field('type, title_cn, image_size')->select();
+        $typeList = $AdtypeModel->order('type asc')->field('type,title_cn,title_en,image_size')->select();
         $this->assign('typeList', $typeList);
 
         return $this->fetch('article/addAd');

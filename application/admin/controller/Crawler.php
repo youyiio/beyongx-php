@@ -143,7 +143,7 @@ class Crawler extends Base
             $this->assign('article', $result);
         } catch (\Exception $e) {
             $error = $e->getMessage();
-            $this->error($error);
+            $this->error($error, 'javascript:void(0)');
         }
 
         return $this->fetch('crawler/crawlTest');
