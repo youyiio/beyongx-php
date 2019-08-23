@@ -14,16 +14,20 @@ use think\Model;
 
 class ActionLogLogic extends Model
 {
-
+    //增加日志，data为传递的参数
     public function addLog($userId, $action, $remark, $data=[])
     {
+        if (isset($data['password'])) {
+            unset($data['password']);
+        }
+
         $data = [
             'user_id' => $userId,
             'action' => $action,
             'module' => request()->module(),
             'ip' => request()->ip(0, true),
             'remark' => $remark,
-            'data' => json_encode($data)
+            'data' => substr(json_encode($data), 0, 128)
         ];
 
         $ActionLogModel = new ActionLogModel();

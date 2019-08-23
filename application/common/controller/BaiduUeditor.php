@@ -2,12 +2,12 @@
 /**
 * 百度编辑器控制器
 */
-namespace app\admin\controller;
+namespace app\common\controller;
 
 use think\facade\Env;
 use think\Image;
 
-class BaiduUeditor extends Base
+trait BaiduUeditor
 {
 
     private $thumb; //缩略图模式：1、标识缩略图等比例缩放类型，2、标识缩略图缩放后填充类型

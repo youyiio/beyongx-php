@@ -24,7 +24,7 @@
                 {present name="article"}
                 <!--编辑-->
                 <div class="form-group">
-                    <label class="col-lg-2 control-label">所属分类</label>
+                    <label class="col-lg-2 control-label">所属分类<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <select name="category_ids[]" tabindex="4" required="" placeholder="选择分类" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple style="width:100%!important;" >
                             {volist name="categoryList" id="cl"}
@@ -36,7 +36,7 @@
                 </div>
                 {else/}
                 <div class="form-group">
-                    <label class="col-lg-2 control-label">所属分类</label>
+                    <label class="col-lg-2 control-label">所属分类<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <select data-placeholder="选择分类" tabindex="4" name="category_ids[]" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple style="width:100%!important;">
                             {volist name="categoryList" id="cl"}
@@ -49,7 +49,7 @@
                 {/present}
 
                 <div class="form-group">
-                    <label class="col-lg-2 control-label" for="title">文章标题</label>
+                    <label class="col-lg-2 control-label" for="title">文章标题<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <input class="form-control" type="text" id="title" name="title" placeholder="文章标题" value="{$article.title|default=''}" required>
                         <span class="help-block m-b-none"></span>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-lg-2 control-label">是否发布</label>
+                    <label class="col-lg-2 control-label">是否发布<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <select class="form-control" name="status">
                             <option value="0" {present name="article"}{eq name="article.status" value="0"}selected{/eq}{/present}>存草稿</option>
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="col-lg-2 control-label">内容</label>
+                    <label class="col-lg-2 control-label">内容<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <script id="container" name="content" type="text/plain">{$article ? html_entity_decode($article['content']) : ''}</script>
                     </div>
@@ -167,7 +167,7 @@
         '.chosen-select-no-single' : {disable_search_threshold:10},
         '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
         '.chosen-select-width'     : {width:"100%!important"}
-    }
+    };
     for (var selector in config) {
         $(selector).chosen(config[selector]);
     }
@@ -183,8 +183,8 @@
     //图片上传
     Dropzone.autoDiscover = false;
     $("#uploadImage").dropzone({
-        url: "{:url('Image/upload')}",
-        paramName: 'Filedata', //input的name
+        url: "{:url('Image/upcrop')}",
+        paramName: 'file', //input的name
         maxFilesize: 5, // MB
         addRemoveLinks: true, //添加删除链接
         clickable: true, //预览图可点击
@@ -220,6 +220,20 @@
                 displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
                 displayHtml = displayHtml.replace('_thumbHeight_', thumbHeight);
                 $element.find('.dz-message').html('').append(displayHtml);
+
+                //判断是否进行裁剪
+                if (response.msg == 'image_need_crop') {
+                    var cropUrl = "{:url('admin/Image/upcrop')}";
+                    layer.open({
+                        type: 2,
+                        title: '图片裁剪窗口',
+                        shadeClose: true,
+                        shade: false,
+                        maxmin: true, //开启最大化最小化按钮
+                        area: ['1172px', '650px'],
+                        content: cropUrl + "?imageId=" + imageId + "&thumbWidth=" + $element.data('width') + "&thumbHeight=" + $element.data('height')
+                    });
+                }
             } else {
                 layer.alert(response.msg, {icon: 2, title: '上传失败'});
             }
@@ -236,5 +250,17 @@
             this.removeFile(file);
         }
     });
+
+    //设定upcropper的函数，变量名固定不变
+    var upcropper = {
+        successCallback: function (res) {
+            var url = res.data.image_url;
+            $(".dz-message > img").attr("src", url);
+
+            setTimeout(function () {
+                layer.closeAll();
+            }, 2000);
+        }
+    };
 </script>
 {/block}

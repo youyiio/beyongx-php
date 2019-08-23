@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     {block name="meta"}{/block}
-    <title>{block name="title"}{:get_config('site_name')}{/block}</title>
+    <title>{block name="title"}{:get_config('title')} - {:get_config('site_name')}{/block}</title>
     <meta name="keywords" content="{block name='keywords'}{:get_config('keywords')}{/block}">
     <meta name="description" content="{block name='description'}{:get_config('description')}{/block}">
     <meta name="viewport" content="width=device-width, initial-scale=1">

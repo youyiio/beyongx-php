@@ -736,9 +736,10 @@ create unique index uniq_user_account on cms_user
 create table cms_user_meta
 (
    id                   int not null auto_increment,
-   user_id              int not null,
+   target_id            int not null,
    meta_key             varchar(32) not null,
    meta_value           text not null,
+   update_time          datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -748,11 +749,11 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_user_meta comment '用户元数据表';
 
 /*==============================================================*/
-/* Index: idx_user_meta_uid_meta_key                            */
+/* Index: idx_user_meta_target_id_meta_key                      */
 /*==============================================================*/
-create index idx_user_meta_uid_meta_key on cms_user_meta
+create index idx_user_meta_target_id_meta_key on cms_user_meta
 (
-   user_id,
+   target_id,
    meta_key
 );
 
@@ -915,6 +916,7 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (193, 19, '软件上传', 'admin/File/uploadSoftware', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (194, 19, '移动App上传', 'admin/File/uploadApp', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (195, 19, '百度编辑器接口', 'admin/BaiduUeditor/index', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (196, 19, '图片上传截取', 'admin/Image/upcrop', '', 1, 0, 1, 1,'','admin');
 
 #个人中心模块
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (2, 0, '个人中心', 'admin/ShowNav/Person', 'fa-user', 1, 1, 14, 1,'','admin');
@@ -1095,7 +1097,8 @@ INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (3, '首页中间广告', 'banner_center', '首页中间广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (4, '首页底部广告', 'banner_footer', '首页底部广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (6, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '分类列表页', 'category_list', '显示于分类列表页', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '文章列表页', 'article_list', '显示于文章列表页', null);

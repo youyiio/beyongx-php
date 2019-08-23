@@ -1,5 +1,5 @@
 {extend name="public/base" /}
-{block name="title"}{:get_config('site_name')}{/block}
+{block name="title"}{:get_config('title')} - {:get_config('site_name')}{/block}
 {block name="body"}
 	<div class="container-wrap">
 		<div class="container">
@@ -40,7 +40,7 @@
 
 				</div>
 				<div class="item-btn">
-					<a href="{:url('index/index', ['page'=>$list->currentPage()+1])}" class="layui-btn layui-btn-normal">下一页</a>
+					<a href="{:url('cms/Index/index', ['page'=>$list->currentPage()+1])}" class="layui-btn layui-btn-normal">下一页</a>
 				</div>
 		</div>
 	</div>

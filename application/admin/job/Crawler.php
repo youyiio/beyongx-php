@@ -71,6 +71,12 @@ class Crawler
             $item['remark'] = CrawlerMetaModel::STATUS_WAREHOUSING;
             $item['meta_value'] = $metaValue;
 
+            //已经抓取过的，不再入库；避免重复抓取
+            $temp = CrawlerMetaModel::where(['meta_key' => 'article_url', 'meta_value' => $metaValue])->find();
+            if ($temp && $temp['remark'] == CrawlerMetaModel::STATUS_COMPLETE) {
+                continue;
+            }
+
             $metas[] = $item;
         }
         $CrawlerMetaModel = new CrawlerMetaModel();

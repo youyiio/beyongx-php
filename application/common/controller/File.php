@@ -13,32 +13,40 @@ trait File
 {
     /**
      * 通用文件上传
+     * 支持参数：file,exts
      */
     public function upload()
     {
         $file = request()->file('file');
         if (empty($file)) {
             $this->error('请选择上传文件');
+            $this->result(null, 0, '请选择上传文件', 'json');
         }
+
         $rule = [
-            //'ext' => 'apk',
-            'size' => 1024*1024*200, //200M
+            'size' => 1024 * 1024 * 200, //200M
         ];
+        $exts = request()->param('exts', ''); //文件格式，中间用,分隔
+        if (!empty($exts)) {
+            $rule['ext'] = $exts;
+        }
+
+        $check = $file->validate($rule);
+        if (!$check) {
+            //$this->error($file->getError());
+            $this->result(null, 0, $file->getError(), 'json');
+        }
 
         $filePath = Env::get('root_path') . 'public';
         $fileUrl = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR . 'file';
         $path = $filePath . $fileUrl;
-        $check = $file->validate($rule);
-
-        if (!$check) {
-            $this->error($file->getError());
-        }
 
         $info = $file->move($path);
         $saveName = $info->getSaveName(); //实际包含日期+名字：如20180724/erwrwiej...dfd.ext
         $fileUrl = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . $saveName;
 
         $fileSize = $info->getSize();
+        $ext = $info->getExtension();
 
         //原始上传文件名
         $fileName = $_FILES['file']['name'];
@@ -55,8 +63,9 @@ trait File
         $fileId = $FileModel->insertGetId($data);
 
         $data['file_id'] = $fileId;
+        $data['ext_icon_url'] = '/static/common/img/format/' . strtolower($ext) . '.png';
 
-        $this->success('文件上传成功', false, $data);
+        $this->result($data, 1, '文件上传成功', 'json');
     }
 
     //上传软件，桌面端软件，如果.exe.zip
@@ -68,8 +77,8 @@ trait File
         //ini_set('upload_max_filesize', '128M');
         $file = request()->file('file');
         if (empty($file)) {
-            # 可能php.ini配置错误，或者查看一下file传参
-            $this->error('请选择上传文件');
+            //$this->error('请选择上传文件');
+            $this->result(null, 0, '请选择上传文件', 'json');
         }
         $rule = [
             'ext' => 'zip,rar,exe',

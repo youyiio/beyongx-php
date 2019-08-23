@@ -50,7 +50,7 @@ class Article extends Base
             $map[] = ['create_time', '>=', $startTime . ' 00:00:00'];
         }
 
-        $fields = 'id,ad_id,title,update_time,post_time,create_time,is_top,status,read_count,sort';
+        $fields = 'id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
         $orders = [
             'is_top' => 'desc',
             'post_time' => 'desc',
@@ -570,11 +570,11 @@ class Article extends Base
     public function editCategory($id)
     {
         $CategoryModel = new CategoryModel();
-        $info = $CategoryModel->find($id);
-        if (empty($info)) {
+        $category = $CategoryModel->find($id);
+        if (empty($category)) {
             $this->error('数据不存在');
         }
-        $this->assign('info',$info);
+        $this->assign('category', $category);
         return $this->fetch('addCategory');
     }
 
@@ -740,11 +740,11 @@ class Article extends Base
     //文章访问统计
     public function articleStat($id)
     {
-        $info = ArticleModel::get(['id' => $id]);
-        if (empty($info)) {
+        $article = ArticleModel::get(['id' => $id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
-        $this->assign('info', $info);
+        $this->assign('article', $article);
 
         $startTime = input('param.startTime');
         $endTime = input('param.endTime');
@@ -785,11 +785,10 @@ class Article extends Base
     //文章访问统计图
     public function echartShow($id)
     {
-        $info = ArticleModel::get(['id' => $id]);
-        if (empty($info)) {
+        $article = ArticleModel::get(['id' => $id]);
+        if (empty($article)) {
             $this->error('文章不存在');
         }
-        $this->assign('info', $info);
 
         $option =[
             'xAxis'=> ['data'=>[]],
@@ -797,11 +796,11 @@ class Article extends Base
         ];
 
         $where = [];
-        $timeStart = input('param.start');
-        $timeEnd = input('param.end');
+        $startTime = input('param.start');
+        $endTime = input('param.end');
 
         $ArticleMetaModel = new ArticleMetaModel();
-        for ($i = $timeStart ; $i <= $timeEnd; $i += (24*3600)) {
+        for ($i = $startTime ; $i <= $endTime; $i += (24*3600)) {
             $day = date('m-d',$i);
             $beginTime = mktime(0, 0, 0, date('m',$i), date('d',$i), date('Y',$i));
             $endTime = mktime(23, 59, 59, date('m',$i), date('d',$i), date('Y',$i));

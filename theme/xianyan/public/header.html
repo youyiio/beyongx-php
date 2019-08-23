@@ -1,12 +1,12 @@
 <div class="header">
     <div class="header-wrap">
         <h1 class="logo pull-left">
-            <a href="{:url('Index/index')}">
+            <a href="{:url('cms/Index/index')}">
                 <img src="__PUBLIC__/theme/xianyan/images/logo.png" alt="" class="logo-img">
                 <img src="__PUBLIC__/theme/xianyan/images/logo-text.png" alt="" class="logo-text">
             </a>
         </h1>
-        <form class="layui-form blog-seach pull-left" action="{:url('Article/index')}">
+        <form class="layui-form blog-seach pull-left" action="{:url('cms/Article/index')}">
             <div class="layui-form-item blog-sewrap">
                 <div class="layui-input-block blog-sebox">
                     <i class="layui-icon layui-icon-search"></i>
@@ -17,9 +17,9 @@
 
         <div class="blog-nav pull-right">
             <ul class="layui-nav pull-left">
-                <li class="layui-nav-item {if request()->controller() == 'Index' && request()->action() == 'index'}layui-this{/if}"><a href="{:url('index/index')}">首页</a></li>
-                <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('Feedback/index')}">留言</a></li>
-                <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('index/about')}">关于</a></li>
+                <li class="layui-nav-item {if request()->controller() == 'Index' && request()->action() == 'index'}layui-this{/if}"><a href="{:url('cms/Index/index')}">首页</a></li>
+                <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('cms/Feedback/index')}">留言</a></li>
+                <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('cms/Index/about')}">关于</a></li>
             </ul>
             <a href="#" class="personal pull-left">
                 <i class="layui-icon layui-icon-username"></i>
@@ -32,8 +32,8 @@
         </div>
     </div>
     <ul class="pop-nav" id="pop-nav">
-        <li class="layui-nav-item {if request()->action() == 'index'}layui-this{/if}"><a href="{:url('index/index')}">首页</a></li>
-        <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('Feedback/index')}">留言</a></li>
-        <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('index/about')}">关于</a></li>
+        <li class="layui-nav-item {if request()->action() == 'index'}layui-this{/if}"><a href="{:url('cms/Index/index')}">首页</a></li>
+        <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('cms/Feedback/index')}">留言</a></li>
+        <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('cms/Index/about')}">关于</a></li>
     </ul>
 </div>

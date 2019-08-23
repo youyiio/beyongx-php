@@ -38,8 +38,13 @@ class ThemeBehavior
         if (isset($config['adaptive']) && $config['adaptive'] == true) {
             $themePath .= $template . DIRECTORY_SEPARATOR;
         }
-
         //使用容器修改
         View::config('view_path', $themePath);
+
+        //如果分页配置存在时，加载分页配置
+        $paginateFile = $themePath . 'paginate.php';
+        if (file_exists($paginateFile)) {
+            Config::load($paginateFile, 'paginate');
+        }
     }
 }

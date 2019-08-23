@@ -15,6 +15,9 @@ class BaseModel extends Model
     //6、模型相关的操作方法及业务逻辑，如无要，尽量不要写在模型类中
 
 
+    const MODE_SINGLE_VALUE = 1; //单值模式
+    const MODE_MULTIPLE_VALUE = 2; //多值模式
+
     //字段自动完成或默认处理：create_time
     protected function setCreateTimeAttr($value, $data)
     {
@@ -75,7 +78,7 @@ class BaseModel extends Model
     }
 
     //meta扩展表
-    public function meta($metaKey, $metaValue='')
+    public function meta($metaKey, $metaValue='', $mode=BaseModel::MODE_SINGLE_VALUE)
     {
         $pk = $this->pk;
 
@@ -86,7 +89,7 @@ class BaseModel extends Model
             return $MetaModel->_meta($this->$pk, $metaKey);
         }
 
-        $MetaModel->_meta($this->$pk, $metaKey, $metaValue);
+        $MetaModel->_meta($this->$pk, $metaKey, $metaValue, $mode);
     }
 
     /**

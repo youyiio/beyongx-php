@@ -35,6 +35,11 @@
                                 <th>排序</th>
                                 <th>操作</th>
                             </tr>
+                            {empty name="list"}
+                            <tr>
+                                <td colspan="5" align="center">暂无数据</td>
+                            </tr>
+                            {else /}
                             {foreach name="list" item="v" empty="暂无数据"}
                             <tr>
                                 <td>
@@ -49,6 +54,7 @@
                                 </td>
                             </tr>
                             {/foreach}
+                            {/empty}
                             <tr>
                                 <th colspan="5">
                                     <button class="btn btn-success" type="submit">排序</button>

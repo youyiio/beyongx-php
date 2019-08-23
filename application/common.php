@@ -606,6 +606,31 @@ function url_add_domain($url = '')
     return request()->domain() . config('view_replace_str.__PUBLIC__') . $url;
 }
 
+//从url中获取域名, $root_domain=true时返回根域名
+function url_get_domain($url = '', $root_domain=false, &$details=[])
+{
+    $tokens = explode('/', $url);
+    $protocol = str_replace(':', '', $tokens[0]);
+    $domain = $tokens[2];
+    $baseUrl = $protocol . ':' . '//' . $tokens[2]; //更准确的话: $token[0] . '//' . $tokens[2]
+    $path = str_replace($baseUrl, '', $url);
+
+    $details['protocol'] = $protocol;
+    $details['domain'] = $domain;
+    $details['path'] = $path;
+    $details['base_url'] = $baseUrl;
+
+    //解析根域名
+    $domainTokens = explode('.', $domain);
+    if (count($domainTokens) == 2) {
+        $details['root_domain'] = $domain;
+    } else if (count($domainTokens) > 2){
+        $details['root_domain'] = $domainTokens[count($domainTokens) - 2] . '.' . $domainTokens[count($domainTokens) - 1];
+    }
+
+    return $root_domain ? $details['root_domain'] : $details['domain'];
+}
+
 //标题截取
 function sub_str($str, $start = 0, $length = 17)
 {

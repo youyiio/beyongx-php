@@ -8,7 +8,7 @@
 
 return [
     'adaptive' => false, //是否自适应：pc,mobile,tablet
-    'current_theme' => 'simple',
+    'current_theme' => 'classic',
 
     //文章配置
     'article_thumb_image' => ["width" => 420, "height" => 280, "thumb_width" => 210, "thumb_height" => 140],

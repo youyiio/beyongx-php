@@ -10,7 +10,7 @@ use app\common\library\ResultCode;
 
 use think\Model;
 
-class UserModel extends Model
+class UserModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'user';
     protected $pk = 'user_id';

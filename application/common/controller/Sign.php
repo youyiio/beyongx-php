@@ -106,7 +106,11 @@ class Sign extends Controller
 
         cookie('username', $username, 3600 * 24 * 15);  //保存用户名在cookie
 
-        $this->success('登陆成功', $this->defaultConfig['login_success_view']);
+        $loginSuccessView = $this->defaultConfig['login_success_view'];
+        if (input('redirect')) {
+            $loginSuccessView = urldecode(input('redirect'));
+        }
+        $this->success('登陆成功', $loginSuccessView);
     }
 
     /**

@@ -14,8 +14,10 @@ trait Image
     public function upload()
     {
         $file = request()->file('Filedata');
+        if (empty($file)) $file = request()->file('file');
         if (empty($file)) {
-            $this->error('请选择上传文件');
+            //$this->error('请选择上传文件');
+            $this->result(null, 0, '请选择上传文件', 'json');
         }
 
         //图片规定尺寸
@@ -61,11 +63,11 @@ trait Image
         //图片缩放处理
         $image = \think\Image::open($info);
         $quality = get_config('image_upload_quality', 80); //获取图片清晰度设置，默认是80
-        $type = image_type_to_extension($type, false); //png格式时，quality不影响值；jpg|jpeg有效果
+        $extension = image_type_to_extension($type, false); //png格式时，quality不影响值；jpg|jpeg有效果
         if ($imgWidth > 0 && $imgHeight > 0) {
             //缩放至指定的宽高
             $image->thumb($imgWidth, $imgHeight, \think\Image::THUMB_FIXED);//固定尺寸缩放
-            $image->save($imgUrl, $type, $quality, true);
+            $image->save($imgUrl, $extension, $quality, true);
         }
 
         //缩略图
@@ -77,7 +79,7 @@ trait Image
             //缩放至指定的宽高
             $image->thumb($tbWidth, $tbHeight, \think\Image::THUMB_FIXED);//固定尺寸缩放
 
-            $image->save($tbImgUrl, $type, $quality, true);
+            $image->save($tbImgUrl, $extension, $quality, true);
 
             $data = [
                 'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$info->getFilename(),

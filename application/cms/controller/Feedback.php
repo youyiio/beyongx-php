@@ -48,10 +48,10 @@ class Feedback extends Base
         }
 
         $msgList = $FeedbackModel->order('create_time desc')->paginate(6,false);
-        $this->assign('total',$total);
+        $this->assign('total', $total);
         $this->assign('msgList', $msgList);
 
-        return view();
+        return $this->fetch('index');
     }
 
     public function data()

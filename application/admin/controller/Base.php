@@ -22,7 +22,7 @@ class Base extends Controller
             if (request()->isAjax()) {
                 $this->error('请重新登陆', url('cms/Sign/index'));
             }
-            $this->redirect('admin/Sign/index');
+            $this->redirect('admin/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
         }
         $this->uid = $uid;
 
@@ -30,7 +30,11 @@ class Base extends Controller
         $localLoginHash = cookie($uid . '_login_hash');
         $cacheLoginHash = cache($uid . '_login_hash');
         if ($localLoginHash != $cacheLoginHash) {
-            $this->error('请重新登陆', url('admin/Sign/index'));
+            if (request()->isAjax()) {
+                $this->error('请重新登陆', url('admin/Sign/index'));
+            } else {
+                $this->redirect('admin/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
+            }
         }
 
         //用户有请求操作时，session时间重置

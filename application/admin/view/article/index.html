@@ -1,5 +1,5 @@
 {extend name="public/base" /}
-{block name="title"}{$columnTitle|default="文章管理"}{/block}
+{block name="title"}文章管理{/block}
 {block name="css"}
 <link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css">
@@ -115,7 +115,10 @@
                                     {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
                                     {/volist}
                                 </td>
-                                <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a>{eq name="vo.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
+                                <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a>
+                                    {if $vo.thumb_image_id > 0}<i class="fa fa-picture-o"></i>{/if}
+                                    {eq name="vo.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}
+                                </td>
                                 <td>{$vo.status_text}</td>
                                 <td align="center">{$vo.read_count}</td>
                                 <td align="center">

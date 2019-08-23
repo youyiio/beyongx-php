@@ -18,6 +18,10 @@ use think\facade\Log;
 use app\common\model\ArticleMetaModel;
 use app\common\model\ArticleModel;
 
+/**
+ * Class Publish
+ * @package app\admin\command
+ */
 class Publish extends Command
 {
     protected function configure()

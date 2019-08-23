@@ -14,17 +14,32 @@ class UserMetaModel extends BaseMetaModel
     protected $name = CMS_PREFIX . 'user_meta';
 
     //读取|设置meta值
-    public function _meta($fkId, $metaKey='', $metaValue='')
+    public function _meta($fkId, $metaKey='', $metaValue='', $mode=BaseModel::MODE_SINGLE_VALUE)
     {
-        $fk = 'user_id';
-        $meta = $this->where([$fk => $fkId, 'meta_key' => $metaKey])->find();
+        $fk = 'target_id';
+        $where = [
+            $fk => $fkId,
+            'meta_key' => $metaKey
+        ];
+
+        //写模工下，且为多值情况时，增加查询条件
+        if ($metaValue !== '' && $metaValue !== null && $mode == BaseModel::MODE_MULTIPLE_VALUE) {
+            $where[] = ['meta_value' => $metaValue];
+        }
+
+        $meta = $this->where($where)->find();
         if ($meta) {
             if ($metaValue === '') {
                 return $meta['meta_value'];
             } else if ($metaValue === null) {
                 $this->where('id', $meta['id'])->delete();
             } else {
-                $this->where('id', $meta['id'])->setField(['meta_key'=>$metaKey, 'meta_value'=>$metaValue]);
+                $data = [
+                    'meta_key' => $metaKey,
+                    'meta_value' => $metaValue,
+                    'update_time' => date_time()
+                ];
+                $this->where('id', $meta['id'])->setField($data);
             }
         } else {
             if ($metaValue === '') {
@@ -36,6 +51,7 @@ class UserMetaModel extends BaseMetaModel
                 $data['meta_key'] = $metaKey;
                 $data['meta_value'] = $metaValue;
                 $data['create_time'] = date_time();
+                $data['update_time'] = $data['create_time'];
                 $this->insert($data);
             }
         }
@@ -44,7 +60,7 @@ class UserMetaModel extends BaseMetaModel
     //读取metas多值
     public function _metas($fkId, $metaKey='')
     {
-        $fk = 'user_id';
+        $fk = 'target_id';
         $where = [
             [$fk] => $fkId,
         ];

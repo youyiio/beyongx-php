@@ -15,6 +15,7 @@
         <input type="text" class="form-control" name="code" autocomplete="off" placeholder="验证码" required="">
         <div><img id="code" src="{:url(request()->module() . '/Sign/captcha')}" alt="captcha" onclick="this.src='{:url(request()->module() . \'/Sign/captcha\')}'+ '?' + new Date().getTime()" style="cursor:pointer;margin-top:6px"></div>
     </div>
+    <input type="hidden" name="redirect" value="{$Request.param.redirect}">
     <button type="submit" class="btn btn-primary block full-width m-b">登录</button>
 
     <a href="{:url(request()->module() . '/Sign/forget')}"><small>忘记密码?</small></a>
@@ -26,7 +27,7 @@
 {block name="js"}
 <script type="text/javascript">
     if (window != top) {
-        top.location.href = location.href;
+        //top.location.href = location.href;
     }
 </script>
 {/block}

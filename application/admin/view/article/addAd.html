@@ -1,5 +1,5 @@
 {extend name="public/base" /}
-{block name="title"}广告{/block}
+{block name="title"}新增|编辑广告{/block}
 {block name="css"}
 <link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
 <link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
@@ -106,7 +106,7 @@
         '.chosen-select-no-single' : {disable_search_threshold:10},
         '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
         '.chosen-select-width'     : {width:"100%!important"}
-    }
+    };
     for (var selector in config) {
         $(selector).chosen(config[selector]);
     }
@@ -115,8 +115,8 @@
     //图片上传
     Dropzone.autoDiscover = false;
     $("#uploadImage").dropzone({
-        url: "{:url('Image/upload')}",
-        paramName: 'Filedata', //input的name
+        url: "{:url('Image/upcrop')}",
+        paramName: 'file', //input的name
         maxFilesize: 5, // MB
         addRemoveLinks: true, //添加删除链接
         clickable: true, //预览图可点击
@@ -146,7 +146,7 @@
             if (response.code == 1) {
                 //将图片id填入input
                 var imageId = response.data.image_id;
-                var imageUrl = ""+response.data.image_url;
+                var imageUrl = "" + response.data.image_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
                 if (thumbWidth == 0) {
@@ -156,6 +156,20 @@
                 displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
                 displayHtml = displayHtml.replace('_thumbHeight_', thumbHeight);
                 $element.find('.dz-message').html('').append(displayHtml);
+
+                //判断是否进行裁剪
+                if (response.msg == 'image_need_crop') {
+                    var cropUrl = "{:url('admin/Image/upcrop')}";
+                    layer.open({
+                        type: 2,
+                        title: '图片裁剪窗口',
+                        shadeClose: true,
+                        shade: false,
+                        maxmin: true, //开启最大化最小化按钮
+                        area: ['1172px', '650px'],
+                        content: cropUrl + "?imageId=" + imageId + "&thumbWidth=" + $element.data('width') + "&thumbHeight=" + $element.data('height')
+                    });
+                }
             } else {
                 layer.alert(response.msg, {icon: 2, title: '上传失败'});
             }
@@ -173,8 +187,20 @@
         }
     });
 
-    //广告图片大小根据选项框选择
+    //设定upcropper的函数，变量名固定不变
+    var upcropper = {
+        successCallback: function (res) {
+            var url = res.data.image_url;
+            $(".dz-message > img").attr("src", url);
 
+            setTimeout(function () {
+                layer.closeAll();
+            }, 2000);
+        }
+    };
+
+
+    //广告图片大小根据选项框选择
     $("#types").chosen().on("change", function (evt, params) {
         var imageSize = $("#types option:selected").data("image-size");
         if (imageSize == undefined || imageSize == "") {

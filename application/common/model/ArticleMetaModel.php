@@ -31,10 +31,19 @@ class ArticleMetaModel extends BaseMetaModel
     }
 
     //读取|设置meta值
-    public function _meta($fkId, $metaKey='', $metaValue='')
+    public function _meta($fkId, $metaKey='', $metaValue='', $mode=BaseModel::MODE_SINGLE_VALUE)
     {
         $fk = 'article_id';
-        $meta = $this->where([$fk => $fkId, 'meta_key' => $metaKey])->find();
+        $where = [
+            $fk => $fkId,
+            'meta_key' => $metaKey
+        ];
+
+        //写模工下，且为多值情况时，增加查询条件
+        if ($metaValue !== '' && $metaValue !== null && $mode == BaseModel::MODE_MULTIPLE_VALUE) {
+            $where[] = ['meta_value' => $metaValue];
+        }
+        $meta = $this->where($where)->find();
         if ($meta) {
             if ($metaValue === '') {
                 return $meta['meta_value'];
@@ -57,8 +66,8 @@ class ArticleMetaModel extends BaseMetaModel
                 $data[$fk] = $fkId;
                 $data['meta_key'] = $metaKey;
                 $data['meta_value'] = $metaValue;
-                $data['update_time'] = date_time();
                 $data['create_time'] = date_time();
+                $data['update_time'] = $data['create_time'];
                 $this->insert($data);
             }
         }

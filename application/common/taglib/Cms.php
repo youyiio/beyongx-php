@@ -23,7 +23,7 @@ class Cms extends TagLib
         'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息
         'search'  => ['attr' => 'keyword,id', 'close' => true], //文章搜索标签
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
-        'ads'  => ['attr' => 'cache,type,limit,id', 'close' => true], //广告链接标签
+        'ads'  => ['attr' => 'cache,type,name,limit,id', 'close' => true], //广告链接标签
     ];
 
 
@@ -119,7 +119,7 @@ class Cms extends TagLib
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
         $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
-        $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$category['id'];}";
+        $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
         $parse .= "  \$where = [];";
@@ -223,21 +223,28 @@ class Cms extends TagLib
     {
         $defaultCache = 60 * 5;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
-        $type = empty($tag['type']) ? 10 : $tag['type'];
+        $type = empty($tag['type']) ? 0 : $tag['type'];
+        $name = empty($tag['name']) ? '' : $tag['name'];
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
         $list = $this->_randVarName(10);
         $list = $this->autoBuildVar($list);
 
-        $parse  = '<?php ';
-        $parse .= "  \$cacheMark = 'links_' . $cache . $limit;";
+        $parse  = "<?php ";
+        $parse .= "  \$internalType = $type; ";
+        $parse .= "  \$internalName = \"$name\";";
+        $parse .= "  if (empty(\$internalType) && !empty(\$internalName)) {";
+        $parse .= "    \$internalAdtype = \app\common\model\AdtypeModel::where(['title_en'=>\$internalName])->find();";
+        $parse .= "    if (!empty(\$internalAdtype)) { \$internalType = \$internalAdtype['type'];}";
+        $parse .= "  }";
+        $parse .= "  \$cacheMark = 'ads_' . \$internalType . $cache . $limit;";
         $parse .= "  if ($cache) { ";
         $parse .= "    $list = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($list)) { ";
         $parse .= "    \$adLogic = new \app\common\logic\AdLogic();";
-        $parse .= "    $list = \$adLogic->getAdList($type, $limit);";
+        $parse .= "    $list = \$adLogic->getAdList(\$internalType, $limit);";
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $list, $cache); ";
         $parse .= "    } ";
@@ -262,7 +269,7 @@ class Cms extends TagLib
                 $key .= $pattern{mt_rand(0, $count - 1)};    //生成php随机数
             }
         }
-        
+
         return $key;
     }
 

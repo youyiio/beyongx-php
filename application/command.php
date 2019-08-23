@@ -12,4 +12,6 @@
 return [
     'app\admin\command\Publish',
     'app\admin\command\Article',
+    'app\admin\command\Index',
+    'app\admin\command\ElasticSearch',
 ];

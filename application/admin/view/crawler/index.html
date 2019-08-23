@@ -31,7 +31,7 @@
                     <table class="table table-bordered table-hover table-striped">
                         <thead>
                         <tr>
-                            <!--th><input type="checkbox" class="i-checks js-check-all"></th-->
+                            <!--th><input type="checkbox" class="i-checks ajax-check-all"></th-->
                             <th>ID</th>
                             <th>标题</th>
                             <th>定时更新？</th>
@@ -59,9 +59,11 @@
                                 <td>{$vo.create_time}</td>
                                 <td>{$vo.status_html|raw}</td>
                                 <td>
-                                    {if $vo.status == 2}
-                                    <a href="" class="btn btn-xs btn-primary ajax-a" disabled="">采集中</a>
-                                    {else if}
+                                    {if $vo.status == \app\common\model\CrawlerModel::STATUS_CRAWLING}
+                                    <a href="" class="btn btn-xs btn-primary" disabled="">采集中</a>
+                                    {elseif $vo.status == \app\common\model\CrawlerModel::STATUS_CRAWL_SUCCESS /}
+                                    <a href="" class="btn btn-xs btn-primary" disabled="">采集完</a>
+                                    {else /}
                                     <a href="{:url('Crawler/startCrawl',['id'=>$vo['id']])}" class="btn btn-xs btn-primary ajax-a"><i class="fa fa-play"></i> 采集</a>
                                     {/if}
                                     <a href="{:url('Crawler/edit',['id'=>$vo['id']])}" class="btn btn-xs btn-success"><i class="fa fa-edit"></i> 编辑</a>

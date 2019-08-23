@@ -14,8 +14,12 @@ use think\queue\Job;
 use app\common\model\ArticleModel;
 use app\common\model\ArticleMetaModel;
 
+use QL\QueryList;
+
 class Webmaster
 {
+
+    private $error;
 
     /**
      * 检测文章索引情况，执行job
@@ -83,6 +87,27 @@ class Webmaster
         Log::info('提交链接已完成');
     }
 
+    //检测url是否收录收录验证
+    public function baiduCheckIndex($url = '', $fine=true)
+    {
+        $count = 0;
+        $spUrl = "https://www.baidu.com/s?wd=" . urlencode($url);
+
+        //精确
+        if ($fine) {
+            $domain = url_get_domain($url);
+            $sorts = $this->getTargetUrl($domain, $spUrl, 'bd');
+            $sorts && $count = count($sorts);
+        } else {
+            $output = $this->httpGet($spUrl);
+            $preg = '/百度为您找到相关结果约(\d+)个/';
+            $check = preg_match($preg, $output, $arr);
+            $check && $count = $arr[1];
+        }
+
+        return $count; //返回收录数量
+    }
+
     //链接推送，实时收录, links = [$url1, $url2...]
     public function baiduPushLinks($links = [])
     {
@@ -103,38 +128,23 @@ class Webmaster
         return $output;
     }
 
-    //检测url是否收录收录验证
-    public function baiduCheckIndex($url = '')
-    {
-        $count = 0;
-
-        $url = "https://www.baidu.com/s?wd=" . urlencode($url);
-        $output = $this->httpGet($url);
-        $preg = '/百度为您找到相关结果约(\d+)个/';
-        $check = preg_match($preg, $output, $arr);
-        if ($check) {
-            $count = $arr[1];
-        }
-
-        return $count; //返回收录数量
-    }
-
-    //域名收录情况
-    public function domainSite($domain, $sp, $source='pc')
+    //site指令：域名收录情况
+    public function siteCmd($domain, $sp, $source='pc')
     {
         if ($sp == 'bd') {
-            return $this->baiduDomainSite($domain);
+            return $this->baiduSiteCmd($domain);
         } elseif ($sp == 'so') {
-            return $this->soDomainSite($domain);
+            return $this->soSiteCmd($domain);
         } else if ($sp == 'sg') {
-            return $this->sogouDomainSite($domain);
+            return $this->sogouSiteCmd($domain);
         } else {
-            $this->error('未实现');
+            //$this->error('未实现');
+            return -1;
         }
     }
 
-    //百度域名收录情况
-    public function baiduDomainSite($domain = '')
+    //百度site指令, 返回收录数量
+    public function baiduSiteCmd($domain = '')
     {
         $url = "https://www.baidu.com/s?wd=site:$domain";
         $output = $this->httpGet($url);
@@ -147,208 +157,95 @@ class Webmaster
             $check = preg_match($preg, $output, $arr);
         }
         if (!$check) {
-            return $this->error('网站未被收录,请先添加PC流量或移动流量任务');
+            $this->error = '网站未被收录';
+            return -1;
         }
         $sites = $arr[1];
         $sites = str_replace(',', '', $sites);
-        return $this->success($sites); //返回收录数量
+
+        return $sites;
     }
 
-    //百度PC权重
-    public function baiduPcRank($domain = '')
+    public function getTargetUrl($domain, $spUrl, $sp)
     {
-        //$domain = input('domain/s');
-        if (empty($domain) || !preg_match($this->domainPreg,$domain)) {
-            return $this->error('域名格式错误');
-        }
-        $cacheMark = 'bdRank_'.md5($domain);
-        if (cache("?$cacheMark") && !config('app_debug')) {
-            return $this->success(cache($cacheMark));
-        }
-        $url = 'http://rank.chinaz.com/';
-        $url = $url . $domain;
-        $output = $this->httpGet($url);
+        $output = $this->httpGet($spUrl);
         if ($output == false) {
-            return $this->error('数据抓取失败');
+            //页面获取失败
+            return false;
         }
-        // dump($output);die;
-        // $ql = QueryList::run('Request',[
-        //     'http' => [
-        //         'target' => $url,
-        //         'referrer'=>'http://tool.chinaz.com/',
-        //         'method' => 'GET',
-        //         'timeout' => '30',
-        //         'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'
-        //     ],
-        // ]);
-        $range = '.ResultListWrap .ReLists';
-        $rules = [
-            'seUrl' => ['div:eq(0) a:eq(0)','href'],
-            'keyword' => ['div:eq(0) a:eq(0)','text'],
-            'index' => ['div.w8-0:eq(1)','text'],
-            'sort' => ['div.w8-0:eq(3)','text','','num_only'],
-        ];
-
+        switch ($sp) {
+            case 'bd':
+                $rules = [
+                    'target' => ['.f13 a:eq(0)','text'],
+                ];
+                $range = '.result';
+                break;
+            case 'mb':
+                $rules = [
+                    'title' => array('.c-title.c-gap-top-small','text'),
+                    'target' => ['span.c-showurl','text'],
+                ];
+                $range = '.result';
+                break;
+            case 'so':
+                $rules = [
+                    'target' => ['.res-linkinfo cite','text'],
+                ];
+                $range = 'ul.result>li.res-list';
+                break;
+            case 'sg':
+                $rules = [
+                    'target' => ['cite','text'],
+                ];
+                $range = '.results .fb';
+                break;
+            default:
+                //未知任务类型
+                return false;
+                break;
+        }
         $ql = QueryList::html($output)->rules($rules)->range($range)->query();
-        $data = $ql->data;
-        if (empty($data)) {
-            return $this->error('未找到相关排名');
+        $pageList = $ql->getData();
+
+        $res = $this->getSort($domain, $pageList);
+        if (empty($res)) {
+            //未找到结果页地址
+            return false;
         }
-        cache($cacheMark, $data,86400);
-        return $this->success($data);
+
+        return $res;
     }
 
-    //百度移动权重
-    public function baiduMobileRank($domain = 'www.rbhj.com')
+    /**
+     * 筛选属于用户的条目及其排名
+     * @param  $domainOrName $domainOrName   用户网站域名|标识
+     * @param  array $pageList 搜索结果条目数组
+     * @return array           筛选出来对应的结果
+     */
+    protected function getSort($domainOrName, $pageList)
     {
-        //$domain = input('domain/s');
-        if (empty($domain) || !preg_match($this->domainPreg,$domain)) {
-            return $this->error('域名格式错误');
+        $res = [];
+        if ($domainOrName) {
+            // 筛选属于用户的条目及其排名
+            foreach ($pageList as $k => $v) {
+                if (preg_match("/$domainOrName/", $v['target'])) {
+                    $res[] = [
+                        'sort' => $k + 1,
+                        'target' => preg_replace('/(\s|\&nbsp\;|　|\xc2\xa0)$/','',$v['target']), //去除尾巴空格
+                    ];
+                }
+            }
+        } else {
+            foreach ($pageList as $k => $v) {
+                $res[] = [
+                    'sort' => $k + 1,
+                    'target' => preg_replace('/(\s|\&nbsp\;|　|\xc2\xa0)$/','',$v['target']), //去除尾巴空格
+                ];
+            }
         }
-        $cacheMark = 'mb_rank_' . md5($domain);
-        if (cache("?$cacheMark") && !config('app_debug')) {
-            return $this->success(cache($cacheMark));
-        }
-        $url = 'http://rank.chinaz.com/baidumobile/';
-        $url = $url . $domain;
-        $output = $this->httpGet($url);
-        if ($output == false) {
-            return $this->error('数据抓取失败');
-        }
-        /*$ql = QueryList::run('Request',[
-            'http' => [
-                'target' => $url,
-                'referrer'=>'http://tool.chinaz.com/',
-                'method' => 'GET',
-                'timeout' => '30',
-            ],
-        ]);*/
-        $range = '.ResultListWrap .ReLists';
-        $rules = [
-            'seUrl' => ['div.wTipWrap a','href'],
-            'keyword' => ['div.wTipWrap a','text'],
-            'index' => ['div.w14-0:eq(0)','text'],
-            'sort' => ['div.w13-0:eq(0) a','text','','num_only'],
-        ];
-        $ql = QueryList::Query($output,$rules,$range);
-        $data = $ql->data;
-        if (empty($data)) {
-            return $this->error('未找到相关排名');
-        }
-        cache($cacheMark, $data, 86400);
-        return $this->success($data);
-    }
 
-    //360域名收录情况
-    public function sogouDomainSite($domain = '')
-    {
-        $url = "https://www.sogou.com/web?query=site:$domain";
-        $output = $this->httpGet($url);
-        // echo $output;
-        $preg = '/找到约(\d+)条结果/';
-        $check = preg_match($preg, $output, $arr);
-        if (!$check) {
-            return $this->error('网站未被收录,请先添加PC流量或移动流量任务');
-        }
-        return $this->success($arr[1]); //返回收录数量
+        return $res;
     }
-
-    //360域名收录情况
-    public function soDomainSite($domain = '')
-    {
-        $url = "https://www.so.com/s?q=site:$domain";
-        $output = $this->httpGet($url);
-        // echo $output;
-        $preg = '/该网站约(\d+)个网页被360搜索收录/';
-        $check = preg_match($preg, $output, $arr);
-        if (!$check) {
-            return $this->error('网站未被收录,请先添加PC流量或移动流量任务');
-        }
-        return $this->success($arr[1]); //返回收录数量
-    }
-
-    //360PC权重
-    public function soPcRank($domain = 'www.rbhj.com')
-    {
-        //$domain = input('domain/s');
-        if (empty($domain) || !preg_match($this->domainPreg,$domain)) {
-            return $this->error('域名格式错误');
-        }
-        $cacheMark = 'soPcRank_'.md5($domain);
-        if (cache("?$cacheMark") && !config('app_debug')) {
-            return $this->success(cache($cacheMark));
-        }
-        $url = 'http://rank.chinaz.com/sorank/';
-        $url = $url . $domain;
-        $output = $this->httpGet($url);
-        if ($output == false) {
-            return $this->error('数据抓取失败');
-        }
-        /*$ql = QueryList::run('Request',[
-            'http' => [
-                'target' => $url,
-                'referrer'=>'http://tool.chinaz.com/',
-                'method' => 'GET',
-                'timeout' => '30',
-            ],
-        ]);*/
-        $range = '.ResultListWrap .ReLists';
-        $rules = [
-            'seUrl' => ['div:eq(0) a','href'],
-            'keyword' => ['div:eq(0) a','text'],
-            'index' => ['div:eq(1)','text'],
-            'sort' => ['div:eq(2) a','text','','num_only'],
-        ];
-        $ql = QueryList::Query($output,$rules,$range);
-        $data = $ql->data;
-        if (empty($data)) {
-            return $this->error('未找到相关排名');
-        }
-        cache($cacheMark,$data,86400);
-        return $this->success($data);
-    }
-
-    //360移动权重
-    public function soMobileRank($domain = 'www.baidu.com')
-    {
-        //$domain = input('domain/s');
-        if (empty($domain) || !preg_match($this->domainPreg, $domain)) {
-            return $this->error('域名格式错误');
-        }
-        $cacheMark = 'smRank_' . md5($domain);
-        if (cache("?$cacheMark") && !config('app_debug')) {
-            return $this->success(cache($cacheMark));
-        }
-        $url = 'http://rank.chinaz.com/rank360/';
-        $url = $url . $domain;
-        $output = $this->httpGet($url);
-        if ($output == false) {
-            return $this->error('数据抓取失败');
-        }
-        /*$ql = QueryList::run('Request',[
-            'http' => [
-                'target' => $url,
-                'referrer'=>'http://tool.chinaz.com/',
-                'method' => 'GET',
-                'timeout' => '30',
-            ],
-        ]);*/
-        $range = '.ResultListWrap .ReLists';
-        $rules = [
-            'seUrl' => ['div:eq(0) a','href'],
-            'keyword' => ['div:eq(0) a','text'],
-            'index' => ['div:eq(1)','text'],
-            'sort' => ['div:eq(2) a','text','','num_only'],
-        ];
-        $ql = QueryList::Query($output,$rules,$range);
-        $data = $ql->data;
-        if (empty($data)) {
-            return $this->error('未找到相关排名');
-        }
-        cache($cacheMark,$data,86400);
-        return $this->success($data);
-    }
-
 
     //get访问
     private function httpGet($url)

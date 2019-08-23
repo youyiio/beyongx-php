@@ -8,6 +8,7 @@
 
 namespace app\admin\command;
 
+use app\admin\job\Webmaster;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
@@ -31,26 +32,42 @@ class Article extends Command
     protected function configure()
     {
         $this->setName('article')
-            ->addArgument('publish', Argument::OPTIONAL, 'the article to timing publish', null)
-            ->addArgument('index', Argument::OPTIONAL, 'use elastic search to index article content', null)
-            ->addArgument('webmaster', Argument::OPTIONAL, 'web master tools', null)
+            ->addArgument('action', Argument::REQUIRED, 'action for the article, as follows: publish, es, webmaster', null)
+            //->addArgument('publish', Argument::REQUIRED, 'the article to timing publish', null)
+           // ->addArgument('es', Argument::OPTIONAL, 'use elastic search to index article content', null)
+            //->addArgument('webmaster', Argument::OPTIONAL, 'web master tools', null)
             ->addOption('checkIndex', null, Option::VALUE_OPTIONAL, 'check search engine index for article', null)
-            ->addOption('id', null, Option::VALUE_OPTIONAL, 'article id value or ids split by \',\'', null)
+            ->addOption('id', null, Option::VALUE_OPTIONAL, 'article id value or ids split by \',\'', 'all')
             ->setDescription('articles manage tools');
+
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if (!empty($input->getArgument('publish'))) {
+        //dump($input->getArguments());
+        dump($input->getOptions());
+        $args = $input->getArguments();
+        if (empty($args['action'])) {
+            $output->error('Action for the article, as follows: publish, es, webmaster');
+            return;
+        }
+        if (!in_array($args['action'], ['publish', 'es', 'webmaster'])) {
+            $output->warning('Action for the article, as follows: publish, es, webmaster');
+            return;
+        }
+
+        if (!empty($input->getArgument('action'))) {
             $this->publish($input, $output);
-        } else if (!empty($input->getArgument('index'))) {
-            $this->index($input, $output);
-        } else {
+        } else if (!empty($input->getArgument('es'))) {
+            $this->es($input, $output);
+        } else if (!empty($input->getArgument('webmaster'))) {
             $this->webmaster($input, $output);
+        } else {
+            dump($this->getUsages());
         }
     }
 
-    //文章定时发布
+    /**  文章定时发布 **/
     protected function publish(Input $input, Output $output)
     {
         $ids = $input->getOption('id');
@@ -104,7 +121,7 @@ class Article extends Command
     }
 
     //elastic search入库索引
-    protected function index(Input $input, Output $output)
+    protected function es(Input $input, Output $output)
     {
         $output->writeln('__article index start...');
         Log::info('article index start...');
@@ -120,6 +137,8 @@ class Article extends Command
         $output->writeln('__article webmaster start...');
         Log::info('article webmaster start...');
 
+        $webmaster = new Webmaster();
+        $webmaster->getTargetUrl('seoaizhan.com', 'bd', 'https://www.baidu.com/s?wd=http://www.seoaizhan.com/article/117874.html');
 
         $output->writeln('__article index end...');
         Log::info('article webmaster end...');

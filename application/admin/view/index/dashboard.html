@@ -16,9 +16,9 @@
             <div class="ibox-content">
                 <h1 class="no-margins">{$todayCount}</h1>
                 {if $dayPercent > 0}
-                <div class="stat-percent font-bold text-navy">{$dayPercent}% <i class="fa fa-level-up"></i></div>
+                <div class="stat-percent font-bold text-navy">{$dayPercent|sprintf='%.2f',###}% <i class="fa fa-level-up"></i></div>
                 {else /}
-                <div class="stat-percent font-bold text-success">{$dayPercent}% <i class="fa fa-bolt"></i></div>
+                <div class="stat-percent font-bold text-success">{$dayPercent|sprintf='%.2f',###}% <i class="fa fa-bolt"></i></div>
                 {/if}
                 <small>新增数量</small>
             </div>
@@ -33,9 +33,9 @@
             <div class="ibox-content">
                 <h1 class="no-margins">{$curWeekCount}</h1>
                 {if $weekPercent > 0}
-                <div class="stat-percent font-bold text-navy">{$weekPercent}% <i class="fa fa-level-up"></i></div>
+                <div class="stat-percent font-bold text-navy">{$weekPercent|sprintf='%.2f',###}% <i class="fa fa-level-up"></i></div>
                 {else /}
-                <div class="stat-percent font-bold text-success">{$weekPercent}% <i class="fa fa-bolt"></i></div>
+                <div class="stat-percent font-bold text-success">{$weekPercent|sprintf='%.2f',###}% <i class="fa fa-bolt"></i></div>
                 {/if}
                 <small>新增数量</small>
             </div>
@@ -50,9 +50,9 @@
             <div class="ibox-content">
                 <h1 class="no-margins">{$curMonthCount}</h1>
                 {if $monthPercent > 0}
-                <div class="stat-percent font-bold text-navy">{$monthPercent}% <i class="fa fa-level-up"></i></div>
+                <div class="stat-percent font-bold text-navy">{$monthPercent|sprintf='%.2f',###}% <i class="fa fa-level-up"></i></div>
                 {else /}
-                <div class="stat-percent font-bold text-success">{$monthPercent}% <i class="fa fa-bolt"></i></div>
+                <div class="stat-percent font-bold text-success">{$monthPercent|sprintf='%.2f',###}% <i class="fa fa-bolt"></i></div>
                 {/if}
                 <small>新增数量</small>
             </div>

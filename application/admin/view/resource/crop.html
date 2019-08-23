@@ -1,0 +1,134 @@
+{extend name="public/base" /}
+{block name="title"}图片截取器{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/cropper/cropper.min.css" rel="stylesheet">
+{/block}
+
+{block name="bodyClass"}white-bg{/block}
+{block name="main"}
+
+
+    <div>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="image-crop" style="height:600px">
+                    <img src="{$image.full_image_url}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h4>图片预览：</h4>
+                <div class="img-preview img-preview-sm"></div>
+                <h4>预览说明：</h4>
+                <p>
+                    图片预览，方便查看实际裁剪之后大致效果
+                </p>
+                <div class="btn-group hide">
+                    <label title="上传图片" for="inputImage" class="btn btn-primary">
+                        <input type="file" accept="image/*" name="file" id="inputImage" class="hide"> 上传新图片
+                    </label>
+                    <label title="下载图片" id="download" class="btn btn-primary">下载</label>
+                </div>
+                <h4>其他操作：</h4>
+                <div class="btn-group">
+                    <button class="btn btn-white" id="zoomIn" type="button">放大</button>
+                    <button class="btn btn-white" id="zoomOut" type="button">缩小</button>
+                    <button class="btn btn-white" id="rotateLeft" type="button">左旋转</button>
+                    <button class="btn btn-white" id="rotateRight" type="button">右旋转</button>
+                    <button class="btn btn-warning hide" id="setDrag" type="button">裁剪</button>
+                </div>
+                <h4>当前参数：</h4>
+                <p>目标大小: {$thumbWidth} * {$thumbHeight}，当前截取大小: <span id="cropWidth">0</span> * <span id="cropHeight">0</span></p>
+
+                <form class="form-horizontal ajax-form" method="post" data-success-callback="cropSuccess" style="margin-top:60px">
+                    <div class="form-group">
+                        <input type="hidden" name="imageId" value="{$image.image_id}">
+                        <input type="hidden" name="rotate" value="0">
+                        <input type="hidden" name="scaleX" value="0">
+                        <input type="hidden" name="scaleY" value="0">
+                        <input type="hidden" name="x" value="0">
+                        <input type="hidden" name="y" value="0">
+                        <input type="hidden" name="width" value="0">
+                        <input type="hidden" name="height" value="0">
+                        <input type="hidden" name="thumbWidth" value="{$thumbWidth}">
+                        <input type="hidden" name="thumbHeight" value="{$thumbHeight}">
+                        <div class="col-md-offset-2 col-md-10">
+                            <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">马上裁剪</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{/block}
+
+{block name="js"}
+<!-- 裁剪插件 -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/cropper/cropper.min.js"></script>
+<script>
+    //成功后更新图片，并关闭窗口
+    function cropSuccess(_, res) {
+        //固定
+        parent.upcropper.successCallback(res);
+    }
+
+    var imageCropper = $(".image-crop > img");
+    var aspectRatio = $("input[name=thumbWidth]").val() / $("input[name=thumbHeight]").val();
+    imageCropper.cropper({
+        aspectRatio: aspectRatio,
+        preview: ".img-preview",
+        crop: function(event) {
+            // console.log(event.detail.x);
+            // console.log(event.detail.y);
+            // console.log(event.detail.width);
+            // console.log(event.detail.height);
+            // console.log(event.detail.rotate);
+            // console.log(event.detail.scaleX);
+            // console.log(event.detail.scaleY);
+            $("input[name=rotate]").val(event.detail.rotate);
+            $("input[name=scaleX]").val(event.detail.scaleX);
+            $("input[name=scaleY]").val(event.detail.scaleY);
+            $("input[name=x]").val(Math.round(event.detail.x));
+            $("input[name=y]").val(Math.round(event.detail.y));
+            $("input[name=width]").val(Math.round(event.detail.width));
+            $("input[name=height]").val(Math.round(event.detail.height));
+
+            $("#cropWidth").html(Math.round(event.detail.width));
+            $("#cropHeight").html(Math.round(event.detail.height));
+        }
+    });
+
+    var inputImage = $("#inputImage");
+
+    if (window.FileReader) {
+        inputImage.change(function() {
+            var reader = new FileReader;
+            var files = this.files;
+            var file = files[0];
+            if (files.length && /^image\/\w+$/.test(file.type)) {
+                reader.readAsDataURL(file);
+                reader.onload = function() {
+                    inputImage.val("");
+                    imageCropper.cropper("reset", !0).cropper("replace", this.result);
+                }
+            } else {
+                layer.msg("请选择图片文件");
+            }
+        });
+
+    } else {
+        inputImage.addClass("hide");
+    }
+
+    $("#download").click(function() {
+        window.open(imageCropper.cropper("getDataURL"));
+    });
+
+    $("#zoomIn").click(function() { imageCropper.cropper("zoom", .1) });
+    $("#zoomOut").click(function() { imageCropper.cropper("zoom", -.1) });
+    $("#rotateLeft").click(function() { imageCropper.cropper("rotate", 15) });
+    $("#rotateRight").click(function() { imageCropper.cropper("rotate", -15) });
+    $("#setDrag").click(function() { imageCropper.cropper("setDragMode", "crop") });
+</script>
+{/block}
