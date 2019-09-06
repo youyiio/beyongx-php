@@ -116,6 +116,7 @@ class Crawler extends Base
         $articleUrl = input('get.article_url/s');
         $articleTitle = input('get.article_title/s');
         $articleDescription = input('get.article_description/s');
+        $articleKeywords = input('get.article_keywords/s');
         $articleContent = input('get.article_content/s');
         $articleAuthor = input('get.article_author/s');
         $articleImage = input('get.article_image/s');
@@ -137,7 +138,7 @@ class Crawler extends Base
             }
             //dump($urls);
             $contentUrl = $urls[0];
-            $result = \app\admin\job\Crawler::crawlArticle($contentUrl, $encoding, $articleTitle, $articleDescription, $articleContent, $articleAuthor, $articleImage);
+            $result = \app\admin\job\Crawler::crawlArticle($contentUrl, $encoding, $articleTitle, $articleDescription, $articleKeywords, $articleContent, $articleAuthor, $articleImage);
             //dump($result);
 
             $this->assign('article', $result);

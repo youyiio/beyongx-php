@@ -458,6 +458,7 @@ create table cms_crawler
    article_url          varchar(128),
    article_title        varchar(128),
    article_description  varchar(128),
+   article_keywords     varchar(128),
    article_content      varchar(128),
    article_author       varchar(128),
    article_image        varchar(128),
@@ -477,7 +478,7 @@ alter table cms_crawler comment '采集规则表';
 create table cms_crawler_meta
 (
    id                   int not null auto_increment,
-   crawler_id           int not null,
+   target_id            int not null,
    meta_key             varchar(32) not null,
    meta_value           text not null,
    remark               varchar(128),
@@ -495,7 +496,7 @@ alter table cms_crawler_meta comment '采集元数据表';
 /*==============================================================*/
 create index idx_crawler_meta_uid_meta_key on cms_crawler_meta
 (
-   crawler_id,
+   target_id,
    meta_key
 );
 
@@ -1111,4 +1112,5 @@ alter table cms_message AUTO_INCREMENT=100000;
 alter table cms_file AUTO_INCREMENT=100000;
 alter table cms_image AUTO_INCREMENT=100000;
 alter table cms_article AUTO_INCREMENT=100000;
+alter table cms_config_access AUTO_INCREMENT=1001000;
 

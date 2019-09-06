@@ -40,7 +40,7 @@
                     <label class="col-lg-2 control-label" for="types">显示位置</label>
                     <div class="col-lg-10">
                         {php}
-                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.current_theme') . DIRECTORY_SEPARATOR;
+                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.theme_name') . DIRECTORY_SEPARATOR;
                         $themeConfig = require($themePath . 'theme.php');
                         $adImages = $themeConfig['ad_images'];
                         {/php}

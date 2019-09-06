@@ -45,9 +45,9 @@ class CrawlerModel extends BaseModel
         $status = [
             -1 => '<span class="label label-danger">删除</span>',
             0 => '<span class="label label-default">草稿</span>',
-            1 => '<span class="label label-success">待采集</span>',
-            2 => '<span class="label label-success">采集中</span>',
-            3 => '<span class="label label-success">采集失败</span>',
+            1 => '<span class="label label-primary">待采集</span>',
+            2 => '<span class="label label-info">采集中</span>',
+            3 => '<span class="label label-warning">采集失败</span>',
             4 => '<span class="label label-success">采集完成</span>',
         ];
 

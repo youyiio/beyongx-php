@@ -1,4 +1,4 @@
-Beyongx 内容管理系统(简称Beyongx Cms)
+Beyongx Cms内容管理系统(简称Beyongx)
 ===============
 
 Beyongx Cms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用于企业Cms, 个人站长等，针对移动App、小程序优化；提供完善简洁的项目文档，方便开发人员进行二次开发。
@@ -6,7 +6,7 @@ Beyongx Cms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用�
 支持PC和移动场景，满足企业建站系统、后台管理框架、App后台开发、微信小程序开发、小程序开发框架、小程序API、小程序开发等实际二次开发场景。
 其主要特性包括：
 
- + 基于ThinkPHP5.1框架
+ + 基于PHP最流行的ThinkPHP5.1框架，web端采用jquery+bootstrap框架
  + 用户系统
  + 文章系统
  + 灵活的角色权限控制
@@ -15,7 +15,7 @@ Beyongx Cms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用�
  + 主题系统
  + 针对App及小程序的api优化
  + 阿里云和七牛云OSS支持
- + 站长特性支持，收录检测，相关推荐，热门推荐
+ + 站长特性支持，友链管理，Sitemap地图，收录检测，相关推荐，热门推荐等
  + 支持文章全文检索(开发中，支持ElasticSearch)
  
 支持官网: http://www.beyongx.com

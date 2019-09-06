@@ -31,29 +31,30 @@ class Webmaster
     {
         Log::info('检测文章索引,Queue Job开始...');
 
-        $articleId = $data['id'];
-        if (empty($articleId)) {
+        $aid = $data['id'];
+        if (empty($aid)) {
             $job->delete();
             return;
         }
 
-        $article = ArticleModel::find($articleId);
+        $article = ArticleModel::find($aid);
         if (!$article) {
-            Log::info("文章: $articleId 未找到");
+            Log::info("文章: $aid 未找到");
             $job->delete();
             return;
         }
 
         //文章未发布则不做相关度计算
         if ($article['status'] != ArticleModel::STATUS_PUBLISHED) {
-            Log::info("文章: $articleId 状态未发布");
+            Log::info("文章: $aid 状态未发布");
             $job->delete();
             return;
         }
 
-        //$url = url('cms/Article/viewArticle', ['aid' => $articleId], true, get_config('domain_name')); //job中使用url，获取异常
+        //$url = url('cms/Article/viewArticle', ['aid' => $aid], true, get_config('domain_name')); //job中使用url，获取异常
+        //$url = get_config('domain_name') . url('cms/Article/viewArticle', ['aid' => $id], true, false); //hack
         $url = $data['url'];
-        $indexed = $this->baiduCheckIndex($url);
+        $indexed = self::baiduCheckIndex($url);
         if ($indexed) {
             $article->meta(ArticleMetaModel::KEY_BAIDU_INDEX, 1);
         } else {
@@ -81,14 +82,15 @@ class Webmaster
             $urls[] = $data['url'];
         }
 
-        $this->baiduPushLinks($urls);
+        self::baiduPushLinks($urls);
 
         $job->delete();
         Log::info('提交链接已完成');
     }
 
+    //*****************静态业务逻辑，供Job及command调用**********************
     //检测url是否收录收录验证
-    public function baiduCheckIndex($url = '', $fine=true)
+    public static function baiduCheckIndex($url = '', $fine=true)
     {
         $count = 0;
         $spUrl = "https://www.baidu.com/s?wd=" . urlencode($url);
@@ -96,10 +98,10 @@ class Webmaster
         //精确
         if ($fine) {
             $domain = url_get_domain($url);
-            $sorts = $this->getTargetUrl($domain, $spUrl, 'bd');
+            $sorts = self::getTargetUrl($domain, $spUrl, 'bd');
             $sorts && $count = count($sorts);
         } else {
-            $output = $this->httpGet($spUrl);
+            $output = self::httpGet($spUrl);
             $preg = '/百度为您找到相关结果约(\d+)个/';
             $check = preg_match($preg, $output, $arr);
             $check && $count = $arr[1];
@@ -109,7 +111,7 @@ class Webmaster
     }
 
     //链接推送，实时收录, links = [$url1, $url2...]
-    public function baiduPushLinks($links = [])
+    public static function baiduPushLinks($links = [])
     {
         $site = get_config('zhanzhang_site', '');
         $token = get_config('zhanzhang_token', '');
@@ -120,7 +122,7 @@ class Webmaster
 
         $api = "http://data.zz.baidu.com/urls?site=$site&token=$token";
 
-        $output = $this->httpPost($api, implode("\n", $links));
+        $output = self::httpPost($api, implode("\n", $links));
         Log::debug($api);
         Log::debug($links);
         Log::debug($output);
@@ -129,14 +131,14 @@ class Webmaster
     }
 
     //site指令：域名收录情况
-    public function siteCmd($domain, $sp, $source='pc')
+    public static function siteCmd($domain, $sp, $source='pc')
     {
         if ($sp == 'bd') {
-            return $this->baiduSiteCmd($domain);
+            return self::baiduSiteCmd($domain);
         } elseif ($sp == 'so') {
-            return $this->soSiteCmd($domain);
+            return self::soSiteCmd($domain);
         } else if ($sp == 'sg') {
-            return $this->sogouSiteCmd($domain);
+            return self::sogouSiteCmd($domain);
         } else {
             //$this->error('未实现');
             return -1;
@@ -144,10 +146,10 @@ class Webmaster
     }
 
     //百度site指令, 返回收录数量
-    public function baiduSiteCmd($domain = '')
+    public static function baiduSiteCmd($domain = '')
     {
         $url = "https://www.baidu.com/s?wd=site:$domain";
-        $output = $this->httpGet($url);
+        $output = self::httpGet($url);
         //echo $output;
         $preg = '/找到相关结果数约(\d+)个/';
         $check = preg_match($preg, $output, $arr);
@@ -157,7 +159,7 @@ class Webmaster
             $check = preg_match($preg, $output, $arr);
         }
         if (!$check) {
-            $this->error = '网站未被收录';
+            //$this->error = '网站未被收录';
             return -1;
         }
         $sites = $arr[1];
@@ -166,9 +168,9 @@ class Webmaster
         return $sites;
     }
 
-    public function getTargetUrl($domain, $spUrl, $sp)
+    public static function getTargetUrl($domain, $spUrl, $sp)
     {
-        $output = $this->httpGet($spUrl);
+        $output = self::httpGet($spUrl);
         if ($output == false) {
             //页面获取失败
             return false;
@@ -204,10 +206,13 @@ class Webmaster
                 return false;
                 break;
         }
+
+        //防止出现警告：DOMDocument::loadHTML(): htmlParseEntityRef: expecting ';'
+        libxml_use_internal_errors(true);
         $ql = QueryList::html($output)->rules($rules)->range($range)->query();
         $pageList = $ql->getData();
 
-        $res = $this->getSort($domain, $pageList);
+        $res = self::getSort($domain, $pageList);
         if (empty($res)) {
             //未找到结果页地址
             return false;
@@ -222,7 +227,7 @@ class Webmaster
      * @param  array $pageList 搜索结果条目数组
      * @return array           筛选出来对应的结果
      */
-    protected function getSort($domainOrName, $pageList)
+    protected static function getSort($domainOrName, $pageList)
     {
         $res = [];
         if ($domainOrName) {
@@ -248,7 +253,7 @@ class Webmaster
     }
 
     //get访问
-    private function httpGet($url)
+    private static function httpGet($url)
     {
         $header = [
             'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'
@@ -273,7 +278,7 @@ class Webmaster
     }
 
     //get访问
-    private function httpPost($url, $requestData=array())
+    private static function httpPost($url, $requestData=array())
     {
         $header = [
             'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'

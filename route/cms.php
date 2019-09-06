@@ -30,7 +30,10 @@ return [
     'aq/:q/[:p]' => ['cms/Search/index', ['method' => ['get', 'post']]],
 
     //站点地图
-    'sitemap.xml' => ['cms/Sitemap/index', ['method'=>'get']],
+    //'sitemap_index.xml' => ['cms/Sitemap/index', ['method'=>'get']],
+    'sitemap.xml' => ['cms/Sitemap/xml', ['method'=>'get']],
+    'sitemap-[:id].xml' => ['cms/Sitemap/xml', ['method'=>'get']],
+    'sitemap' => ['cms/Sitemap/html', ['method'=>'get']],
 
     /*****************Cms 通用路由 end*******************/
 ];

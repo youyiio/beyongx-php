@@ -1,9 +1,8 @@
 <?php
 namespace app\common\model;
 
-use think\Model;
 
-class UserVerifyCodeModel extends Model
+class UserVerifyCodeModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'user_verify_code';
     protected  $pk = 'id';
@@ -16,7 +15,7 @@ class UserVerifyCodeModel extends Model
     const TYPE_MAIL_ACTIVE = 'mail_active';
 
     //自动完成
-    protected $auto = [];
+    protected $auto = ['update_time'];
     protected $insert = ['create_time'];
     protected $update = [];
 
@@ -44,12 +43,12 @@ class UserVerifyCodeModel extends Model
         $where["type"] = $type;
         $where["target"] = $target;
 
-        $resultSet = $this->where($where)->order('id desc')->limit(1)->select();
-        if (count($resultSet) <= 0) {
+        $userVerifyCode = $this->where($where)->order('id desc')->find();
+        if (!$userVerifyCode) {
             return false;
         }
 
-        return $resultSet[0];
+        return $userVerifyCode;
     }
 
     public function setCodeUsed($codeId)

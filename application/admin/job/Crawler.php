@@ -66,7 +66,7 @@ class Crawler
         $metas = [];
         foreach ($urls as $metaValue) {
             $item = [];
-            $item['crawler_id'] = $id;
+            $item['target_id'] = $id;
             $item['meta_key'] = 'article_url';
             $item['remark'] = CrawlerMetaModel::STATUS_WAREHOUSING;
             $item['meta_value'] = $metaValue;
@@ -126,7 +126,7 @@ class Crawler
         $CrawlerMetaModel = new CrawlerMetaModel();
 
         $where = [
-            ['crawler_id', '=', $id],
+            ['target_id', '=', $id],
             ['meta_key', '=', 'article_url'],
             ['remark', '=', CrawlerMetaModel::STATUS_WAREHOUSING]
         ];
@@ -145,6 +145,7 @@ class Crawler
         $encoding = $crawler['encoding'];
         $articleTitle = $crawler['article_title'];
         $articleDescription = $crawler['article_description'];
+        $articleKeywords = $crawler['article_keywords'];
         $articleContent = $crawler['article_content'];
         $articleAuthor = $crawler['article_author'];
         $articleImage = $crawler['article_image'];
@@ -156,7 +157,7 @@ class Crawler
             $CrawlerMetaModel::update(['remark' => CrawlerMetaModel::STATUS_PENDING], ['id' => $meta['id']]);
 
             $url = $meta['meta_value'];
-            $article = Crawler::crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleContent, $articleAuthor, $articleImage, $id, $uid);
+            $article = Crawler::crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleKeywords, $articleContent, $articleAuthor, $articleImage);
             if ($article) {
                 $articles[] = $article;
 
@@ -179,6 +180,7 @@ class Crawler
             $item = [];
             $item['title'] = $vo['title'];
             $item['description'] = $vo['description'];
+            $item['keywords'] = $vo['keywords'];
             $item['content']  = $vo['content'];
             $item['read_count'] = 0;
             $item['user_id'] = $uid;
@@ -199,11 +201,13 @@ class Crawler
         $isPushed = Queue::push($jobHandlerClass, $jobData, $jobQueue);
     }
 
-    public function crawlTimer(Job $job, $data)
+    //定时采集
+    public function timingCrawl(Job $job, $data)
     {
 
     }
 
+    //*****************静态业务逻辑，供Job及command调用**********************
     //抓取文章网址，返回列表数组
     public static function crawlUrls($url, $articleUrl, $isPaging, $startPage, $endPage, $pagingUrl)
     {
@@ -254,7 +258,7 @@ class Crawler
     }
 
     //抓取文章内容，返回数组
-    public static function crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleContent, $articleAuthor, $articleImage)
+    public static function crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleKeywords, $articleContent, $articleAuthor, $articleImage='')
     {
         //采集urls中的文章网址
         $ql = QueryList::getInstance();
@@ -264,6 +268,7 @@ class Crawler
         $rules = [
             'title' => explode(',', $articleTitle),
             'description' => explode(',', $articleDescription),
+            'keywords' => explode(',', $articleKeywords),
             'content' => explode(',', $articleContent),
         ];
         if (!empty($articleAuthor)) {
@@ -298,6 +303,7 @@ class Crawler
         $article['title'] = isset($article['title']) ? mb_convert_encoding($article['title'], 'utf-8', $encoding) : '';
         $article['description'] = isset($article['description']) ? mb_convert_encoding($article['description'], 'utf-8', $encoding) : '';
         $article['content'] = isset($article['content']) ? mb_convert_encoding($article['content'], 'utf-8', $encoding) : '';
+        $article['keywords'] = isset($article['keywords']) ? mb_convert_encoding($article['keywords'], 'utf-8', $encoding) : '';
         $article['author'] = isset($article['author']) ? mb_convert_encoding($article['author'], 'utf-8', $encoding) : '';
 
         //清除xss元素及内容

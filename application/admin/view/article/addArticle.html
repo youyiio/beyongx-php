@@ -93,7 +93,7 @@
                     <div class="col-lg-10">
                         <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$article.thumb_image_id|default=''}">
                         {php}
-                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.current_theme') . DIRECTORY_SEPARATOR;
+                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.theme_name') . DIRECTORY_SEPARATOR;
                         $themeConfig = require($themePath . 'theme.php');
                         $articleThumbImage = $themeConfig['article_thumb_image'];
                         //$articleThumbImage = json_decode(get_config('article_thumb_image'), true)

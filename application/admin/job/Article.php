@@ -8,10 +8,12 @@
 
 namespace app\admin\job;
 
-use app\common\model\ArticleDataModel;
 use think\queue\Job;
 use think\facade\Log;
+
 use app\common\model\ArticleModel;
+use app\common\model\ArticleDataModel;
+use app\common\model\ArticleMetaModel;
 
 class Article
 {
@@ -45,7 +47,7 @@ class Article
             return;
         }
 
-        $this->fullSimilarCompute($article);
+        self::fullSimilarCompute($articleId);
 
         $job->delete();
         Log::info('文章相关性更新已完成');
@@ -76,21 +78,85 @@ class Article
             return;
         }
 
-        $this->fullSimilarCompute($article);
+        self::fullSimilarCompute($articleId);
 
         $job->delete();
         Log::info('更新相关性更新已完成');
     }
 
-    //全量相似度计算
-    protected function fullSimilarCompute(&$article)
+    public function timingPost(Job $job, $data)
     {
+        Log::info('定时发布文章 job, start...');
+
+        $result = self::postTimingArticles();
+        $successCount = $result['success_count'];
+        $failCount = $result['fail_count'];
+
+        Log::info("定时发布文章 stat:  ($successCount) success, (" . ($failCount) .") error!");
+        Log::info('定时发布文章 job end...');
+    }
+
+    //*****************静态业务逻辑，供Job及command调用**********************
+    /**
+     * 发布定时文章
+     * @return array, ['success_count','fail_count']
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function postTimingArticles()
+    {
+        $currentTime = date_time();
+        $where = [
+            ['meta_key', '=', ArticleMetaModel::KEY_TIMING_POST],
+            ['meta_value', '<=', $currentTime]
+        ];
+
+        $ArticleMetaModel = new ArticleMetaModel();
+        $metas = $ArticleMetaModel->where($where)->select();
+        //print_r($metas);
+
+        $totalCount = count($metas);
+        $successCount = 0;
+        foreach ($metas as $meta) {
+            $articleId = $meta->article_id;
+
+            $ArticleModel = ArticleModel::get($articleId);
+            if ($ArticleModel['status'] == ArticleModel::STATUS_PUBLISHED
+                || $ArticleModel['status'] == ArticleModel::STATUS_DELETED) {
+                ArticleMetaModel::destroy(['id' => $meta->id]);
+                continue;
+            }
+
+            $data = [
+                'status' => ArticleModel::STATUS_PUBLISHED,
+                'post_time' => $meta->meta_value,
+            ];
+
+            $result = $ArticleModel->isUpdate(true)->save($data, ['id' => $articleId]);
+            if ($result) {
+                $successCount++;
+            }
+
+            ArticleMetaModel::destroy(['id' => $meta->id]);
+        }
+
+        return ['success_count' => $successCount, 'fail_count' => $totalCount - $successCount];
+    }
+
+    //全量相似度计算
+    public static function fullSimilarCompute($articleId)
+    {
+        $article = ArticleModel::get($articleId);
+        if (!$article) {
+            return false;
+        }
+
         $lcs = new \app\common\library\LCS();
 
         $ArticleModel = new ArticleModel();
         $ArticleDataModel = new ArticleDataModel();
 
-        //
         $where = [
             ['id', '<>', $article->id],
             ['status', '=', ArticleModel::STATUS_PUBLISHED],
@@ -122,7 +188,7 @@ class Article
                 ];
             }
 
-            $this->insertSimilarQueue($articleDatas, $data);
+            self::insertSimilarQueue($articleDatas, $data);
         }
 
         //删除旧的数据；
@@ -132,7 +198,7 @@ class Article
     }
 
     //作插入判断,只保留前20名,$articleDatas为有序
-    protected function insertSimilarQueue(&$articleDatas, $data)
+    protected static function insertSimilarQueue(&$articleDatas, $data)
     {
         if (count($articleDatas) == 0) {
             $articleDatas[] = $data;

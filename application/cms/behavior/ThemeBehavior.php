@@ -34,8 +34,8 @@ class ThemeBehavior
         }
 
         //设置所有主题的存放路径
-        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . $config['current_theme'] . DIRECTORY_SEPARATOR;
-        if (isset($config['adaptive']) && $config['adaptive'] == true) {
+        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . $config['theme_name'] . DIRECTORY_SEPARATOR;
+        if (isset($config['responsive']) && $config['responsive'] == true) {
             $themePath .= $template . DIRECTORY_SEPARATOR;
         }
         //使用容器修改

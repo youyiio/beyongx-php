@@ -12,16 +12,16 @@ use think\helper\Time;
  */
 class Article extends Base
 {
-    protected $beforeActionList = [
-        'getCategory'  =>  ['only' => 'index,viewArticle'],
-    ];
-
-    protected function getCategory()
-    {
-        $CategoryModel = new CategoryModel();
-        $cateList = $CategoryModel->where('status','=', 1)->order('sort')->select();
-        $this->assign('cateList', $cateList);
-    }
+//    protected $beforeActionList = [
+//        'getCategory'  =>  ['only' => 'index,viewArticle'],
+//    ];
+//
+//    protected function getCategory()
+//    {
+//        $CategoryModel = new CategoryModel();
+//        $cateList = $CategoryModel->where('status','=', 1)->order('sort')->select();
+//        $this->assign('cateList', $cateList);
+//    }
 
     public function initialize()
     {
@@ -35,7 +35,7 @@ class Article extends Base
      */
     public function index()
     {
-        return view('index');
+        return $this->fetch('index');
     }
 
     /**

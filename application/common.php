@@ -14,6 +14,10 @@ use think\facade\Log;
 
 //cms核心表前缀;
 define('CMS_PREFIX', 'cms_');
+if (\think\facade\Config::get('cache.type') == 'Redis')
+    define('CACHE_SEPARATOR', ':');
+else
+    define('CACHE_SEPARATOR', '_');
 
 function ip() {
     //strcasecmp 比较两个字符，不区分大小写。返回0，>0，<0。

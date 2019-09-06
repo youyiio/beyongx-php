@@ -18,6 +18,7 @@ class Crawler extends Validate
         'article_url' => ['require', 'checkSelectorFormat:文章网址'],
         'article_title' => ['require', 'checkSelectorFormat:文章标题'],
         'article_description' => ['require', 'checkSelectorFormat:文章简介'],
+        'article_keywords' => ['require', 'checkSelectorFormat:文章关键字'],
         'article_content' => ['require', 'checkSelectorFormat:文章内容'],
         'article_author' => ['checkSelectorFormat:文章作者'],
         'article_image' => ['checkSelectorFormat:文章图片'],
@@ -36,6 +37,7 @@ class Crawler extends Validate
         'article_url' => '请填写文章url规则',
         'article_title' => '请填写文章标题规则',
         'article_description' => '请填写文章简介规则',
+        'article_keywords' => '请填写文章关键字规则',
         'article_content' => '请填写文章内容规则'
     ];
 
@@ -80,10 +82,10 @@ class Crawler extends Validate
     //验证场景
     protected $scene = [
         'add' => ['title','url', 'encode', 'is_timing', 'is_paging', 'article_url',
-            'article_title', 'article_description', 'article_content', 'article_author', 'article_image'], //新增规则
+            'article_title', 'article_description', 'article_keywords', 'article_content', 'article_author', 'article_image'], //新增规则
         'edit' => ['id','title','url', 'encode', 'is_timing', 'is_paging', 'article_url',
-            'article_title', 'article_description', 'article_content', 'article_author', 'article_image'], //修改规则
+            'article_title', 'article_description', 'article_keywords', 'article_content', 'article_author', 'article_image'], //修改规则
         'test' => ['title','url', 'encode', 'is_timing', 'is_paging', 'article_url',
-            'article_title', 'article_description', 'article_content', 'article_author', 'article_image'], //测试采集
+            'article_title', 'article_description', 'article_keywords', 'article_content', 'article_author', 'article_image'], //测试采集
     ];
 }

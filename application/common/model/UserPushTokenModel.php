@@ -2,9 +2,8 @@
 namespace app\common\model;
 
 use app\common\library\Os;
-use think\Model;
 
-class UserPushTokenModel extends Model
+class UserPushTokenModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'user_push_token';
     protected  $pk = array('user_id', 'access_id', 'device_id');
@@ -12,6 +11,10 @@ class UserPushTokenModel extends Model
     const STATUS_LOGIN = 1;
     const STATUS_LOGOUT = 2;
 
+    //自动完成
+    protected $auto = ['update_time'];
+    protected $insert = ['create_time'];
+    protected $update = [];
 
     public function createUserPushToken($userId, $accessId, $deviceId, $os, $pushToken)
     {
@@ -22,7 +25,6 @@ class UserPushTokenModel extends Model
             $data['device_id'] = $deviceId;
             $data['status'] = UserPushTokenModel::STATUS_LOGIN;
             $data['push_token'] = $pushToken;
-            $data['update_time'] = date('Y-m-d H:i:s');
 
             $this->isUpdate(true)->save($data);
         } else {
@@ -32,8 +34,6 @@ class UserPushTokenModel extends Model
             $data['status'] = UserPushTokenModel::STATUS_LOGIN;
             $data['os'] = $os;
             $data['push_token'] = $pushToken;
-            $data['create_time'] = date('Y-m-d H:i:s');
-            $data['update_time'] = $data['create_time'];
 
             $result = $this->save($data);
             if (!$result) {
@@ -42,7 +42,7 @@ class UserPushTokenModel extends Model
         }
 
         //联合主键，find设置方法；顺序与pk字段一致
-        $pk = ['user_id'=>$userId, 'access_id' => $accessId, 'device_id' => $deviceId];
+        $pk = ['user_id' => $userId, 'access_id' => $accessId, 'device_id' => $deviceId];
         $userPushToken = UserPushTokenModel::get($pk);
 
         return $userPushToken;

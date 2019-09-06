@@ -7,8 +7,8 @@
  */
 
 return [
-    'adaptive' => false, //是否自适应：pc,mobile,tablet
-    'current_theme' => 'classic',
+    'theme_name' => 'classic', //配置主题名称，与配置的主题文件夹一致
+    'responsive' => false, //是否响应式界面：值为true,false; 可自动响应至pc,mobile,tablet
 
     //文章配置
     'article_thumb_image' => ["width" => 420, "height" => 280, "thumb_width" => 210, "thumb_height" => 140],

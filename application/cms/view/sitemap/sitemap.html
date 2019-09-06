@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head profile="http://gmpg.org/xfn/11">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>站点地图 - {:get_config('site_name')}</title>
+    <meta name="keywords" content="站点地图,{:get_config('site_name')}" />
+    <meta name="generator" content="Baidu SiteMap Generator" />
+    <meta name="author" content="Beyongx.com" />
+    <meta name="copyright" content="Beyongx.com" />
+    <style type="text/css">
+    body {
+        font-family: Verdana;
+        font-size: 12px;
+        margin: 0;
+        color: #000000;
+        background: #ffffff;
+    }
+
+    img {
+        border: 0;
+    }
+
+    li {
+        margin-top: 8px;
+    }
+
+    .nav, .content, #footer {
+        padding: 8px;
+        border: 1px solid #EEEEEE;
+        clear: both;
+        width: 95%;
+        margin: auto;
+        margin-top: 10px;
+    }
+    </style>
+</head>
+
+<body vlink="#333333" link="#333333">
+    <h2 style="text-align: center; margin-top: 20px">{:get_config('site_name')}'s SiteMap </h2>
+    <div class="nav">
+        <a href="{:url('cms/Index/index')}"><strong>{:get_config('site_name')}</strong></a> &raquo; <a href="{:url('cms/Sitemap/index')}">站点地图</a>
+    </div>
+
+    <div class="content">
+        <h3>最新文章</h3>
+        <ul>
+            {article:latestlist cache="300" limit="500" id="vo"}
+            <li><a href="{:url('cms/Article/viewArticle',['aid'=>$vo.id])}" title="{$vo.title}" target="_blank">{$vo.title}</a></li>
+            {/article:latestlist}
+        </ul>
+    </div>
+    <div class="content">
+        <h3>分类目录</h3>
+        <ul>
+            {cms:categorys cache="120" id="vo"}
+            <li class="page_item page-item-15930"><a href="{:url('cms/Article/articleList',['cname'=>$vo.title_en])}">{$vo.title_cn}</a></li>
+            {/cms:categorys}
+        </ul>
+    </div>
+    <div id="footer">查看网站首页: <strong><a href="{:get_config('domain_name')}">{:get_config('site_name')}</a></strong></div><br />
+    <center>
+        <div style="text-algin: center; font-size: 11px"><strong><a href="{:url('cms/Sitemap/xml')}" target="_blank">Baidu-SiteMap</a></strong> &nbsp;
+            Latest Update: {:date_time()}<br /><br /></div>
+        <div style="text-algin: center; font-size: 11px">Powered by <strong>Beyongx SiteMap Generator</strong> &nbsp;{:get_config('icp')}<br /><br /></div>
+    </center>
+</body>
+
+</html>

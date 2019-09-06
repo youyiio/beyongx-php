@@ -17,21 +17,15 @@
     <![endif]-->
 </head>
 <body class="lay-blog">
-{include file='public/header' /}
-{block name="body"}{/block}
-{include file='public/footer' /}
+    {include file='public/header' /}
+    {block name="body"}{/block}
+    {include file='public/footer' /}
 
-{:get_config('stat_code')}
+    {:get_config('stat_code')}
 
-<script type="text/javascript" src="__PUBLIC__/static/layui/layui.js"></script>
-<script src="__PUBLIC__/static/inspinia/js/jquery-2.1.1.js"></script>
-<script src="__PUBLIC__/static/inspinia/js/bootstrap.min.js"></script>
-<script>
-    layui.config({
-        base: "__PUBLIC__/theme/xianyan/js/"
-    }).use('blog');
-</script>
-{block name="js"}{/block}
+    <script src="__PUBLIC__/static/inspinia/js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/static/layui/layui.js"></script>
+    {block name="js"}{/block}
 
 </body>
 </html>

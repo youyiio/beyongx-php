@@ -50,7 +50,7 @@ class CodeLogic extends Model
         $uid = $user['user_id'];
         $url = url($activeAction, ['code' => $verifyCode['code'], 'email' => $email], false, true);
 
-//        if (isset($config['adaptive']) && $config['adaptive'] == true) {
+//        if (isset($config['responsive']) && $config['responsive'] == true) {
 //            array_push($tplPaths, 'pc'); //默认放于pc下
 //        }
 //        array_push($tplPaths, 'email');
