@@ -832,7 +832,6 @@ create index idx_user_verify_code_type_target on cms_user_verify_code
 /* ============================================数据初始脚本：config表================================*/
 truncate table cms_config;
 
-INSERT INTO `cms_config` VALUES ('address', '厦门市思明区软件园二期望海路000号000室', '联系地址','text', 'contact', 1);
 INSERT INTO `cms_config` VALUES ('article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 'article', 0);
 INSERT INTO `cms_config` VALUES ('article_audit_switch', 'true', '文章审核', 'bool', 'article', 1);
 INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
@@ -841,9 +840,15 @@ INSERT INTO `cms_config` VALUES ('image_upload_quality', '80', '上传图片质�
 INSERT INTO `cms_config` VALUES ('image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 'article', 5);
 INSERT INTO `cms_config` VALUES ('bank_card', 'xxx', '公司银行账号', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', NULL, 0);
+INSERT INTO `cms_config` VALUES ('address', '厦门市思明区软件园二期望海路000号000室', '联系地址','text', 'contact', 1);
+INSERT INTO `cms_config` VALUES ('zip_code', '361008', '邮编', 'text', 'contact', 2);
+INSERT INTO `cms_config` VALUES ('fax', '0592-1234567', '传真', 'text', 'contact', 3);
+INSERT INTO `cms_config` VALUES ('tel', '0592-5000000', '联系电话', 'text', 'contact', 4);
 INSERT INTO `cms_config` VALUES ('contact', 'beyongx sir', '联系人', 'text', 'contact', 5);
-INSERT INTO `cms_config` VALUES ('contact_qq', 'qq_xxx', '联系人QQ', 'text', 'contact', 6);
-INSERT INTO `cms_config` VALUES ('contact_weixin', 'weixin_xx', '联系人微信', 'text', 'contact', 7);
+INSERT INTO `cms_config` VALUES ('email', 'xx@xxx.com', '联系邮箱', 'text', 'contact', 6);
+INSERT INTO `cms_config` VALUES ('qq', 'qq_xxx', '联系QQ', 'text', 'contact', 7);
+INSERT INTO `cms_config` VALUES ('weixin', 'weixin_xx', '联系微信', 'text', 'contact', 8);
+INSERT INTO `cms_config` VALUES ('title', 'Beyongx Cms平台', '网站标题', 'text', 'seo', 1);
 INSERT INTO `cms_config` VALUES ('description', 'BeyongX内容管理系统|Beyongx,ThinkPHP,CMS，可二次开发的扩展框架，包含用户管理，权限角色管理及内容管理等', '网站描述', 'muti_text', 'seo', 3);
 INSERT INTO `cms_config` VALUES ('domain_name', 'www.beyongx.com', '域名', 'text', 'base', 2);
 INSERT INTO `cms_config` VALUES ('email_addr', 'service@beyongx.com', '发件邮箱地址', 'text', 'email', 3);
@@ -854,16 +859,12 @@ INSERT INTO `cms_config` VALUES ('email_port', '465', 'SMTP服务器端口,一�
 INSERT INTO `cms_config` VALUES ('email_security', 'ssl', '加密方式：null|ssl|tls, QQ邮箱必须使用ssl', 'text', 'email', 0);
 INSERT INTO `cms_config` VALUES ('email_activate_user', '<style type=\"text/css\">\r\n  p{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请注册成为Beyongx会员的邮箱验证链接是: <a style=\"font-size: 30px;color: red;\" href=\"{url}\">{url}</a></p>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '新用户邮箱激活html格式', 'muti_text', 'email_template', 6);
 INSERT INTO `cms_config` VALUES ('email_reset_password', '<style type=\"text/css\">\r\np{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请找回密码的邮箱验证码是: <strong style=\"font-size: 30px;color: red;\">{code}</strong></p>\r\n<p>您本次重置密码的邮箱链接是: <a style=\"font-size: 30px;color: red;\"  href=\"{url}\">{url}</strong>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '用户邮箱重置密码html格式', 'muti_text', 'email_template', 7);
-INSERT INTO `cms_config` VALUES ('fax', '0592-1234567', '传真', 'text', 'contact', 3);
 INSERT INTO `cms_config` VALUES ('icp', '闽ICP备xxxxxxxx号-1', '备案号', 'text', 'base', 3);
 INSERT INTO `cms_config` VALUES ('keywords', 'Beyongx,ThinkPHP,CMS内容管理系统,扩展框架', '网站关键词，有英文逗号分隔', 'text', 'seo', 3);
 INSERT INTO `cms_config` VALUES ('password_key', 'lGfFSc17z8Q15P5kU0guNqq906DHNbA3', '加密密钥', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('site_name', 'BeyongX内容管理系统', '网站名称', 'text', 'base', 1);
 INSERT INTO `cms_config` VALUES ('company_name', 'XXX公司', '公司名称', 'text', null, 1);
-INSERT INTO `cms_config` VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?ce074243117e698438c49cd037b593eb\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
-INSERT INTO `cms_config` VALUES ('tel', '0592-5000000', '联系电话', 'text', 'contact', 4);
-INSERT INTO `cms_config` VALUES ('title', 'Beyongx Cms平台', '网站标题', 'text', 'seo', 1);
-INSERT INTO `cms_config` VALUES ('zip_code', '361008', '邮编', 'text', 'contact', 2);
+INSERT INTO `cms_config` VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?ce074243117e698438c49cd037b593eb\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
 
 INSERT INTO `cms_config` VALUES ('tab_meta', '[{\"tab\":\"base\",\"name\":\"基本设置\",\"sort\":1},{\"tab\":\"seo\",\"name\":\"SEO设置\",\"sort\":2},{\"tab\":\"contact\",\"name\":\"联系方式\",\"sort\":3},{\"tab\":\"email\",\"name\":\"邮箱设置\",\"sort\":4},{\"tab\":\"article\",\"name\":\"文章设置\",\"sort\":5},{\"tab\":\"aliyun_oss\",\"name\":\"阿里OSS存储\",\"sort\":6},{\"tab\":\"qiniuyun_oss\",\"name\":\"七牛OSS存储\",\"sort\":7},{\"tab\":\"email_template\",\"name\":\"邮件模板\",\"sort\":8},{\"tab\":\"oss\",\"name\":\"OSS存储设置\",\"sort\":9}]', 'tab标签元数据', 'text', NULL, 0);
 
@@ -1087,23 +1088,31 @@ INSERT INTO `cms_hooks`(id,name,description,type,status,addons,update_time,creat
 /* =========================================数据初始脚本：文章及广告表=============================*/
 truncate table cms_category;
 
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (1, 0, '公司新闻', 'company', '公司新闻文章', 1, 3, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (2, 0, '行业新闻', 'news', '行业新闻文章', 1, 2, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (3, 0, '行业动态', 'status', '行业动态文章', 1, 1, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (1, 0, '公司新闻', 'company', '公司新闻文章', 1, 1, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (2, 0, '公司相册', 'album', '公司相册介绍', 1, 2, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (3, 0, '公司产品', 'product', '公司产品介绍', 1, 3, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (4, 0, '行业新闻', 'news', '行业新闻文章', 1, 4, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (5, 0, '行业动态', 'status', '行业动态文章', 1, 5, '2018-01-19 00:00:00');
 
 truncate table cms_adtype;
 
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动', '{"width":1000,"height":300,"thumb_width":500,"thumb_height":150}');
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2, '首页顶部广告', 'banner_header', '首页顶部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (3, '首页中间广告', 'banner_center', '首页中间广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (4, '首页底部广告', 'banner_footer', '首页底部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2, '首页顶部广告', 'index_header', '首页顶部广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (3, '首页中间广告', 'index_center', '首页中间广告', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (4, '首页底部广告', 'index_footer', '首页底部广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告', null);
 INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '分类列表页', 'category_list', '显示于分类列表页', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '文章列表页', 'article_list', '显示于文章列表页', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (13, '文章详细页', 'article_view', '显示于文章详细页', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '分类列表页头部', 'category_list_header', '显示于分类列表页头部', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '分类列表页中间', 'category_list_center', '显示于分类列表页中间', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (13, '分类列表页底部', 'category_list_footer', '显示于分类列表页底部', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (14, '文章列表页头部', 'article_list_header', '显示于文章列表页头部', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (15, '文章列表页中间', 'article_list_center', '显示于文章列表页中间', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (16, '文章列表页底部', 'article_list_footer', '显示于文章列表页底部', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (17, '文章详细页头部', 'article_view_header', '显示于文章详细页头部', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (18, '文章详细页中间', 'article_view_center', '显示于文章详细页中间', null);
+INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (19, '文章详细页底部', 'article_view_footer', '显示于文章详细页底部', null);
 
 /* ================================================================================================*/
 /* =========================================数据初始脚本：设置自增起始=============================*/
@@ -1112,5 +1121,6 @@ alter table cms_message AUTO_INCREMENT=100000;
 alter table cms_file AUTO_INCREMENT=100000;
 alter table cms_image AUTO_INCREMENT=100000;
 alter table cms_article AUTO_INCREMENT=100000;
+alter table cms_category AUTO_INCREMENT=100;
 alter table cms_config_access AUTO_INCREMENT=1001000;
 

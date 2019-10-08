@@ -1,0 +1,15 @@
+
+.scrollbar-min {
+    overflow-y: scroll;
+}
+.scrollbar-min::-webkit-scrollbar {
+    width: 8px;
+}
+.scrollbar-min::-webkit-scrollbar-track {
+    border-radius: 4px;
+    background-color: transparent;
+}
+.scrollbar-min::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: #aaaaaa;
+}

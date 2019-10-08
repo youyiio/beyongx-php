@@ -44,7 +44,7 @@
                         $themeConfig = require($themePath . 'theme.php');
                         $adImages = $themeConfig['ad_images'];
                         {/php}
-                        <select name="types[]" id="types" data-placeholder="请选择显示位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple >
+                        <select name="types[]" id="types" data-placeholder="请选择显示位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search"  ><!-- 多选加: multiple-->
                             {volist name="typeList" id="vo"}
                             <option value="{$vo.type}" data-image-size="{if isset($adImages[$vo['title_en']])}{:htmlspecialchars(json_encode($adImages[$vo['title_en']]))}{/if}" {present name="$ad"}{in name="vo.type" value="$oldTypes"}selected{/in}{/present}>{$vo.title_cn}</option>
                             {/volist}
@@ -211,7 +211,12 @@
             $("#uploadImage").data('thumb-height', 0);
             $(".dz-message").html('点击此处上传图片规格 未设定 <br><span class="note needsclick"></span');
             $("#uploadDesc").html('图片规格 未设定');
+
+            //隐藏图片上传
+            $("#uploadImage").parent().parent().hide();
             return;
+        } else {
+            $("#uploadImage").parent().parent().show();
         }
 
         var width = imageSize["width"];

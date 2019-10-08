@@ -10,6 +10,7 @@ use app\common\model\MessageModel;
 use app\common\model\UserModel;
 use app\common\model\ArticleModel;
 use app\common\model\CategoryModel;
+use think\facade\Cookie;
 
 /**
 * 文章控制器
@@ -43,11 +44,13 @@ class Article extends Base
 
         $startTime = input('param.startTime', '');
         $endTime = input('param.endTime', '');
+        //默认是按post_time查询，查询草稿时按create_time查询
+        $queryTimeField = ($status == '' || $status == ArticleModel::STATUS_PUBLISHED) ? 'post_time' : 'create_time';
         if (!empty($endTime)) {
-            $map[] = ['create_time', '<=', $endTime . ' 23:59:59'];
+            $map[] = [$queryTimeField, '<=', $endTime . ' 23:59:59'];
         }
         if (!empty($startTime)) {
-            $map[] = ['create_time', '>=', $startTime . ' 00:00:00'];
+            $map[] = [$queryTimeField, '>=', $startTime . ' 00:00:00'];
         }
 
         $fields = 'id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
@@ -72,7 +75,7 @@ class Article extends Base
             'type' => '\\app\\common\\paginator\\BootstrapTable',
             'query' => input('param.')
         ];
-        $list = $articleModel->where($map)->field($fields)->order($orders)->distinct('id')->paginate($listRow,false, $pageConfig);
+        $list = $articleModel->where($map)->field($fields)->order($orders)->paginate($listRow,false, $pageConfig);
 
         $this->assign('list', $list);
         $this->assign('pages', $list->render());
@@ -138,13 +141,16 @@ class Article extends Base
             $res = $ArticleModel->edit($data);
 
             if ($res) {
-                $this->success('更新成功', url('Article/index'));
+                $url = Cookie::get('HTTP_REFERER');
+                Cookie::delete('HTTP_REFERER');
+
+                $this->success('更新成功', $url);
             } else {
                 $this->error('更新失败:' . $ArticleModel->getError());
             }
         }
 
-        $article = ArticleModel::get(['id'=>$id]);
+        $article = ArticleModel::get($id);
         if (empty($article)) {
             $this->error('文章不存在');
         }
@@ -162,6 +168,11 @@ class Article extends Base
         $CategoryModel = new CategoryModel();
         $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
         $this->assign('categoryList', $categoryList);
+
+        //记录上一级来源，方便回跳
+        $fromReferee = $this->request->server('HTTP_REFERER');
+        $url = !empty($fromReferee) ? $fromReferee : url('Article/index');
+        Cookie::set('HTTP_REFERER', $url);
 
         return $this->fetch('article/addArticle');
     }

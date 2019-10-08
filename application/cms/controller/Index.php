@@ -60,4 +60,20 @@ class Index extends Base
     {
         return view('jobs');
     }
+
+    /**
+     * 支持index/*, 动态扩展
+     * @param $name
+     * @return mixed|\think\response\View
+     */
+    public function __extPage($name)
+    {
+        //动态方法调用
+        if (method_exists($this, $name)) {
+            return call_user_func_array(array($this, $name), []);
+        }
+
+        //如果是静态的，直接显示
+        return $this->fetch($name);
+    }
 }

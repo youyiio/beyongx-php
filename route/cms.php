@@ -16,7 +16,7 @@ return [
     'index/partner' => ['cms/Index/partner', ['method'=>'get']],
     'index/about' => ['cms/Index/about', ['method'=>'get']],
     'index/contact' => ['cms/Index/contact', ['method'=>'get']],
-    'index/:page' => ['cms/Index/:page', ['method'=>'get']], //可动态扩充页面
+    'index/:name' => ['cms/Index/__extPage', ['method'=>'get']], //可动态扩充页面
 
     //文章
     'list/index' => ['cms/Article/index', ['method'=>'get']],
