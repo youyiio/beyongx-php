@@ -19,13 +19,36 @@ class Cms extends TagLib
      */
     protected $tags   =  [
         // 标签定义： attr 属性列表 close表示是否需要闭合（false表示不需要，true表示需要， 默认false） alias 标签别名 level 嵌套层次
-        'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //获取分类列表，cid|cname有值时，获取二级分类列表
-        'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息
+        'config' => ['attr' => 'key', 'close' => false], //配置值标签
+        'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //分类列表标签，cid|cname有值时，获取二级分类列表
+        'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息标签
         'search'  => ['attr' => 'keyword,id', 'close' => true], //文章搜索标签
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
         'ads'  => ['attr' => 'cache,type,name,limit,id', 'close' => true], //广告链接标签
+        'tags'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //标签云
     ];
 
+
+    /**
+     * 获取配置信息
+     * {cms:config key="site_name" /}
+     * @param $tag
+     * @param $content
+     * @return string
+     */
+    public function tagConfig($tag, $content)
+    {
+        $key = empty($tag['key']) ? 0 : $tag['key'];
+
+        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        //$key = $this->autoBuildVar($key);
+
+        $parse  = "<?php ";
+        $parse .= "echo get_config('$key');";
+        $parse .= " ?>";
+
+        return $parse;
+    }
 
     /**
      * 根据cid|cname,查询分类信息
@@ -81,7 +104,6 @@ class Cms extends TagLib
         $parse .= "  <?php ";
         $parse .= "  }";
         $parse .= "  ?>";
-
 
         return $parse;
     }
@@ -147,7 +169,7 @@ class Cms extends TagLib
 
     /**
      * 关键词搜索
-     * <cms:search keyword='' page-size='10' id=''></cms:search>
+     * {cms:search keyword='' page-size='10' id=''}{/cms:search}
      * @param $tag
      * @param $content
      * @return string
@@ -177,7 +199,7 @@ class Cms extends TagLib
 
     /**
      * 友情链接标签
-     * <cms:links cache="300" limit='10' id='vo'></cms:links>
+     * {cms:links cache="300" limit='10' id='vo'}{/cms:links}
      * @param $tag
      * @param $content
      * @return string
@@ -214,7 +236,7 @@ class Cms extends TagLib
     }
 
     /**
-     * <cms:ads cache="" type="" limit="" id="vo"></cms:ads>
+     * {cms:ads cache="" type="" limit="" id="vo"}{/cms:ads}
      * @param $tag
      * @param $content
      * @return string
@@ -251,6 +273,56 @@ class Cms extends TagLib
         $parse .= "  } ";
         $parse .= "  ?>";
         $parse .= "  {volist name='$list' id='$id'}";
+        $parse .= $content;
+        $parse .= "  {/volist}";
+
+        return $parse;
+    }
+
+    /**
+     * 查询整站的标签名，标签，统计数量
+     * {cms:tags cache='true' limit='10' id='vo'} {/cms:tags}
+     * @param $tag
+     * @param $content
+     * @return string
+     */
+    public function tagTags($tag, $content)
+    {
+        $defaultCache = 10 * 60;
+        $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
+        $id = empty($tag['id']) ? '_id' : $tag['id'];
+        $limit = empty($tag['limit']) ? 0 : $tag['limit'];
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
+
+        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $limit = $this->autoBuildVar($limit);
+        $assign = $this->autoBuildVar($assign);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(6);
+        $internalCname = '$_cname_' . $this->_randVarName(6);
+
+        $parse  = "<?php ";
+        $parse .= "  $internalList = [];";
+        $parse .= "  \$cacheMark = 'tags_' . $cache . $limit;";
+        $parse .= "  \$where = [];";
+        $parse .= "  \$where[] = ['meta_key' , '=', \app\common\model\ArticleMetaModel::KEY_TAG];";
+        $parse .= "  if ($cache) { ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
+        $parse .= "  } ";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    \$ArticleMetaModel = new \app\common\model\ArticleMetaModel();";
+        $parse .= "    \$field = 'meta_key,meta_value,count(meta_value) as article_count';";
+        $parse .= "    \$order = ['article_count' => 'desc'];";
+        $parse .= "    $internalList = \$ArticleMetaModel->where(\$where)->field(\$field)->order(\$order)->group('meta_key,meta_value')->limit($limit)->select();";
+        $parse .= "    if ($cache) {";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache);";
+        $parse .= "    }";
+        $parse .= "  } ";
+        $parse .= "  $assign = $internalList;";
+        $parse .= "  ?>";
+
+        $parse .= "  {volist name='$internalList' id='$id'} ";
         $parse .= $content;
         $parse .= "  {/volist}";
 

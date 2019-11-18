@@ -79,11 +79,19 @@ class Crawler
 
             $metas[] = $item;
         }
+        $metaCount = count($metas);
+        if ($metaCount == 0) {
+            Log::info($metaCount . '篇文章网址已入库');
+
+            CrawlerModel::update(['status' => CrawlerModel::STATUS_CRAWL_SUCCESS], ['id' => $id]);
+            return;
+        }
+
         $CrawlerMetaModel = new CrawlerMetaModel();
         $CrawlerMetaModel->saveAll($metas);
 
 
-        Log::info('文章网址已入库');
+        Log::info($metaCount . '篇文章网址已入库');
 
         $uid = $data['uid'];
         //发送消息，进行文章内容采集；

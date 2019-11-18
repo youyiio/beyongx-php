@@ -25,12 +25,12 @@ return [
 
     'articles/:cname/:aid' => ['cms/Article/viewArticle', ['method'=>'get']], //与以下规则，不能对换；只匹配最先匹配，而非最优配置
     'article/:aid' => ['cms/Article/viewArticle', ['method'=>'get']],
+    'tag/:tag' => ['cms/Article/tag', ['method'=>'get'], ['tag'=>'\w+']],
 
     //搜索
-    'aq/:q/[:p]' => ['cms/Search/index', ['method' => ['get', 'post']]],
+    'search/[:q]/[:p]' => ['cms/Search/index', ['method' => ['get', 'post']], ['q'=>'\w+', 'p'=>'\d+']],
 
     //站点地图
-    //'sitemap_index.xml' => ['cms/Sitemap/index', ['method'=>'get']],
     'sitemap.xml' => ['cms/Sitemap/xml', ['method'=>'get']],
     'sitemap-[:id].xml' => ['cms/Sitemap/xml', ['method'=>'get']],
     'sitemap' => ['cms/Sitemap/html', ['method'=>'get']],

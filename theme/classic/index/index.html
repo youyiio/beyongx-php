@@ -6,7 +6,7 @@
 
     <div class="cont w1000">
         <div class="title">
-            <h3>MY<br />BLOG</h3>
+            <h3>{cms:config key="site_name" /}</h3>
             <h4>well-balanced heart</h4>
         </div>
         <div class="amount">
@@ -21,11 +21,11 @@
         <div class="title">
         <span class="layui-breadcrumb" lay-separator="|">
           <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
-          {article:categorys cache='120' id='vo'}
+          {cms:categorys cache='120' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
             {$vo.title_cn}</a>
-          {/article:categorys}
+          {/cms:categorys}
         </span>
         </div>
 

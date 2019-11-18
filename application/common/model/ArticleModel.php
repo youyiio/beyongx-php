@@ -183,8 +183,18 @@ class ArticleModel extends BaseModel
             return false;
         }
 
-        //只新增中间表数据
+        //分类，新增中间表数据
         $this->categorys()->saveAll($data['category_ids']);
+
+        //标签,添加至meta表
+        if (!empty($data['tags'])) {
+            $tags = explode(',', $data['tags']);
+            foreach ($tags as $tag) {
+                if (!empty($tag)) {
+                    $this->meta(ArticleMetaModel::KEY_TAG, $tag, BaseModel::MODE_MULTIPLE_VALUE);
+                }
+            }
+        }
 
         return true;
     }
@@ -221,6 +231,17 @@ class ArticleModel extends BaseModel
         if (!empty($data['category_ids'])) {
             $art->categorys()->detach();
             $art->categorys()->saveAll($data['category_ids']);
+        }
+
+        //标签,添加至meta表
+        $this->meta(ArticleMetaModel::KEY_TAG, null, BaseModel::MODE_MULTIPLE_VALUE);
+        if (!empty($data['tags'])) {
+            $tags = explode(',', $data['tags']);
+            foreach ($tags as $tag) {
+                if (!empty($tag)) {
+                    $this->meta(ArticleMetaModel::KEY_TAG, $tag, BaseModel::MODE_MULTIPLE_VALUE);
+                }
+            }
         }
 
         return true;

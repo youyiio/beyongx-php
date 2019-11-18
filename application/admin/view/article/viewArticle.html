@@ -28,6 +28,10 @@
                         {else if}
                         <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>
                         {/if}
+                        <br/>
+                        {foreach name="$article->metas('tag')" item="tag"}
+                        <span class="text-muted"><i class="fa fa-tags"></i>{$tag}</span>
+                        {/foreach}
                     </div>
                     <article style="word-wrap:break-word; word-break: break-all;overflow:hidden">
                         {$article.content|raw}

@@ -3,29 +3,17 @@
 {block name="description"}{$category.remark}{/block}
 
 {block name="body"}
-<div class="banner">
-    <div class="cont w1000">
-        <div class="title">
-            <h3>MY<br />BLOG</h3>
-            <h4>well-balanced heart</h4>
-        </div>
-        <div class="amount">
-            <p><span class="text">访问量</span><span class="access">1000</span></p>
-            <p><span class="text">日志</span><span class="daily-record">1000</span></p>
-        </div>
-    </div>
-</div>
 
-<div class="content">
+<div class="content whisper-content" >
     <div class="cont w1000">
         <div class="title">
         <span class="layui-breadcrumb" lay-separator="|">
           <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active"{/if}>所有文章</a>
-          {article:categorys cache='true' id='vo'}
+          {cms:categorys cache='true' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
             {$vo.title_cn}</a>
-          {/article:categorys}
+          {/cms:categorys}
         </span>
         </div>
         {article:list cache='120' page-size='10' id='art' assign='list' cid='cid'}

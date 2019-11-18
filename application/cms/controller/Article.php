@@ -186,9 +186,40 @@ class Article extends Base
         return view('viewArticle');
     }
 
-    public function message()
+    /**
+     * 根据标签值，查询相关文章
+     * @param string $tag 文章标签
+     * @return mixed
+     * @throws \think\exception\DbException
+     */
+    public function tag($tag='')
     {
-        return view('message');
+        if (empty($tag)) {
+            $this->error('标签不能为空');
+        }
+        $where = [
+            'status' => ArticleModel::STATUS_PUBLISHED,
+            'meta.meta_value' => $tag
+        ];
+
+        $fields = 'article.id,title,description,keywords,author,thumb_image_id,post_time,article.update_time,article.create_time,is_top,status,read_count,sort,ad_id';
+        $orders = [
+            'post_time' => 'desc',
+            'update_time' => 'desc'
+        ];
+        $listRow = input('param.list_rows/d') ? input('param.list_rows/d') : 20;
+        $pageConfig = [
+            'query' => input('param.')
+        ];
+
+        $ArticleModel = new ArticleModel();
+        $list = $ArticleModel->alias('article')->leftJoin('cms_article_meta meta', 'article.id = meta.article_id')->where($where)->field($fields)->order($orders)->paginate($listRow,false, $pageConfig);
+
+        $this->assign('list', $list);
+        $this->assign('tag', $tag);
+
+        return $this->fetch('tag');
     }
+
 
 }

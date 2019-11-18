@@ -10,9 +10,11 @@
     </h1>
 
     <div class="nav">
-        <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active" {/if}>文章</a>
+        <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active" {/if}>首页</a>
         <a href="{:url('cms/Article/index')}">微语</a>
-        <a href="#">相册</a>
+        {cms:categorys cache="false" limit="2" id="vo"}
+        <a href="{:url('cms/Article/articleList',['cname'=>$vo.title_en])}">{$vo.title_cn}</a>
+        {/cms:categorys}
         <a href="{:url('cms/Feedback/index')}" {if request()->controller() == 'Feedback' && request()->action() == 'index'} class="active" {/if}>留言</a>
         <a href="{:url('cms/Index/about')}" {if request()->controller() == 'Index' && request()->action() == 'about'} class="active" {/if}>关于</a>
     </div>

@@ -92,6 +92,17 @@ class BaseModel extends Model
         $MetaModel->_meta($this->$pk, $metaKey, $metaValue, $mode);
     }
 
+    //meta扩展表
+    public function metas($metaKey)
+    {
+        $pk = $this->pk;
+
+        $model = substr(get_class($this), 0, -5)  . 'MetaModel';
+        $MetaModel = new $model;
+
+        return $MetaModel->_metas($this->$pk, $metaKey);
+    }
+
     /**
      * 添加数据
      * @param  array $data  添加的数据

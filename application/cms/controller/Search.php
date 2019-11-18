@@ -12,7 +12,7 @@ namespace app\cms\controller;
 class Search extends Base
 {
 
-    //搜索词：q, 分页：p；路由为 aq/:q/[:p] 模式, aq为article query
+    //搜索词：q, 分页：p；路由为 search/:q/[:p] 模式
     public function index($q='', $p=1)
     {
         if (empty($q)) {
@@ -25,7 +25,9 @@ class Search extends Base
             $this->_searchFromES($q, $p);
         }
 
-        $this->fetch("search/result");
+        $this->assign('q', $q);
+
+        return $this->fetch("search/result");
     }
 
     //从数据库搜索

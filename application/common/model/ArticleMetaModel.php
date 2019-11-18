@@ -13,6 +13,7 @@ class ArticleMetaModel extends BaseMetaModel
 {
     protected $name = CMS_PREFIX . 'article_meta';
 
+    const KEY_TAG = 'tag'; //标签key
     const KEY_TIMING_POST = '__timing_post__'; //定时发布
     const KEY_BAIDU_INDEX = 'baidu_index'; //百度索引key
 
@@ -39,9 +40,15 @@ class ArticleMetaModel extends BaseMetaModel
             'meta_key' => $metaKey
         ];
 
+        //全部清除模式
+        if ($metaValue === null && $mode == BaseMetaModel::MODE_MULTIPLE_VALUE) {
+            $this->where($where)->delete();
+            return true;
+        }
+
         //写模工下，且为多值情况时，增加查询条件
         if ($metaValue !== '' && $metaValue !== null && $mode == BaseModel::MODE_MULTIPLE_VALUE) {
-            $where[] = ['meta_value' => $metaValue];
+            $where['meta_value'] = $metaValue;
         }
         $meta = $this->where($where)->find();
         if ($meta) {
@@ -78,12 +85,12 @@ class ArticleMetaModel extends BaseMetaModel
     {
         $fk = 'article_id';
         $where = [
-            [$fk] => $fkId,
+            $fk => $fkId,
         ];
         if ($metaKey !== '') {
-            $where[] = ['meta_key' => $metaKey];
+            $where['meta_key'] = $metaKey;
         }
 
-        return $this->where($where)->select();
+        return $this->where($where)->column('meta_value');
     }
 }

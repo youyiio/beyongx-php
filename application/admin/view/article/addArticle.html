@@ -4,6 +4,7 @@
 <link href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
 <link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
 <link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
+<link href="__PUBLIC__/static/common/css/plugins/jquery.tagsinput.min.css" rel="stylesheet">
 {/block}
 {block name="main"}
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -79,6 +80,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="col-lg-2 control-label" for="keywords">标签</label>
+                    <div class="col-lg-10">
+                        <input class="form-control" type="text" id="tags" name="tags" placeholder="添加标签" value="{$article ? implode(',',$article->metas('tag')) : ''}">
+                        <span class="help-block m-b-none"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label class="col-lg-2 control-label">是否发布<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <select class="form-control" name="status">
@@ -145,6 +154,8 @@
 
 <!-- Chosen -->
 <script src="__PUBLIC__/static/inspinia/js/plugins/chosen/chosen.jquery.js"></script>
+<!-- tags input -->
+<script src="__PUBLIC__/static/common/js/plugins/jquery.tagsinput.min.js"></script>
 
 <!-- 引入ueditor的js代码 -->
 <script src="__PUBLIC__/static/ueditor/ueditor.config.js?2017032702"></script>
@@ -172,6 +183,13 @@
         $(selector).chosen(config[selector]);
     }
 
+    $('#tags').tagsInput({
+        'height': '48px',
+        'width': '100%',
+        'interactive': true,
+        'defaultText': '添加标签',
+        'delimiter': [','],
+    });
 
     //日期选择
     $('.form-datetime').datetimepicker({
