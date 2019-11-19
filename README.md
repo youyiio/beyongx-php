@@ -39,14 +39,18 @@ Beyongx Cms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用�
 
 删除data/install.lock文件，如果存在的话；
 浏览器中输入: http://your_domain;
+![image](./public/static/install/screenshot/install.jpg)
 
 ### 管理后台
 
 浏览器输入: http://your_domain/admin
+![image](./public/static/install/screenshot/admin_login.jpg)
+![image](./public/static/install/screenshot/admin_tongji.jpg)
 
 ### 站点SEO优化配置
 
 后台进入 系统管理 -> 系统配置 -> SEO配置
+![image](./public/static/install/screenshot/admin_setting.jpg)
 
 ### 启动定时及消息队列
 
