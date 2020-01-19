@@ -8,12 +8,11 @@
 
 namespace app\cms\controller;
 
-use app\common\model\FeedbackModel as FeedbackModel;
+use app\common\model\FeedbackModel;
 use app\common\model\UserModel;
-use think\Controller;
 
 /**
- * 用户反馈
+ * 用户反馈表单
  **/
 class Feedback extends Base
 {
@@ -21,7 +20,7 @@ class Feedback extends Base
     {
         if (session('uid')) {
             $user = session('uid');
-        } elseif (session('visitor')) {
+        } else if (session('visitor')) {
             $user = session('visitor');
         } else {
             $visitor = '游客-'.ip2long(ip());
@@ -60,7 +59,6 @@ class Feedback extends Base
             $user = session('uid');
         } else {
             $user = session('visitor');
-//            $user = '吴迪';
         }
 
         $length = 8 ;
@@ -70,7 +68,7 @@ class Feedback extends Base
             $length = $total - $offset;
         }
         $FeedbackModel = new FeedbackModel();
-        $result = $FeedbackModel->where('send_client_id','=',$user)->whereOr('reply_client_id','=',$user)->limit($offset,$length)->order('create_time desc')->select();
+        $result = $FeedbackModel->where('send_client_id','=', $user)->whereOr('reply_client_id','=', $user)->limit($offset,$length)->order('create_time desc')->select();
 
         return array('result' => $result, 'status' => 1, 'msg'=>'获取成功！');
 

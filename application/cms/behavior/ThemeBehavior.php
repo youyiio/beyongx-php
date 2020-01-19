@@ -21,10 +21,10 @@ class ThemeBehavior
 {
     public function run()
     {
-        $config = Config::pull('theme');
+        //读取当前主题详细信息
+        $config = get_theme_config();
 
         /*根据配置和来访设备类型自动切换为电脑主题或手机主题。 start */
-        //$modulePath = request()->module();//获取模块名称
         $header = request()->header();
         $isWechat = isset($header['user-agent']) && preg_match('/micromessenger/', strtolower($header['user-agent']));
         if (request()->isMobile() || $isWechat) {
@@ -34,12 +34,12 @@ class ThemeBehavior
         }
 
         //设置所有主题的存放路径
-        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . $config['theme_name'] . DIRECTORY_SEPARATOR;
+        $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $config['theme_name'] . DIRECTORY_SEPARATOR;
         if (isset($config['responsive']) && $config['responsive'] == true) {
             $themePath .= $template . DIRECTORY_SEPARATOR;
         }
         //使用容器修改
-        View::config('view_path', $themePath);
+        View::config('view_path', $themePath . 'tpl' . DIRECTORY_SEPARATOR);
 
         //如果分页配置存在时，加载分页配置
         $paginateFile = $themePath . 'paginate.php';

@@ -16,6 +16,6 @@ class Error
 {
     public function _empty()
     {
-        return view('public/404');
+        return $this->fetch('public/404');
     }
 }

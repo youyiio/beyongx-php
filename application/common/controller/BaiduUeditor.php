@@ -41,7 +41,7 @@ trait BaiduUeditor
 
     public function index()
     {
-        $configJson = file_get_contents(Env::get('config_path') . "config.json");
+        $configJson = file_get_contents(Env::get('config_path') . "ueditor.json");
         $configJson = preg_replace("/\/\*[\s\S]+?\*\//", "", $configJson);
         $CONFIG = json_decode($configJson, true);
 
@@ -297,6 +297,8 @@ trait BaiduUeditor
 
     /**
      * 拉取远程图片
+     * @param $config ueditor配置
+     * @param $fieldName imageurl地址
      * @return mixed
      */
     private function saveRemote($config, $fieldName)
@@ -323,7 +325,7 @@ trait BaiduUeditor
         $fileType = strtolower(strrchr(strrchr($imgUrl,'/'), '.'));
         //img链接后缀可能为空,Content-Type须为image
         if ((!empty($fileType) && !in_array($fileType, $config['allowFiles'])) || stristr($heads['Content-Type'], "image") === -1) {
-            $data=array(
+            $data = array(
                 'state'=>'链接contentType不正确',
             );
              return json_encode($data);

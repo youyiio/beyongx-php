@@ -8,10 +8,7 @@
 
 namespace app\admin\controller;
 
-
-use app\common\library\ResultCode;
 use think\Log;
-use app\common\model\GeographyAreaModel;
 
 class DataQuery extends Base
 {

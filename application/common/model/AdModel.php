@@ -32,10 +32,10 @@ class AdModel extends BaseModel
         });
     }
 
-    //关联表:类型
-    public function adtypes()
+    //关联表:中间表
+    public function adSlots()
     {
-        return $this->belongsToMany('AdtypeModel', config('database.prefix'). CMS_PREFIX . 'ad_adtype', 'type', 'ad_id');
+        return $this->belongsToMany('AdSlotModel', config('database.prefix'). CMS_PREFIX . 'ad_serving', 'slot_id', 'ad_id');
     }
 
     //关联表:图片
@@ -44,27 +44,21 @@ class AdModel extends BaseModel
         return $this->hasOne('ImageModel','image_id','image_id');
     }
 
-    //关联表:文章
-//    public function articles()
-//    {
-//        return $this->belongsToMany('Article', 'article_id', 'ad_id');
-//    }
-
-    //关联表:中间表
-    public function adAdtype()
+    //关联表:投放时间段
+    public function adServings()
     {
-        return $this->hasMany('AdAdtypeModel', 'ad_id','id');
+        return $this->hasMany('AdServingModel', 'ad_id','id');
     }
 
     //清理缓存
     public static function clearCache($ad)
     {
         $ad = $ad->toArray();
-        if (isset($ad['type'])) {
-            if ($ad['type'] == 1) {
+        if (isset($ad['slot_id'])) {
+            if ($ad['slot_id'] == 1) {
                 cache('headline',null);
             }
-            if ($ad['type'] == 3) {
+            if ($ad['slot_id'] == 3) {
                 cache('banner',null);
             }
         }

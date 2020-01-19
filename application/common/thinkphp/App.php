@@ -14,7 +14,7 @@ use think\Error;
 
 class App extends \think\App
 {
-    const BEYONGX_VERSION = '1.0.2';
+    const BEYONG_CMS_VERSION = '1.1.5';
 
     /**
      * 初始化应用
@@ -127,11 +127,11 @@ class App extends \think\App
     }
 
     /**
-     * 获取beyongx 版本
+     * 获取beyongCms 版本
      * @return string
      */
-    public function beyongxVersion()
+    public function beyongCmsVersion()
     {
-        return static::BEYONGX_VERSION;
+        return static::BEYONG_CMS_VERSION;
     }
 }

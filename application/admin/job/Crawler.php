@@ -9,6 +9,7 @@
 namespace app\admin\job;
 
 use app\common\model\CrawlerMetaModel;
+use think\facade\Env;
 use think\facade\Log;
 use think\queue\Job;
 use think\Queue;
@@ -189,7 +190,8 @@ class Crawler
             $item['title'] = $vo['title'];
             $item['description'] = $vo['description'];
             $item['keywords'] = $vo['keywords'];
-            $item['content']  = $vo['content'];
+            $item['content'] = $vo['content'];
+            $item['author'] = $vo['author'];
             $item['read_count'] = 0;
             $item['user_id'] = $uid;
             $item['status'] = ArticleModel::STATUS_DRAFT;
@@ -212,7 +214,9 @@ class Crawler
     //定时采集
     public function timingCrawl(Job $job, $data)
     {
+        Log::info('定时抓取开始....');
 
+        Log::info('定时抓取结束!');
     }
 
     //*****************静态业务逻辑，供Job及command调用**********************
@@ -245,10 +249,10 @@ class Crawler
             //dump($rules);
             $result = $ql->get($v)->rules($rules)->queryData();
             //dump($result);
-            //dump($ql->getHtml());
+            Log::info('crawlUrls content length: ' . strlen($ql->getHtml()));
             Log::info($result);
             if (empty($result)) {
-                Log::info("采集 $v , 未找到数据");
+                Log::info("采集 $v , 未找到文章网址数据");
             }
 
             foreach ($result as $vo) {
@@ -317,9 +321,32 @@ class Crawler
         //清除xss元素及内容
         $article['content'] = htmlspecialchars_decode(remove_xss($article['content']));
 
+        //抓取图片
+        $doc = \phpQuery::newDocumentHTML($article['content']);
+        $imgs = pq($doc)->find( 'img');
+        if (count($imgs) > 0) {
+            foreach ($imgs as $img) {
+                $src = pq($img)->attr( 'src');
+                $src = self::getFullUrl($url, $src);
+                $saveResult = json_decode(self::saveRemoteImage($src), true);
+                Log::info('保存远程图片:');
+                Log::info($saveResult);
+                if ($saveResult['state'] === 'SUCCESS') {
+                    $localSrc = $saveResult['url'];
+                    pq($img)->attr( 'src', $localSrc);
+                }
+            }
+            $article['content'] = $doc->htmlOuter();
+        }
+
         return $article;
     }
 
+    /**
+     * 获取网页编码
+     * @param $html
+     * @return string
+     */
     public static function getEncoding($html)
     {
         $text = $html;
@@ -330,4 +357,165 @@ class Crawler
         return $encoding;
     }
 
+    /**
+     * 获取完整地址
+     * @param $browserUrl
+     * @param $innerUrl
+     * @return string
+     */
+    public static function getFullUrl($browserUrl, $innerUrl)
+    {
+        if (strpos($innerUrl, 'http') === 0) {
+            return $innerUrl;
+        }
+
+        $urlArr = explode('/', $browserUrl);
+        $protocol = str_replace(':', '', $urlArr[0]);
+        $baseUrl = $protocol . ':' . '//' . $urlArr[2];
+
+        $val = '';
+        if (strpos($innerUrl, '//') === 0) {
+            $val = $protocol . ':' . $innerUrl;
+        } else if (strpos($innerUrl, '/') === 0) {
+            $val = $baseUrl . $innerUrl;
+        }
+
+        return $val;
+    }
+
+    /**
+     * 拉取远程图片
+     * @param $fieldName imageurl地址
+     * @return mixed
+     */
+    public static function saveRemoteImage($imgUrl)
+    {
+        //使用ueditor.json作为配置信息
+        $configJson = file_get_contents(Env::get('config_path') . "ueditor.json");
+        $configJson = preg_replace("/\/\*[\s\S]+?\*\//", "", $configJson);
+        $CONFIG = json_decode($configJson, true);
+        // 保留需要的数据
+        $config = array(
+            "pathFormat" => $CONFIG['catcherPathFormat'],
+            "maxSize" => $CONFIG['catcherMaxSize'],
+            "allowFiles" => $CONFIG['catcherAllowFiles'],
+            "oriName" => "remote.png"
+        );
+
+        $rootPath = Env::get('root_path') . 'public';
+        $savePath = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR;
+
+
+        $imgUrl = htmlspecialchars($imgUrl);
+        $imgUrl = str_replace("&amp;", "&", $imgUrl);
+
+        //http开头验证
+        if (strpos($imgUrl, "http") !== 0) {
+            $data = array(
+                'state' => '链接不是http|https链接',
+            );
+            return json_encode($data);
+        }
+        //获取请求头并检测死链
+        $heads = get_headers($imgUrl, true);
+        if (!(stristr($heads[0], "200") && stristr($heads[0], "OK"))) {
+            $data = array(
+                'state' => '链接不可用',
+            );
+            return json_encode($data);
+        }
+        //格式验证(扩展名验证和Content-Type验证)
+        $fileType = strtolower(strrchr(strrchr($imgUrl,'/'), '.'));
+        //img链接后缀可能为空,Content-Type须为image
+        if ((!empty($fileType) && !in_array($fileType, $config['allowFiles'])) || stristr($heads['Content-Type'], "image") === -1) {
+            $data = array(
+                'state'=>'链接contentType不正确',
+            );
+            return json_encode($data);
+        }
+
+        //解析出域名作为http_referer
+        $urlArr = explode('/', $imgUrl);
+        $protocol = str_replace(':', '', $urlArr[0]);
+        $httpReferer = $protocol . ':' . '//' . $urlArr[2];
+
+        //打开输出缓冲区并获取远程图片
+        ob_start();
+        $context = stream_context_create([
+            'http' => array(
+                //'header' => "Referer:$httpReferer",  //突破防盗链,不可用
+                'user_agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36', //突破防盗链
+                'follow_location' => false // don't follow redirects
+            ),
+        ]);
+        $res = false;
+        $message = '';
+        try {
+            $res = readfile($imgUrl, false, $context);
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+        }
+
+        $img = ob_get_contents();
+        ob_end_clean();
+
+        if ($res === false) {
+            $data = array(
+                'state' => $message,
+            );
+            return json_encode($data);
+        }
+
+        //$m为文件名
+        preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/", $imgUrl, $m);
+
+        $savePath = $savePath . date('Ymd') . DIRECTORY_SEPARATOR;
+        $dirname = $rootPath . $savePath;
+        $file['oriName'] = $m ? $m[1]:"";
+        $file['filesize'] = strlen($img);
+        $file['ext'] = strtolower(strrchr($config['oriName'], '.'));
+        $file['name'] = uniqid() . $file['ext'];
+        $file['fullName'] = $dirname . $file['name'];
+        $fullName = $file['fullName'];
+
+        //检查文件大小是否超出限制
+        if ($file['filesize'] >= ($config["maxSize"])) {
+            $data = array(
+                'state' => '文件大小超出网站限制',
+            );
+            return json_encode($data);
+        }
+
+        //创建目录失败
+        if (!file_exists($dirname) &&
+            !(mkdir($dirname, 0777, true) && chown($dirname, Env::get('run.user'))) ) {
+            $data = array(
+                'state' => '目录创建失败',
+            );
+            return json_encode($data);
+        } else if (!is_writeable($dirname)) {
+            $data = array(
+                'state' => '目录没有写权限',
+            );
+            return json_encode($data);
+        }
+
+        //移动文件
+        if (!(file_put_contents($fullName, $img) && file_exists($fullName))) { //移动失败
+            $data = array(
+                'state' => '写入文件内容错误',
+            );
+            return json_encode($data);
+        } else { //移动成功
+            $data = array(
+                'state' => 'SUCCESS',
+                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file['name']),
+                'title' => $file['name'],
+                'original' => $file['oriName'],
+                'type' => $file['ext'],
+                'size' => $file['filesize'],
+            );
+        }
+        return json_encode($data);
+    }
 }

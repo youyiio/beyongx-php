@@ -103,14 +103,14 @@
                     <div class="form-group">
                         <label class="col-lg-2 control-label">文章简介规则<span class="text text-danger">*</span>:</label>
                         <div class="col-lg-10">
-                            <input type="text" name="article_description" value="{$crawler.article_description|default=''}" placeholder="请输入采集规则，例：meta[name=description],content" class="form-control" autocomplete="off">
+                            <input type="text" name="article_description" value="{$crawler.article_description|default='meta[name=description],content'}" placeholder="请输入采集规则，例：meta[name=description],content" class="form-control" autocomplete="off">
                             <span class="help-block m-b-none"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-2 control-label">文章关键字规则<span class="text text-danger">*</span>:</label>
                         <div class="col-lg-10">
-                            <input type="text" name="article_keywords" value="{$crawler.article_keywords|default=''}" placeholder="请输入采集规则，例：meta[name=keywords],content" class="form-control" autocomplete="off">
+                            <input type="text" name="article_keywords" value="{$crawler.article_keywords|default='meta[name=keywords],content'}" placeholder="请输入采集规则，例：meta[name=keywords],content" class="form-control" autocomplete="off">
                             <span class="help-block m-b-none"></span>
                         </div>
                     </div>

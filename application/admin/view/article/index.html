@@ -300,15 +300,13 @@
                     return;
                 }
                 var action = $(laddaBtn).data('action');
-                $.each(ids, function (i, id) {
-                    $.post(action, {id: id}, function (data) {
-                        //console.log(data);
-                        if (data.code == 0 && ids.length == 1) {
-                            layer.msg(data.msg, function(){});
-                            location.reload();
-                            return false;
-                        }
-                    });
+                $.post(action, {id: ids.join(',')}, function (data) {
+                    //console.log(data);
+                    if (data.code == 0 && ids.length == 1) {
+                        layer.msg(data.msg, function(){});
+                        location.reload();
+                        return false;
+                    }
                 });
 
                 setTimeout(function () {

@@ -22,7 +22,6 @@ class Cms extends TagLib
         'config' => ['attr' => 'key', 'close' => false], //配置值标签
         'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //分类列表标签，cid|cname有值时，获取二级分类列表
         'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息标签
-        'search'  => ['attr' => 'keyword,id', 'close' => true], //文章搜索标签
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
         'ads'  => ['attr' => 'cache,type,name,limit,id', 'close' => true], //广告链接标签
         'tags'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //标签云
@@ -168,36 +167,6 @@ class Cms extends TagLib
     }
 
     /**
-     * 关键词搜索
-     * {cms:search keyword='' page-size='10' id=''}{/cms:search}
-     * @param $tag
-     * @param $content
-     * @return string
-     */
-    public function tagSearch($tag, $content)
-    {
-        $keyword = empty($tag['keyword']) ? '' : $tag['keyword'];
-        $pageSize = empty($tag['page-size']) ? 10 : $tag['page-size'];
-
-        $id = empty($tag['id']) ? '_id' : $tag['id'];
-
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
-
-        $parse  = "<?php ";
-        $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= '$' . $list . " = \$ArticleModel->where(\$where)->whereLike('title','%$keyword%', 'and')->field('id,title,thumb_image_id,description,author,post_time')->order('is_top desc,sort,post_time desc')->paginate($pageSize, false,['query'=>input('param.')]);";
-        $parse .= "  ?> ";
-        $parse .= "  {volist name='$list' id='$id'}";
-        $parse .= $content;
-        $parse .= "  {/volist}";
-
-        return $parse;
-    }
-
-    /**
      * 友情链接标签
      * {cms:links cache="300" limit='10' id='vo'}{/cms:links}
      * @param $tag
@@ -236,7 +205,7 @@ class Cms extends TagLib
     }
 
     /**
-     * {cms:ads cache="" type="" limit="" id="vo"}{/cms:ads}
+     * {cms:ads cache="" name="" limit="" id="vo"}{/cms:ads}
      * @param $tag
      * @param $content
      * @return string
@@ -254,19 +223,19 @@ class Cms extends TagLib
         $list = $this->autoBuildVar($list);
 
         $parse  = "<?php ";
-        $parse .= "  \$internalType = $type; ";
+        $parse .= "  \$internalId = $type; ";
         $parse .= "  \$internalName = \"$name\";";
-        $parse .= "  if (empty(\$internalType) && !empty(\$internalName)) {";
-        $parse .= "    \$internalAdtype = \app\common\model\AdtypeModel::where(['title_en'=>\$internalName])->find();";
-        $parse .= "    if (!empty(\$internalAdtype)) { \$internalType = \$internalAdtype['type'];}";
+        $parse .= "  if (empty(\$internalId) && !empty(\$internalName)) {";
+        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>\$internalName])->find();";
+        $parse .= "    if (!empty(\$internalAdSlot)) { \$internalId = \$internalAdSlot['id'];}";
         $parse .= "  }";
-        $parse .= "  \$cacheMark = 'ads_' . \$internalType . $cache . $limit;";
+        $parse .= "  \$cacheMark = 'ads_' . \$internalId . $cache . $limit;";
         $parse .= "  if ($cache) { ";
         $parse .= "    $list = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($list)) { ";
         $parse .= "    \$adLogic = new \app\common\logic\AdLogic();";
-        $parse .= "    $list = \$adLogic->getAdList(\$internalType, $limit);";
+        $parse .= "    $list = \$adLogic->getAdList(\$internalId, $limit);";
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $list, $cache); ";
         $parse .= "    } ";

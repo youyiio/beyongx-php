@@ -410,8 +410,8 @@
     <?php } ?>
 
     <div class="copyright">
-        <a title="Beyongx官方网站" href="http://www.beyongx.com" target="_blank">Beyongx </a>
-        <span> CMS base on ThinkPHP, V<?php echo \think\facade\App::beyongxVersion(); ?></span>
+        <a title="Beyongx官方网站" href="http://www.beyongx.com" target="_blank">BeyongCms </a>
+        <span> CMS base on ThinkPHP, V<?php echo \think\facade\App::beyongCmsVersion(); ?></span>
         <span>{ 一款安全极速的开源内容管理框架 }，github地址：<a href="http://github.com/youyiio/beyongx" target="_blank">http://github.com/youyiio/beyongx</a></span>
     </div>
     <?php if(\think\facade\App::isDebug()) { ?>

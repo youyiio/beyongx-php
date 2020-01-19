@@ -20,7 +20,7 @@ class AdLogic extends Model
         $where = [];
         $AdModel = new AdModel();
         if ($type) {
-            $AdModel = AdModel::has('adAdtype', ['type'=>$type]);
+            $AdModel = AdModel::has('adServings', ['slot_id'=>$type]);
         }
 
         $list = $AdModel->where($where)->order('sort asc')->limit($limit)->select();

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {block name="meta"}{/block}
+    <title>{block name="title"}{:get_config('title')} - {:get_config('site_name')}{/block}</title>
+    <meta name="keywords" content="{block name='keywords'}{:get_config('keywords')}{/block}">
+    <meta name="description" content="{block name='description'}{:get_config('description')}{/block}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="__PUBLIC__/static/layui/css/layui.css">
+    <link rel="stylesheet" href="__THEME__/xianyan/static/css/main.css">
+    <link href="__PUBLIC__/static/inspinia/css/bootstrap.min.css" rel="stylesheet">
+    {block name="css"} {/block}
+</head>
+<body class="lay-blog">
+    {include file='public/header' /}
+    {block name="body"}{/block}
+    {include file='public/footer' /}
+
+    {:get_config('stat_code')}
+    <script src="__PUBLIC__/static/layui/layui.js"></script>
+    <script src="__PUBLIC__/static/inspinia/js/jquery-2.1.1.js"></script>
+    <script src="__PUBLIC__/static/inspinia/js/bootstrap.min.js"></script>
+    <script>
+        layui.config({
+            base: "__THEME__/xianyan/static/js/"
+        }).use('blog');
+    </script>
+    {block name="js"}{/block}
+</body>
+</html>

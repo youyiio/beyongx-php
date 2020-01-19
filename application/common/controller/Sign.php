@@ -115,6 +115,8 @@ class Sign extends Controller
 
     /**
      * 注册页面
+     *  params required: email,password,repassword,nickname
+     *  params optional:
      */
     public function register()
     {

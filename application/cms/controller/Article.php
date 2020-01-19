@@ -12,16 +12,6 @@ use think\helper\Time;
  */
 class Article extends Base
 {
-//    protected $beforeActionList = [
-//        'getCategory'  =>  ['only' => 'index,viewArticle'],
-//    ];
-//
-//    protected function getCategory()
-//    {
-//        $CategoryModel = new CategoryModel();
-//        $cateList = $CategoryModel->where('status','=', 1)->order('sort')->select();
-//        $this->assign('cateList', $cateList);
-//    }
 
     public function initialize()
     {
@@ -183,7 +173,7 @@ class Article extends Base
         $this->assign('comments', $list);
         $this->assign('page', $page);
 
-        return view('viewArticle');
+        return $this->fetch('viewArticle');
     }
 
     /**
@@ -202,7 +192,7 @@ class Article extends Base
             'meta.meta_value' => $tag
         ];
 
-        $fields = 'article.id,title,description,keywords,author,thumb_image_id,post_time,article.update_time,article.create_time,is_top,status,read_count,sort,ad_id';
+        $fields = 'article.id,title,description,keywords,author,thumb_image_id,post_time,article.update_time,article.create_time,is_top,status,read_count,comment_count,sort,ad_id';
         $orders = [
             'post_time' => 'desc',
             'update_time' => 'desc'

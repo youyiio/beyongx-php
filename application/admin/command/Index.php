@@ -30,7 +30,7 @@ class Index extends Command
             ->addOption('aid', 'id', Option::VALUE_REQUIRED, 'The article to timing publish', 0)
             ->addOption('range', 'r', Option::VALUE_REQUIRED | Option::VALUE_IS_ARRAY, 'The article to timing publish', [])
             ->addOption('all', 'a', Option::VALUE_OPTIONAL, 'The article to timing publish', 'all')
-            ->setDescription('search engine index');
+            ->setDescription('check search engine index status');
     }
 
     protected function execute(Input $input, Output $output)

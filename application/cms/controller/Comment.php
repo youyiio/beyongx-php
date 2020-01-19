@@ -36,7 +36,7 @@ class Comment extends Base
         $this->assign('aid', $aid);
         $this->assign('article', $article);
 
-        return view('index');
+        return $this->fetch('index');
     }
 
     /**
@@ -109,6 +109,6 @@ class Comment extends Base
             }
         }
 
-        return view('create');
+        return $this->fetch('create');
     }
 }

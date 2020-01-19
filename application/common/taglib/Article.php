@@ -24,7 +24,7 @@ class Article extends TagLib
         'prev'  => ['attr' => 'aid,cid,cname,id,assign', 'close' => true], //下一篇文章标签
         'next'  => ['attr' => 'aid,cid,cname,id,assign', 'close' => true], //上一篇文章标签
         'list'   => ['attr' => 'cid,cname,cache,page-size,id,assign', 'close' => true], //文章列表标签
-        'search'  => ['attr' => 'cid,keyword,id', 'close' => true], //搜索文章列表标签
+        'search'  => ['attr' => 'cid,keyword,page-size,id,assign', 'close' => true], //搜索文章列表标签
         'hotlist' => ['attr' => 'cid,cname,cache,limit,id', 'close' => true], //热门文章列表标签
         'latestlist' => ['attr' => 'cid,cname,cache,limit,id', 'close' => true], //最新文章列表标签
         'relatedlist' => ['attr' => 'aid,cid,cname,cache,limit,id', 'close' => true], //相关推荐文章列表标签
@@ -240,7 +240,7 @@ class Article extends TagLib
 
     /**
      * 关键词搜索
-     * {article:search keyword='' id=''}{/article:search}
+     * {article:search keyword='' page-size="10" id=''}{/article:search}
      * @param $tag
      * @param $content
      * @return string
@@ -249,6 +249,8 @@ class Article extends TagLib
     {
         $cid = empty($tag['cid']) ? 0 : $tag['cid'];
         $keyword = empty($tag['keyword']) ? '' : $tag['keyword'];
+        $pageSize = empty($tag['page-size']) ? 10 : $tag['page-size'];
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
         $id = empty($tag['id']) ? '_id' : $tag['id']; //当做常量使用
 
         //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
@@ -266,7 +268,7 @@ class Article extends TagLib
         $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
 
         $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
-        $parse .= "  \$field = 'id,title,thumb_image_id,description,author,post_time';";
+        $parse .= "  \$field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "  if ($internalCid) { ";
         $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
         $parse .= "    \$cids = \$childs['ids'];";
@@ -276,6 +278,7 @@ class Article extends TagLib
         $parse .= "    $internalList = \$ArticleModel->where(\$where)->whereLike('title','%'.$keyword.'%','and')->field(\$field)->order('is_top desc,sort,post_time desc')->paginate(10,false,['query'=>input('param.')]);";
         $parse .= "  };";
 
+        $parse .= "  $assign = $internalList;";
         $parse .= "  ?>";
         $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;

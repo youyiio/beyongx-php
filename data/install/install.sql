@@ -15,15 +15,17 @@ drop table if exists cms_action_log;
 
 drop table if exists cms_ad;
 
-drop table if exists cms_ad_adtype;
+drop table if exists cms_ad_serving;
+
+drop table if exists cms_ad_slot;
 
 #drop index uniq_addons_name on cms_addons;
 
 drop table if exists cms_addons;
 
-drop table if exists cms_adtype;
-
 drop table if exists cms_article;
+
+#drop index idx_article_status on cms_article;
 
 drop table if exists cms_article_data;
 
@@ -61,10 +63,6 @@ drop table if exists cms_feedback;
 
 drop table if exists cms_file;
 
-#drop index idx_geography_area_parent_code on cms_geography_area;
-
-drop table if exists cms_geography_area;
-
 drop table if exists cms_hooks;
 
 drop table if exists cms_image;
@@ -72,6 +70,8 @@ drop table if exists cms_image;
 drop table if exists cms_links;
 
 drop table if exists cms_message;
+
+drop table if exists cms_region;
 
 #drop index uniq_user_account on cms_user;
 
@@ -149,18 +149,41 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_ad comment '广告表';
 
 /*==============================================================*/
-/* Table: cms_ad_adtype                                         */
+/* Table: cms_ad_serving                                        */
 /*==============================================================*/
-create table cms_ad_adtype
+create table cms_ad_serving
 (
+   id                   int not null,
    ad_id                int not null,
-   type                 int not null,
-   primary key (ad_id, type)
+   slot_id              int not null,
+   status               tinyint comment '0.下线;1.上线',
+   sort                 int,
+   start_time           datetime,
+   end_time             datetime,
+   update_time          datetime not null,
+   create_time          datetime not null,
+   primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
-alter table cms_ad_adtype comment '广告类型关联表,';
+alter table cms_ad_serving comment '广告投放表,';
+
+/*==============================================================*/
+/* Table: cms_ad_slot                                           */
+/*==============================================================*/
+create table cms_ad_slot
+(
+   id                   int not null auto_increment,
+   title_cn             varchar(32) not null,
+   title_en             varchar(32) not null,
+   remark               varchar(128),
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table cms_ad_slot comment '广告槽位表';
 
 /*==============================================================*/
 /* Table: cms_addons                                            */
@@ -193,23 +216,6 @@ create index uniq_addons_name on cms_addons
 );
 
 /*==============================================================*/
-/* Table: cms_adtype                                            */
-/*==============================================================*/
-create table cms_adtype
-(
-   type                 int not null auto_increment,
-   title_cn             varchar(32) not null,
-   title_en             varchar(32) not null,
-   remark               varchar(128),
-   image_size           varchar(128),
-   primary key (type)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_adtype comment '广告类型表';
-
-/*==============================================================*/
 /* Table: cms_article                                           */
 /*==============================================================*/
 create table cms_article
@@ -237,6 +243,11 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_article comment '文章表';
+
+create index idx_article_status on cms_article
+(
+   status
+);
 
 /*==============================================================*/
 /* Table: cms_article_data                                      */
@@ -570,31 +581,6 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_file comment '文件表';
 
 /*==============================================================*/
-/* Table: cms_geography_area                                    */
-/*==============================================================*/
-create table cms_geography_area
-(
-   area_code            varchar(16) not null,
-   area_name            varchar(64) not null,
-   parent_code          varchar(16) not null,
-   capital_flag         tinyint not null default 0 comment '1.表示是captial,0表示不是',
-   display_flag         tinyint not null comment '0.不显示;1.显示;2.忽略本级',
-   primary key (area_code)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_geography_area comment '地理信息表';
-
-/*==============================================================*/
-/* Index: idx_geography_area_parent_code                        */
-/*==============================================================*/
-create index idx_geography_area_parent_code on cms_geography_area
-(
-   parent_code
-);
-
-/*==============================================================*/
 /* Table: cms_hooks                                             */
 /*==============================================================*/
 create table cms_hooks
@@ -674,6 +660,30 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_message comment '消息表';
+
+/*==============================================================*/
+/* Table: cms_region                                            */
+/*==============================================================*/
+create table cms_region
+(
+   id                   int not null,
+   pid                  int,
+   shortname            varchar(100),
+   name                 varchar(100),
+   merger_name          varchar(255),
+   level                tinyint(4),
+   pinyin               varchar(100),
+   code                 varchar(100),
+   zip_code             varchar(100),
+   first                varchar(50),
+   lng                  varchar(100),
+   lat                  varchar(100),
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table cms_region comment '地区表,';
 
 /*==============================================================*/
 /* Table: cms_user                                              */
@@ -833,7 +843,7 @@ create index idx_user_verify_code_type_target on cms_user_verify_code
 truncate table cms_config;
 
 INSERT INTO `cms_config` VALUES ('article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 'article', 0);
-INSERT INTO `cms_config` VALUES ('article_audit_switch', 'true', '文章审核', 'bool', 'article', 1);
+INSERT INTO `cms_config` VALUES ('article_audit_switch', 'false', '文章审核', 'bool', 'article', 1);
 INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
 INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text', 'article', 3);
 INSERT INTO `cms_config` VALUES ('image_upload_quality', '80', '上传图片质量', 'text', 'article', 4);
@@ -864,6 +874,7 @@ INSERT INTO `cms_config` VALUES ('keywords', 'Beyongx,ThinkPHP,CMS内容管理�
 INSERT INTO `cms_config` VALUES ('password_key', 'lGfFSc17z8Q15P5kU0guNqq906DHNbA3', '加密密钥', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('site_name', 'BeyongX内容管理系统', '网站名称', 'text', 'base', 1);
 INSERT INTO `cms_config` VALUES ('company_name', 'XXX公司', '公司名称', 'text', null, 1);
+INSERT INTO `cms_config` VALUES ('theme_name', 'classic', '主题名称', 'text', null, 2);
 INSERT INTO `cms_config` VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?ce074243117e698438c49cd037b593eb\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
 
 INSERT INTO `cms_config` VALUES ('tab_meta', '[{\"tab\":\"base\",\"name\":\"基本设置\",\"sort\":1},{\"tab\":\"seo\",\"name\":\"SEO设置\",\"sort\":2},{\"tab\":\"contact\",\"name\":\"联系方式\",\"sort\":3},{\"tab\":\"email\",\"name\":\"邮箱设置\",\"sort\":4},{\"tab\":\"article\",\"name\":\"文章设置\",\"sort\":5},{\"tab\":\"aliyun_oss\",\"name\":\"阿里OSS存储\",\"sort\":6},{\"tab\":\"qiniuyun_oss\",\"name\":\"七牛OSS存储\",\"sort\":7},{\"tab\":\"email_template\",\"name\":\"邮件模板\",\"sort\":8},{\"tab\":\"oss\",\"name\":\"OSS存储设置\",\"sort\":9}]', 'tab标签元数据', 'text', NULL, 0);
@@ -1094,25 +1105,25 @@ INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_ti
 INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (4, 0, '行业新闻', 'news', '行业新闻文章', 1, 4, '2018-01-19 00:00:00');
 INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (5, 0, '行业动态', 'status', '行业动态文章', 1, 5, '2018-01-19 00:00:00');
 
-truncate table cms_adtype;
+truncate table cms_ad_slot;
 
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (2, '首页顶部广告', 'index_header', '首页顶部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (3, '首页中间广告', 'index_center', '首页中间广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (4, '首页底部广告', 'index_footer', '首页底部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (11, '分类列表页头部', 'category_list_header', '显示于分类列表页头部', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (12, '分类列表页中间', 'category_list_center', '显示于分类列表页中间', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (13, '分类列表页底部', 'category_list_footer', '显示于分类列表页底部', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (14, '文章列表页头部', 'article_list_header', '显示于文章列表页头部', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (15, '文章列表页中间', 'article_list_center', '显示于文章列表页中间', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (16, '文章列表页底部', 'article_list_footer', '显示于文章列表页底部', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (17, '文章详细页头部', 'article_view_header', '显示于文章详细页头部', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (18, '文章详细页中间', 'article_view_center', '显示于文章详细页中间', null);
-INSERT INTO `cms_adtype`(type, title_cn, title_en, remark, image_size) VALUES (19, '文章详细页底部', 'article_view_footer', '显示于文章详细页底部', null);
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (2, '首页顶部广告', 'index_header', '首页顶部广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (3, '首页中间广告', 'index_center', '首页中间广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (4, '首页底部广告', 'index_footer', '首页底部广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (11, '分类列表页头部', 'category_list_header', '显示于分类列表页头部');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (12, '分类列表页中间', 'category_list_center', '显示于分类列表页中间');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (13, '分类列表页底部', 'category_list_footer', '显示于分类列表页底部');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (14, '文章列表页头部', 'article_list_header', '显示于文章列表页头部');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (15, '文章列表页中间', 'article_list_center', '显示于文章列表页中间');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (16, '文章列表页底部', 'article_list_footer', '显示于文章列表页底部');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (17, '文章详细页头部', 'article_view_header', '显示于文章详细页头部');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (18, '文章详细页中间', 'article_view_center', '显示于文章详细页中间');
+INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (19, '文章详细页底部', 'article_view_footer', '显示于文章详细页底部');
 
 /* ================================================================================================*/
 /* =========================================数据初始脚本：设置自增起始=============================*/

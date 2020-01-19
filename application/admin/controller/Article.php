@@ -1,9 +1,9 @@
 <?php
 namespace app\admin\controller;
 
-use app\common\model\AdAdtypeModel;
+use app\common\model\AdServingModel;
 use app\common\model\AdModel;
-use app\common\model\AdtypeModel;
+use app\common\model\AdSlotModel;
 use app\common\model\ArticleMetaModel;
 use app\common\model\CommentModel;
 use app\common\model\MessageModel;
@@ -211,19 +211,18 @@ class Article extends Base
         return $this->fetch('article/viewArticle');
     }
 
-    //删除文章
+    //删除文章,支持批量删除
     public function deleteArticle($id)
     {
-        $article = ArticleModel::get(['id'=>$id]);
-        if (empty($article)) {
-            $this->error('文章不存在');
-        }
-        $article->status = ArticleModel::STATUS_DELETED;
-        $res = $article->save();
-        if ($res) {
-            $this->success('成功删除');
+        $ids = explode(',', $id);
+        $ArticleModel = new ArticleModel();
+        $numRows = $ArticleModel->where([['id', 'in', $ids]])->setField('status', ArticleModel::STATUS_DELETED);
+
+        if ($numRows == count($ids)) {
+            $this->success('成功删除!');
         } else {
-            $this->error('删除失败');
+            $fails = count($ids) - $numRows;
+            $this->error("成功删除 $numRows 条，失败 $fails 条!");
         }
     }
 
@@ -368,7 +367,7 @@ class Article extends Base
             $this->error($check);
         }
 
-        $data['type'] = AdtypeModel::TYPE_BANNER_HEADLINE;
+        $data['type'] = AdSlotModel::TYPE_BANNER_HEADLINE;
         $data['create_time'] = date_time();
         $AdModel = new AdModel();
         $res = $AdModel->allowField(true)->save($data);
@@ -605,28 +604,28 @@ class Article extends Base
     public function adList()
     {
         $title = input('param.title', '');
-        $type = input('param.type', '');
+        $slotId = input('param.slot_id', '');
 
         $where = [];
         if (!empty($title)) {
             $where[] = ['title', 'like', "%$title%"];
         }
-        if (!empty($type)) {
-            $AdAdtypeModel = new AdAdtypeModel();
-            $adIds = $AdAdtypeModel->where('type', $type)->field('distinct ad_id')->column('ad_id');//column变成一维数组
-            $where[] = ['id','in', $adIds];
+        if (!empty($slotId)) {
+            $AdServingModel = new AdServingModel();
+            $adIds = $AdServingModel->where('slot_id', $slotId)->field('distinct ad_id')->column('ad_id');//column变成一维数组
+            $where[] = ['id', 'in', $adIds];
         }
         $AdModel = new AdModel();
         $list = $AdModel->where($where)->order('sort,create_time desc')->paginate(10, false, ['query'=>input('param.')]);
-        $this->assign('list',$list);
+        $this->assign('list', $list);
         $this->assign('pages', $list->render());
 
         //类型列表
-        $AdtypeModel = new AdtypeModel();
-        $typeList = $AdtypeModel->order('type asc')->field('type, title_cn')->select();
-        $this->assign('typeList', $typeList);
+        $AdSlotModel = new AdSlotModel();
+        $slotList = $AdSlotModel->order('id asc')->field('id, title_cn')->select();
+        $this->assign('slotList', $slotList);
 
-        return view('adList');
+        return $this->fetch('adList');
     }
 
     //新增广告内链
@@ -637,7 +636,7 @@ class Article extends Base
             $rule = [
                 'title|标题' => 'require',
                 'url' => ['require'],
-                'types' => ['require'],
+                'slot_ids' => ['require'],
                 //'image_id|专题图片' => 'require|number',
             ];
             $check = $this->validate($data, $rule);
@@ -645,13 +644,13 @@ class Article extends Base
                 $this->error($check);
             }
 
-            $data['type'] = 4;
-            $data['create_time'] = date_time();
-
             $AdModel = new AdModel();
+            $data['create_time'] = date_time();
             $rowsNum = $AdModel->isUpdate(false)->allowField(true)->save($data);
+
             //新增中间表数据
-            $AdModel->adtypes()->saveAll($data['types']);
+            $pivot = ['update_time' => date_time(), 'create_time' => date_time()];
+            $AdModel->adSlots()->attach($data['slot_ids'], $pivot);
 
             if ($rowsNum !== false) {
                 $this->success('成功新增广告', url('article/adList'));
@@ -661,11 +660,11 @@ class Article extends Base
         }
 
         //类型列表
-        $AdtypeModel = new AdtypeModel();
-        $typeList = $AdtypeModel->order('type asc')->field('type,title_cn,title_en,image_size')->select();
-        $this->assign('typeList', $typeList);
+        $AdSlotModel = new AdSlotModel();
+        $slotList = $AdSlotModel->order('id asc')->field('id,title_cn,title_en,remark')->select();
+        $this->assign('slotList', $slotList);
 
-        return view('addAd');
+        return $this->fetch('article/addAd');
     }
 
     //修改广告内链
@@ -677,7 +676,7 @@ class Article extends Base
                 'id' => ['require'],
                 'title|标题' => 'require',
                 'url' => ['require'],
-                'types' => ['require'],
+                'slot_ids' => ['require'],
                 //'image_id|专题图片' => 'require|number',
             ];
             $check = $this->validate($data,$rule);
@@ -689,11 +688,12 @@ class Article extends Base
             $id = $data['id'];
             $AdModel = new AdModel();
             $rowsNum = $AdModel->isUpdate(true)->allowField(true)->save($data, ['id'=>$id]);
-            //修改中间表数据
-            if (!empty($data['types'])) {
-                $AdModel->adtypes()->detach();
-                $AdModel->adtypes()->saveAll($data['types']);
-            }
+
+            //更新中间表数据
+            $AdModel->adSlots()->detach();
+            $pivot = ['update_time' => date_time(), 'create_time' => date_time()];
+            $AdModel->adSlots()->attach($data['slot_ids'], $pivot);
+
             if ($rowsNum !== false) {
                 $this->success('成功修改广告', url('article/adList'));
             } else {
@@ -701,24 +701,24 @@ class Article extends Base
             }
         }
 
-        $ad = AdModel::get(['id'=>$adId]);
+        $ad = AdModel::get(['id' => $adId]);
         if (empty($ad)) {
-            $this->error('广告内链不存在');
+            $this->error('广告不存在');
         }
         $this->assign('ad', $ad);
 
-        //old types
-        $relationTypes = $ad->adtypes;
-        $oldTypes = [];
-        foreach ($relationTypes as $adtype) {
-            $oldTypes[] = $adtype['type'];
+        //old slots
+        $relationSlots = $ad->adSlots;
+        $oldSlots = [];
+        foreach ($relationSlots as $adSlot) {
+            $oldSlots[] = $adSlot['id'];
         }
-        $this->assign('oldTypes', $oldTypes);
+        $this->assign('oldSlots', $oldSlots);
 
         //类型列表
-        $AdtypeModel = new AdtypeModel();
-        $typeList = $AdtypeModel->order('type asc')->field('type,title_cn,title_en,image_size')->select();
-        $this->assign('typeList', $typeList);
+        $AdSlotModel = new AdSlotModel();
+        $slotList = $AdSlotModel->order('id asc')->field('id,title_cn,title_en')->select();
+        $this->assign('slotList', $slotList);
 
         return $this->fetch('article/addAd');
     }

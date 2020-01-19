@@ -25,7 +25,7 @@ class ElasticSearch extends Command
         $this->setName('article:es')
             ->addOption('id', null, Option::VALUE_REQUIRED, 'The article to timing publish', 0)
             ->addOption('all', null, Option::VALUE_REQUIRED, 'The article to timing publish', 0)
-            ->setDescription('search engine index');
+            ->setDescription('elastic search operation');
     }
 
     protected function execute(Input $input, Output $output)

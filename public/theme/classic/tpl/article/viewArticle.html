@@ -1,0 +1,68 @@
+{extend name="public/base" /}
+{block name="title"}{article:view aid="aid" id='art' assign="article"}{/article:view}{$article.title}{/block}
+{block name='keywords'}{$article.keywords}{/block}
+{block name='description'}{$article.description}{/block}
+
+{block name="body"}
+<div class="content whisper-content leacots-content details-content">
+    <div class="cont w1000">
+        <div class="whisper-list">
+            <div class="item-box">
+                <div class="review-version">
+                    <div class="form-box">
+                        <div class="article-cont">
+                            <div class="title">
+                                <h3><a href="">{$article.title}</a></h3>
+                                <p class="cont-info"><span class="data">{$article.create_time}</span><span class="author">{$article.user.nickname}</span></p>
+                            </div>
+                            <article>
+                                {$article.content|raw}
+                            </article>
+                            <img src="{$article.thumbImage.full_thumb_image_url}" alt="">
+                            <div class="count layui-clear">
+                                <span class="pull-left" style="color: #8095a8">阅读 <em>{$article.read_count}</em></span>
+                            </div>
+                        </div>
+                        <div class="form">
+                            <form class="layui-form" action="{:url('cms/Comment/create')}" method="post">
+                                <div class="layui-form-item layui-form-text">
+                                    <div class="layui-input-block">
+                                        <textarea name="content" class="layui-textarea"  style="resize:none" placeholder="既然来了，就说几句" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block" style="text-align: right;">
+                                        <input type="hidden" name="aid" value="{$aid}">
+                                        <button type="submit" class="layui-btn" id="sure">提交</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="volume">
+                        全部评论
+                    </div>
+                    <div class="list-cont" >
+                        {if condition="$comments" empty="暂无评论留言！"}
+                        {volist name='comments' id='comment'}
+                        <div class="cont">
+                            <div class="img">
+                                <img src="__THEME__/classic/static/img/header.png" alt="">
+                            </div>
+                            <div class="text">
+                                <p class="tit"><span class="name">{$comment.author}</span><span class="data">{$comment.create_time|date="Y-m-d H:i"}</span></p>
+                                <p class="ct">{$comment.content}</p>
+                            </div>
+                        </div>
+                        {/volist}
+                        <div style="text-align: center; padding:30px 0">
+                            {$comments->render()|raw}
+                        </div>
+                        {/if}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

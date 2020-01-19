@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+use think\facade\Config;
+use think\facade\Env;
 use think\facade\Log;
 
 //cms核心表前缀;
@@ -120,6 +122,85 @@ function get_cur_url()
     }
 
     return $url;
+}
+
+/**
+ * 压缩文件
+ * @param string $path 需要压缩的文件[夹]路径
+ * @param string $savedir 压缩文件所保存的目录
+ * @return array zip文件路径
+ */
+function zip($path, $savedir)
+{
+    $path = preg_replace('/\/$/', '', $path);
+    preg_match('/\/([\d\D][^\/]*)$/', $path, $matches, PREG_OFFSET_CAPTURE);
+    $filename = $matches[1][0] . ".zip";
+    set_time_limit(0);
+
+    $zip = new \ZipArchive();
+    $zip->open($savedir . DIRECTORY_SEPARATOR . $filename, ZIPARCHIVE::OVERWRITE);
+    if (is_file($path)) {
+        $path = preg_replace('/\/\//', '/', $path);
+        $base_dir = preg_replace('/\/[\d\D][^\/]*$/', '/', $path);
+        $base_dir = addcslashes($base_dir, '/:');
+        $localname = preg_replace('/' . $base_dir . '/', '', $path);
+        $zip->addFile($path, $localname);
+        $zip->close();
+        return $filename;
+    } elseif (is_dir($path)) {
+        $path = preg_replace('/\/[\d\D][^\/]*$/', '', $path);
+        $base_dir = $path . '/';//基目录
+        $base_dir = addcslashes($base_dir, '/:');
+    }
+
+    $path = preg_replace('/\/\//', '/', $path);
+    function addItem($path, &$zip, &$base_dir) {
+        $handle = opendir($path);
+        while (false !== ($file = readdir($handle))) {
+            if (($file != '.') && ($file != '..')) {
+                $ipath = $path . DIRECTORY_SEPARATOR . $file;
+                if (is_file($ipath)){//条目是文件
+                    $localname = preg_replace('/' . $base_dir . '/', '', $ipath);
+                    var_dump($localname);
+                    $zip->addFile($ipath,$localname);
+                } else if (is_dir($ipath)){
+                    addItem($ipath,$zip,$base_dir);
+                    $localname = preg_replace('/' . $base_dir . '/', '', $ipath);
+                    var_dump($localname);
+                    $zip->addEmptyDir($localname);
+                }
+            }
+        }
+    }
+    addItem($path, $zip, $base_dir);
+    $zip->close();
+
+    return $filename;
+}
+
+/**
+ * 解压文件
+ * @param String $zip 压缩包路径
+ * @param string $hedef 解压路径
+ */
+function ezip($zip, $hedef = '')
+{
+    $dirname = preg_replace('/.zip/', '', $zip);
+    $root = $_SERVER['DOCUMENT_ROOT'] . '/zip/';
+    $zip = zip_open($root . $zip);
+    @mkdir($root . $hedef . $dirname . '/' . $zip_dosya);
+    while ($zip_icerik = zip_read($zip)) {
+        $zip_dosya = zip_entry_name($zip_icerik);
+        if (strpos($zip_dosya, '.')) {
+            $hedef_yol = $root . $hedef . $dirname . '/' . $zip_dosya;
+            @touch($hedef_yol);
+            $yeni_dosya = @fopen($hedef_yol, 'w+');
+            @fwrite($yeni_dosya, zip_entry_read($zip_icerik), zip_entry_filesize($zip_icerik));
+            @fclose($yeni_dosya);
+        } else {
+            @mkdir($root . $hedef . $dirname . '/'. $zip_dosya);
+        };
+    };
 }
 
 //日志输出，用于第三方库统一日志输出，如extend或vendor内的库输出
@@ -303,6 +384,31 @@ function get_config($key = '', $default = null)
         }
         return isset($config[$key]) ? $config[$key] : "null";
     }
+}
+
+/**
+ * 获取主题配置信息
+ * @return array
+ */
+function get_theme_config()
+{
+    //优先通过数据库配置加载当前主题，无配置时通过config/theme.php加载
+    $themeName = get_config('theme_name', '');
+    if (empty($themeName)) {
+        //通过config文件加载当前主题信息
+        $config = Config::pull('theme');
+        $themeName = $config['theme_name'];
+    }
+    if (empty($themeName)) {
+        die('未配置主题信息!');
+    }
+
+    //当前主题的存放路径
+    $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR;
+    //读取当前主题详细信息
+    $config = require($themePath . 'theme.php');
+
+    return $config;
 }
 
 /**
@@ -732,7 +838,7 @@ function remove_xss($html, $isEscape=false)
     $replaces[] = '&gt;';
 
     if ($ms[1]) {
-        $allowTags = 'iframe|video|attach|img|a|font|div|table|tbody|caption|tr|td|th|br|p|b|strong|i|u|em|span|ol|ul|li|blockquote|strike|pre|code|embed';
+        $allowTags = 'iframe|video|audio|attach|img|a|font|div|table|tbody|caption|tr|td|th|br|p|b|strong|i|u|em|span|ol|ul|li|blockquote|strike|pre|code|embed|section|article';
         $ms[1]     = array_unique($ms[1]);
         foreach ($ms[1] as $value) {
             $searches[] = "&lt;" . $value . "&gt;";

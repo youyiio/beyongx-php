@@ -13,16 +13,12 @@
 // | 会话设置
 // +----------------------------------------------------------------------
 
-return [
-    'id'             => '',
-    // SESSION_ID的提交变量,解决flash上传跨域
-    'var_session_id' => '',
+use think\facade\Env;
+
+$global_config = require(Env::get('root_path') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'session.php');
+return array_merge($global_config, [
     // SESSION 前缀
     'prefix'         => 'admin_',
-    // 驱动方式 支持redis memcache memcached
-    'type'           => '',
-    // 是否自动开启 SESSION
-    'auto_start'     => true,
     // session有效期 0表示永久缓存,3600表示60*60一个小时
     'expire' => 3600,
-];
+]);

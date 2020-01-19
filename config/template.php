@@ -34,8 +34,9 @@ return [
     // 模板替换
     'tpl_replace_string' => [
         '__PUBLIC__' => '',
+        '__THEME__' => '/theme',
     ],
 
     // 预先加载的标签库
-    'taglib_pre_load' => 'app\common\taglib\Demo,app\common\taglib\Article,app\common\taglib\Cms',
+    'taglib_pre_load' => 'app\common\taglib\Article,app\common\taglib\Cms',
 ];

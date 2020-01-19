@@ -53,4 +53,10 @@ class CrawlerModel extends BaseModel
 
         return $status[$data['status']];
     }
+
+    //关联表: 文章分类
+    protected function category()
+    {
+        return $this->belongsTo('CategoryModel', 'category_id');
+    }
 }

@@ -36,6 +36,7 @@
                             <th>标题</th>
                             <th>定时更新？</th>
                             <th>分页采集？</th>
+                            <th>入库分类</th>
                             <th>更新时间</th>
                             <th>创建时间</th>
                             <th>状态</th>
@@ -45,7 +46,7 @@
                             <tbody>
                             {empty name="list"}
                             <tr>
-                                <td colspan="8" align="center">暂无数据</td>
+                                <td colspan="9" align="center">暂无数据</td>
                             </tr>
                             {else/}
                             {volist name="list" id="vo"}
@@ -55,6 +56,7 @@
                                 <td>{$vo.title}</td>
                                 <td>{$vo.is_timing?'是':'否'}</td>
                                 <td>{$vo.is_paging?'是['.$vo['start_page'].'-'.$vo['end_page'].']':'否'}</td>
+                                <td><span class="label">{$vo.category.title_cn}</span></td>
                                 <td>{$vo.update_time}</td>
                                 <td>{$vo.create_time}</td>
                                 <td>{$vo.status_html|raw}</td>

@@ -14,7 +14,7 @@ function check_env()
         'php'     => array('PHP版本', '5.6', '7.0+', PHP_VERSION, 'check'),
         'upload'  => array('附件上传', '不限制', '8M+', '未知', 'check'),
         'gd'      => array('GD库', '2.0', '2.0+', '未知', 'check'),
-        'disk'    => array('磁盘空间', '20M', '不限制', '未知', 'check'),
+        'disk'    => array('磁盘空间', '60M', '不限制', '未知', 'check'),
     );
 
     //PHP环境检测

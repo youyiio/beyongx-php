@@ -27,7 +27,7 @@ class Search extends Base
 
         $this->assign('q', $q);
 
-        return $this->fetch("search/result");
+        return $this->fetch("search/index");
     }
 
     //从数据库搜索
@@ -37,7 +37,7 @@ class Search extends Base
         $where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];
 
         $ArticleModel = new \app\common\model\ArticleModel();
-        $field = 'id,title,thumb_image_id,description,author,post_time';
+        $field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';
         $order = 'is_top desc,sort,post_time desc';
         $pageConfig = [
             'query' => input('param.'),

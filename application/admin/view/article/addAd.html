@@ -37,16 +37,16 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-lg-2 control-label" for="types">显示位置</label>
+                    <label class="col-lg-2 control-label" for="slot_ids">显示位置</label>
                     <div class="col-lg-10">
                         {php}
-                        $themePath = Env::get('root_path')  . 'theme' . DIRECTORY_SEPARATOR . config('theme.theme_name') . DIRECTORY_SEPARATOR;
-                        $themeConfig = require($themePath . 'theme.php');
+                        $themeConfig = get_theme_config();
                         $adImages = $themeConfig['ad_images'];
                         {/php}
-                        <select name="types[]" id="types" data-placeholder="请选择显示位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search"  ><!-- 多选加: multiple-->
-                            {volist name="typeList" id="vo"}
-                            <option value="{$vo.type}" data-image-size="{if isset($adImages[$vo['title_en']])}{:htmlspecialchars(json_encode($adImages[$vo['title_en']]))}{/if}" {present name="$ad"}{in name="vo.type" value="$oldTypes"}selected{/in}{/present}>{$vo.title_cn}</option>
+                        <select name="slot_ids[]" id="slot_ids" data-placeholder="请选择广告位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search"  ><!-- 多选加: multiple-->
+                            <option value="-1">请选择显示位置</option>
+                            {volist name="slotList" id="vo"}
+                            <option value="{$vo.id}" data-image-size="{if isset($adImages[$vo['title_en']])}{:htmlspecialchars(json_encode($adImages[$vo['title_en']]))}{/if}" {present name="$ad"}{in name="vo.id" value="$oldSlots"}selected{/in}{/present}>{$vo.title_cn}</option>
                             {/volist}
                         </select>
                         <span class="help-block m-b-none"></span>
@@ -199,25 +199,24 @@
         }
     };
 
-
     //广告图片大小根据选项框选择
-    $("#types").chosen().on("change", function (evt, params) {
-        var imageSize = $("#types option:selected").data("image-size");
+    $("#slot_ids").chosen().on("change", function (evt, params) {
+        var imageSize = $("#slot_ids option:selected").data("image-size");
         if (imageSize == undefined || imageSize == "") {
             //图片不做限制
             $("#uploadImage").data('width', 0);
             $("#uploadImage").data('height', 0);
             $("#uploadImage").data('thumb-width', 0);
             $("#uploadImage").data('thumb-height', 0);
-            $(".dz-message").html('点击此处上传图片规格 未设定 <br><span class="note needsclick"></span');
+            $(".dz-message").html('点击此处上传图片规格 未设定 <br><span class="note needsclick"></span>');
             $("#uploadDesc").html('图片规格 未设定');
 
             //隐藏图片上传
             $("#uploadImage").parent().parent().hide();
             return;
-        } else {
-            $("#uploadImage").parent().parent().show();
         }
+
+        $("#uploadImage").parent().parent().show();
 
         var width = imageSize["width"];
         var height = imageSize["height"];
@@ -231,6 +230,16 @@
         $(".dz-message").html('点击此处上传图片规格 ' + width + '*' + height + '<br><span class="note needsclick"></span');
         $("#uploadDesc").html('图片规格 ' + width + '*' + height + '');
     });
+
+    //初始化广告位与上传图片控制关系
+    function init_slot_dropzone_display() {
+        var imageSize = $("#slot_ids option:selected").data("image-size");
+        if (imageSize == undefined || imageSize == "") {
+            //隐藏图片上传
+            $("#uploadImage").parent().parent().hide();
+        }
+    }
+    init_slot_dropzone_display();
 
 </script>
 {/block}

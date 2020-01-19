@@ -13,7 +13,7 @@ class Index extends Base
      */
     public function index()
     {
-        return view('index');
+        return $this->fetch('index');
     }
 
     /**
@@ -22,7 +22,7 @@ class Index extends Base
      */
     public function business()
     {
-        return view('business');
+        return $this->fetch('business');
     }
 
     /**
@@ -31,7 +31,7 @@ class Index extends Base
      */
     public function partner()
     {
-        return view('partner');
+        return $this->fetch('partner');
     }
 
     /**
@@ -40,7 +40,7 @@ class Index extends Base
      */
     public function about()
     {
-        return view('about');
+        return $this->fetch('about');
     }
 
     /**
@@ -49,7 +49,7 @@ class Index extends Base
      */
     public function contact()
     {
-        return view('contact');
+        return $this->fetch('contact');
     }
 
     /**
@@ -58,7 +58,7 @@ class Index extends Base
      */
     public function jobs()
     {
-        return view('jobs');
+        return $this->fetch('jobs');
     }
 
     /**
