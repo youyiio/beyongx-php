@@ -35,14 +35,17 @@ class ThemeBehavior
 
         //设置所有主题的存放路径
         $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $config['theme_name'] . DIRECTORY_SEPARATOR;
+        $viewPath = $themePath . 'tpl' . DIRECTORY_SEPARATOR;
+        $paginateFile = $themePath . 'paginate.php';
         if (isset($config['responsive']) && $config['responsive'] == true) {
-            $themePath .= $template . DIRECTORY_SEPARATOR;
+            $viewPath .=  $template . DIRECTORY_SEPARATOR;
+            $paginateFile = $themePath . 'paginate_' . $template . '.php';
         }
+
         //使用容器修改
-        View::config('view_path', $themePath . 'tpl' . DIRECTORY_SEPARATOR);
+        View::config('view_path', $viewPath);
 
         //如果分页配置存在时，加载分页配置
-        $paginateFile = $themePath . 'paginate.php';
         if (file_exists($paginateFile)) {
             Config::load($paginateFile, 'paginate');
         }

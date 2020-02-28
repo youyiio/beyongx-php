@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cattong
- * Date: 2019-05-10
- * Time: 17:08
- */
 namespace app\common\controller;
 
-
 /**
- * Trait 管理后台Base Controller 组件
+ * Trait插件基础 插件组件
+ * 使用方法：use \app\common\controller\AddonBase;
  * @package app\common\controller
  */
-trait AdminBase
+trait AddonBase
 {
     /**
      * 检测session和auth统一入口
@@ -35,14 +29,14 @@ trait AdminBase
             if (request()->isAjax()) {
                 $this->error('请重新登陆', url('cms/Sign/index'));
             }
-            $this->redirect('admin/Sign/index');
+            $this->redirect('cms/Sign/index');
         }
 
         //实现用户单个端登录，方法: 通过判断cookie和服务器cache的login_hash值
         $localLoginHash = cookie($uid . '_login_hash');
         $cacheLoginHash = cache($uid . '_login_hash');
         if ($localLoginHash != $cacheLoginHash) {
-            $this->error('请重新登陆', url('admin/Sign/index'));
+            $this->error('请重新登陆', url('cms/Sign/index'));
         }
 
         //用户有请求操作时，session时间重置

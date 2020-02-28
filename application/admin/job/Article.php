@@ -144,6 +144,49 @@ class Article
         return ['success_count' => $successCount, 'fail_count' => $totalCount - $successCount];
     }
 
+    /**
+     * 区间发布文章
+     * @param $startId
+     * @param $endId
+     * @return array, ['success_count','fail_count']
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function postRangeArticles($startId, $endId)
+    {
+
+        $where = [
+            ['id', '>=', $startId],
+            ['id', '<=', $endId],
+            ['status', '<>', ArticleModel::STATUS_PUBLISHED],
+            ['status', '<>', ArticleModel::STATUS_DELETED],
+        ];
+
+        $ids = ArticleModel::where($where)->column('id');
+
+        $totalCount = count($ids);
+        $successCount = 0;
+        foreach ($ids as $id) {
+            $ArticleModel = ArticleModel::get($id);
+
+            $data = [
+                'status' => ArticleModel::STATUS_PUBLISHED,
+                'post_time' => date_time(),
+            ];
+
+            $result = $ArticleModel->isUpdate(true)->save($data, ['id' => $id]);
+            if ($result) {
+                $successCount++;
+            }
+
+            //如果文章已定时，去除定时设定
+            ArticleMetaModel::destroy(['meta_key' => ArticleMetaModel::KEY_TIMING_POST, 'target_id' => $id]);
+        }
+
+        return ['success_count' => $successCount, 'fail_count' => $totalCount - $successCount];
+    }
+
     //全量相似度计算
     public static function fullSimilarCompute($articleId)
     {

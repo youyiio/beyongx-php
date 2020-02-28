@@ -11,7 +11,7 @@ use think\addons\Controller;
 
 class Index extends Controller
 {
-    use \app\common\controller\AdminBase; //使用trait
+    use \app\common\controller\AddonAdmin; //使用trait
 
     public function index()
     {

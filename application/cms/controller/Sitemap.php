@@ -144,7 +144,7 @@ class LibSitemap
 {
 
     private $writer;		// XMLWriter对象
-    private $domain = "https://www.beyongx.com";			// 网站地图根域名
+    private $domain = "http://www.beyongcms.com";			// 网站地图根域名
     private $xmlFile = "sitemap";					// 网站地图xml文件（不含后缀.xml）
     private $currXmlFileFullPath = "";				// 网站地图xml文件当前全路径
     private $isSchemaMore= true;					// 网站地图是否添加额外的schema

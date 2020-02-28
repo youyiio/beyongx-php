@@ -3,8 +3,6 @@ namespace app\cms\controller;
 
 use app\common\model\ArticleModel;
 
-use app\cms\paginator\PcPaginator;
-
 class Index extends Base
 {
     /**

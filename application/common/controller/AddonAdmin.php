@@ -1,18 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cattong
- * Date: 2019-05-10
- * Time: 17:08
- */
 namespace app\common\controller;
 
-
 /**
- * Trait 管理后台Base Controller 组件
+ * Trait后台管理 插件组件
+ * 使用方法：use \app\common\controller\AddonAdmin;
  * @package app\common\controller
  */
-trait AdminBase
+trait AddonAdmin
 {
     /**
      * 检测session和auth统一入口
@@ -33,7 +27,7 @@ trait AdminBase
         $uid = session('uid');
         if (!$uid) {
             if (request()->isAjax()) {
-                $this->error('请重新登陆', url('cms/Sign/index'));
+                $this->error('请重新登陆', url('admin/Sign/index'));
             }
             $this->redirect('admin/Sign/index');
         }
