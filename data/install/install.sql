@@ -7,7 +7,7 @@ SET FOREIGN_KEY_CHECKS=0;
 /*==============================================================*/
 
 
-#drop index idx_action_log_user_id_action on cms_action_log;
+#drop index idx_action_log_uid_action on cms_action_log;
 
 #drop index idx_action_log_create_time on cms_action_log;
 
@@ -99,7 +99,7 @@ drop table if exists cms_user_verify_code;
 create table cms_action_log
 (
    id                   bigint not null auto_increment,
-   user_id              int,
+   uid              int,
    action               varchar(64) not null,
    module               varchar(16),
    ip                   varchar(64) not null,
@@ -122,11 +122,11 @@ create index idx_action_log_create_time on cms_action_log
 );
 
 /*==============================================================*/
-/* Index: idx_action_log_user_id_action                         */
+/* Index: idx_action_log_uid_action                         */
 /*==============================================================*/
-create index idx_action_log_user_id_action on cms_action_log
+create index idx_action_log_uid_action on cms_action_log
 (
-   user_id,
+   uid,
    action
 );
 
@@ -234,7 +234,7 @@ create table cms_article
    read_count           int not null default 0,
    comment_count        int not null default 0,
    author               varchar(64),
-   user_id              int not null,
+   uid              int not null,
    sort                 int default 0,
    ad_id                int default 0,
    primary key (id)
@@ -690,7 +690,7 @@ alter table cms_region comment '地区表,';
 /*==============================================================*/
 create table cms_user
 (
-   user_id              int not null auto_increment,
+   id              int not null auto_increment,
    mobile               varchar(24) not null,
    email                varchar(32) not null,
    account              varchar(32) not null,
@@ -710,7 +710,7 @@ create table cms_user
    ext                  text,
    last_login_time      datetime,
    last_login_ip        varchar(64),
-   primary key (user_id)
+   primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -773,7 +773,7 @@ create index idx_user_meta_target_id_meta_key on cms_user_meta
 /*==============================================================*/
 create table cms_user_push_token
 (
-   user_id              int not null,
+   uid              int not null,
    access_id            int not null,
    device_id            varchar(64) not null,
    status               tinyint not null comment '1.登入;2.登出',
@@ -781,7 +781,7 @@ create table cms_user_push_token
    push_token           varchar(128) not null,
    create_time          datetime not null,
    update_time     datetime not null,
-   primary key (user_id, access_id, device_id)
+   primary key (uid, access_id, device_id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -793,7 +793,7 @@ alter table cms_user_push_token comment '用户推送token';
 /*==============================================================*/
 create table cms_user_token_info
 (
-   user_id              int not null,
+   uid              int not null,
    access_id            int not null,
    device_id            varchar(64) not null,
    status               tinyint not null comment '1.有效;2.失效;3.过期',
@@ -801,7 +801,7 @@ create table cms_user_token_info
    expire_time          datetime not null,
    create_time          datetime not null,
    update_time     datetime not null,
-   primary key (user_id, access_id, device_id)
+   primary key (uid, access_id, device_id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -904,7 +904,7 @@ truncate cms_user;
 
 #默认密码为 888888
 INSERT INTO
-    `cms_user`(`user_id`,`mobile`,`email`,`account`,`password`,`status`,`nickname`,`sex`,`head_url`,`device_id`,`register_time`,`last_login_time`,`last_login_ip`)
+    `cms_user`(`id`,`mobile`,`email`,`account`,`password`,`status`,`nickname`,`sex`,`head_url`,`device_id`,`register_time`,`last_login_time`,`last_login_ip`)
 VALUES
     (1,'18888888888','admin@admin.com','admin','f6bc5c8794afdae1dd41edb7939020e2',2,'超级管理员',1,null,null,'2015-01-01 00:00:00','2017-05-12 15:55:52','110.84.32.49');
 

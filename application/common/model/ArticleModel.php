@@ -20,7 +20,7 @@ class ArticleModel extends BaseModel
     protected $pk = 'id';
 
     protected $auto = ['update_time'];
-    protected $insert = ['status','create_time','user_id'];
+    protected $insert = ['status','create_time','uid'];
     protected $update = ['update_time'];
 
     //静态初始化时，依赖注入事件
@@ -153,7 +153,7 @@ class ArticleModel extends BaseModel
     //关联表：用户
     protected function user()
     {
-        return $this->belongsTo('UserModel', 'user_id');
+        return $this->belongsTo('UserModel', 'uid');
     }
 
     //关联表：用户

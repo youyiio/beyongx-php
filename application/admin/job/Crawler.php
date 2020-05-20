@@ -193,7 +193,7 @@ class Crawler
             $item['content'] = $vo['content'];
             $item['author'] = $vo['author'];
             $item['read_count'] = 0;
-            $item['user_id'] = $uid;
+            $item['uid'] = $uid;
             $item['status'] = ArticleModel::STATUS_DRAFT;
             $item['category_ids'] = [$categoryId];
 

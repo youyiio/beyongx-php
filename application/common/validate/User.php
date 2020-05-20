@@ -30,7 +30,7 @@ class User extends Validate
     protected function checkNewPwd($value, $rule, $data)
     {
         $UserModel = new UserModel();
-        $oldPwd = $UserModel->where('user_id', session('uid'))->value('password');
+        $oldPwd = $UserModel->where('id', session('uid'))->value('password');
         if ($oldPwd == encrypt_password($value, get_config('password_key'))) {
             return '新密码与旧密码一致';
         }

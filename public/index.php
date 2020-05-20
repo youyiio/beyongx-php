@@ -15,6 +15,9 @@ namespace think;
 // 加载基础文件
 require __DIR__ . '/../thinkphp/base.php';
 
+//命名空间提前注册，项目部署到子目录时，避免 \app\common\thinkphp\App 报不存在
+Loader::addNamespace('app', __DIR__ . '/../application/');
+
 Container::getInstance()->bindTo('app', new \app\common\thinkphp\App(__DIR__ . '/../application/'));
 
 // 如果install/install.lock文件不存在，走安装引导程序

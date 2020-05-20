@@ -65,7 +65,7 @@
                                 <select name="type" class="form-control">
                                     <option value="mobile" {notempty name="Think.get.type" }{eq name="Think.get.type" value="mobile" }selected{/eq}{/notempty}>手机号</option>
                                     <option value="email" {notempty name="Think.get.type" }{eq name="Think.get.type" value="email" }selected{/eq}{/notempty}>邮箱</option>
-                                    <option value="user_id" {notempty name="Think.get.type" }{eq name="Think.get.type" value="user_id" }selected{/eq}{/notempty}>UID</option>
+                                    <option value="uid" {notempty name="Think.get.type" }{eq name="Think.get.type" value="uid" }selected{/eq}{/notempty}>UID</option>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary" style="margin-bottom: 0px">查找</button>
@@ -96,8 +96,8 @@
                             {else/}
                             {volist name="list" id="vo"}
                             <tr>
-                                <td><input type="checkbox" class="i-checks ajax-check" value="{$vo.user_id}"></td>
-                                <td>{$vo.user_id}</td>
+                                <td><input type="checkbox" class="i-checks ajax-check" value="{$vo.id}"></td>
+                                <td>{$vo.id}</td>
                                 <td>{$vo.mobile}</td>
                                 <td>{$vo.email}</td>
                                 <td>{$vo.nickname}</td>
@@ -112,13 +112,13 @@
                                 <td>{$vo.last_login_time}</td>
                                 <td>{$vo.status_html|raw}</td>
                                 <td>
-                                    <a href="{:url(request()->module().'/User/viewUser',['uid'=>$vo['user_id']])}"
+                                    <a href="{:url(request()->module().'/User/viewUser',['uid'=>$vo['id']])}"
                                        class="btn btn-xs btn-info">详情</a>
-                                    <a href="{:url('User/editUser',['uid'=>$vo['user_id']])}"
+                                    <a href="{:url('User/editUser',['uid'=>$vo['id']])}"
                                        class="btn btn-xs btn-warning">修改</a>
-                                    <button class="btn btn-xs btn-success changePwd" data-uid="{$vo.user_id}">修改密码</button>
+                                    <button class="btn btn-xs btn-success changePwd" data-uid="{$vo.id}">修改密码</button>
                                     <button class="btn btn-xs btn-danger ajax-btn-warning"
-                                            data-action="{:url('User/deleteUser',['uid'=>$vo['user_id']])}"
+                                            data-action="{:url('User/deleteUser',['uid'=>$vo['id']])}"
                                             data-title="提示" data-text="确定删除此用户吗？">删除
                                     </button>
                                 </td>

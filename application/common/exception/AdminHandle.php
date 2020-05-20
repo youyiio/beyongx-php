@@ -30,11 +30,13 @@ class AdminHandle extends Handle
             'message' => $this->getMessage($e),
             'code'    => $this->getCode($e),
         ];
-        $detailError = "[{$data['file']}:{$data['line']}] \n   [code: {$data['code']}] : \n {$data['message']}";
+        $detailError = "[file: {$data['file']}: (line: {$data['line']}) ]  [error code: {$data['code']}] : \n {$data['message']}";
 
         Log::error('##### ExceptionHandle #### exception class: ' . get_class($e));
-        Log::error('print: [file][line] [error code]: message');
+        //Log::error('print: [file][line] [error code]: ');
         Log::error($detailError);
+        Log::error('Exception stack:');
+        Log::error($e->getTraceAsString());
 
         // 参数验证错误
         if ($e instanceof ValidateException) {

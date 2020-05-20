@@ -31,6 +31,17 @@ class Sign extends Controller
         'reset_code_type' => 'mail', //重置密码，值为：mail,mobile
     ];
 
+    public function initialize()
+    {
+        parent::initialize();
+
+        $config = config('sign.');
+
+        $this->defaultConfig = array_merge($this->defaultConfig, $config);
+
+        $this->view->engine->layout(false);
+    }
+
     /**
      * 登录页面
      */
@@ -87,7 +98,7 @@ class Sign extends Controller
             $this->error($userLogic->getError());
         }
 
-        $uid = $user['user_id'];
+        $uid = $user['id'];
         //登录日志
         $actionLog = new ActionLogLogic();
         $actionLog->addLog($uid, ActionLogModel::ACTION_LOGIN, '登录');
@@ -106,7 +117,7 @@ class Sign extends Controller
 
         cookie('username', $username, 3600 * 24 * 15);  //保存用户名在cookie
 
-        $loginSuccessView = $this->defaultConfig['login_success_view'];
+        $loginSuccessView = url($this->defaultConfig['login_success_view']);
         if (input('redirect')) {
             $loginSuccessView = urldecode(input('redirect'));
         }
@@ -137,7 +148,7 @@ class Sign extends Controller
                 $data['referee'] = 1; //推荐人
             } else {
                 $UserModel = new UserModel();
-                $data['referee'] = $UserModel->where('account', $invite)->value('user_id');
+                $data['referee'] = $UserModel->where('account', $invite)->value('id');
             }
 
             $userLogic = new UserLogic();
@@ -147,30 +158,30 @@ class Sign extends Controller
                 $UserModel = new UserModel();
                 //完善用户资料
                 $profileData = [
-                    'user_id' => $user['user_id'],
+                    'id' => $user['id'],
                     'head_url' => '/static/cms/image/head/0002.jpg',
                     'referee' => $data['referee'], //推荐人
                     'register_ip' => request()->ip(0, true),
                     'from_referee' => cookie('from_referee'),
                     'entrance_url'     => cookie('entrance_url'),
                 ];
-                $UserModel->where('user_id', $user['user_id'])->setField($profileData);
+                $UserModel->where('id', $user['id'])->setField($profileData);
 
                 //资料扩展
                 //$UserModel->ext('xxx', 'vvv');
                 //$UserModel->meta('xxx', 'vvv');
 
                 //注册的后置操作
-                $this->afterRegister($user['user_id']);
+                $this->afterRegister($user['id']);
 
                 //发送激活邮件
                 $CodeLogic = new CodeLogic();
                 $res = $CodeLogic->sendActiveMail($user['email'], request()->module() . '/Sign/mailActive');
                 if ($res) {
-                    $param = ['uid'=>$user['user_id'], 'email'=>$user['email']];
+                    $param = ['uid'=>$user['id'], 'email'=>$user['email']];
                     $this->success('注册成功, 请登录邮箱激活您的帐号!', url(request()->module() . '/Sign/login'), $param);
                 } else {
-                    $this->success('注册成功, 邮件发送失败!', url(request()->module() . '/Sign/login'), ['uid'=>$user['user_id'], 'email'=>$user['email']]);
+                    $this->success('注册成功, 邮件发送失败!', url(request()->module() . '/Sign/login'), ['uid'=>$user['id'], 'email'=>$user['email']]);
                 }
 
             } else {
@@ -262,7 +273,7 @@ class Sign extends Controller
             }
 
             $password = input('post.password');
-            $uid = $user['user_id'];
+            $uid = $user['id'];
 
             $CodeLogic = new CodeLogic();
             if (!$CodeLogic->checkVerifyCode(UserVerifyCodeModel::TYPE_RESET_PASSWORD, $username, $code)) {
@@ -312,7 +323,7 @@ class Sign extends Controller
         }
 
         //激活用户
-        $UserModel->where('user_id', $user['user_id'])->setField('status', UserModel::STATUS_ACTIVED);
+        $UserModel->where('id', $user['id'])->setField('status', UserModel::STATUS_ACTIVED);
         //消费验证码
         $CodeLogic->consumeCode(UserVerifyCodeModel::TYPE_REGISTER, $email, $code);
 

@@ -43,7 +43,7 @@ class Rule extends Base
         }
 
         $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->addData($data);
+        $result = $AuthRuleModel->save($data);
         if ($result) {
             $this->success('添加成功', url('Rule/index'));
         }else{
@@ -76,13 +76,13 @@ class Rule extends Base
     {
         $id = input('param.id');
         $map = [
-            'id'=>$id
+            'id' => $id
         ];
         $AuthRuleModel = new AuthRuleModel();
         $result = $AuthRuleModel->deleteData($map);
-        if($result){
+        if ($result) {
             $this->success('删除成功', url('Rule/index'));
-        }else{
+        } else {
             $this->error('请先删除子权限');
         }
 
@@ -148,9 +148,9 @@ class Rule extends Base
         unset($data['id']);
 
         $AuthGroupModel = new AuthGroupModel();
-        $result = $AuthGroupModel->addData($data);
+        $result = $AuthGroupModel->save($data);
         if ($result) {
-            $this->success('添加成功',url('Rule/group'));
+            $this->success('添加成功', url('Rule/group'));
         }else{
             $this->error('添加失败');
         }
@@ -181,12 +181,12 @@ class Rule extends Base
     public function deleteGroup(){
         $id = input('param.id');
         $map = [
-            'id'=>$id
+            'id' => $id
         ];
         $AuthGroupModel = new AuthGroupModel();
         $result = $AuthGroupModel->deleteData($map);
         if ($result !== false) {
-            $this->success('删除成功',url('Rule/group'));
+            $this->success('删除成功', url('Rule/group'));
         }else{
             $this->error('删除失败');
         }
@@ -257,18 +257,18 @@ class Rule extends Base
                 $userList = '';
             } else {
                 $UserModel = new UserModel();
-                $userList = $UserModel->where('mobile|email','like',"%$username%")->field('user_id,mobile,email')->select();
+                $userList = $UserModel->where('mobile|email','like',"%$username%")->field('id,mobile,email')->select();
             }
             if (empty($userList)) {
                 $this->error('未找到相关用户');
             }
 
             foreach ($userList as $k => $user) {
-                if (in_array($user['user_id'],$uids)) {
+                if (in_array($user['id'], $uids)) {
                     $userList[$k]['isInGroup'] = 1;
                 } else {
                     $userList[$k]['isInGroup'] = 0;
-                    $userList[$k]['setUrl'] = url('Rule/addUserToGroup', ['uid'=>$user['user_id'], 'group_id'=>$groupId, 'username'=>$user['mobile']]);
+                    $userList[$k]['setUrl'] = url('Rule/addUserToGroup', ['uid'=>$user['id'], 'group_id'=>$groupId, 'username'=>$user['mobile']]);
                 }
             }
 
@@ -285,11 +285,11 @@ class Rule extends Base
         $AuthGroupAccessModel = new AuthGroupAccessModel();
         $userIds = $AuthGroupAccessModel->where('group_id', $groupId)->column('uid');
         $UserModel = new UserModel();
-        $userList = $UserModel->where('user_id','in', $userIds)->field('user_id,mobile')->select();
+        $userList = $UserModel->where('id','in', $userIds)->field('id,mobile,email,nickname')->select();
         $this->assign('userList',$userList);
 
         //未加入分组的用户
-        $outUserList = $UserModel->where('user_id', 'not in', $userIds)->field('user_id,mobile')->select();
+        $outUserList = $UserModel->where('id', 'not in', $userIds)->field('id,mobile,email,nickname')->select();
         $this->assign('outUserList', $outUserList);
 
         return $this->fetch('checkUser');
@@ -308,7 +308,7 @@ class Rule extends Base
         $AuthGroupAccessModel = new AuthGroupAccessModel();
         $count = $AuthGroupAccessModel->where($map)->count();
         if ($count == 0) {
-            $res = $AuthGroupAccessModel->addData($data);
+            $res = $AuthGroupAccessModel->save($data);
             if ($res) {
                 Cache::tag('menu')->rm($data['uid']);
                 $this->success('操作成功');
@@ -327,10 +327,10 @@ class Rule extends Base
     {
         $map = input('param.');
         $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $result = $AuthGroupAccessModel->deleteData($map);
-        if ($result) {
+        $numRows = $AuthGroupAccessModel->where($map)->delete();
+        if ($numRows >= 1) {
             Cache::tag('menu')->rm($map['uid']);
-            $this->success('操作成功',url('Rule/userList'));
+            $this->success('操作成功', url('Rule/userList'));
         } else {
             $this->error('操作失败');
         }
@@ -345,7 +345,7 @@ class Rule extends Base
         $uids = $AuthGroupAccessModel->distinct(true)->column('uid');
         if (!empty($uids)) {
             $UserModel = new UserModel();
-            $list = $UserModel->where('user_id', 'in', $uids)->paginate(20,false, ['query'=>input('param.')]);
+            $list = $UserModel->where('id', 'in', $uids)->paginate(20,false, ['query'=>input('param.')]);
             $this->assign(['data' => $list]);
             $this->assign('pages', $list->render());
         }
@@ -402,7 +402,7 @@ class Rule extends Base
         if (request()->isPost()) {
             $data = input('post.');
             // 组合where数组条件
-            $uid = $data['user_id'];
+            $uid = $data['uid'];
 
             // 修改权限
             $AuthGroupAccessModel = new AuthGroupAccessModel();

@@ -20,9 +20,9 @@ class Base extends Controller
         $uid = session('uid');
         if (!$uid) {
             if (request()->isAjax()) {
-                $this->error('请重新登陆', url('cms/Sign/index'));
+                $this->error('请重新登陆', url(request()->module() . '/Sign/login'));
             }
-            $this->redirect('admin/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
+            $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
         }
         $this->uid = $uid;
 
@@ -31,9 +31,9 @@ class Base extends Controller
         $cacheLoginHash = cache($uid . '_login_hash');
         if ($localLoginHash != $cacheLoginHash) {
             if (request()->isAjax()) {
-                $this->error('请重新登陆', url('admin/Sign/index'));
+                $this->error('请重新登陆', url(request()->module() . '/Sign/index'));
             } else {
-                $this->redirect('admin/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
+                $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
             }
         }
 

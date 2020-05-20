@@ -13,7 +13,7 @@ use think\Model;
 class UserModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'user';
-    protected $pk = 'user_id';
+    protected $pk = 'id';
 
     const STATUS_DELETED = -1; //已删除
     const STATUS_APPLY   = 1;  //申请
@@ -56,7 +56,7 @@ class UserModel extends BaseModel
     //关联表：用户组中间表
     public function groupAccess()
     {
-        return $this->hasMany('AuthGroupAccessModel','uid','user_id');
+        return $this->hasMany('AuthGroupAccessModel','uid','id');
     }
 
     //自身扩展字段
@@ -77,7 +77,7 @@ class UserModel extends BaseModel
             $exts[$key] = $value;
         }
 
-        $this->where('user_id', $this->user_id)->setField('ext', json_encode($exts));
+        $this->where('id', $this->id)->setField('ext', json_encode($exts));
     }
 
     public function createUser($mobile, $password, $nickname = '', $email = '', $account = '', $status = UserModel::STATUS_ACTIVED)
@@ -153,18 +153,17 @@ class UserModel extends BaseModel
         return $user;
     }
 
-    public function markLogin($userId, $ip)
+    public function markLogin($uid, $ip)
     {
-        //$data['user_id'] = $userId;
         $data['last_login_time'] = date('Y-m-d H:i:s');
         $data['last_login_ip'] = $ip;
 
-        return $this->where('user_id', $userId)->update($data);
+        return $this->where('id', $uid)->update($data);
     }
 
     public function setProfile($userId, $nickname, $sex='', $headUrl='', $qq='', $weixin='')
     {
-        $data['user_id'] = $userId;
+        $data['id'] = $userId;
         $data['nickname'] = $nickname;
         if ($sex) {
             $data['sex'] = $sex;
@@ -190,7 +189,7 @@ class UserModel extends BaseModel
     public function modifyPassword($userId, $password) {
         $newPassword = encrypt_password($password, get_config('password_key'));
 
-        $data['user_id'] = $userId;
+        $data['id'] = $userId;
         $data['password'] = $newPassword;
         $this->isUpdate(true)->save($data);
 

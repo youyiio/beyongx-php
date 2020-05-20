@@ -25,7 +25,7 @@ class MessageLogic extends Model
             'title' => $title,
             'content' => $content,
             'status' => \app\common\model\MessageModel::STATUS_SEND,
-            'receive_user_id' => $receiveUserId,
+            'to_uid' => $receiveUserId,
             'extra' => $extra,
             'send_time' => date_time(),
             'is_readed' => false
@@ -38,23 +38,5 @@ class MessageLogic extends Model
 
         return $message;
     }
-
-//    public function createMessageToMch($merchantId, $type, $title, $content, $extra = null)
-//    {
-//        $resultSet = model('UserMerchantRelation')->where(['merchant_id' => $merchantId])->select();
-//        if (count($resultSet) == 0) {
-//            $this->error = '商户未有关联的用户';
-//            return false;
-//        }
-//
-//        $messages = [];
-//        foreach ($resultSet as $vo) {
-//            $message = $this->createMessage($vo['user_id'], $type, $title, $content, $extra);
-//            array_push($messages, $message);
-//        }
-//
-//        return $messages;
-//    }
-
 
 }

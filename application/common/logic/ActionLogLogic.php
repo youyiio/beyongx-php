@@ -22,7 +22,7 @@ class ActionLogLogic extends Model
         }
 
         $data = [
-            'user_id' => $userId,
+            'uid' => $userId,
             'action' => $action,
             'module' => request()->module(),
             'ip' => request()->ip(0, true),

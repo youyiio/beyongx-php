@@ -28,7 +28,7 @@ class Feedback extends Base
         foreach ($list as $k => $value) {
             $sendClientId = $value['send_client_id'];
             $UserModel = new UserModel();
-            $user = $UserModel->where('user_id', '=', $sendClientId)->find();
+            $user = $UserModel->where('id', '=', $sendClientId)->find();
 
             if ($user) {
                 $value['sender'] = $user->nickname;
@@ -80,7 +80,7 @@ class Feedback extends Base
 
             if ($value['reply_client_id'] == null && $value['reply_feedback_id'] == null) {
 
-                $user = $UserModel->where('user_id', '=', $sendClientIds)->find();
+                $user = $UserModel->where('id', '=', $sendClientIds)->find();
                 if ($user) {//注册用户
                     $value['sender'] = $user->nickname;
                 } else { //非注册用户
@@ -93,7 +93,7 @@ class Feedback extends Base
                     FeedbackModel::update($data, $where);
                 }
             } else {//管理员
-                $admin = $UserModel->where('user_id','=', $sendClientIds)->find();
+                $admin = $UserModel->where('id','=', $sendClientIds)->find();
                 $value['sender'] = $admin->nickname;
             }
         }

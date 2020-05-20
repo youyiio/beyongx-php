@@ -74,7 +74,7 @@
                             <tr>
                                 <!-- <td><input type="checkbox" class="ajax-check" id="{$vo.id}"></td> -->
                                 <td>{$vo.id}</td>
-                                <td><a href="{:url('admin/User/viewUser',['uid'=>$vo.user_id])}">{$vo.user.nickname}</a></td>
+                                <td><a href="{:url('admin/User/viewUser',['uid'=>$vo.uid])}">{$vo.user.nickname}</a></td>
                                 <td>{$vo.action_text}</td>
                                 <td>{$vo.module}</td>
                                 <td>{$vo.ip} [{$vo.ip|ip_to_address=###,'province,city'}]</td>

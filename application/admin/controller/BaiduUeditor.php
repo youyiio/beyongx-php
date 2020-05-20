@@ -194,14 +194,14 @@ class BaiduUeditor extends Base
         ];
 
         $dirname = $this->rootPath . $this->savePath;
-        $file = request()->file('upfile');
+        $tmpFile = request()->file('upfile');
 
-        $info = $file->move($dirname);//tp方法会自动加上日期date('Ymd');$info->getSaveName()为date('Ymd')/name.ext;
+        $file = $tmpFile->move($dirname);//tp方法会自动加上日期date('Ymd');$info->getSaveName()为date('Ymd')/name.ext;
         $savePath = $this->savePath;
-        if ($info) {
-            $fname = $dirname . DIRECTORY_SEPARATOR.$info->getSaveName();
+        if ($file) {
+            $fname = $dirname . DIRECTORY_SEPARATOR.$file->getSaveName();
             $imagearr = explode(',', 'jpg,gif,png,jpeg,bmp,ttf,tif');
-            $ext = $info->getExtension();
+            $ext = $file->getExtension();
             $quality = get_config('image_upload_quality', 80); //获取图片清晰度设置，默认是80
 
             $isImage = in_array($ext, $imagearr) ? 1 : 0;
@@ -224,17 +224,18 @@ class BaiduUeditor extends Base
 
             $data = array(
                 'state' => 'SUCCESS',
-                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$info->getSaveName()),
-                'title' => $info->getFileName(),
-                'original' => $info->getInfo('name'),
+                'url' => config('view_replace_str.__PUBLIC__') . str_replace(DIRECTORY_SEPARATOR, '/', $savePath.$file->getSaveName()),
+                'title' => $file->getFileName(),
+                'original' => $file->getInfo('name'),
                 'type' => '.' . $ext,
-                'size' => $info->getSize(),
+                'size' => $file->getSize(),
             );
         } else {
             $data = array(
-                'state' => $file->getError(),
+                'state' => $tmpFile->getError(),
             );
         }
+
         return json_encode($data);
     }
 

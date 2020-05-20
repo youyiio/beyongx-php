@@ -47,7 +47,7 @@ class CodeLogic extends Model
 
         $config = Config::pull('theme');
 
-        $uid = $user['user_id'];
+        $uid = $user['id'];
         $url = url($activeAction, ['code' => $verifyCode['code'], 'email' => $email], false, true);
 
 //        if (isset($config['responsive']) && $config['responsive'] == true) {
@@ -106,7 +106,7 @@ class CodeLogic extends Model
             return false;
         }
 
-        $mark = $user['user_id'] . '_send_reset_count';
+        $mark = $user['id'] . '_send_reset_count';
         if (cache($mark) >= 5 && !config('app_debug')) {
             $this->error = '您今天请求重置码次数已经超限!';
             return false;
@@ -236,7 +236,7 @@ class CodeLogic extends Model
 //    public function generateInviteCode($userId, $count)
 //    {
 //        $data = [
-//            'user_id' => $userId,
+//            'target' => $userId,
 //            'status' => UserInviteCode::STATUS_UNUSED,
 //            'code' => '',
 //            'expire_time' => date('Y-m-d H:i:s', strtotime("+365 day")),

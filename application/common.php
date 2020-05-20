@@ -298,7 +298,7 @@ function parse_fields($data, $style = 0)
  * 处理字段映射转换，使用指定的字段映射数据
  * @access public
  * @param array $data 输入数据
- * @param array $metaData 指定的字段映射数据,例['userId'=>'user_id', 'imageUrl'=>'image_url']
+ * @param array $metaData 指定的字段映射数据,例['uid'=>'uid', 'imageUrl'=>'image_url']
  * @param integer $style 映射风格， 0为c风格，1为java风格
  * @return array
  */
@@ -405,6 +405,13 @@ function get_theme_config()
 
     //当前主题的存放路径
     $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR;
+    if (!file_exists($themePath)) {
+        die('主题路径不存在：' . $themePath);
+    }
+    if (!file_exists($themePath . 'theme.php')) {
+        die('主题配置文件不存在：' . $themePath . 'theme.php');
+    }
+
     //读取当前主题详细信息
     $config = require($themePath . 'theme.php');
 
@@ -895,7 +902,7 @@ function user_count($type = null)
     }
 
     $UserModel = new \app\common\model\UserModel();
-    $count = $UserModel->cache(30)->where($map)->count('user_id');
+    $count = $UserModel->cache(30)->where($map)->count('id');
     return $count;
 }
 

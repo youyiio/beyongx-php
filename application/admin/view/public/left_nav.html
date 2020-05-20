@@ -13,19 +13,18 @@
                         </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/profile',['uid'=>$myself['user_id']])}">个人资料</a>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/profile',['uid'=>$myself['id']])}">个人资料</a>
                         </li>
                         <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="javascript:void(0)">修改头像</a>
                         </li>
-                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/password',['uid'=>$myself['user_id']])}">修改密码</a>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/password',['uid'=>$myself['id']])}">修改密码</a>
                         </li>
                         <li class="divider"></li>
                         <li><a onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Sign/logout')}">安全退出</a>
                         </li>
                     </ul>
                 </div>
-                <div class="logo-element">{:get_config('site_name','管理后台')}
-                </div>
+                <div class="logo-element">{:get_config('site_name','管理后台')}</div>
             </li>
 
             {notempty name="menus"}

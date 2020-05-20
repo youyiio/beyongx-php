@@ -34,8 +34,9 @@
                                 <thead>
                                 <tr>
                                     <th><input type="checkbox" class="i-checks ajax-check-all"></th>
-                                    <th>ID</th>
-                                    <th>用户名</th>
+                                    <th>昵称</th>
+                                    <th>手机</th>
+                                    <th>邮箱</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
@@ -43,10 +44,11 @@
 
                                 {volist name="userList" id="vo"}
                                 <tr>
-                                    <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
-                                    <td>{$vo.user_id}</td>
+                                    <td><input type="checkbox" class="i-checks ajax-check" value="{$vo.id}"></td>
+                                    <td>{$vo.nickname}(ID:{$vo.id})</td>
                                     <td>{$vo.mobile}</td>
-                                    <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
+                                    <td>{$vo.email}</td>
+                                    <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['id'],'group_id'=>input('param.group_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
                                 </tr>
                                 {/volist}
 
@@ -65,8 +67,9 @@
                                 <thead>
                                 <tr>
                                     <th><input type="checkbox" class="i-checks ajax-check-all"></th>
-                                    <th>ID</th>
-                                    <th>用户名</th>
+                                    <th>昵称</th>
+                                    <th>手机</th>
+                                    <th>邮箱</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
@@ -74,10 +77,11 @@
 
                                 {volist name="outUserList" id="vo"}
                                 <tr>
-                                    <td><input type="checkbox" class="i-checks js-check" value="{$vo.user_id}"></td>
-                                    <td>{$vo.user_id}</td>
+                                    <td><input type="checkbox" class="i-checks ajax-check" value="{$vo.id}"></td>
+                                    <td>{$vo.nickname}(ID:{$vo.id})</td>
                                     <td>{$vo.mobile}</td>
-                                    <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['user_id'],'group_id'=>input('param.group_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
+                                    <td>{$vo.email}</td>
+                                    <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['id'],'group_id'=>input('param.group_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
                                 </tr>
                                 {/volist}
 

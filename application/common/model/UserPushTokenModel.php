@@ -6,7 +6,7 @@ use app\common\library\Os;
 class UserPushTokenModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'user_push_token';
-    protected  $pk = array('user_id', 'access_id', 'device_id');
+    protected $pk = array('uid', 'access_id', 'device_id');
 
     const STATUS_LOGIN = 1;
     const STATUS_LOGOUT = 2;
@@ -20,7 +20,7 @@ class UserPushTokenModel extends BaseModel
     {
         $userPushToken = $this->findByUserId($userId, $accessId, $deviceId);
         if ($userPushToken) {
-            $data['user_id'] = $userId;
+            $data['uid'] = $userId;
             $data['access_id'] = $accessId;
             $data['device_id'] = $deviceId;
             $data['status'] = UserPushTokenModel::STATUS_LOGIN;
@@ -28,7 +28,7 @@ class UserPushTokenModel extends BaseModel
 
             $this->isUpdate(true)->save($data);
         } else {
-            $data['user_id'] = $userId;
+            $data['uid'] = $userId;
             $data['access_id'] = $accessId;
             $data['device_id'] = $deviceId;
             $data['status'] = UserPushTokenModel::STATUS_LOGIN;
@@ -42,7 +42,7 @@ class UserPushTokenModel extends BaseModel
         }
 
         //联合主键，find设置方法；顺序与pk字段一致
-        $pk = ['user_id' => $userId, 'access_id' => $accessId, 'device_id' => $deviceId];
+        $pk = ['uid' => $userId, 'access_id' => $accessId, 'device_id' => $deviceId];
         $userPushToken = UserPushTokenModel::get($pk);
 
         return $userPushToken;
@@ -50,7 +50,7 @@ class UserPushTokenModel extends BaseModel
 
     public function findByUserId($userId, $accessId, $deviceId)
     {
-        $where['user_id'] = $userId;
+        $where['uid'] = $userId;
         $where['access_id'] = $accessId;
         $where['device_id'] = $deviceId;
 
@@ -64,7 +64,7 @@ class UserPushTokenModel extends BaseModel
 
     public function logout($userId, $accessId, $deviceId)
     {
-        $data['user_id'] = $userId;
+        $data['uid'] = $userId;
         $data['access_id'] = $accessId;
         $data['device_id'] = $deviceId;
         $data['status'] = UserPushTokenModel::STATUS_LOGOUT;
@@ -83,7 +83,7 @@ class UserPushTokenModel extends BaseModel
             $accessId = config('middleware_access_id');
         }
         $where = [
-            'user_id' => $userId,
+            'uid' => $userId,
             'access_id' => $accessId,
             'status' => UserPushTokenModel::STATUS_LOGIN,
             'os' => Os::Android
@@ -104,7 +104,7 @@ class UserPushTokenModel extends BaseModel
             $accessId = config('middleware_access_id');
         }
         $where = [
-            'user_id' => $userId,
+            'uid' => $userId,
             'access_id' => $accessId,
             'status' => UserPushTokenModel::STATUS_LOGIN,
             'os' => Os::iOS

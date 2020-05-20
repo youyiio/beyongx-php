@@ -18,26 +18,26 @@
                 <div class="">
                     <div>
                         <h2 class="no-margins">
-                            {$user.nickname} | UID:{$user.user_id} {volist name="user.groups" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
+                            {$user.nickname} | UID:{$user.id} {volist name="user.groups" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
                         </h2>
                         <h4s>{$user.email}</h4s>
-                        <small>description</small>
+                        <small>{$user.description}</small>
                         <ul class="tag-list" style="padding:0;">
                             <li><a href="#"> VIP <i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
-                            <li><a class="ajax-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'mailactive'])}"> 邮件激活 <i class="fa {if $user['status'] ==1}fa-check text-success{else/}fa-close text-danger{/if}"></i> </a></li>
-                            <li><a class="ajax-a" data-callback="active" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'active'])}"> 激活<i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
-                            <li><a class="js-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['user_id'],'table'=>'user','field'=>'svip'])}"> 代理<i class="fa {if $user['status'] == 1}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
+                            <li><a class="ajax-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['id'],'table'=>'user','field'=>'mailactive'])}"> 邮件激活 <i class="fa {if $user['status'] ==1}fa-check text-success{else/}fa-close text-danger{/if}"></i> </a></li>
+                            <li><a class="ajax-a" data-callback="active" href="{:url('User/onOff',['uid'=>$user['id'],'table'=>'user','field'=>'active'])}"> 激活<i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
+                            <li><a class="js-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['id'],'table'=>'user','field'=>'svip'])}"> 代理<i class="fa {if $user['status'] == 1}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
                         </ul>
 
                         <div class="btn-group" style="margin-top: 6px;">
-                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['user_id']])}"> <i class="fa fa-edit"></i> 修改 </a>
-                            <a class="btn btn-sm btn-primary" href="{:url('User/changePwd',['uid'=>$user['user_id']])}"> <i class="fa fa-key"></i> 改密 </a>
+                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['id']])}"> <i class="fa fa-edit"></i> 修改 </a>
+                            <a class="btn btn-sm btn-primary" href="{:url('User/changePwd',['uid'=>$user['id']])}"> <i class="fa fa-key"></i> 改密 </a>
                             {if $user.status == 1 || $user.status == 3}
-                            <label class="ladda-button btn btn-sm btn-success ajax-btn" data-style="zoom-in" data-action="{:url('User/active',['uid'=>$user['user_id']])}"> <i class="fa fa-check"></i> 激活 </label>
+                            <label class="ladda-button btn btn-sm btn-success ajax-btn" data-style="zoom-in" data-action="{:url('User/active',['uid'=>$user['id']])}"> <i class="fa fa-check"></i> 激活 </label>
                             {elseif $user.status == 2/}
-                            <label class="ladda-button btn btn-sm btn-danger ajax-btn" data-style="zoom-in" data-action="{:url('User/freeze',['uid'=>$user['user_id']])}"> <i class="fa fa-close"></i> 禁用 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-btn" data-style="zoom-in" data-action="{:url('User/freeze',['uid'=>$user['id']])}"> <i class="fa fa-close"></i> 禁用 </label>
                             {/if}
-                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['user_id']])}"> <i class="fa fa-user-times"></i> 角色管理 </a>
+                            <a class="btn btn-sm btn-info" href="{:url('User/editUser',['uid'=>$user['id']])}"> <i class="fa fa-user-times"></i> 角色管理 </a>
                         </div>
                     </div>
                 </div>
@@ -97,15 +97,15 @@
                         <p>手机号: <a href="tel:{$user.mobile}">{$user.mobile|default=""}</a> </p>
                         <p>QQ: <a href="http://wpa.qq.com/msgrd?v=3&uin={$user.qq}&site=qq&menu=yes">{$user.qq}</a></p>
                         <p>微信: <a href="">{$user.weixin}</a></p>
-                        <a href="{:url('User/editUser',['uid'=>$user['user_id']])}" class="btn btn-sm btn-primary"> 修改</a>
+                        <a href="{:url('User/editUser',['uid'=>$user['id']])}" class="btn btn-sm btn-primary"> 修改</a>
                     </div>
                 </div>
 
                 <!-- 用户帐户信息 -->
-                {php}hook('userBalance', ['user_id'=>$user['user_id']]){/php}
+                {php}hook('userBalance', ['uid'=>$user['id']]){/php}
 
                 <!-- 用户状态 -->
-                {php}hook('userTimeline', ['user_id'=>$user['user_id']]){/php}
+                {php}hook('userTimeline', ['uid'=>$user['id']]){/php}
 
                 <!-- 登录日志 -->
                 <div class="vertical-timeline-block">
@@ -142,7 +142,7 @@
                             <label class="">天数:</label>
                             <input type="number" name="vipDays" min="1" value="1" class="form-control" required="">
                         </div>
-                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        <input type="hidden" name="uid" value="{$user['id']}">
                         {if isset($user['is_vip']) && $user['is_vip'] == true}
                         <button class="btn btn-white" type="submit">延期 VIP</button>
                         {else /}
@@ -154,7 +154,7 @@
                 </div>
             </div>
 
-            {php}hook('userConfig', ['user_id'=>$user['user_id']]){/php}
+            {php}hook('userConfig', ['uid'=>$user['id']]){/php}
 
             <div class="ibox">
                 <div class="ibox-content">
@@ -171,7 +171,7 @@
                             <label>内容</label>
                             <textarea class="form-control" name="content" placeholder="消息内容" rows="3" required=""></textarea>
                         </div>
-                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        <input type="hidden" name="uid" value="{$user['id']}">
                         <button class="btn btn-primary btn-block" type="submit">发送</button>
                     </form>
                 </div>
@@ -192,7 +192,7 @@
                             <label>内容</label>
                             <textarea class="form-control" name="content" placeholder="邮件内容" rows="3" required=""></textarea>
                         </div>
-                        <input type="hidden" name="uid" value="{$user['user_id']}">
+                        <input type="hidden" name="uid" value="{$user['id']}">
                         <button class="btn btn-primary btn-block" type="submit">发送</button>
                     </form>
                 </div>
@@ -265,7 +265,7 @@
             </div>
 
             <!-- 用户业务列表01 -->
-            {php}hook('userBusiness01', ['user_id'=>$user['user_id']]){/php}
+            {php}hook('userBusiness01', ['id'=>$user['id']]){/php}
         </div>
     </div>
 </div>

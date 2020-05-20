@@ -107,7 +107,7 @@ class Article extends Base
             if ($data['status'] == ArticleModel::STATUS_PUBLISHING && get_config('article_audit_switch') === 'false') {
                 $data['status'] = ArticleModel::STATUS_PUBLISHED;
             }
-            $data['user_id'] = session('uid');
+            $data['uid'] = session('uid');
             $articleModel = new ArticleModel();
             $res = $articleModel->add($data);
 

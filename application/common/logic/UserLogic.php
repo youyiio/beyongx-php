@@ -61,7 +61,7 @@ class UserLogic extends Model
                 break;
         }
 
-        $userId = $user['user_id'];
+        $userId = $user['id'];
         $user->markLogin($userId, $ip);
 
         return $user;
@@ -89,7 +89,7 @@ class UserLogic extends Model
 
         $newPassword = encrypt_password($newPassword, get_config('password_key'));
 
-        $data['user_id'] = $userId;
+        $data['id'] = $userId;
         $data['password'] = $newPassword;
         $result = $UserModel->isUpdate(true)->save($data);
         if ($result == false) {
@@ -130,7 +130,7 @@ class UserLogic extends Model
             $userTokenInfo = $UserTokenInfoModel->updateUserTokenInfo($userId, $accessId, $deviceId);
         }
         if (strtotime($userTokenInfo['expire_time']) < time()) {
-            $where['user_id'] = $userId;
+            $where['uid'] = $userId;
             $where['access_id'] = $accessId;
             $where['device_id'] = $deviceId;
             $UserTokenInfoModel->where($where)->setField('status', UserTokenInfoModel::STATUS_EXPIRED);
@@ -143,7 +143,7 @@ class UserLogic extends Model
 
     public function fillUserStuff(&$user, $accessId, $deviceId)
     {
-        $userId = $user['user_id'];
+        $userId = $user['id'];
 
         $UserPushTokenModel = new UserPushTokenModel();
         $userPushToken = $UserPushTokenModel->findByUserId($userId, $accessId, $deviceId);
@@ -165,61 +165,4 @@ class UserLogic extends Model
         return $user;
     }
 
-    /**
-     * 开通用户服务
-     * @param $inviteUserId
-     * @param $inviteCode
-     * @param $platform
-     * @return $this|bool
-     */
-//    public function openPlatformService($inviteUserId, $inviteCode, $platform = UserPlatform::PLATFORM_SHOUQIANLA)
-//    {
-//
-//        //1.更新邀请码
-//        $userInviteCode = model('UserInviteCode')->getByCode($inviteCode);
-//        if (!$userInviteCode) {
-//            $this->error = '邀请码不存在!';
-//            return false;
-//        }
-//
-//        $data = [
-//            'status' => UserInviteCode::STATUS_USED,
-//            'invite_user_id' => $inviteUserId,
-//        ];
-//        $result = $userInviteCode->isUpdate(true)->save($data);
-//        if ($result == false) {
-//            $this->error = '邀请码更新错误!';
-//            return false;
-//        }
-//
-//        //创建用户树关系
-//        $level = 1;
-//        $parentUser = model('UserRelation')->find(['user_id' => $userInviteCode->user_id]);
-//        if ($parentUser) {
-//            $level = $parentUser->level;
-//        }
-//
-//        $relationData = [
-//            'user_id' => $inviteUserId,
-//            'parent_user_id' => $userInviteCode->user_id,
-//            'level' => $level,
-//        ];
-//
-//        $relation = UserRelation::create($relationData);
-//
-//        //3.开通平台服务
-//        $platformData = [
-//            'user_id' => $inviteUserId,
-//            'platform' => $platform,
-//            'status' => UserPlatform::STATUS_ACTIVED,
-//            'is_vip' => false,
-//        ];
-//        $userPlatform = UserPlatform::create($platformData);
-//        if (!$userPlatform) {
-//            $this->error = '平台开通出错!';
-//            return false;
-//        }
-//
-//        return $relation;
-//    }
 }

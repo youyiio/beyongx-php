@@ -8,11 +8,13 @@
 
 namespace app\cms\controller;
 
+use think\Controller;
+
 /**
  * 空控制器,空操作
  * 'empty_controller'       => 'Error',
  */
-class Error
+class Error extends Controller
 {
     public function _empty()
     {

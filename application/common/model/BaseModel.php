@@ -38,16 +38,6 @@ class BaseModel extends Model
         }
     }
 
-    //字段自动完成或默认处理：last_update_time
-//    protected function setLastUpdateTimeAttr($value, $data)
-//    {
-//        if (isset($data['last_update_time']) && !empty($date['last_update_time'])) {
-//            return $data['last_update_time'];
-//        } else {
-//            return date_time();
-//        }
-//    }
-
     //表扩展列：ext；需要表级字段支持【使用场景：扩展表model业务中常用的字段】
     //@deprecated
     public function ext($key, $value='')
@@ -104,21 +94,6 @@ class BaseModel extends Model
     }
 
     /**
-     * 添加数据
-     * @param  array $data  添加的数据
-     * @return int    新增的数据id
-     */
-    public function addData($data)
-    {
-        // 去除键值首尾的空格
-        foreach ($data as $k => $v) {
-            $data[$k] = trim($v);
-        }
-        $id = $this->allowField(true)->insertGetId($data);
-        return $id;
-    }
-
-    /**
      * 修改数据
      * @param   array   $map  where语句数组形式
      * @param   array   $data 数据 [k=>v]
@@ -132,21 +107,6 @@ class BaseModel extends Model
             $data[$k] = trim($v);
         }
         $result = $this->where($map)->setField($data);
-        return $result;
-    }
-
-    /**
-     * 删除数据
-     * @param   array $map where语句数组形式
-     * @return  boolean   操作是否成功
-     * @throws \Exception
-     */
-    public function deleteData($map)
-    {
-        if (empty($map)) {
-            die('where为空的危险操作');
-        }
-        $result = $this->where($map)->delete();
         return $result;
     }
 

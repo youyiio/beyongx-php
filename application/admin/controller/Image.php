@@ -35,6 +35,7 @@ class Image extends Base
 
             $path = Env::get('root_path') . 'public' . DIRECTORY_SEPARATOR . 'upload';
 
+            //表单验证
             $check = $this->validate(
                 ['file' => $tmpFile],
                 ['file'=>'require|image|fileSize:4097152'],
@@ -48,10 +49,11 @@ class Image extends Base
                 $this->error($check);
             }
 
-            $file = $tmpFile->move($path);
+            //文件验证&文件move操作
+            $file = $tmpFile->validate(['ext' => 'jpg,gif,png,jpeg,bmp,ico,webp'])->move($path);
             if (!$file) {
                 // 上传失败获取错误信息
-                $this->error($file->getError());
+                $this->error($tmpFile->getError());
             }
             list($width, $height, $type) = getimagesize($file->getRealPath()); //获得图片宽高类型
 

@@ -56,7 +56,7 @@
                         <div class="col-lg-10"><input type="number" name="weixin" placeholder="微信号" class="form-control" value="{$user.weixin|default=''}" autocomplete="off"> <span class="help-block m-b-none"></span>
                         </div>
                     </div>
-                    <input type="hidden" name="user_id" value="{$user.user_id|default=0}">
+                    <input type="hidden" name="uid" value="{$user.id|default=0}">
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
                             <button class="btn btn-sm btn-white" type="submit">提交</button>

@@ -40,7 +40,7 @@ class Feedback extends Base
 
         if ($user == session('uid')) {
             $UserModel = new UserModel();
-            $userInfo = $UserModel->where('user_id','=',$user)->find();
+            $userInfo = $UserModel->where('id','=',$user)->find();
             foreach ( $msgList as $value) {
                 $value['send_client_id'] = $userInfo['nickname'];
             }

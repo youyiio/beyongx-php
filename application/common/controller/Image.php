@@ -13,9 +13,9 @@ trait Image
 {
     public function upload()
     {
-        $file = request()->file('Filedata');
-        if (empty($file)) $file = request()->file('file');
-        if (empty($file)) {
+        $tmpFile = request()->file('Filedata');
+        if (empty($tmpFile)) $tmpFile = request()->file('file');
+        if (empty($tmpFile)) {
             //$this->error('请选择上传文件');
             $this->result(null, 0, '请选择上传文件', 'json');
         }
@@ -31,8 +31,8 @@ trait Image
         $path = Env::get('root_path') . 'public' . DIRECTORY_SEPARATOR . 'upload';
 
         $check = $this->validate(
-            ['file' => $file],
-            ['file'=>'require|image|fileSize:4097152'],
+            ['file' => $tmpFile],
+            ['file' => 'require|image|fileSize:4097152'],
             [
                 'file.require' => '请上传图片',
                 'file.image' => '不是图片文件',
@@ -43,25 +43,25 @@ trait Image
             $this->error($check);
         }
 
-        list($width, $height, $type) = getimagesize($file->getRealPath()); //获得图片宽高类型
+        list($width, $height, $type) = getimagesize($tmpFile->getRealPath()); //获得图片宽高类型
         if ($imgWidth > 0 && $imgHeight > 0) {
             if (!($width >= $imgWidth-10 && $width <= $imgWidth+10 && $height >= $imgHeight-10 && $height <= $imgHeight+10)) {
                 $this->error('图片尺寸不符合要求:'.$imgWidth.'*'.$imgHeight);
             }
         }
 
-        $info = $file->move($path);
-
-        if (!$info) {
+        //不能信任前端传进来的文件名, thinkphp默认使表单里的filename后缀
+        $file = $tmpFile->validate(['ext' => 'jpg,gif,png,jpeg,bmp,ico,webp'])->move($path);
+        if (!$file) {
             // 上传失败获取错误信息
-            $this->error($file->getError());
+            $this->error($tmpFile->getError());
         }
 
-        $saveName = $info->getSaveName();
+        $saveName = $file->getSaveName();
         $imgUrl = $path . DIRECTORY_SEPARATOR . $saveName;
 
         //图片缩放处理
-        $image = \think\Image::open($info);
+        $image = \think\Image::open($file);
         $quality = get_config('image_upload_quality', 80); //获取图片清晰度设置，默认是80
         $extension = image_type_to_extension($type, false); //png格式时，quality不影响值；jpg|jpeg有效果
         if ($imgWidth > 0 && $imgHeight > 0) {
@@ -72,9 +72,9 @@ trait Image
 
         //缩略图
         if ($tbWidth > 0 && $tbHeight > 0) {
-            // $image = \think\Image::open($info);
+            // $image = \think\Image::open($file);
 
-            $tbImgUrl = $info->getPath() . DIRECTORY_SEPARATOR . 'tb_' . $info->getFilename();
+            $tbImgUrl = $file->getPath() . DIRECTORY_SEPARATOR . 'tb_' . $file->getFilename();
 
             //缩放至指定的宽高
             $image->thumb($tbWidth, $tbHeight, \think\Image::THUMB_FIXED);//固定尺寸缩放
@@ -82,15 +82,15 @@ trait Image
             $image->save($tbImgUrl, $extension, $quality, true);
 
             $data = [
-                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$info->getFilename(),
-                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$info->getFilename(),
+                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$file->getFilename(),
+                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
                 'create_time' => date_time(),
                 'remark' => input('post.remark'),
             ];
         } else {
             $data = [
-                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$info->getFilename(),
-                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$info->getFilename(),
+                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
+                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
                 'create_time' => date_time(),
                 'remark' => input('post.remark'),
             ];
@@ -103,7 +103,7 @@ trait Image
 
             $vendor = get_config('oss_vendor');
             $m = new \think\oss\OSSContext($vendor);
-            $ossImgUrl = $m->doUpload($info->getSaveName(), 'cms');
+            $ossImgUrl = $m->doUpload($file->getSaveName(), 'cms');
             $data['oss_image_url'] = $ossImgUrl;
         }
 
