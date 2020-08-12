@@ -43,13 +43,13 @@ class Crontab extends Command
     {
         $this->setName('crontab')
             ->addOption('period', null, Option::VALUE_OPTIONAL, 'cron period time', null)
-            ->setDescription('Unify Crontab command of beyongx');
+            ->setDescription('Unify Crontab command of BeyongCms');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        $output->writeln('beyongx Crontab  start...');
-        Log::info('beyongx Crontab  start..');
+        $output->writeln('BeyongCms Crontab  start...');
+        Log::info('BeyongCms Crontab  start..');
 
         //与配置合并
         $jobs = array_merge($this->jobs, Config::pull('crontab'));
@@ -71,6 +71,7 @@ class Crontab extends Command
             //任务的业务数据 . 不能为 resource 类型，其他类型最终将转化为json形式的字符串; jobData 为对象时，存储其public属性的键值对
             $jobData = $job[1];
             $jobData['create_time'] = date_time();
+
             //任务归属的队列名称，如果为新队列，会自动创建
             $jobQueue = config('queue.default');
 
@@ -85,8 +86,8 @@ class Crontab extends Command
             }
         }
 
-        $output->writeln('beyongx Crontab  end...');
-        Log::info('beyongx Crontab  end..');
+        $output->writeln('BeyongCms Crontab  end...');
+        Log::info('BeyongCms Crontab  end..');
     }
 
 

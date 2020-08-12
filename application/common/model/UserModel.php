@@ -221,7 +221,7 @@ class UserModel extends BaseModel
     }
 
     //修改用户
-    public function editUser($data = [])
+    public function editUser($uid, $data = [])
     {
         $data = empty($data) ? input('post.') : $data;
 
@@ -233,7 +233,7 @@ class UserModel extends BaseModel
             return false;
         }
 
-        $res = $this->allowField(true)->isUpdate(true)->save($data);
+        $res = $this->allowField(true)->isUpdate(true)->save($data, ['id' => $uid]);
         if ($res === false) {
             $this->error = '修改失败';
             return false;

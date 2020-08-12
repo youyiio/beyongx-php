@@ -1,8 +1,9 @@
 {extend name="public/base" /}
 {block name="title"}文章管理{/block}
 {block name="css"}
-
+<link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css">
 {/block}
+
 {block name="main"}
 
 <div class="wrapper wrapper-content  animated fadeInRight article">
@@ -10,7 +11,8 @@
         <div class="col-lg-10 col-lg-offset-1">
             <div class="ibox-content" style="padding:10px">
                 <div class="ibox">
-                    <a class="btn btn-sm btn-primary" href="{:url('article/articleStat',['id'=>$id])}">查看访问统计</a>
+                    <a class="btn btn-sm btn-primary J_layer_dialog" href="javascript:void(0)" data-url="{:url('article/articleStat',['id'=>$id])}"
+                       data-width="850" data-height="650">查看访问统计</a>
                     <div class="pull-right">
                         {volist name="article.categorys" id="vo"}
                         <span class="label">{$vo.title_cn}</span>
@@ -23,7 +25,7 @@
                         <h1>
                             {$article.title}
                         </h1>
-                        {if $article.status == 5}
+                        {if $article.status == \app\common\model\ArticleModel::STATUS_PUBLISHED}
                         <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：{$article.update_time}</span>
                         {else if}
                         <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>
@@ -33,30 +35,32 @@
                         <span class="text-muted"><i class="fa fa-tags"></i>{$tag}</span>
                         {/foreach}
                     </div>
+
                     <article style="word-wrap:break-word; word-break: break-all;overflow:hidden">
                         {$article.content|raw}
                     </article>
-                    <hr>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="small text-right">
-                                <h5>Stats:{$article.status_text}</h5>
-                                <i class="fa fa-eye"> </i> {$article.read_count|default=0} views
+                                <h5>状态: {$article.status_text}</h5>
+                                <i class="fa fa-eye"> </i> {$article.read_count|default=0} 浏览
                             </div>
                         </div>
                     </div>
 
-                    {empty name="$comments"}
-                    <h2>该篇文章未有人评论</h2>
-                    {else if}
-                    <h2>评论：</h2>
-                    {volist name='comments' id='comment'}
+                    <hr>
                     <div class="row">
                         <div class="col-lg-12">
+                            {empty name="$comments"}
+                            <h2>该篇文章未有人评论</h2>
+                            {else if}
+                            <h2>评论：</h2>
+                            {volist name='comments' id='comment'}
                             <div class="social-feed-box">
                                 <div class="social-avatar">
                                     <a href="#" class="pull-left">
-                                        <img alt="image" src="__PUBLIC__/static/theme/wenews/images/header_img1.png">
+                                        <img alt="image" src="{$comment.user.head_url|default='__PUBLIC__/static/inspinia/img/a6.jpg'}">
                                     </a>
                                     <div class="media-body">
                                         <a href="#">
@@ -72,15 +76,21 @@
                                     </p>
                                 </div>
                             </div>
+                            {/volist}
+                            {/empty}
+
                         </div>
+                        {notempty name="$comments"}
+                        <div class="col-lg-12">
+                            <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                                {$comments->render()|raw}
+                            </div>
+                        </div>
+                        {/notempty}
                     </div>
-                    {/volist}
-                    <div style="text-align: center; padding:30px 0">
-                        {$comments->render()|raw}
-                    </div>
-                    {/empty}
 
                 </div>
+
             </div>
         </div>
     </div>
@@ -89,6 +99,7 @@
 
 {block name="js"}
 <script src="__PUBLIC__/static/inspinia/js/plugins/clipboard/clipboard.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
 <script>
     var clipboard = new Clipboard('#btnCopy');
 </script>

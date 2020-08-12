@@ -21,7 +21,7 @@
                             {$user.nickname} | UID:{$user.id} {volist name="user.groups" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
                         </h2>
                         <h4s>{$user.email}</h4s>
-                        <small>{$user.description}</small>
+                        <small>{$user->meta('description')|default='无描述'}</small>
                         <ul class="tag-list" style="padding:0;">
                             <li><a href="#"> VIP <i class="fa {if $user['status'] == 2}fa-check text-success{else/}fa-close text-danger{/if}"></i></a></li>
                             <li><a class="ajax-a" data-callback="changeFa" href="{:url('User/onOff',['uid'=>$user['id'],'table'=>'user','field'=>'mailactive'])}"> 邮件激活 <i class="fa {if $user['status'] ==1}fa-check text-success{else/}fa-close text-danger{/if}"></i> </a></li>
@@ -117,7 +117,7 @@
                         <h2>登录日志</h2>
                         <ul class="list-unstyled file-list">
                             {volist name="actionLogList" id="vo"}
-                            <li class="text-success">{$vo.create_time} <span clsss="label label-success">{$vo.action}</span> - {$vo.module} - {$vo.remark}</li>
+                            <li class="text-success">{$vo.create_time} <span class="label label-success">{$vo.action}</span> - {$vo.module} - {$vo.remark}</li>
                             {/volist}
 
                         </ul>
@@ -265,7 +265,7 @@
             </div>
 
             <!-- 用户业务列表01 -->
-            {php}hook('userBusiness01', ['id'=>$user['id']]){/php}
+            {php}hook('userBusiness01', ['uid'=>$user['id']]){/php}
         </div>
     </div>
 </div>

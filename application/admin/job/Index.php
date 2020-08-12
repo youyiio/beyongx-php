@@ -26,7 +26,7 @@ class Index
 
     public function check(Job $job, $data)
     {
-        Log::info('检测今日文章索引 Job开始...');
+        Log::info("job[{$data['create_time']}] 检测今日文章索引 Job开始...");
 
         $range = $data['range'];
         if (empty($range)) {

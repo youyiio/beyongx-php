@@ -13,8 +13,6 @@ class CommentModel extends BaseModel
     const STATUS_REFUSE     = 2;  //拒绝
     const STATUS_PUBLISHED  = 3;  //已发布
 
-    protected $insert =['status' => 3];
-
     //属性：status_text
     public function getStatusTextAttr($value, $data)
     {
@@ -27,6 +25,21 @@ class CommentModel extends BaseModel
         ];
         return isset($status[$data['status']]) ? $status[$data['status']] : '未知';
     }
+
+    //属性：status_html
+    public function getStatusHtmlAttr($value, $data)
+    {
+
+        $status = [
+            -1 => '<span class="label label-danger">删除</span>',
+            0 => '<span class="label label-default">草稿</span>',
+            1 => '<span class="label label-info">申请发布</span>',
+            2 =>  '<span class="label label-warning">拒绝</span>',
+            3 => '<span class="label label-primary">已发布</span>',
+        ];
+        return isset($status[$data['status']]) ? $status[$data['status']] : '未知';
+    }
+
 
     //表关联:文章
     public function article()

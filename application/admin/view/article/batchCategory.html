@@ -1,0 +1,76 @@
+{extend name="public/base" /}
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+{block name="main"}
+<form class="form-horizontal ajax-form" method="post">
+    <div class="form-group">
+        <label class="col-lg-2 control-label">修改分类<span class="text text-danger">*</span></label>
+        <div class="col-lg-10">
+            <select data-placeholder="选择分类" tabindex="4" name="category_ids[]" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple style="width:100%!important;">
+                {volist name="categorys" id="cl"}
+                <option value="{$cl.id}">{$cl._name|raw}</option>
+                {/volist}
+            </select>
+        </div>
+    </div>
+    <div class="foot">
+        <button class="ajax-batch-set btn btn-primary" type="button" style="text-align: right">确认</button>
+    </div>
+</form>
+{/block}
+{block name="js"}
+<!-- Ladda -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.jquery.min.js"></script>
+<!-- Chosen -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/chosen/chosen.jquery.js"></script>
+<script>
+    //批量修改分类
+    $(function() {
+        var laddaBtn = $('.ajax-batch-set').ladda();
+        laddaBtn.click(function() {
+            var ids = parent.getAjaxCheckedValues();
+            var cids = $('.chosen-select').val();
+            if (!ids) {
+                layer.msg('请选择要操作的文章!', function(){});
+                $(this).ladda('stop');
+                return;
+            }
+            if (!cids) {
+                layer.msg('请选择要修改的分类!', function(){});
+                $(this).ladda('stop');
+                return;
+            }
+
+            var action = $(this).data('action');
+            $.post(action, {ids: ids,cids: cids}, function (data) {
+                if (data.code == 0 && ids.length == 1) {
+                    layer.msg(data.msg, function(){});
+                    return false;
+                } else {
+                    window.parent.location.reload();
+                }
+            });
+
+            setTimeout(function () {
+                window.parent.location.reload();
+            }, 800);
+        });
+    });
+
+    //选择框
+    var config = {
+        '.chosen-select'           : {},
+        '.chosen-select-deselect'  : {allow_single_deselect:true},
+        '.chosen-select-search'    : {search_contains:true},
+        '.chosen-select-no-single' : {disable_search_threshold:10},
+        '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
+        '.chosen-select-width'     : {width:"100%!important"}
+    };
+    for (var selector in config) {
+        $(selector).chosen(config[selector]);
+    }
+</script>
+{/block}

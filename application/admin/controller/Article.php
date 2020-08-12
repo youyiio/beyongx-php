@@ -20,26 +20,26 @@ class Article extends Base
     //文章列表
     public function index()
     {
-        $articleModel = new ArticleModel();
+        $ArticleModel = new ArticleModel();
 
         $categoryId = input('param.categoryId/d');
-        $map[] = ['status', '>=', 0]; //状态
+        $where[] = ['status', '>=', ArticleModel::STATUS_DRAFT]; //状态
         if ($categoryId > 0) {
             $childs = CategoryModel::getChild($categoryId);
             $childCateIds = $childs['ids'];
             array_push($childCateIds, $categoryId);
-            $articleModel = ArticleModel::has('CategoryArticle', [['category_id','in',$childCateIds]]);
+            $ArticleModel = ArticleModel::has('CategoryArticle', [['category_id','in',$childCateIds]]);
         }
 
         $key = input('param.key');
         if (!empty($key)) {
-            $map[] = ['title', 'like',"%{$key}%"];
+            $where[] = ['title', 'like', "%{$key}%"];
         }
 
         //文章状态
         $status = input('param.status','');
         if ($status !== '') {
-            $map[] = ['status', '=', $status];
+            $where[] = ['status', '=', $status];
         }
 
         $startTime = input('param.startTime', '');
@@ -47,10 +47,10 @@ class Article extends Base
         //默认是按post_time查询，查询草稿时按create_time查询
         $queryTimeField = ($status == '' || $status == ArticleModel::STATUS_PUBLISHED) ? 'post_time' : 'create_time';
         if (!empty($endTime)) {
-            $map[] = [$queryTimeField, '<=', $endTime . ' 23:59:59'];
+            $where[] = [$queryTimeField, '<=', $endTime . ' 23:59:59'];
         }
         if (!empty($startTime)) {
-            $map[] = [$queryTimeField, '>=', $startTime . ' 00:00:00'];
+            $where[] = [$queryTimeField, '>=', $startTime . ' 00:00:00'];
         }
 
         $fields = 'id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
@@ -75,7 +75,7 @@ class Article extends Base
             'type' => '\\app\\common\\paginator\\BootstrapTable',
             'query' => input('param.')
         ];
-        $list = $articleModel->where($map)->field($fields)->order($orders)->paginate($listRow,false, $pageConfig);
+        $list = $ArticleModel->where($where)->field($fields)->order($orders)->paginate($listRow, false, $pageConfig);
 
         $this->assign('list', $list);
         $this->assign('pages', $list->render());
@@ -204,6 +204,7 @@ class Article extends Base
         $jobData = [
             'id' => $id,
             'url' => url('cms/Article/viewArticle', ['aid' => $id], true, get_config('domain_name')),
+            'create_time' => date_time()
         ];
         $jobQueue = config('queue.default');
         \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
@@ -229,6 +230,13 @@ class Article extends Base
     //设定定时发布
     public function setTimingPost()
     {
+        if (request()->isGet()) {
+            $id = input('id/s', '');
+            $this->assign('id', $id);
+
+            return $this->fetch('setTimingPost');
+        }
+
         $id = input('id/s', 0);
         $postTime = input('postTime/s', '');
 
@@ -354,6 +362,35 @@ class Article extends Base
         }
     }
 
+    //批量修改分类
+    public function batchCategory($ids = null, $cids = null)
+    {
+        if (request()->isAjax()) {
+            if (empty($ids) || empty($cids)) {
+                $this->error('请选择文章或分类');
+            }
+
+            foreach ($ids as $id) {
+                $article = ArticleModel::find($id);
+                $article->categorys()->detach();
+                $res = $article->categorys()->saveAll($cids);
+
+                if ($res == false) {
+                    $this->error('操作失败');
+                }
+            }
+
+            $this->success('操作成功');
+        }
+
+        //文章分类列表
+        $CategoryModel = new CategoryModel();
+        $categorys = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
+        $this->assign('categorys', $categorys);
+
+        return $this->fetch('batchCategory');
+    }
+
     //上头条
     public function upTop()
     {
@@ -431,8 +468,24 @@ class Article extends Base
     {
         $CommentModel = new CommentModel();
 
+        $map = [];
+        $key = input('param.key');
+        if (!empty($key)) {
+            $map[] = ['content', 'like',"%{$key}%"];
+        }
+
+        $startTime = input('param.startTime', '');
+        $endTime = input('param.endTime', '');
+
+        if (!empty($endTime)) {
+            $map[] = ['create_time', '<=', $endTime . ' 23:59:59'];
+        }
+        if (!empty($startTime)) {
+            $map[] = ['create_time', '>=', $startTime . ' 00:00:00'];
+        }
+
         $fields = 'id, content, article_id, create_time, status, author, ip, pid';
-        $list = $CommentModel->field($fields)->order('create_time desc')->distinct('id')->paginate(6, false);
+        $list = $CommentModel->where($map)->field($fields)->order('create_time desc')->distinct('id')->paginate(20, false);
         $this->assign('list', $list);
         $this->assign('pages', $list->render());
 
@@ -441,6 +494,10 @@ class Article extends Base
         $data['read_time'] = date_time();
         $data['is_readed'] = 1;//0未读，1已读
         $MessageModel->save($data, ['type' => MessageModel::TYPE_COMMENT]);
+
+        $this->assign('startTime', $startTime);
+        $this->assign('endTime', $endTime);
+
 
         return $this->fetch('commentList');
     }
@@ -453,7 +510,7 @@ class Article extends Base
             $this->error('评论不存在');
         }
 
-        if ($com->status != CommentModel::STATUS_DRAFT) {
+        if ($com->status != CommentModel::STATUS_PUBLISHING) {
             $this->error('评论审核未通过，无法发布');
         }
 
@@ -494,33 +551,63 @@ class Article extends Base
             }
 
             $data['create_time'] = date_time();
+            $data['status'] = CommentModel::STATUS_PUBLISHED;
             $data['ip'] = request()->ip(0, true);
             $data['article_id'] = $aid;
-            $data['content'] = $content;
+            $data['content'] = remove_xss($content);
             $data['pid'] = $pid;
             $CommentModel = new CommentModel();
             $result = $CommentModel->save($data);
             if (!$result) {
                 $this->error('回复失败');
+            } elseif (stripos($_SERVER["HTTP_REFERER"], 'viewComments')) {
+                $this->success('回复成功', url("Article/viewComments",['id' => $pid]));
             } else {
                 $this->success('回复成功', url('Article/commentList'));
             }
         }
 
-        return $this->fetch('commentList');
+         return $this->fetch('commentList');
     }
 
     //删除评论
     public function deleteComment($id)
     {
+        $ids = explode(',', $id);
         $CommentModel = new CommentModel();
 
-        $res = $CommentModel->where('id', $id)->delete();
-        if ($res) {
+        $numRows = $CommentModel->where([['id', 'in', $ids]])->delete();
+        if ($numRows  == count($ids)) {
             $this->success('成功删除');
         } else {
-            $this->error('删除失败');
+            $fails = count($ids) - $numRows;
+            $this->error("成功删除 $numRows 条，失败 $fails 条!");
         }
+    }
+
+    //查看评论下的回复
+    public  function viewComments($id)
+    {
+        $comment = CommentModel::get(['id'=>$id]);
+
+        if (empty($comment)) {
+            $this->error('评论不存在');
+        }
+
+        $CommentModel = new CommentModel();
+        $where = [
+            'pid' => $comment['id'],
+            'status' => CommentModel::STATUS_PUBLISHED
+        ];
+        $pageConfig = [
+            'type' => '\\app\\common\\paginator\\BootstrapTable',
+        ];
+        $comments = $CommentModel->where($where)->order('create_time desc')->paginate(6, false, $pageConfig);
+
+        $this->assign('comments', $comments);
+        $this->assign('comment', $comment);
+
+        return $this->fetch('article/viewComments');
     }
 
     //文章分类

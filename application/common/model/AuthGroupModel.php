@@ -15,7 +15,8 @@ class AuthGroupModel extends BaseModel
 	 * @return boolean       操作是否成功
      * @throws
 	 */
-	public function deleteData($map) {
+	public function deleteData($map)
+    {
 		$this->where($map)->delete();
 		$group_map=[
 			'group_id'=>$map['id']

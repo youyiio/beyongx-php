@@ -1,0 +1,140 @@
+{extend name='public/base' /}
+{block name="title"}发布计划{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
+<style>
+    li{float: left;}
+</style>
+{/block}
+
+{block name='main'}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox float-e-margins">
+        <div class="ibox-title">
+            <h5>发布计划</h5>
+            <div class="ibox-tools">
+                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                <a class="close-link"><i class="fa fa-times"></i></a>
+            </div>
+        </div>
+        <div class="ibox-content">
+            <div class="row">
+                <div class="col-lg-12 col-md-12">
+                    <form class="form-horizontal ajax-form" method="get">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">采集列表<span class="text text-danger">*</span>:</label>
+                            <div class="col-lg-10">
+                                <select name="crawlerId"  class="form-control m-b-xs">
+                                    <option value="-1">请选择采集规则</option>
+                                    {volist name='crawlerList' id='vo'}
+                                    <option value="{$vo.id}" {notempty name="Think.get.crawlerId"}{eq name="Think.get.crawlerId" value="$vo['id']"}selected{/eq}{/notempty}>{$vo.title}</option>
+                                    {/volist}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">频率<span class="text text-danger">*</span>:</label>
+                            <div class="col-lg-10">
+                                <select class="form-control" name="frequency" required>
+                                    <option value="day">按天</option>
+                                    <!--
+                                    <option value="week">按周（暂不支持）</option>
+                                    -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">执行周期数<span class="text text-danger">*</span>:</label>
+                            <div class="col-lg-10">
+                                <input type="number" name="days" class="form-control" placeholder="计划执行周期" value="{$Think.get.days}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">每天文章数量<span class="text text-danger">*</span>:</label>
+                            <div class="col-lg-10">
+                                <div class="input-group m-b">
+                                    <span class="input-group-btn"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#timeSetModal">小时数量分配</button> </span>
+                                    <input type="number" name="countPerDay" value="{$Think.get.countPerDay}" class="form-control" placeholder="每天发布文章数量" required>
+                                    <input type="hidden" name="hourCounts" id="hourCounts" value="{$Think.get.hourCounts}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-lg-offset-10 col-lg-2 text-right">
+                                <button type="submit" class="btn btn-primary m-b-xs">提交任务</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                <div class="fixed-table-container">
+                    <table class="table table-bordered table-hover table-striped table-condensed col-lg-12">
+                        <thead>
+                        <tr>
+                            <th><div class="th-inner">ID</div></th>
+                            <th><div class="th-inner">分类</div></th>
+                            <th><div class="th-inner">采集规则</div></th>
+                            <th><div class="th-inner">标题</div></th>
+                            <th><div class="th-inner">状态</div></th>
+                            <th><div class="th-inner">发布时间</div></th>
+                            <th><div class="th-inner">创建时间</div></th>
+                            <th><div class="th-inner">操作</div></th>
+                        </tr>
+                        </thead>
+                        <tbody class="body">
+                        {foreach name='articleList' item='vo'}
+                        <tr>
+                            <input type="hidden" name="ids" value="{$vo.id}">
+                            <td>{$vo.id}</td>
+                            <td>
+                                {volist name="vo.categorys" id="categoryVo" empty="未分类"}
+                                {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
+                                {/volist}
+                            </td>
+                            <td>{$vo.crawlerMeta.crawler.title}</td>
+                            <td>{$vo.title}</td>
+                            <td>{$vo.status_text}</td>
+                            <td>{if $vo.status == \app\common\model\ArticleModel::STATUS_PUBLISHED}
+                                {$vo.post_time}
+                                {else /}
+                                {notempty name="$vo.timing"}{$vo.timing}<i class="fa fa-clock-o"></i>{/notempty}
+                                {/if}
+                            </td>
+                            <td>{$vo.create_time}</td>
+                            <td>
+                                <a href="{:url('Article/viewArticle',['id'=>$vo['id']])}"><button class="btn btn-xs btn-info" title="查看"><i class="fa fa-eye"></i>查看</button></a>
+                                {if $vo.status== -4}
+                                <button class="btn btn-xs btn-info hidden" onclick="showTimingPostModel(this)" data-id="{$vo['id']}" ><i class="fa fa-clock-o"></i>定时发布</button>
+                                {/if}
+                            </td>
+                        </tr>
+                        {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+                {$pages|raw}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--弹出框-->
+{include file="crawler/hoursSetter"/}
+
+{/block}
+
+{block name='js'}
+<script src="__PUBLIC__/static/inspinia/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/echarts/echarts.min.js" type="text/javascript"></script>
+
+<script>
+    $("select[name='crawlerId']").change(function () {
+        window.location.href = "{:url('Crawler/postPlan')}?crawlerId=" + $(this).val();
+    });
+</script>
+{/block}

@@ -25,7 +25,7 @@ class Article
      */
     public function afterInsert(Job $job, $data)
     {
-        Log::info('新增文章之后,Queue Job开始...');
+        Log::info("job[{$data['create_time']}] 新增文章之后,Queue Job开始...");
 
         $articleId = $data['id'];
         if (empty($articleId)) {
@@ -55,7 +55,7 @@ class Article
 
     public function afterUpdate(Job $job, $data)
     {
-        Log::info('更新文章之后,QueueJob开始...');
+        Log::info("job[{$data['create_time']}] 更新文章之后,QueueJob开始...");
 
         $articleId = $data['id'];
         if (empty($articleId)) {
@@ -86,7 +86,7 @@ class Article
 
     public function timingPost(Job $job, $data)
     {
-        Log::info('定时发布文章 job, start...');
+        Log::info("job[{$data['create_time']}] 定时发布文章 job, start...");
 
         $result = self::postTimingArticles();
         $successCount = $result['success_count'];

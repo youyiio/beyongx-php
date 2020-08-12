@@ -167,6 +167,57 @@ var ajaxFormSubmitFunc = function(form){
  * 用法：<button> ,class添加 link-btn;
  *    属性data-action为url，data-title提示标题；data-subtitle提示子标题; data-target为行为，_bank打开新页面,_modal弹出模态窗口
  */
+$(document).on('click', '.J_layer_dialog', function(e) {
+
+    let title = $(this).data("title");
+    title = !title ? $(this).text() : title;
+
+    let url = $(this).data("url");
+    url = typeof(url)=='undefined'?'':url;
+    title = typeof(title)=='undefined'?'信息':title;
+    var content = $(this).data("content");
+    content = typeof(content)=='undeifned'?'':content;
+    var width = $(this).data("width");
+    var height = $(this).data("height");
+    var id = $(this).data("id");
+    id = id ? id : Math.random();
+    width = width ? width + 'px' : 'auto';
+    height = height ? height + 'px' : 'auto';
+
+    if (url) {
+        layer.open({
+            type: 2,
+            area: [width, height],
+            fixed: false, //不固定
+            maxmin: true,
+            title: title,
+            content: url
+        });
+    } else if (content) {
+        layer.open({
+            type: 1,
+            title: title,
+            content: content,
+            area: [width, height],
+            //btn: ['确定', '取消'],
+            yes: function (index, layero) {
+                layer.closeAll();
+            },
+            btn2: function (index, layero) {
+                layer.closeAll();
+            }
+        });
+    }
+
+    return false;
+
+});
+
+/**
+ * 链接跳转: 按钮模拟a 连接操作，如打开页面或弹窗加载内容
+ * 用法：<button> ,class添加 link-btn;
+ *    属性data-action为url，data-title提示标题；data-subtitle提示子标题; data-target为行为，_bank打开新页面,_modal弹出模态窗口
+ */
 $(document).on('click', '.link-btn', function(e) {
 
     var _this = $(this);

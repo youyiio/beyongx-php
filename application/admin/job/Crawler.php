@@ -31,7 +31,7 @@ class Crawler
      */
     public function startCrawl(Job $job, $data)
     {
-        Log::info('采集文章网址Job开始...');
+        Log::info("job[{$data['create_time']}] 采集文章网址Job开始...");
 
         $id = $data['id'];
         if (empty($id)) {
@@ -74,7 +74,7 @@ class Crawler
 
             //已经抓取过的，不再入库；避免重复抓取
             $temp = CrawlerMetaModel::where(['meta_key' => 'article_url', 'meta_value' => $metaValue])->find();
-            if ($temp && $temp['remark'] == CrawlerMetaModel::STATUS_COMPLETE) {
+            if ($temp) { //&& $temp['remark'] == CrawlerMetaModel::STATUS_COMPLETE
                 continue;
             }
 
@@ -112,7 +112,7 @@ class Crawler
      */
     public function crawlArticles(Job $job, $data)
     {
-        Log::info('采集文章Job开始...');
+        Log::info("job[{$data['create_time']}] 采集文章Job开始...");
 
         $id = $data['id'];
         if (empty($id)) {
@@ -166,8 +166,17 @@ class Crawler
             $CrawlerMetaModel::update(['remark' => CrawlerMetaModel::STATUS_PENDING], ['id' => $meta['id']]);
 
             $url = $meta['meta_value'];
-            $article = Crawler::crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleKeywords, $articleContent, $articleAuthor, $articleImage);
+
+            $article = [];
+            try {
+                $article = Crawler::crawlArticle($url, $encoding, $articleTitle, $articleDescription, $articleKeywords, $articleContent, $articleAuthor, $articleImage);
+            } catch (\Exception $e) {
+                Log::info('文章内容抓取发生错误: ' . $e->getTraceAsString());
+                Log::error($e->getTraceAsString());
+            }
+
             if ($article) {
+                $article['meta_id'] = $meta['id'];
                 $articles[] = $article;
 
                 //采集成功时，更新状态
@@ -194,11 +203,17 @@ class Crawler
             $item['author'] = $vo['author'];
             $item['read_count'] = 0;
             $item['uid'] = $uid;
-            $item['status'] = ArticleModel::STATUS_DRAFT;
+            $item['status'] = ArticleModel::STATUS_CRAWLED;
             $item['category_ids'] = [$categoryId];
 
             $article = new ArticleModel();
             $article->add($item);
+
+            //获取自增Id,存入crawler_meta表
+            $articleId = $article->id;
+            $CrawlerMeta = CrawlerMetaModel::get($vo['meta_id']);
+            $CrawlerMeta->article_id = $articleId;
+            $CrawlerMeta->save();
         }
 
         Log::info('文章成功入库，数量：' . count($articles));
@@ -214,7 +229,7 @@ class Crawler
     //定时采集
     public function timingCrawl(Job $job, $data)
     {
-        Log::info('定时抓取开始....');
+        Log::info("job[{$data['create_time']}] 定时抓取开始....");
 
         Log::info('定时抓取结束!');
     }
@@ -416,6 +431,20 @@ class Crawler
             );
             return json_encode($data);
         }
+
+        //设置get_headers/readfile 远程通信的配置
+        stream_context_set_default([
+            'http' => [
+                //'header' => "Referer:$httpReferer",  //突破防盗链,不可用
+                'user_agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36', //突破防盗链
+                'follow_location' => false // don't follow redirects
+            ],
+            'ssl' => [
+                'verify_host' => false,
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ],
+        ]);
         //获取请求头并检测死链
         $heads = get_headers($imgUrl, true);
         if (!(stristr($heads[0], "200") && stristr($heads[0], "OK"))) {
@@ -441,17 +470,10 @@ class Crawler
 
         //打开输出缓冲区并获取远程图片
         ob_start();
-        $context = stream_context_create([
-            'http' => array(
-                //'header' => "Referer:$httpReferer",  //突破防盗链,不可用
-                'user_agent' => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36', //突破防盗链
-                'follow_location' => false // don't follow redirects
-            ),
-        ]);
         $res = false;
         $message = '';
         try {
-            $res = readfile($imgUrl, false, $context);
+            $res = readfile($imgUrl, false);
         } catch (\Exception $e) {
             $message = $e->getMessage();
         }

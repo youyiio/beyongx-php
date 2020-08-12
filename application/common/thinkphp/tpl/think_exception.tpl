@@ -410,9 +410,19 @@
     <?php } ?>
 
     <div class="copyright">
-        <a title="Beyongx官方网站" href="http://www.beyongx.com" target="_blank">BeyongCms </a>
-        <span> CMS base on ThinkPHP, V<?php echo \think\facade\App::beyongCmsVersion(); ?></span>
-        <span>{ 一款安全极速的开源内容管理框架 }，github地址：<a href="http://github.com/youyiio/beyongx" target="_blank">http://github.com/youyiio/beyongx</a></span>
+        <a href="https://www.beyongx.com" target="_blank" title="BeyongCms官方网站">BeyongCms </a>
+        <span> base on ThinkPHP 5.1.x, 当前版本：V<?php echo \think\facade\App::beyongCmsVersion(); ?></span>
+        <span>{ 一款安全极速的开源内容管理框架 } ;</span>
+        <br/>
+        <span>github地址：<a href="https://github.com/youyiio/BeyongCms" target="_blank">https://github.com/youyiio/BeyongCms</a></span>
+        <br/>
+        <span>gitee地址：<a href="https://gitee.com/youyiio/BeyongCms" target="_blank">https://gitee.com/youyiio/BeyongCms</a></span>
+        <br/><br/>
+        <span>Beyongx企业级ThinkPHP框架，支持Cms,Crm等 ;</span>
+        <br/>
+        <span>github地址：<a href="https://github.com/youyiio/beyongx" target="_blank">https://github.com/youyiio/beyongx</a></span>
+        <br/>
+        <span>gitee地址：<a href="https://gitee.com/youyiio/beyongx" target="_blank">https://gitee.com/youyiio/beyongx</a></span>
     </div>
     <?php if(\think\facade\App::isDebug()) { ?>
     <script>

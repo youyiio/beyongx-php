@@ -18,7 +18,7 @@ BeyongCms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用于
  + 站长特性支持，友链管理，Sitemap地图，收录检测，相关推荐，热门推荐等
  + 支持文章全文检索(开发中，支持ElasticSearch)
  
-支持官网: http://www.beyongcms.com
+支持官网: https://www.beyongcms.com
 
 > ThinkPHP5.1的运行环境要求PHP5.6以上，建议使用PHP7.0及以上。
 
@@ -88,14 +88,17 @@ POROJECT_NAME  WEB部署目录（或者子目录）
 ├─route                 路由定义目录
 │  ├─cms.php           Cms模块的路由定义（优化搜索引擎收录）
 │  └─route.php.        通用的路由定义
-├─theme                主题模板目录
-│  ├─classic          主题目录(主题名称:classic)
-│      ├─Layui.php           Paginator分页类(名称自定义)
-│      ├─paginate.php        paginate配置文件
-│      └─theme.php           theme配置信息（包含自适应，文章图片，广告图配置）
+├─theme                主题模板目录（废弃）
 ├─public                WEB目录（对外访问目录）
-│  ├─static            静态文件（img,css,js,fonts）
-│  ├─theme             主题静态文件（img,css,js,fonts）
+│  ├─static            全局静态文件（img,css,js,fonts）
+│  ├─theme             主题模板目录
+│    ├─classic          主题目录(主题名称:classic)
+|       ├─static        静态文件夹(img,css,js,fonts)
+|       ├─tpl           主题View前端模板
+│       ├─Layui.php       Paginator分页类(名称自定义)
+│       ├─paginate.php    paginate配置文件
+│       └─theme.php       theme配置信息（包含自适应，文章图片，广告图配置）
+|    ├─ .....           其他模板
 │  ├─upload            上传目录（图片、文件、ueditor上传目录）
 │  ├─index.php         入口文件
 │  ├─router.php        快速测试文件

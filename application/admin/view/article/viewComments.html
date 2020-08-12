@@ -1,0 +1,118 @@
+{extend name="public/base" /}
+{block name="title"}文章管理{/block}
+{block name="css"}
+
+{/block}
+{block name="main"}
+<div class="wrapper wrapper-content  animated fadeInRight article">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="ibox-content" style="padding:10px">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="social-avatar">
+                            <div class="media-body">
+                                <a href="{:url('User/viewUser',['uid'=>$comment['uid']])}">{$comment.author}</a>
+                                <small class="text-muted">{$comment.create_time}</small>
+                            </div>
+                        </div>
+                        <div class="social-body" id="questionContent">
+                            <h2>
+                                {empty name="$comment.pid"}
+                                <strong></strong><a class="J_addMenuTab" href="{:url(request()->controller().'/viewArticle',['id'=>$comment['article_id']])}">{$comment.article.title}</a>
+                                {else /}
+                                <strong>回复了评论</strong>{$comment.reply.content}
+                                {/empty}
+                            </h2>
+                            {$comment.content|html_entity_decode|raw}
+                            <hr>
+                            <ul class="sortable-list connectList agile-list ui-sortable">
+                                {empty name="$comments"}
+                                <h2>暂未有人评论</h2>
+                                {else if}
+                                {volist name='comments' id='vo'}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="social-feed-box">
+                                            <div class="social-avatar">
+                                                <a href="#" class="pull-left"><img alt="image" src="__PUBLIC__/static/admin/img/user.png"></a>
+                                                <div class="media-body">
+                                                    <a href="#">{$vo.author}</a>
+                                                    <small class="text-muted">{$vo.create_time|date="Y-m-d H:i"}</small>
+                                                </div>
+                                            </div>
+                                            <div class="social-body">
+                                                <p>{$vo.content}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/volist}
+                                {/empty}
+                            </ul>
+                            {$comments->render()|raw}
+                        </div>
+                        <br><br><br><br><br>
+                        <div class="social-footer" id="answerContent">
+                            {notempty name="answer"}
+                            {volist name="answer" id="an"}
+                            <div class="social-comment">
+                                <div class="media-body">
+                                    <a href="{:url('User/viewUser',['uid'=>$an['uid']])}">
+                                        {$an['user']['nickname']}
+                                    </a>
+                                    <small class="text-muted">{$an.create_time}</small>
+                                    <br>
+                                    {$an.content|html_entity_decode|raw}
+                                    <br>
+                                </div>
+                            </div>
+                            {/volist}
+                            {/notempty}
+
+                            <div class="social-comment">
+                                <div class="media-body">
+                                    <form class="ajax-form" method="post" action="{:url(request()->controller().'/postComment')}">
+                                        <div class="form-group">
+                                            <script name="content" id="content" type="text/plain"></script>
+                                        </div>
+                                        <input type="hidden" name="pid" value="{$comment.id}">
+                                        <input type="hidden" name="article_id" value="{$comment.article_id}">
+                                        <button type="submit" class="btn btn-primary btn-sm pull-right">提交</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="js"}
+<script src="__PUBLIC__/static/inspinia/js/plugins/clipboard/clipboard.min.js"></script>
+<!-- 引入ueditor的js代码 -->
+<script src="__PUBLIC__/static/ueditor/ueditor.config.js?2017050401"></script>
+<script src="__PUBLIC__/static/ueditor/ueditor.all.js?2017050401"></script>
+<script>
+    $(function(){
+        //ueditor代码
+        var url="{:url('admin/BaiduUeditor/index')}";
+        var ue = UE.getEditor('content',{
+            serverUrl :url,
+            UEDITOR_HOME_URL:'__PUBLIC__/static/ueditor/',
+            initialFrameHeight :120,
+            autoHeightEnabled : false,
+            maximumWords : 200000,
+            toolbars: [["undo","redo","link","cleardoc","simpleupload","bold","forecolor","fontsize"]]
+        });
+
+        //图片增加自适应属性
+        $('#questionContent,#answerContent').find('img').addClass('img-responsive');
+    })
+
+    var clipboard = new Clipboard('#btnCopy');
+</script>
+{/block}

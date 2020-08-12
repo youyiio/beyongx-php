@@ -1,9 +1,13 @@
 <?php
 namespace app\admin\controller;
 
+use app\common\model\ArticleMetaModel;
+use app\common\model\ArticleModel;
+use app\common\model\CrawlerMetaModel;
 use app\common\model\CrawlerModel;
 use app\common\model\CategoryModel;
 use think\Queue;
+use think\Db;
 
 /**
  采集控制器
@@ -222,6 +226,327 @@ class Crawler extends Base
         } else {
             $this->error('克隆规则失败');
         }
+    }
+
+    // 数据预处理,清洗替换
+    public function preprocess()
+    {
+        $crawlerModel = new CrawlerModel();
+        $crawlerList = $crawlerModel->where('status', '>', CrawlerModel::STATUS_WAITING)->order('id', 'desc')->select();
+        $this->assign('crawlerList', $crawlerList);
+
+        $crawlerId = input('crawlerId/d', -1);
+        $replaceField = input('replaceField/s', ''); //查找范围, 文本或正则表达式（默认/regex/[Uixs]）
+        $searchText = input('searchText/s', '');  //需要替换的文本
+        $replaceText = input('replaceText/s', '');
+
+        if (request()->isAjax()) {
+            if ($crawlerId <= 0) {
+                $this->error('请选择采集规则!');
+            }
+
+            if (empty($searchText) || empty($replaceText)) {
+                $this->error('请输入替换规则!');
+            }
+
+            //判断是否正则表达式替换；TODO代码性能优化
+            if (!preg_match('/^\/.+\/[Uixs]*/', $searchText)) {
+
+                $count = CrawlerMetaModel::where('target_id', '=', $crawlerId)->count('id');
+                if ($count > 100) {
+                    //数据比较大时，暂时只支持mysql, replace/regexp_replace mysql的函数
+                    $ArticleModel = new ArticleModel();
+
+                    $data = [];
+                    if ($replaceField == 'all') {
+                        $data['title'] = Db::raw("replace(title, '$searchText', '$replaceText')");
+                        $data['keywords'] = Db::raw("replace(keywords, '$searchText', '$replaceText')");
+                        $data['description'] = Db::raw("replace(description, '$searchText', '$replaceText')");
+                        $data['content'] = Db::raw("replace(content, '$searchText', '$replaceText')");
+                    } else {
+                        $data[$replaceField] = Db::raw("replace($replaceField, '$searchText', '$replaceText')");
+                    }
+
+                    $ArticleModel->where('id', 'in', function($query) use ($crawlerId) {
+                        $query->table('cms_crawler_meta')->where('target_id', '=', $crawlerId)->field('article_id')->select();
+                    })->cache('article_preprocess_replace_' . $replaceField)->update($data);
+
+                } else {
+                    $articleIds = CrawlerMetaModel::where('target_id', '=', $crawlerId)->column('article_id');
+                    $articles = ArticleModel::where('id', 'in', $articleIds)->select();
+
+                    foreach ($articles as $key => $article) {
+                        if ($replaceField == 'all') {
+                            $article->title = str_replace($searchText, $replaceText, $article['title']);
+                            $article->keywords = str_replace($searchText, $replaceText, $article['keywords']);
+                            $article->description = str_replace($searchText, $replaceText, $article['description']);
+                            $article->content = str_replace($searchText, $replaceText, $article['content']);
+                            $article->save();
+                        } else {
+                            $article->$replaceField = str_replace($searchText, $replaceText, $article[$replaceField]);
+                            $article->save();
+                        }
+                    }
+                }
+
+                $this->success('数据文本替换成功！');
+            } else {
+                $count = CrawlerMetaModel::where('target_id', '=', $crawlerId)->count('id');
+                if ($count > 100) {
+                    $ArticleModel = new ArticleModel();
+
+                    $data = [];
+                    if ($replaceField == 'all') {
+                        $data['title'] = Db::raw("regexp_replace(title, '$searchText', '$replaceText')");
+                        $data['keywords'] = Db::raw("regexp_replace(keywords, '$searchText', '$replaceText')");
+                        $data['description'] = Db::raw("regexp_replace(description, '$searchText', '$replaceText')");
+                        $data['content'] = Db::raw("regexp_replace(content, '$searchText', '$replaceText')");
+                    } else {
+                        $data[$replaceField] = Db::raw("regexp_replace($replaceField, '$searchText', '$replaceText')");
+                    }
+
+                    $ArticleModel->where('id', 'in', function ($query) use ($crawlerId) {
+                        $query->table('cms_crawler_meta')->where('target_id', '=', $crawlerId)->field('article_id')->select();
+                    })->cache('article_preprocess_regexp_replace_' . $replaceField)->update($data);
+
+                } else {
+                    $articleIds = CrawlerMetaModel::where('target_id', '=', $crawlerId)->column('article_id');
+                    $articles = ArticleModel::where('id', 'in', $articleIds)->select();
+
+                    foreach ($articles as $key => $article) {
+                        if ($replaceField == 'all') {
+                            $article->title = preg_replace($searchText, $replaceText, $article['title']);
+                            $article->keywords = preg_replace($searchText, $replaceText, $article['keywords']);
+                            $article->description = preg_replace($searchText, $replaceText, $article['description']);
+                            $article->content = preg_replace($searchText, $replaceText, $article['content']);
+                            $article->save();
+                        } else {
+                            $article->$replaceField = preg_replace($searchText, $replaceText, $article[$replaceField]);
+                            $article->save();
+                        }
+                    }
+                }
+
+
+                $this->success('数据正则替换成功！');
+            }
+
+
+        }
+
+
+        $where = [
+            ['status', '>=', ArticleModel::STATUS_CRAWLED],
+            ['status', '<=', ArticleModel::STATUS_WAREHOUSED]
+        ];
+
+        if (empty($replaceField) or $replaceField == 'all') {
+            $where[] = ['a.title|a.keywords|a.description|a.content', 'like', '%' . $searchText . '%'];
+        } else {
+            $where[] = ['a.' . $replaceField, 'like', "%$searchText%"];
+        }
+
+        $fields = ['a.id,a.title,a.status,a.post_time,a.create_time'];
+        $pageConfig = [
+            'type' => '\\app\\common\\paginator\\BootstrapTable',
+            'query' => input('param.')
+        ];
+
+        $ArticleModel = new ArticleModel();
+        $query = $ArticleModel->where($where)->alias('a');
+        if ($crawlerId > 0) {
+            $query->join('cms_crawler_meta b', "a.id=b.article_id and b.target_id=$crawlerId");
+        }
+
+        $articleList = $query->field($fields)->order('id desc')->paginate(20, false, $pageConfig);
+        $this->assign('articleList', $articleList);
+        $this->assign('pages', $articleList->render());
+
+        return $this->fetch('preprocess');
+    }
+
+    // 数据入库
+    public function warehouse()
+    {
+        $crawlerId = input('crawlerId/d', -1);
+
+        $crawlerModel = new CrawlerModel();
+        $crawlerList = $crawlerModel->where('status', '>', CrawlerModel::STATUS_WAITING)->order('id desc')->select();
+        $this->assign('crawlerList', $crawlerList);
+
+        if (request()->isAjax()) {
+            $aids = input('aids', '[]');
+            if ($crawlerId < 0 && empty($aids)) {
+                $this->error('请选择采集规则');
+            }
+
+            $aids = json_decode($aids, true);
+            if (count($aids) > 0) {
+                //$aids = CrawlerMetaModel::where('target_id', '=', $crawlerId)->column('article_id');
+
+                $where = [
+                    ['id', 'in', $aids],
+                    ['status', '=', ArticleModel::STATUS_CRAWLED]
+                ];
+                $articles = ArticleModel::where($where)->field('id,status')->select();
+                if (count($articles) == 0) {
+                    $this->error('您选中的文章已入库，无需再入库!');
+                }
+
+                $count = 0;
+                foreach ($articles as $key => $article) {
+                    $article->status = ArticleModel::STATUS_WAREHOUSED;
+                    $article->save();
+                    $count++;
+                }
+
+                $this->success('成功入库'. $count . '篇文章');
+            } else {
+                $ArticleModel = new ArticleModel();
+                $fields = ['a.id,a.title,a.status,a.create_time'];
+
+                if ($crawlerId <= 0) {
+                    $this->error('请选择采集规则');
+                }
+
+                //查找未入库文章
+                $where = [
+                    ['status', '=', ArticleModel::STATUS_CRAWLED],
+                    ['target_id', '=', $crawlerId]
+                ];
+                $articles = $ArticleModel->where($where)->alias('a')->join('cms_crawler_meta b', 'a.id=b.article_id')->field($fields)->select();
+
+                foreach ($articles as $key =>$article) {
+                    $article->status = ArticleModel::STATUS_WAREHOUSED;
+                    $article->save();
+                }
+
+                $this->success('成功入库'. count($articles) . '篇文章');
+            }
+
+        }
+
+
+        //查找文章
+        $where = [
+            ['status', '=', ArticleModel::STATUS_CRAWLED]
+        ];
+
+        $fields = ['a.id,a.title,a.status,a.post_time,a.create_time'];
+        $pageConfig = [
+            'type' => '\\app\\common\\paginator\\BootstrapTable',
+            'query' => input('param.')
+        ];
+
+        $ArticleModel = new ArticleModel();
+        $query = $ArticleModel->where($where)->alias('a');
+        if ($crawlerId > 0) {
+            $query->join('cms_crawler_meta b', "a.id=b.article_id and b.target_id=$crawlerId");
+        }
+        $articleList = $query->field($fields)->paginate(20, false, $pageConfig);
+
+        $this->assign('articleList', $articleList);
+        $this->assign('pages', $articleList->render());
+
+        return $this->fetch('warehouse');
+    }
+
+    // 发布计划
+    public function postPlan()
+    {
+        $crawlerModel = new CrawlerModel();
+        $where = [
+            ['status', 'in', [CrawlerModel::STATUS_CRAWLING, CrawlerModel::STATUS_CRAWL_SUCCESS]]
+        ];
+        $crawlerList = $crawlerModel->where($where)->order('id desc')->select();
+        $this->assign('crawlerList', $crawlerList);
+
+        $ArticleModel = new ArticleModel();
+        $crawlerId = input('crawlerId/d', -1);
+
+        if (request()->isAjax()) {
+            $days = input('days/d', 0); // 执行天数
+            $countPerDay = input('countPerDay/d', 0); //每天文章总数量
+            $hourCounts = input('hourCounts/s', '[]'); //文章数组
+            $hourCounts = json_decode($hourCounts, true);
+
+            //查找已入库的文章
+            $where = [
+                ['status', '=', ArticleModel::STATUS_WAREHOUSED]
+            ];
+
+            //按天发布文章
+            for ($i = 0; $i < $days; $i++) {
+                $query = $ArticleModel->where($where)->alias('a');
+                if ($crawlerId > 0) {
+                    $query->join('cms_crawler_meta b', "a.id=b.article_id and b.target_id=$crawlerId");
+                }
+                $aids = $query->limit($countPerDay)->column('a.id');
+
+                $date = date_create(date("Y-m-d", strtotime("+$i day"))); //设置当天的时间
+
+                //时间数组
+                foreach ($hourCounts as $hour => $count) {
+                    if ($count === 0) {
+                        continue;
+                    }
+
+                    //给每篇文章设置发布时间
+                    for (; $count > 0; $count--) {
+                        if (count($aids) == 0) {
+                            break;
+                        }
+
+                        $aid = array_pop($aids);
+                        $postTime = date_time_set($date, $hour, rand(0, 59), rand(0, 59)); //设定发布时间
+                        //dump($postTime);continue;
+                        $metaWhere = [
+                            'article_id' => $aid,
+                            'meta_key' => ArticleMetaModel::KEY_TIMING_POST
+                        ];
+
+                        $articleMeta = ArticleMetaModel::where($metaWhere)->find();
+                        if ($articleMeta) {
+                            $articleMeta->update_time = date_time();
+                            $articleMeta->meta_value = $postTime->format('Y-m-d H:i:s');
+                            $res = $articleMeta->save();
+                        } else {
+                            $data = array_merge($metaWhere, ['meta_value' => $postTime->format('Y-m-d H:i:s')]);
+                            $data['update_time'] = date_time();
+                            $data['create_time'] = date_time();
+                            $res = ArticleMetaModel::create($data);
+                        }
+
+                        ArticleModel::update(['status' => ArticleModel::STATUS_DRAFT, 'id' => $aid], ['id' => $aid]);
+                    }
+
+                }
+            }
+
+            $this->success("设定成功！");
+        }
+
+
+        $where = [
+            ['status', '=', ArticleModel::STATUS_WAREHOUSED]
+        ];
+
+        $fields = ['a.id,a.title,a.status,a.post_time,a.create_time'];
+        $pageConfig = [
+            'type' => '\\app\\common\\paginator\\BootstrapTable',
+            'query' => input('param.')
+        ];
+
+        $query = $ArticleModel->where($where)->alias('a');
+        if ($crawlerId > 0) {
+            $query->join('cms_crawler_meta b', "a.id=b.article_id and b.target_id=$crawlerId");
+        }
+        $articleList = $query->field($fields)->paginate(20, false, $pageConfig);
+
+        $this->assign('articleList', $articleList);
+        $this->assign('pages', $articleList->render());
+
+        return $this->fetch('postPlan');
     }
 }
 

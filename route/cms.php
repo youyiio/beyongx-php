@@ -35,5 +35,12 @@ return [
     'sitemap-[:id].xml' => ['cms/Sitemap/xml', ['method'=>'get']],
     'sitemap' => ['cms/Sitemap/html', ['method'=>'get']],
 
+    //用户操作
+    'sign/index' => ['cms/Sign/index', ['method'=>'get,post']],
+    'sign/login' => ['cms/Sign/login', ['method'=>'get,post']],
+    'sign/register' => ['cms/Sign/register', ['method'=>'get,post']],
+    'sign/logout' => ['cms/Sign/logout', ['method'=>'get,post']],
+    'sign/forget' => ['cms/Sign/forget', ['method'=>'get,post']],
+
     /*****************Cms 通用路由 end*******************/
 ];

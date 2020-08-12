@@ -17,6 +17,9 @@ class ArticleModel extends BaseModel
     const STATUS_SECOND_AUDIT_REJECT = 4; //终审拒绝
     const STATUS_PUBLISHED = 5; //已发布
 
+    const STATUS_CRAWLED = -5; //已抓取
+    const STATUS_WAREHOUSED = -4; //已入库
+
     protected $pk = 'id';
 
     protected $auto = ['update_time'];
@@ -33,7 +36,7 @@ class ArticleModel extends BaseModel
             //指定任务的处理类，若指定至方法时，@methodName
             $jobHandlerClass  = 'app\admin\job\Article@afterInsert';
             //任务的业务数据 . 不能为 resource 类型，其他类型最终将转化为json形式的字符串; jobData 为对象时，存储其public属性的键值对
-            $jobData = ['id' => $id];
+            $jobData = ['id' => $id, 'create_time' => date_time()];
             //任务归属的队列名称，如果为新队列，会自动创建
             $jobQueue = config('queue.default');
 
@@ -52,14 +55,14 @@ class ArticleModel extends BaseModel
             //提交链接
             if ($article['status'] == ArticleModel::STATUS_PUBLISHED) {
                 $jobHandlerClass = 'app\admin\job\Webmaster@pushLinks';
-                $jobData = ['id' => $id, 'url' => $articleUrl];
+                $jobData = ['id' => $id, 'url' => $articleUrl, 'create_time' => date_time()];
                 $jobQueue = config('queue.default');
                 \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
             }
 
             //检测收录,延迟4,6,24小时
             $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
-            $jobData = ['id' => $id, 'url' => $articleUrl];
+            $jobData = ['id' => $id, 'url' => $articleUrl, 'create_time' => date_time()];
             $jobQueue = config('queue.default');
             \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
             \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
@@ -70,7 +73,7 @@ class ArticleModel extends BaseModel
             //指定任务的处理类，若指定至方法时，@methodName
             $jobHandlerClass  = 'app\admin\job\Article@afterUpdate';
             //任务的业务数据 . 不能为 resource 类型，其他类型最终将转化为json形式的字符串; jobData 为对象时，存储其public属性的键值对
-            $jobData = ['id' => $id];
+            $jobData = ['id' => $id, 'create_time' => date_time()];
             //任务归属的队列名称，如果为新队列，会自动创建
             $jobQueue = config('queue.default');
 
@@ -92,13 +95,13 @@ class ArticleModel extends BaseModel
             if ($article->status == ArticleModel::STATUS_PUBLISHED) {
                 $jobHandlerClass  = 'app\admin\job\Webmaster@pushLinks';
                 $articleUrl = get_config('domain_name') . url('cms/Article/viewArticle', ['aid' => $id], true, false);
-                $jobData = ['id' => $id, 'url' => $articleUrl];
+                $jobData = ['id' => $id, 'url' => $articleUrl, 'create_time' => date_time()];
                 $jobQueue = config('queue.default');
                 \think\Queue::push($jobHandlerClass, $jobData, $jobQueue);
 
                 //检测收录,延迟4,6,24小时
                 $jobHandlerClass  = 'app\admin\job\Webmaster@checkIndex';
-                $jobData = ['id' => $id, 'url' => $articleUrl];
+                $jobData = ['id' => $id, 'url' => $articleUrl, 'create_time' => date_time()];
                 $jobQueue = config('queue.default');
                 \think\Queue::later(2 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
                 \think\Queue::later(4 * 60 * 60, $jobHandlerClass, $jobData, $jobQueue);
@@ -120,6 +123,8 @@ class ArticleModel extends BaseModel
             3 => '初审通过',
             4 => '终审拒绝',
             5 => '已发布',
+            -4 => '已入库',
+            -5 => '已抓取',
         ];
         return isset($status[$data['status']])?$status[$data['status']] : '未知';
     }
@@ -140,7 +145,7 @@ class ArticleModel extends BaseModel
     }
 
     //关联表：文章分类
-    protected function categorys()
+    public function categorys()
     {
         return $this->belongsToMany('CategoryModel', config('database.prefix'). CMS_PREFIX . 'category_article', 'category_id', 'article_id');
     }
@@ -156,10 +161,16 @@ class ArticleModel extends BaseModel
         return $this->belongsTo('UserModel', 'uid');
     }
 
-    //关联表：用户
+    //关联表：评论
     protected function comments()
     {
         return $this->hasMany('CommentModel', 'article_id');
+    }
+
+    //关联表crawler_meta表
+    public function crawlerMeta()
+    {
+        return $this->hasOne('CrawlerMetaModel', 'article_id');
     }
 
     //新增文章

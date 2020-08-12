@@ -91,8 +91,8 @@
                     <label class="col-lg-2 control-label">是否发布<span class="text text-danger">*</span></label>
                     <div class="col-lg-10">
                         <select class="form-control" name="status">
-                            <option value="0" {present name="article"}{eq name="article.status" value="0"}selected{/eq}{/present}>存草稿</option>
-                            <option value="5" {present name="article"}{neq name="article.status" value="0"}selected{/neq}{/present}>立即发布</option>
+                            <option value="{:\\app\\common\\model\\ArticleModel::STATUS_DRAFT}" {present name="article"}{eq name="article.status" value="0"}selected{/eq}{/present}>存草稿</option>
+                            <option value="{:\\app\\common\\model\\ArticleModel::STATUS_PUBLISHED}" {present name="article"}{neq name="article.status" value="0"}selected{/neq}{/present}>立即发布</option>
                         </select>
                     </div>
                 </div>

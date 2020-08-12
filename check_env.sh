@@ -2,7 +2,7 @@
 
 basepath=$(cd `dirname $0`; pwd)
 
-echo $basepath
+echo "Current Path: $basepath"
 
 #minimize permissions
 chown apache:apache $basepath/data

@@ -28,7 +28,7 @@ class Message extends Base
                 'count' => $systemMsgCount
             ];
             if ($systemMsgCount > 0) {
-                $result = $MessageModel->where($systemMsgWhere)->field('id,send_time,create_time')->order("create_time desc")->find();
+                $result = $MessageModel->where($systemMsgWhere)->field('id,send_time,create_time')->order("id desc")->find();
                 $systemMsg = array_merge($systemMsg, ['time' => friendly_date(strtotime($result['create_time']))]);
             }
 
@@ -39,7 +39,7 @@ class Message extends Base
                 'count' => $commentMsgCount
             ];
             if ($commentMsgCount > 0) {
-                $result = $MessageModel->where($commentMsgWhere)->field('id,send_time,create_time')->order("create_time desc")->find();
+                $result = $MessageModel->where($commentMsgWhere)->field('id,send_time,create_time')->order("id desc")->find();
                 $commentMsg = array_merge($commentMsg, ['time' => friendly_date(strtotime($result['create_time']))]);
             }
 
@@ -51,7 +51,7 @@ class Message extends Base
                 'count' => $mailMsgCount
             ];
             if ($mailMsgCount > 0) {
-                $result = $MessageModel->where($mailMsgWhere)->field('id,send_time,create_time')->order("create_time desc")->find();
+                $result = $MessageModel->where($mailMsgWhere)->field('id,send_time,create_time')->order("id desc")->find();
                 $mailMsg = array_merge($mailMsg, ['time' => friendly_date(strtotime($result['create_time']))]);
             }
 

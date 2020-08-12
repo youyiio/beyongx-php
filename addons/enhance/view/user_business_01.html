@@ -14,7 +14,7 @@
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover table-condensed">
                 <tr>
-                    <th><input type="checkbox" class="js-check-all" id="0"></th>
+                    <th><input type="checkbox" class="ajax-check-all" id="0"></th>
                     <th>ID</th>
                     <th>所属分类</th>
                     <th>标题</th>
@@ -24,7 +24,7 @@
                 </tr>
                 {foreach name="articleList" item="al"}
                 <tr>
-                    <td><input type="checkbox" class="js-check" id="{$al.id}"></td>
+                    <td><input type="checkbox" class="ajax-check" id="{$al.id}"></td>
                     <td>{$al.id}</td>
                     <td>
                         {volist name="al.categorys" id="vo" empty="未分类"}

@@ -1,0 +1,667 @@
+<div class="modal inmodal fade" id="timeSetModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="padding:10px">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title">24小时文章发布设定</h4>
+            </div>
+
+            <div class="modal-body" style="">
+                <div class="row m-b-sm">
+                    <div class="col-sm-2">预设总篇:<span class="badge badge-default" id="totalCount"></span></div>
+                    <div class="col-sm-2">已分配篇:<span class="badge badge-success" id="allocatedCount"></span></div>
+                    <div class="col-sm-2">未分配篇:<span class="badge badge-warning" id="restCount"></span></div>
+                    <div class="col-sm-3"><span class="btn btn-white btn-xs" id="setting1">0-7点无流量</span></div>
+                    <div class="col-sm-3"><span class="btn btn-warning btn-xs" id="setting0">恢复默认</span></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <ul style="list-style-type:none;-webkit-padding-start: 0px;">
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;0时<input type="number" name="hourCounts[0]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;1时<input type="number" name="hourCounts[1]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;2时<input type="number" name="hourCounts[2]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;3时<input type="number" name="hourCounts[3]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;4时<input type="number" name="hourCounts[4]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;5时<input type="number" name="hourCounts[5]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;6时<input type="number" name="hourCounts[6]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;7时<input type="number" name="hourCounts[7]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;8时<input type="number" name="hourCounts[8]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        &nbsp;&nbsp;9时<input type="number" name="hourCounts[9]" value="0"
+                                                             style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        10时<input type="number" name="hourCounts[10]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        11时<input type="number" name="hourCounts[11]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul style="list-style-type:none;-webkit-padding-start: 0px;">
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        12时<input type="number" name="hourCounts[12]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        13时<input type="number" name="hourCounts[13]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        14时<input type="number" name="hourCounts[14]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        15时<input type="number" name="hourCounts[15]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        16时<input type="number" name="hourCounts[16]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        17时<input type="number" name="hourCounts[17]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        18时<input type="number" name="hourCounts[18]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        19时<input type="number" name="hourCounts[19]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        20时<input type="number" name="hourCounts[20]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        21时<input type="number" name="hourCounts[21]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        22时<input type="number" name="hourCounts[22]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="js-li">
+                                <div class="row">
+                                    <div class="col-sm-6 visible-md visible-lg">
+                                        <input type="range" min="0" max="10" value="0">
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        23时<input type="number" name="hourCounts[23]" value="0" style="width:50%">篇
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row" id="dayChart" style="height:200px;">
+                </div>
+
+                <div class="alert alert-danger" id="alertDiv" style="display:none">
+                    <span>警告</span> <a class="alert-link" href="javascript:$('#timeSetModal').modal('hide')">确定该方案</a>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确认分配方案</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Highcharts -->
+<script src="//cdn.hcharts.cn/highcharts/highcharts.js"></script>
+<script>
+    var rate = [0.2, 0.3, 0.3, 0.2, 0.2, 0.1, 0.2, 0.4, 0.7, 0.9, 1, 1.1, 1.2, 1.3, 1.3, 1.2, 1.1, 1, 0.9, 0.8, 0.7, 0.3, 0.3, 0.2]; //流量趋势数组
+
+    var maxArray = []; //最大限值数组
+    var allocatedArray; //设置值数组
+    var allocatedCount = 0; //已分配值
+    var totalCount; //总分配篇
+
+    var dayMax = 100; //每天最大值预先设置10篇
+    var hourMax; //每个小时最大量,用于rang控件
+
+    var chartWidth = 800;
+    var checkModalHide = true;
+    var jsLi = $('.js-li'); //设置框
+
+    var preInitArray = {$task.times_set_json |default = '0'}; //预初始化的分配数组，可能来自数据库的值
+
+    //如果是修改内容 预先设定allocatedArray为数据库的值
+    if (preInitArray != null || preInitArray == '0') {
+        allocatedArray = preInitArray;
+    }
+
+
+    //每天次数更改后,默认智能分配次数
+    $('input[name="countPerDay"]').change(function (e) {
+        totalCount = parseInt($(this).val());
+        allocateByDefault();
+    });
+
+    //模态框开启后的操作
+    $('#timeSetModal').on('shown.bs.modal', function (e) {
+        checkModalHide = false;
+        var countPerDay = parseInt($('input[name="countPerDay"]').val());
+
+        //允许后设定值
+        if (isNaN(countPerDay) || countPerDay <= 0 ) {
+            initAllocateVars(1);
+
+            totalCount = 200;
+            allocatedCount = 0;
+            createMaxArr(totalCount);
+
+            $("#restCount").text(totalCount);
+
+            updateAllocateData(allocatedArray, totalCount, allocatedCount);
+            showChart(dayMax, allocatedArray, maxArray);
+        } else {
+            var modalW = $('#timeSetModal').find('.row').css('width');
+            console.log(modalW);
+            // $('#dayChart').css('width',modalW);
+            chartWidth = parseInt(modalW);
+
+            //新增的第二次修改
+            if (totalCount > 0 && totalCount == countPerDay) {
+                console.log('no change');
+                return false;
+            }
+
+            totalCount = countPerDay;
+            if (totalCount >= 30) {
+                console.log('totalCount>=30');
+                //每天次数大于等于30次 就选用智能分配
+                $('#setting0').show();
+                $('#setting1').show();
+
+                allocateByDefault(); //初始化
+            } else {
+                //console.log('totalCount<30');
+                //每天次数小于30次 顺序分配
+                $('#setting0').hide();
+                $('#setting1').hide();
+                initAllocateVars(0);
+                if (allocatedCount < totalCount) {
+                    var dValue = totalCount - allocatedCount;
+
+                    while (dValue > 0) {
+                        var rand = Math.round(Math.random() * 100);
+                        var i;
+                        if (rand <= 85) {
+                            i = 8 + Math.round(Math.random() * 10);
+                        } else if (rand <= 95) {
+                            i = 18 + Math.round(Math.random() * 5);
+                        } else {
+                            i = 0 + Math.round(Math.random() * 8);
+                        }
+
+                        if (allocatedArray[i] < dayMax) {
+                            allocatedArray[i]++;
+                            dValue--;
+                            if (dValue <= 0) {
+                                break;
+                            }
+                        }
+
+                    }
+                }
+
+                $.each(jsLi, function (i, v) {
+                    var numberInput = $(v).find('input[type="number"]');
+                    var rangeInput = $(v).find('input[type="range"]');
+                    numberInput.val(allocatedArray[i]);
+                    rangeInput.val(allocatedArray[i]);
+                    rangeInput.attr('max', dayMax);
+                    allocatedCount = allocatedCount + allocatedArray[i];
+                });
+
+                updateAllocateData(allocatedArray, totalCount, allocatedCount);
+                showChart(dayMax, allocatedArray, maxArray);
+            }
+        }
+
+    });
+
+    //模态框关闭前检测未分配
+    $('#timeSetModal').on('hide.bs.modal', function (e) {
+        var restCount = $('#restCount').text();
+        if (restCount > 0) {
+            if (checkModalHide == false) {
+                let c = layer.confirm(restCount + ' 篇未分配，确定该方案？', {
+                    btn: ['确定','取消'] //按钮
+                }, function() {
+                    layer.close(c);
+
+                    checkModalHide = true;
+                    $('#timeSetModal').modal('hide');
+
+                    $('input[name="countPerDay"]').val(allocatedCount)
+                }, function() {
+                    layer.close(c);
+                });
+
+                //阻止弹出框关闭，不往下调函数
+                e.preventDefault();
+                return false;
+            }
+
+        } else {
+            $('input[name="countPerDay"]').val(allocatedCount)
+        }
+    });
+
+    $('#timeSetModal').on('hiden.ba.modal', function (e) {
+        checkModalHide = true;
+    });
+
+    //初始化
+    function initAllocateVars(isInitMax) {
+        allocatedCount = 0;
+        allocatedArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        if (isInitMax == 0) {
+            maxArray = [];
+        }
+    }
+
+    //限值数组创建
+    function createMaxArr(totalCount) {
+        maxArray = [];
+        hourMax = Math.ceil(totalCount / 24) * 2;
+        $.each(rate, function (i, v) {
+            maxArray[i] = Math.ceil(hourMax * v);
+        })
+    }
+
+    //使用默认的智能分配
+    function allocateByDefault() {
+        initAllocateVars(0);
+        createMaxArr(totalCount);
+
+        for (var i = 8; i <= 31; i++) {
+            var k = i;
+            if (k >= 24) {
+                k = k - 24;
+            }
+            if (allocatedCount < totalCount) {
+                allocatedArray[k] = Math.ceil(hourMax * rate[k] / 2);
+                allocatedCount = allocatedCount + allocatedArray[k];
+                if (allocatedCount > totalCount) {
+                    var dValue = allocatedCount - totalCount;
+                    allocatedArray[k] = allocatedArray[k] - dValue;
+                    allocatedCount = allocatedCount - dValue;
+                }
+            } else {
+                allocatedArray[k] = 0;
+            }
+        }
+        if (allocatedCount < totalCount) {
+            var dValue = totalCount - allocatedCount;
+            while (dValue > 0) {
+                for (var i = 8; i <= 18; i++) {
+                    if (allocatedArray[i] < hourMax) {
+                        allocatedArray[i]++;
+                        dValue--;
+                        if (dValue <= 0) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        allocatedCount = 0;
+        $.each(jsLi, function (i, v) {
+            var numberInput = $(v).find('input[type="number"]');
+            var rangeInput = $(v).find('input[type="range"]');
+            numberInput.val(allocatedArray[i]);
+            rangeInput.val(allocatedArray[i]);
+            rangeInput.attr('max', maxArray[i]);
+            allocatedCount = allocatedCount + allocatedArray[i];
+        });
+
+        updateAllocateData(allocatedArray, totalCount, allocatedCount);
+        showChart(hourMax, allocatedArray, maxArray);
+    }
+
+    //使用用户自定义的分配
+    function allocateByUser() {
+        //console.log('user setting');
+        initAllocateVars(1);
+
+        $.each(jsLi, function (i, v) {
+            var numberInput = $(v).find('input[type="number"]');
+            var value = parseInt(numberInput.val());
+            allocatedArray[i] = value;
+            allocatedCount = allocatedCount + value;
+        });
+
+        updateAllocateData(allocatedArray, totalCount, allocatedCount);
+        if (hourMax == undefined) {
+            hourMax = dayMax;
+        }
+        showChart(hourMax, allocatedArray, maxArray);
+    }
+
+    // 滚动条与输入框数值对应
+    $('.js-li input[type="range"]').change(function (e) {
+        var restCount = parseInt($('#restCount').text());
+        var numberInput = $(this).parents('li').find('input[type="number"]');
+        var number = parseInt(numberInput.val());
+        var value = parseInt($(this).val());
+        if (value > number) {
+            if ((value - number) > restCount) {
+                number = number + restCount;
+                value = number;
+                $(this).val(value);
+                layer.msg(totalCount + '篇已全部分配');
+            } else {
+                number = value;
+            }
+        } else {
+            number = value;
+        }
+        numberInput.val(number);
+        allocateByUser();
+    });
+    //数值更改
+    $('.js-li input[type="number"]').change(function (e) {
+        var restCount = parseInt($('#restCount').text());
+        var rangeInput = $(this).parents('li').find('input[type="range"]');
+        var number = parseInt($(this).val());
+        var value = parseInt(rangeInput.val());
+        if (number > value) {
+            if ((number - value) > restCount) {
+                value = value + restCount;
+                number = value;
+                $(this).val(number);
+                layer.msg('篇已全部分配');
+            } else {
+                value = number;
+            }
+        } else {
+            value = number;
+        }
+        rangeInput.val(value);
+        allocateByUser();
+    });
+
+
+    //更新分配数据，包括设置底部统计标签
+    function updateAllocateData(allocatedArray, totalCount, allocatedCount) {
+        let allocatedArrayJson = JSON.stringify(allocatedArray);
+        console.log('分配结果：' + allocatedArrayJson);
+        $("input[name='hourCounts']").val(allocatedArrayJson);
+
+        $('#totalCount').text(totalCount);
+        $('#allocatedCount').text(allocatedCount);
+        $('#restCount').text(totalCount - allocatedCount);
+    }
+
+    //默认设定
+    $('#setting0').click(function (e) {
+        allocateByDefault();
+    });
+    //设定0-7点无流量
+    $('#setting1').click(function (e) {
+        allocatedCount = 0;
+        var dValue = 0;
+        for (var i = 0; i <= 6; i++) {
+            dValue = dValue + allocatedArray[i];
+            allocatedArray[i] = 0;
+        }
+
+        while (dValue > 0) {
+            for (var i = 7; i <= 23; i++) {
+                if (allocatedArray[i] < maxArray[i]) {
+                    allocatedArray[i] = allocatedArray[i] + 1;
+                    dValue--;
+                    if (dValue <= 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        $.each(jsLi, function (i, v) {
+            var numberInput = $(v).find('input[type="number"]');
+            var rangeInput = $(v).find('input[type="range"]');
+            numberInput.val(allocatedArray[i]);
+            rangeInput.val(allocatedArray[i]);
+            rangeInput.attr('max', maxArray[i]);
+            allocatedCount = allocatedCount + allocatedArray[i];
+        });
+
+        updateAllocateData(allocatedArray, totalCount, allocatedCount);
+        showChart(hourMax, allocatedArray, maxArray);
+    });
+
+    //图表渲染
+    function showChart(hourMax, allocatedArray, maxArray) {
+
+        $('#dayChart').highcharts({
+            chart: {
+                width: chartWidth,
+            },
+            title: {
+                text: '24小时直观分配图'
+            },
+            subtitle: {
+                text: '红线为最大限值'
+            },
+            xAxis: {
+                categories: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23']
+            },
+            yAxis: {
+                min: 0,
+                max: hourMax,
+                title: {
+                    text: '篇'
+                }
+            },
+            credits: {
+                text: '{:get_config("domain_name")}',
+                href: ''
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0
+                }
+            },
+            series: [{
+                type: 'column',
+                name: '设定值',
+                data: allocatedArray
+            }, {
+                type: 'spline',
+                color: 'red',
+                name: '限值',
+                data: maxArray
+            }]
+        });
+    }
+</script>

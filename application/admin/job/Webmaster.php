@@ -29,7 +29,7 @@ class Webmaster
      */
     public function checkIndex(Job $job, $data)
     {
-        Log::info('检测文章索引,Queue Job开始...');
+        Log::info("job[{$data['create_time']}] 检测文章索引,Queue Job开始...");
 
         $aid = $data['id'];
         if (empty($aid)) {
@@ -73,7 +73,7 @@ class Webmaster
      */
     public function pushLinks(Job $job, $data)
     {
-        Log::info('提交链接,Queue Job开始...');
+        Log::info("job[{$data['create_time']}] 提交链接,Queue Job开始...");
 
         $urls = [];
         if (isset($data['urls'])) {

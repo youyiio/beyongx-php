@@ -1,0 +1,118 @@
+{extend name='public/base'}
+{block name="title"}数据入库{/block}
+{block name='css'}
+<link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css">
+{/block}
+
+{block name='main'}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>数据入库</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    <a class="close-link"><i class="fa fa-times"></i></a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="row m-b-sm">
+                    <div class="col-lg-4 col-md-4">
+                        <button class="btn btn-primary btn-sm ajax-batch-set" type="button" data-action="{:url(request()->controller().'/warehouse')}">批量入库</button>
+                    </div>
+                    <div class="col-lg-8 col-md-8 text-right">
+                        <form class="form-inline ajax-form" action="{:url(request()->controller().'/warehouse')}" method="post">
+                            <div class="form-group">
+                                <select name="crawlerId" class="form-control" onchange="selectChange()">
+                                    <option value="-1">请选择采集列表</option>
+                                    {volist name='crawlerList' id='vo'}
+                                    <option value="{$vo.id}" {notempty name="Think.get.crawlerId"}{eq name="Think.get.crawlerId" value="$vo['id']"}selected{/eq}{/notempty}>{$vo.title}</option>
+                                    {/volist}
+                                </select>
+                            </div>
+
+                            <button id="warehouseAll" class="btn btn-primary" style="margin-bottom: 0px">全部入库</button>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                    <div class="fixed-table-container">
+                        <table class="table table-bordered table-hover table-striped table-condensed col-lg-12">
+                            <thead>
+                            <tr>
+                                <th><div class="th-inner"><input type="checkbox" class="ajax-check-all" id="0"></div></th>
+                                <th><div class="th-inner">ID</div></th>
+                                <th><div class="th-inner">分类</div></th>
+                                <th><div class="th-inner">标题</div></th>
+                                <th><div class="th-inner">采集规则</div></th>
+                                <th><div class="th-inner">状态</div></th>
+                                <th><div class="th-inner">创建时间</div></th>
+                                <th><div class="th-inner">操作</div></th>
+                            </tr>
+                            </thead>
+                            <tbody class="body">
+                            {foreach name='articleList' item='vo'}
+                            <tr>
+                                <td><input type="checkbox" class="ajax-check" value="{$vo.id}"></td>
+                                <td>{$vo.id}</td>
+                                <td>
+                                    {volist name="vo.categorys" id="categoryVo" empty="未分类"}
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
+                                    {/volist}
+                                </td>
+                                <td><a href="{:url('Article/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a></td>
+                                <td>{$vo.crawlerMeta.crawler.title}</td>
+                                <td>{$vo.status_text}</td>
+                                <td>{$vo.create_time}</td>
+                                <td>
+                                    <a href="{:url('Article/viewArticle',['id'=>$vo['id']])}" class="btn btn-xs btn-info" title="查看"><i class="fa fa-eye"></i>查看</a>
+                                    <a href="{:url(request()->controller().'/warehouse')}" class="btn btn-xs btn-primary ajax-a" data-id="{$vo['id']}" title="入库"><i class="fa  fa-caret-square-o-down"></i>入库</button></a>
+                                </td>
+                            </tr>
+                            {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+                    {$pages|raw}
+                </div>
+            </div>
+    </div>
+    </div>
+</div>
+{/block}
+
+{block name='js'}
+<script>
+    //切换采集列表
+    function selectChange() {
+        let crawlerId = $("select[name='crawlerId'] option:selected").val();
+        window.location.href = "{:url('Crawler/warehouse')}?crawlerId=" + crawlerId;
+    }
+
+    //批量入库
+    $(".ajax-batch-set").click(function () {
+        let ids = getAjaxCheckedValues();
+        if (!ids) {
+            layer.msg('请选择要入库的文章!', function(){});
+            return;
+        }
+
+        let action = $(this).data('action');
+        let aids = JSON.stringify(ids);
+        $.post(action, {aids: aids}, function(data) {
+            if (data.code == 0) {
+                layer.msg(data.msg, function(){});
+                return false;
+            }
+
+            layer.msg(data.msg);
+            setTimeout(function () {
+                location.reload();
+            }, 800);
+        });
+
+    });
+</script>
+{/block}

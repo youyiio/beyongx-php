@@ -86,4 +86,10 @@ class CrawlerMetaModel extends BaseMetaModel
 
         return $this->where($where)->column('meta_value');
     }
+
+    //关联表crawler
+    public function crawler()
+    {
+        return $this->hasOne('CrawlerModel', 'id', 'target_id');
+    }
 }

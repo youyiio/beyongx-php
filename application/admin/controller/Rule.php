@@ -406,7 +406,7 @@ class Rule extends Base
 
             // 修改权限
             $AuthGroupAccessModel = new AuthGroupAccessModel();
-            $AuthGroupAccessModel->deleteData(['uid'=>$uid]);
+            $AuthGroupAccessModel->where(['uid'=>$uid])->delete();
             $group = [];
             foreach ($data['group_ids'] as $k => $v) {
                 $group[] = [
@@ -424,7 +424,7 @@ class Rule extends Base
                 $data['password'] = encrypt_password($data['password']);
             }
 
-            $result = $userModel->editUser($data);
+            $result = $userModel->editUser($uid, $data);
             if ($result) {
                 // 操作成功
                 $this->success('编辑成功',url('Rule/editAdmin',['id'=>$uid]));

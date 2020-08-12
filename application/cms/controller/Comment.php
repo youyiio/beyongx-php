@@ -47,6 +47,10 @@ class Comment extends Base
      */
     public function create($aid=0)
     {
+        if (get_config('article_comment_switch') === 'false'){
+            $this->error('评论失败:评论功能已关闭');
+        }
+
         $ArticleModel = new ArticleModel();
         $article = $ArticleModel->field('id,title')->find($aid);
         $this->assign('aid', $aid);
@@ -63,6 +67,12 @@ class Comment extends Base
             $content = remove_xss($content);
 
             $data = [];
+            if (get_config('comment_audit_switch') === 'true'){
+                $data['status'] = CommentModel::STATUS_PUBLISHING;
+            } else {
+                $data['status'] = CommentModel::STATUS_PUBLISHED;
+            }
+
             if (session('uid')) {
                 $uid = session('uid');
                 $user = UserModel::get($uid);

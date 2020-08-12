@@ -27,7 +27,7 @@
                     <div class="col-lg-6">
                         <h2>分组成员</h2>
                         <div data-toggle="buttons" class="btn-group">
-                            <label class="ladda-button btn btn-sm btn-danger js-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
@@ -60,7 +60,7 @@
                     <div class="col-lg-6">
                         <h2>未加入分组用户</h2>
                         <div data-toggle="buttons" class="btn-group">
-                            <label class="ladda-button btn btn-sm btn-primary js-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
+                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
@@ -123,22 +123,17 @@
         });
     }
 
-    /*function successSetGroupName(e,data){
-      admin.log(11);
-      e.prop('disabled',false).addClass('text-danger').text('成功设置为'+groupName);
-    }*/
-
     //批量任务操作 审核,取消审核,删除
-    var l = $('.js-batch-set').ladda();
+    var l = $('.ajax-batch-set').ladda();
     l.click(function(){
         // Start loading
         $(this).ladda( 'start' );
-        var uids = checkedValue(); //选择的任务
-        var action = $(this).data('action');
-        // admin.log(action);
+        const uids = getAjaxCheckedValues();
+        const action = $(this).data('action');
+
         $.each(uids, function(i, uid) {
             $.post(action, {uid: uid}, function(data) {
-                admin.log(data);
+                console.log(data);
                 if (data.code == 0 && uids.length == 1) {
                     layer.msg(data.msg, function(){});
                     location.reload();

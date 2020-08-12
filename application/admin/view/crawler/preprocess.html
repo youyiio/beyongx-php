@@ -1,0 +1,171 @@
+{extend name='public/base' /}
+{block name="title"}数据预处理{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/chosen/chosen.css" rel="stylesheet">
+{/block}
+
+{block name='main'}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>数据预处理</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    <a class="close-link"><i class="fa fa-times"></i></a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <form class="form form-horizontal" action="{:url('Crawler/preprocess')}" method="get">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">采集规则<span class="text text-danger">*</span>:</label>
+                                <div class="col-lg-10">
+                                    <select name="crawlerId" class="form-control" onchange="selectChange()">
+                                        <option value="-1">查看全部</option>
+                                        {volist name='crawlerList' id='vo'}
+                                        <option value="{$vo.id}" {notempty name="Think.get.crawlerId"}{eq name="Think.get.crawlerId" value="$vo['id']"}selected{/eq} {/notempty}>
+                                            {$vo.title}
+                                        </option>
+                                        {/volist}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">替换范围<span class="text text-danger">*</span>:</label>
+                                <div class="col-lg-10">
+                                    <select class="form-control" name="replaceField" data-placeholder="选择替换范围">
+                                        <option value="all" {notempty name="Think.get.crawlerId"}{eq name="Think.get.replaceField" value="all"} selected{/eq}{/notempty}>全部(all)</option>
+                                        <option value="title" {notempty name="Think.get.crawlerId"}{eq name="Think.get.replaceField" value="title"} selected{/eq}{/notempty}>标题(title)</option>
+                                        <option value="keywords" {notempty name="Think.get.crawlerId"}{eq name="Think.get.replaceField" value="keywords"} selected{/eq}{/notempty}>关键词(keywords)</option>
+                                        <option value="description" {notempty name="Think.get.crawlerId"}{eq name="Think.get.replaceField" value="description"} selected{/eq}{/notempty}>简介(description)</option>
+                                        <option value="content" {notempty name="Think.get.crawlerId"}{eq name="Think.get.replaceField" value="content"} selected{/eq}{/notempty}>内容(content)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">替换规则<span class="text text-danger">*</span>:</label>
+                                <div class="col-lg-5">
+                                    <input type="text" name="searchText" placeholder="请输入替换的文字，支持正则表达式/regular/Uixs" class="form-control" value="{$Think.get.searchText|default=''}" autocomplete="off">
+                                    <span class="help-block m-b-none"></span>
+                                </div>
+                                <div class="col-lg-5">
+                                    <input type="text" name="replaceText" placeholder="请输入替换后的文本" class="form-control" value="{$Think.get.replaceText|default=''}" autocomplete="off">
+                                    <span class="help-block m-b-none"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-lg-offset-10 col-lg-2 text-right">
+                                    <button id="replaceButton" class="btn btn-warning" type="button"><i class="fa fa-pencil"></i>替换</button>
+                                    <button class="btn btn-primary" type="submit"><i class="fa fa-eye"></i>查找</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 文章列表 -->
+                <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                    <div class="fixed-table-container">
+                        <table class="table table-bordered table-hover table-striped table-condensed col-lg-12">
+                            <thead>
+                            <tr>
+                                <th><div class="th-inner">ID</div></th>
+                                <th><div class="th-inner">分类</div></th>
+                                <th><div class="th-inner">标题</div></th>
+                                <th><div class="th-inner">采集规则</div></th>
+                                <th><div class="th-inner">状态</div></th>
+                                <th><div class="th-inner">发布时间</div></th>
+                                <th><div class="th-inner">创建时间</div></th>
+                                <th><div class="th-inner">操作</div></th>
+                            </tr>
+                            </thead>
+                            <tbody class="body">
+                            {foreach name='articleList' item='vo'}
+                            <tr>
+                                <td>{$vo.id}</td>
+                                <td>
+                                    {volist name="vo.categorys" id="categoryVo" empty="未分类"}
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
+                                    {/volist}
+                                </td>
+                                <td><a href="{:url('Article/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a></td>
+                                <td>{$vo.crawlerMeta.crawler.title}</td>
+                                <td>{$vo.status_text}</td>
+                                <td>{if $vo.status == \app\common\model\ArticleModel::STATUS_PUBLISHED}
+                                    {$vo.post_time}
+                                    {else /}
+                                    {notempty name="$vo.timing"}{$vo.timing}<i class="fa fa-clock-o"></i>{/notempty}
+                                    {/if}
+                                </td>
+                                <td>{$vo.create_time}</td>
+                                <td><a href="{:url('Article/viewArticle',['id'=>$vo['id']])}" class="btn btn-xs btn-info J_addMenuTab" data-menu-name="查看文章" title="查看"><i class="fa fa-eye"></i>查看</a></td>
+                            </tr>
+                            {/foreach}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {$pages|raw}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{/block}
+
+{block name='js'}
+<script src="__PUBLIC__/static/inspinia/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<script>
+    function selectChange() {
+        let crawlerId = $("select[name='crawlerId'] option:selected").val();
+        window.location.href = "{:url('Crawler/preprocess')}?crawlerId=" + crawlerId;
+    }
+    
+    $("#replaceButton").click(function () {
+        let crawlerId = $("select[name='crawlerId']").val();
+        let searchText = $("input[name='searchText']").val();
+        if (crawlerId < 0) {
+            layer.msg('请选择替换规则');
+            return false;
+        }
+        if (!searchText) {
+            layer.msg('请输入需要替换的内容');
+            return false;
+        }
+        let data = {
+            crawlerId: crawlerId,
+            replaceField: $("select[name='replaceField']").val(),
+            searchText: searchText,
+            replaceText: $("input[name='replaceText']").val(),
+        };
+
+        let loading = layer.load(1);
+        $.ajax({
+            type: 'get',
+            url: '{:url(request()->controller().\'/\'.request()->action())}',
+            data: data,
+            success: function (resp) {
+                layer.close(loading);
+                if (resp.code == 0) {
+                    layer.msg(resp.msg, function() {});
+                    return;
+                }
+
+                layer.msg(resp.msg);
+                setTimeout(function () {
+                    //location.reload();
+                }, 800);
+            }
+        });
+    });
+</script>
+{/block}

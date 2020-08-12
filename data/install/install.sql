@@ -493,6 +493,7 @@ create table cms_crawler_meta
    meta_key             varchar(32) not null,
    meta_value           text not null,
    remark               varchar(128),
+   article_id           int,
    update_time     datetime not null,
    create_time          datetime not null,
    primary key (id)
@@ -844,10 +845,12 @@ truncate table cms_config;
 
 INSERT INTO `cms_config` VALUES ('article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 'article', 0);
 INSERT INTO `cms_config` VALUES ('article_audit_switch', 'false', '文章审核', 'bool', 'article', 1);
-INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
-INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text', 'article', 3);
-INSERT INTO `cms_config` VALUES ('image_upload_quality', '80', '上传图片质量', 'text', 'article', 4);
-INSERT INTO `cms_config` VALUES ('image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 'article', 5);
+INSERT INTO `cms_config` VALUES ('article_comment_switch', 'true', '允许评论', 'bool', 'article', 2);
+INSERT INTO `cms_config` VALUES ('comment_audit_switch', 'true', '评论审核', 'bool', 'article', 3);
+INSERT INTO `cms_config` VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 4);
+INSERT INTO `cms_config` VALUES ('article_water_text', '', '水印文本', 'text', 'article', 5);
+INSERT INTO `cms_config` VALUES ('image_upload_quality', '80', '上传图片质量', 'text', 'article', 6);
+INSERT INTO `cms_config` VALUES ('image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 'article', 7);
 INSERT INTO `cms_config` VALUES ('bank_card', 'xxx', '公司银行账号', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('address', '厦门市思明区软件园二期望海路000号000室', '联系地址','text', 'contact', 1);
@@ -944,7 +947,7 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (216, 21, '取消头条', 'admin/Person/deleteTop', '', 1, 0, 1, 1,'','admin');
 
 #用户管理模块
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (3, 0, '用户管理', 'admin/ShowNav/User', 'fa-users', 1, 1, 15, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (3, 0, '用户管理', 'admin/ShowNav/User', 'fa-users', 1, 1, 16, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (31, 3, '用户列表', 'admin/User/index', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (32, 3, '新增用户', 'admin/User/addUser', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (33, 3, '用户统计', 'admin/User/userStat', '', 1, 1, 1, 1,'','admin');
@@ -957,47 +960,55 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (317, 31, '冻结用户', 'admin/User/freeze', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (318, 33, '统计报表数据', 'admin/User/echartShow', '', 1, 0, 1, 1,'','admin');
 
-#菜单管理
-#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (4, 0, '菜单管理', 'admin/Menu/index', 'fa-th-list', 1, 0, 16, 1,'','admin');
-#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (41, 4, '新增菜单', 'admin/Menu/add', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (42, 4, '修改菜单', 'admin/Menu/edit', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (43, 4, '菜单排序', 'admin/Menu/order', '', 1, 0, 1, 1,'','admin');
-#INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (44, 4, '删除菜单', 'admin/Menu/delete', '', 1, 0, 1, 1,'','admin');
-
 #权限管理模块
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (5, 0, '权限管理', 'admin/ShowNav/Rule', 'fa-key', 1, 1, 17, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (51, 5, '权限规则', 'admin/Rule/index', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (511, 51, '新增权限规则', 'admin/Rule/add', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (512, 51, '编辑权限规则', 'admin/Rule/edit', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (513, 51, '删除权限规则', 'admin/Rule/delete', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (514, 51, '排序权限规则', 'admin/Rule/order', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (515, 51, '设置菜单值', 'admin/Rule/setMenu', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (52, 5, '用户分组', 'admin/Rule/group', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (521, 52, '新增分组', 'admin/Rule/addGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (522, 52, '编辑分组', 'admin/Rule/editGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (523, 52, '删除分组', 'admin/Rule/deleteGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (524, 52, '分配权限', 'admin/Rule/ruleGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (525, 52, '分组成员', 'admin/Rule/checkUser', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (526, 52, '添加成员', 'admin/Rule/addUserToGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (527, 52, '移除成员', 'admin/Rule/deleteUserFromGroup', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (53, 5, '管理员列表', 'admin/Rule/userList', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (531, 53, '添加管理员', 'admin/Rule/addAdmin', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (532, 53, '编辑管理员', 'admin/Rule/editAdmin', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (4, 0, '权限管理', 'admin/ShowNav/Rule', 'fa-key', 1, 1, 17, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (41, 4, '权限规则', 'admin/Rule/index', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (411, 41, '新增权限规则', 'admin/Rule/add', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (412, 41, '编辑权限规则', 'admin/Rule/edit', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (413, 41, '删除权限规则', 'admin/Rule/delete', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (414, 41, '排序权限规则', 'admin/Rule/order', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (415, 41, '设置菜单值', 'admin/Rule/setMenu', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (42, 4, '用户分组', 'admin/Rule/group', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (421, 42, '新增分组', 'admin/Rule/addGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (422, 42, '编辑分组', 'admin/Rule/editGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (423, 42, '删除分组', 'admin/Rule/deleteGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (424, 42, '分配权限', 'admin/Rule/ruleGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (425, 42, '分组成员', 'admin/Rule/checkUser', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (426, 42, '添加成员', 'admin/Rule/addUserToGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (427, 42, '移除成员', 'admin/Rule/deleteUserFromGroup', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (43, 4, '管理员列表', 'admin/Rule/userList', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (431, 43, '添加管理员', 'admin/Rule/addAdmin', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (432, 43, '编辑管理员', 'admin/Rule/editAdmin', '', 1, 0, 1, 1,'','admin');
 
 #系统管理模块
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (6, 0, '系统管理', 'admin/ShowNav/System', 'fa-cog', 1, 1, 18, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (61, 6, '系统设置', 'admin/System/index', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (611, 61, '基本设置', 'admin/System/index', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (612, 61, '联系信息', 'admin/System/contact', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (613, 61, '通知邮箱', 'admin/System/email', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (614, 61, 'SEO设置', 'admin/System/seo', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (62, 6, '友情链接', 'admin/System/links', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (621, 62, '添加友链', 'admin/System/addLinks', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (622, 62, '修改友链', 'admin/System/editLinks', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (623, 62, '排序友链', 'admin/System/orderLinks', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (624, 62, '删除友链', 'admin/System/deleteLinks', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (63, 6, '清理缓存', 'admin/System/clearCache', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (64, 6, '日志审计', 'admin/System/actionLogs', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (5, 0, '系统管理', 'admin/ShowNav/System', 'fa-cog', 1, 1, 18, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (51, 5, '系统设置', 'admin/System/index', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (511, 51, '基本设置', 'admin/System/index', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (512, 51, '联系信息', 'admin/System/contact', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (513, 51, '通知邮箱', 'admin/System/email', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (514, 51, 'SEO设置', 'admin/System/seo', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (52, 5, '友情链接', 'admin/System/links', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (521, 52, '添加友链', 'admin/System/addLinks', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (522, 52, '修改友链', 'admin/System/editLinks', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (523, 52, '排序友链', 'admin/System/orderLinks', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (524, 52, '删除友链', 'admin/System/deleteLinks', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (53, 5, '清理缓存', 'admin/System/clearCache', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (54, 5, '日志审计', 'admin/System/actionLogs', '', 1, 1, 1, 1,'','admin');
+
+#扩展功能 (主题和插件)
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (6, 0, '扩展管理', 'admin/ShowNav/Extension', 'fa-th-list', 1, 1, 15, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (61, 6, '主题管理', 'admin/Theme/index', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (611, 6, '查看主题', 'admin/Theme/viewTheme', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (612, 6, '主题演示', 'admin/Theme/demo', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (613, 6, '下载主题', 'admin/Theme/download', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (614, 6, '上传主题', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (615, 6, '更新主题', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (62, 6, '插件管理', 'admin/Addon/index', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (621, 6, '查看插件', 'admin/Theme/viewTheme', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (622, 6, '插件演示', 'admin/Theme/demo', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (623, 6, '下载插件', 'admin/Theme/download', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (624, 6, '上传插件', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (625, 6, '更新插件', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
 
 #文章管理
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7, 0, '文章管理', 'admin/ShowNav/Article', 'fa-file-text', 1, 1, 11, 1,'','admin');
@@ -1016,10 +1027,12 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7193, 71, '定时发布', 'admin/Article/setTimingPost', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7194, 71, '文章访问统计', 'admin/Article/articleStat', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7195, 71, '文章访问量统计图', 'admin/Article/echartShow', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7196, 71, '批量修改分类', 'admin/Article/batchCategory', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (72, 7, '评论管理', 'admin/Article/commentList', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (721, 72, '审核评论', 'admin/Article/auditComment', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (722, 72, '回发评论', 'admin/Article/postComment', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (723, 72, '删除评论', 'admin/Article/deleteComment', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (724, 72, '查看评论', 'admin/Article/viewComments', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (73, 7, '文章分类', 'admin/Article/categoryList', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (731, 73, '新增分类', 'admin/Article/addCategory', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (732, 73, '编辑分类', 'admin/Article/editCategory', '', 1, 0, 1, 1,'','admin');
@@ -1048,14 +1061,17 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 
 #采集系统
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (10, 0, '采集系统', 'admin/ShowNav/Crawler', 'fa-bug', 1, 1, 14, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (101, 10, '规则列表', 'admin/Crawler/index', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (101, 10, '采集列表', 'admin/Crawler/index', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1011, 101, '编辑规则', 'admin/Crawler/edit', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1012, 101, '采集操作', 'admin/Crawler/startCrawl', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1013, 101, '删除规则', 'admin/Crawler/deleteCrawler', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1014, 101, '克隆规则', 'admin/Crawler/cloneCrawler', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (102, 10, '新增规则', 'admin/Crawler/create', '', 1, 1, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1021, 102, '采集测试', 'admin/Crawler/crawlTest', '', 1, 1, 1, 1,'','admin');
-
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (102, 10, '新增采集', 'admin/Crawler/create', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1021, 102, '采集测试', 'admin/Crawler/crawlTest', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (103, 10, '数据预处理', 'admin/Crawler/preprocess', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (1031, 103, '数据清洗', 'admin/Crawler/cleanData', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (104, 10, '数据入库', 'admin/Crawler/warehouse', '', 1, 1, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (105, 10, '发布计划', 'admin/Crawler/postPlan', '', 1, 1, 1, 1,'','admin');
 
 #系统定制,从200开始
 #INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (200, 0, 'CRM管理', 'admin/ShowNav/Crm', 'fa-suitcase', 1, 1, 1, 1,'','admin');
@@ -1073,7 +1089,7 @@ INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (1, '超级�
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (2, '普通管理员', 1, '');
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (3, '网站编辑', 1, '');
 INSERT INTO `cms_auth_group` (`id`,`title`,`status`,`rules`) VALUES (4, '普通用户', 1, '');
-#update `cms_auth_group` set rules=(select GROUP_CONCAT(DISTINCT id SEPARATOR ',') from cms_auth_rule) where id = 1;
+#update `cms_auth_group` set rules=(select GROUP_CONCAT(DISTINCT id SEPARATOR ',') from cms_auth_rule where belongto='admin') where id = 1;
 
 truncate table cms_auth_group_access;
 

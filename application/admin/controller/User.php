@@ -118,7 +118,7 @@ class User extends Base
 
             // 修改权限
             $AuthGroupAccessModel = new AuthGroupAccessModel();
-            $AuthGroupAccessModel->deleteData(['uid'=>$uid]);
+            $AuthGroupAccessModel->where(['uid'=>$uid])->delete();
             if (!empty($data['group_ids'])) {
                 $group = [];
                 foreach ($data['group_ids'] as $k => $v) {
@@ -132,7 +132,7 @@ class User extends Base
             Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
             $userModel = new UserModel();
-            $res = $userModel->editUser($data);
+            $res = $userModel->editUser($uid, $data);
 
             if ($res !== false) {
                 $this->success('成功修改', url('User/index'));

@@ -58,10 +58,10 @@ class Feedback extends Base
         }
         //获取状态值
         $sendStatus = FeedbackModel::STATUS_SEND;
-        $this->assign('sendStatus',$sendStatus);
+        $this->assign('sendStatus', $sendStatus);
         $this->assign('list', $list);
 
-        return view();
+        return $this->fetch('index');
     }
     //会话记录显示
     public function chat()

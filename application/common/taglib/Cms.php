@@ -23,7 +23,7 @@ class Cms extends TagLib
         'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //分类列表标签，cid|cname有值时，获取二级分类列表
         'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息标签
         'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
-        'ads'  => ['attr' => 'cache,type,name,limit,id', 'close' => true], //广告链接标签
+        'ads'  => ['attr' => 'cache,slot,slot-id,limit,id', 'close' => true], //广告链接标签,slot对应ad_slot表的title_en
         'tags'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //标签云
     ];
 
@@ -214,8 +214,8 @@ class Cms extends TagLib
     {
         $defaultCache = 60 * 5;
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
-        $type = empty($tag['type']) ? 0 : $tag['type'];
-        $name = empty($tag['name']) ? '' : $tag['name'];
+        $slotId = empty($tag['slot-id']) ? 0 : $tag['slot-id'];
+        $slot = empty($tag['slot']) ? '' : $tag['slot'];
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
@@ -223,19 +223,19 @@ class Cms extends TagLib
         $list = $this->autoBuildVar($list);
 
         $parse  = "<?php ";
-        $parse .= "  \$internalId = $type; ";
-        $parse .= "  \$internalName = \"$name\";";
-        $parse .= "  if (empty(\$internalId) && !empty(\$internalName)) {";
-        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>\$internalName])->find();";
-        $parse .= "    if (!empty(\$internalAdSlot)) { \$internalId = \$internalAdSlot['id'];}";
+        $parse .= "  \$internalSlotId = $slotId; ";
+        $parse .= "  \$internalSlot = \"$slot\";";
+        $parse .= "  if (empty(\$internalSlotId) && !empty(\$internalSlot)) {";
+        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>\$internalSlot])->find();";
+        $parse .= "    if (!empty(\$internalAdSlot)) { \$internalSlotId = \$internalAdSlot['id'];}";
         $parse .= "  }";
-        $parse .= "  \$cacheMark = 'ads_' . \$internalId . $cache . $limit;";
+        $parse .= "  \$cacheMark = 'ads_' . \$internalSlotId . $cache . $limit;";
         $parse .= "  if ($cache) { ";
         $parse .= "    $list = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($list)) { ";
         $parse .= "    \$adLogic = new \app\common\logic\AdLogic();";
-        $parse .= "    $list = \$adLogic->getAdList(\$internalId, $limit);";
+        $parse .= "    $list = \$adLogic->getAdList(\$internalSlotId, $limit);";
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $list, $cache); ";
         $parse .= "    } ";

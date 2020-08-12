@@ -17,7 +17,7 @@
             <ul class="list-group elements-list">
                 {volist name="list" id="fb"}
                 <li class="list-group-item ">
-                    <a href="javascript:void(0)"  data-send_client_id="{$fb.send_client_id}" data-feedback_id="{$fb.feedback_id}">
+                    <a href="javascript:void(0)"  data-send_client_id="{$fb.send_client_id}" data-feedback_id="{$fb.id}">
                         <small class="pull-right text-muted">{$fb.create_time}</small>
                         <strong>{$fb.sender}</strong>
                         <div class="small m-t-xs">
@@ -36,6 +36,7 @@
             </ul>
         </div>
     </div>
+
     <!--消息窗口-->
     <div class="full-height" >
         <div class="full-height-scroll white-bg border-left">
