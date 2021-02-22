@@ -1,6 +1,9 @@
 {extend name="public/base" /}
 {block name="title"}系统设置{/block}
-{block name="css"}{/block}
+
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/switchery/switchery.css" rel="stylesheet">
+{/block}
 
 {block name="main"}
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -32,7 +35,7 @@
                                 <th width="5%">排序</th>
                                 <th>网站名称</th>
                                 <th>网站链接</th>
-                                <th>排序</th>
+                                <th>状态</th>
                                 <th>操作</th>
                             </tr>
                             {empty name="list"}
@@ -40,17 +43,19 @@
                                 <td colspan="5" align="center">暂无数据</td>
                             </tr>
                             {else /}
-                            {foreach name="list" item="v" empty="暂无数据"}
+                            {foreach name="list" item="vo" empty="暂无数据"}
                             <tr>
                                 <td>
-                                    <input class="form-control" style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$v['id']}" value="{$v['sort']}">
+                                    <input class="form-control" style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$vo['id']}" value="{$vo['sort']}">
                                 </td>
-                                <td>{$v.title}</td>
-                                <td>{$v.url}</td>
-                                <td>{$v.sort}</td>
+                                <td>{$vo.title}</td>
+                                <td>{$vo.url}</td>
                                 <td>
-                                    <a href="javascript:;" data-id="{$v['id']}" data-title="{$v['title']}" data-url="{$v['url']}" data-sort="{$v['sort']}" onclick="edit(this)">修改</a> |
-                                    <a href="{:url('System/deleteLinks',['id'=>$v['id']])}" class="ajax-a">删除</a>
+                                    <input type="checkbox" name="status[]" value="{$vo.id}" class="ajax-switch" {if $vo.status == \app\common\model\LinkModel::STATUS_ONLINE}checked="checked"{/if} >
+                                </td>
+                                <td>
+                                    <a href="javascript:;" data-id="{$vo['id']}" data-title="{$vo['title']}" data-url="{$vo['url']}" data-sort="{$vo['sort']}" onclick="edit(this)">修改</a> |
+                                    <a href="{:url('System/deleteLinks',['id'=>$vo['id']])}" class="ajax-a">删除</a>
                                 </td>
                             </tr>
                             {/foreach}
@@ -68,14 +73,14 @@
     </div>
 </div>
 <!-- 新增友情链接模态框开始 -->
-<div class="modal fade" id="bjy-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                     &times;
                 </button>
-                <h4 class="modal-title" id="myModalLabel">
+                <h4 class="modal-title">
                     新增友情链接
                 </h4>
             </div>
@@ -83,17 +88,17 @@
                 <form class="form-horizontal ajax-form" action="{:url('System/addLinks')}" method="post">
                     <div class="form-group">
                         <label class="col-lg-2 control-label">网站名称:</label>
-                        <div class="col-lg-10"><input type="text" name="title" placeholder="网站名称" class="form-control"> <span class="help-block m-b-none"></span>
+                        <div class="col-lg-10"><input type="text" name="title" placeholder="网站名称" class="form-control" autocomplete="off"> <span class="help-block m-b-none"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-2 control-label">网站链接:</label>
-                        <div class="col-lg-10"><input type="url" name="url" placeholder="网站链接" class="form-control"> <span class="help-block m-b-none">例:https://www.beyongcms.com/</span>
+                        <div class="col-lg-10"><input type="url" name="url" placeholder="网站链接" class="form-control" autocomplete="off"> <span class="help-block m-b-none">例:https://www.beyongcms.com/</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-2 control-label">排序:</label>
-                        <div class="col-lg-10"><input type="number" name="sort" placeholder="排序" class="form-control"> <span class="help-block m-b-none">数值越小排序越靠前</span>
+                        <div class="col-lg-10"><input type="number" name="sort" placeholder="排序,可为空" class="form-control" autocomplete="off"> <span class="help-block m-b-none">数值越小排序越靠前</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -108,14 +113,14 @@
 </div>
 <!-- 新增菜单模态框结束 -->
 <!-- 修改菜单模态框开始 -->
-<div class="modal fade" id="bjy-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                     &times;
                 </button>
-                <h4 class="modal-title" id="myModalLabel">修改友情链接</h4>
+                <h4 class="modal-title">修改友情链接</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal ajax-form" action="{:url('System/editLinks')}" method="post">
@@ -149,11 +154,12 @@
 {/block}
 
 {block name="js"}
+<script src="__PUBLIC__/static/inspinia/js/plugins/switchery/switchery.js"></script>
 <script>
     // 添加菜单
     function add(){
         $("input[name='title'],input[name='url']").val('');
-        $('#bjy-add').modal('show');
+        $('#modal-add').modal('show');
     }
 
     // 修改菜单
@@ -166,8 +172,31 @@
         $("input[name='title']").val(title);
         $("input[name='url']").val(url);
         $("input[name='sort']").val(sort);
-        $('#bjy-edit').modal('show');
+        $('#modal-edit').modal('show');
     }
 
+    function changeStatus(value, checked) {
+        var url = "{:url(request()->controller() . '/links')}" + "?id=" + value + '&checked=' + checked;
+        var data = {id: value, checked: checked};
+
+        $.post(url, data, function(res) {
+            if (res.code) {
+                layer.msg(res.msg);
+            } else {
+                layer.msg(res.msg, function(){});
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        var elems = document.querySelectorAll('.ajax-switch');
+        for (var i = 0; i < elems.length; i++) {
+            var checkbox = elems[i];
+            var switchery = new Switchery(checkbox, { color: '#1AB394' });
+            checkbox.onchange = function() {
+                changeStatus(this.value, this.checked);
+            }
+        }
+    })
 </script>
 {/block}

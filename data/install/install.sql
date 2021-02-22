@@ -3,9 +3,19 @@ SET FOREIGN_KEY_CHECKS=0;
 /* ============================================建表脚本================================*/
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2020-08-06 14:47:38                          */
+/* Created on:     2020-09-24 15:53:00                          */
 /*==============================================================*/
 
+
+drop table if exists api_config_access;
+
+drop table if exists api_device;
+
+drop table if exists api_push_token;
+
+#drop index idx_api_token_uid_access_device on api_token;
+
+drop table if exists api_token;
 
 #drop index idx_action_log_uid_action on cms_action_log;
 
@@ -22,6 +32,8 @@ drop table if exists cms_ad_slot;
 #drop index uniq_addons_name on cms_addons;
 
 drop table if exists cms_addons;
+
+#drop index idx_article_uid on cms_article;
 
 #drop index idx_article_sort on cms_article;
 
@@ -69,15 +81,11 @@ drop table if exists cms_comment;
 
 drop table if exists cms_config;
 
-drop table if exists cms_config_access;
-
 drop table if exists cms_crawler;
 
 #drop index idx_crawler_meta_target_id_meta_key on cms_crawler_meta;
 
 drop table if exists cms_crawler_meta;
-
-drop table if exists cms_device;
 
 drop table if exists cms_feedback;
 
@@ -87,7 +95,7 @@ drop table if exists cms_hooks;
 
 drop table if exists cms_image;
 
-drop table if exists cms_links;
+drop table if exists cms_link;
 
 drop table if exists cms_message;
 
@@ -105,13 +113,110 @@ drop table if exists cms_user;
 
 drop table if exists cms_user_meta;
 
-drop table if exists cms_user_push_token;
-
-drop table if exists cms_user_token_info;
-
 #drop index idx_user_verify_code_type_target on cms_user_verify_code;
 
 drop table if exists cms_user_verify_code;
+
+/*==============================================================*/
+/* Table: api_config_access                                     */
+/*==============================================================*/
+create table api_config_access
+(
+   access_id            int not null auto_increment,
+   name                 varchar(64),
+   access_key           varchar(32) not null,
+   access_secret        varchar(32) not null,
+   xg_app_id            varchar(32),
+   xg_app_key           varchar(32),
+   xg_app_secret        varchar(64),
+   mi_app_id            varchar(32),
+   mi_app_key           varchar(32),
+   mi_app_secret        varchar(64),
+   create_time          datetime not null,
+   primary key (access_id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table api_config_access comment '访问配置表';
+
+/*==============================================================*/
+/* Table: api_device                                            */
+/*==============================================================*/
+create table api_device
+(
+   device_id            varchar(128) not null,
+   model                varchar(128) not null,
+   os                   tinyint not null comment '1.Android
+            2.iPhone
+            3.Window Phone',
+   os_version           varchar(128) not null,
+   width                int not null,
+   height               int not null,
+   cpu                  varchar(64),
+   ram                  bigint,
+   rom                  bigint,
+   update_time          datetime not null,
+   create_time          datetime not null,
+   primary key (device_id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table api_device comment '设备信息表';
+
+/*==============================================================*/
+/* Table: api_push_token                                        */
+/*==============================================================*/
+create table api_push_token
+(
+   id                   int not null auto_increment,
+   uid                  int not null,
+   access_id            int not null,
+   device_id            varchar(64) not null,
+   push_token           varchar(128) not null,
+   status               tinyint not null comment '1.登入;2.登出',
+   os                   int not null,
+   update_time          datetime not null,
+   create_time          datetime not null,
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table api_push_token comment '推送token表';
+
+/*==============================================================*/
+/* Table: api_token                                             */
+/*==============================================================*/
+create table api_token
+(
+   id                   int not null auto_increment,
+   uid                  int not null,
+   access_id            int not null,
+   device_id            varchar(64) not null,
+   token                varchar(64) not null,
+   status               tinyint not null comment '1.有效;2.失效;3.过期',
+   expire_time          datetime not null,
+   update_time          datetime not null,
+   create_time          datetime not null,
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4;
+
+alter table api_token comment 'token表';
+
+/*==============================================================*/
+/* Index: idx_api_token_uid_access_device                       */
+/*==============================================================*/
+create index idx_api_token_uid_access_device on api_token
+(
+   uid,
+   access_id,
+   device_id,
+   token
+);
 
 /*==============================================================*/
 /* Table: cms_action_log                                        */
@@ -294,6 +399,14 @@ create index idx_article_update_time on cms_article
 create index idx_article_sort on cms_article
 (
    sort
+);
+
+/*==============================================================*/
+/* Index: idx_article_uid                                       */
+/*==============================================================*/
+create index idx_article_uid on cms_article
+(
+   uid
 );
 
 /*==============================================================*/
@@ -533,29 +646,6 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_config comment '配置表';
 
 /*==============================================================*/
-/* Table: cms_config_access                                     */
-/*==============================================================*/
-create table cms_config_access
-(
-   access_id            int not null auto_increment,
-   name                 varchar(64),
-   access_key           varchar(32) not null,
-   access_secret        varchar(32) not null,
-   xg_app_id            varchar(32),
-   xg_app_key           varchar(32),
-   xg_app_secret        varchar(64),
-   mi_app_id            varchar(32),
-   mi_app_key           varchar(32),
-   mi_app_secret        varchar(64),
-   create_time          datetime not null,
-   primary key (access_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_config_access comment '访问配置表';
-
-/*==============================================================*/
 /* Table: cms_crawler                                           */
 /*==============================================================*/
 create table cms_crawler
@@ -614,31 +704,6 @@ create index idx_crawler_meta_target_id_meta_key on cms_crawler_meta
    target_id,
    meta_key
 );
-
-/*==============================================================*/
-/* Table: cms_device                                            */
-/*==============================================================*/
-create table cms_device
-(
-   device_id            varchar(128) not null,
-   model                varchar(128) not null,
-   os                   tinyint not null comment '1.Android
-            2.iPhone
-            3.Window Phone',
-   os_version           varchar(128) not null,
-   width                int not null,
-   height               int not null,
-   cpu                  varchar(64),
-   ram                  bigint,
-   rom                  bigint,
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (device_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_device comment '设备信息表';
 
 /*==============================================================*/
 /* Table: cms_feedback                                          */
@@ -727,20 +792,22 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_image comment '图片表';
 
 /*==============================================================*/
-/* Table: cms_links                                             */
+/* Table: cms_link                                             */
 /*==============================================================*/
-create table cms_links
+create table cms_link
 (
    id                   int not null auto_increment,
    title                varchar(128) not null,
    url                  varchar(256) not null,
    sort                 int not null default 0,
+   status               tinyint(4) not null default 1,
+   create_time          datetime not null
    primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
-alter table cms_links comment '链接';
+alter table cms_link comment '链接';
 
 /*==============================================================*/
 /* Table: cms_message                                           */
@@ -889,46 +956,6 @@ create index idx_user_meta_target_id_meta_key on cms_user_meta
    target_id,
    meta_key
 );
-
-/*==============================================================*/
-/* Table: cms_user_push_token                                   */
-/*==============================================================*/
-create table cms_user_push_token
-(
-   uid                  int not null,
-   access_id            int not null,
-   device_id            varchar(64) not null,
-   status               tinyint not null comment '1.登入;2.登出',
-   os                   int not null,
-   push_token           varchar(128) not null,
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (uid, access_id, device_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_user_push_token comment '用户推送token';
-
-/*==============================================================*/
-/* Table: cms_user_token_info                                   */
-/*==============================================================*/
-create table cms_user_token_info
-(
-   uid                  int not null,
-   access_id            int not null,
-   device_id            varchar(64) not null,
-   status               tinyint not null comment '1.有效;2.失效;3.过期',
-   token                varchar(64) not null,
-   expire_time          datetime not null,
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (uid, access_id, device_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4;
-
-alter table cms_user_token_info comment '用户token信息表';
 
 /*==============================================================*/
 /* Table: cms_user_verify_code                                  */
@@ -1271,5 +1298,5 @@ alter table cms_file AUTO_INCREMENT=100000;
 alter table cms_image AUTO_INCREMENT=100000;
 alter table cms_article AUTO_INCREMENT=100000;
 alter table cms_category AUTO_INCREMENT=100;
-alter table cms_config_access AUTO_INCREMENT=1001000;
+alter table api_config_access AUTO_INCREMENT=1001000;
 

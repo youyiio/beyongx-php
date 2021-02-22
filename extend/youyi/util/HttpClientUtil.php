@@ -7,7 +7,7 @@ class HttpClientUtil {
 	 * GET 请求
 	 * @param string $url
 	 */
-	public function doGet($url, $params = '', $encode='') {
+	public static function doGet($url, $params = '', $encode='') {
 		if (!$url) {
 			return;
 		}

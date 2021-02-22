@@ -150,7 +150,7 @@ class Article extends Base
                 $url = Cookie::get('HTTP_REFERER');
                 Cookie::delete('HTTP_REFERER');
 
-                $this->success('更新成功', $url);
+                $this->success('更新成功', urldecode($url));
             } else {
                 $this->error('更新失败:' . $ArticleModel->getError());
             }
@@ -175,8 +175,8 @@ class Article extends Base
         $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
         $this->assign('categoryList', $categoryList);
 
-        //记录上一级来源，方便回跳
-        $fromReferee = $this->request->server('HTTP_REFERER');
+        //记录上一级来源，方便回跳; 优先redirect参数传递
+        $fromReferee = input('redirect/s', $this->request->server('HTTP_REFERER'));
         $url = !empty($fromReferee) ? $fromReferee : url('Article/index');
         Cookie::set('HTTP_REFERER', $url);
 
@@ -648,7 +648,7 @@ class Article extends Base
 
             $category->save();
 
-            $this->error($msg);
+            $this->success($msg);
         }
 
         $CategoryModel = new CategoryModel();

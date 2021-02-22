@@ -104,7 +104,26 @@
                                     {/if}
                                 </td>
                                 <td>{$vo.create_time}</td>
-                                <td><a href="{:url('Article/viewArticle',['id'=>$vo['id']])}" class="btn btn-xs btn-info J_addMenuTab" data-menu-name="查看文章" title="查看"><i class="fa fa-eye"></i>查看</a></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button data-toggle="dropdown" class="btn btn-white btn-xs dropdown-toggle">
+                                            操作<span class="caret"></span>
+                                        </button>
+
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="{:url('Article/viewArticle',['id'=>$vo['id']])}" class="J_addMenuTab" data-menu-name="查看文章"><i class="fa fa-eye"></i> 查看</a>
+                                            </li>
+                                            <li>
+                                                <a href="{:url('Article/editArticle',['id'=>$vo['id'],'redirect'=>urlencode(get_cur_url())])}" class="J_addMenuTab"><i class="fa fa-pencil"></i> 修改</a>
+                                            </li>
+                                            <li class="divider"></li>
+                                            <li>
+                                                <a href="javascript:void(0)" class="text-danger ajax-btn-warning" data-action="{:url('Article/deleteArticle',['id'=>$vo['id']])}" data-title="提示" data-text="您确认要删除文章吗"><i class="fa fa-trash"></i> 删除</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
                             {/foreach}
                             </tbody>

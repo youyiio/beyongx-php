@@ -179,18 +179,19 @@ class User extends Base
     //查看用户
     public function viewUser()
     {
-        $uid = input('uid/d',0);
+        $uid = input('uid/d', 0);
         if ($uid == 0) {
             $this->error('参数错误');
         }
 
         $userModel = new UserModel;
         $user = $userModel::get($uid);
-        $this->assign('user',$user);
+        $this->assign('user', $user);
 
         //最新文章列表
         $ArticleModel = new ArticleModel();
-        $articleList = $ArticleModel->where('uid',$uid)->order('id desc')->paginate(20, false, ['query'=>input('param.')]);
+        $field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count,status,is_top';
+        $articleList = $ArticleModel->where('uid', $uid)->field($field)->order('id desc')->paginate(20, false, ['query'=>input('param.')]);
         $this->assign('articleList', $articleList);
 
         //操作日志

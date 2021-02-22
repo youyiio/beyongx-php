@@ -11,11 +11,10 @@ namespace app\common\logic;
 
 use app\common\exception\ModelException;
 use app\common\library\ResultCode;
-use app\common\model\UserPushTokenModel;
-use think\exception\DbException;
 use think\Model;
-use app\common\model\UserTokenInfoModel;
 use app\common\model\UserModel;
+use app\common\model\api\PushTokenModel;
+use app\common\model\api\TokenModel;
 
 class UserLogic extends Model
 {
@@ -69,9 +68,8 @@ class UserLogic extends Model
 
     public function logout($userId, $accessId, $deviceId)
     {
-        $UserPushTokenModel = new UserPushTokenModel();
-        return $UserPushTokenModel->logout($userId, $accessId, $deviceId);
-
+        $PushTokenModel = new PushTokenModel();
+        return $PushTokenModel->logout($userId, $accessId, $deviceId);
     }
 
     public function modifyPassword($userId, $oldPassword, $newPassword)
@@ -106,60 +104,62 @@ class UserLogic extends Model
         if (!$os) {
             $os = Os::Android;
         }
+
+        $pushToken = $androidPushToken;
         if ($os == Os::Android) {
             $pushToken = $androidPushToken;
         } else if ($os == Os::iOS) {
             $pushToken = $iosPushToken;
         }
 
-        $UserPushTokenModel = new UserPushTokenModel();
-        $userPushToken = $UserPushTokenModel->createUserPushToken($userId, $accessId, $deviceId, $os, $pushToken);
+        $PushTokenModel = new PushTokenModel();
+        $pushTokenInfo = $PushTokenModel->createPushToken($userId, $accessId, $deviceId, $os, $pushToken);
 
-        return $userPushToken;
+        return $pushTokenInfo;
     }
 
     public function findOrCreateToken($userId, $accessId, $deviceId)
     {
-        $UserTokenInfoModel = new UserTokenInfoModel();
-        $userTokenInfo = $UserTokenInfoModel->findByUserId($userId, $accessId, $deviceId);
-        if (!$userTokenInfo) {
-            $userTokenInfo = $UserTokenInfoModel->createUserTokenInfo($userId, $accessId, $deviceId);
+        $TokenModel = new TokenModel();
+        $tokenInfo = $TokenModel->findByUserId($userId, $accessId, $deviceId);
+        if (!$tokenInfo) {
+            $tokenInfo = $TokenModel->createTokenInfo($userId, $accessId, $deviceId);
         }
 
-        if ($userTokenInfo['status'] == UserTokenInfoModel::STATUS_DISABLED || $userTokenInfo['status'] == UserTokenInfoModel::STATUS_EXPIRED) {
-            $userTokenInfo = $UserTokenInfoModel->updateUserTokenInfo($userId, $accessId, $deviceId);
+        if ($tokenInfo['status'] == TokenModel::STATUS_DISABLED || $tokenInfo['status'] == TokenModel::STATUS_EXPIRED) {
+            $userTokenInfo = $TokenModel->updateTokenInfo($userId, $accessId, $deviceId);
         }
-        if (strtotime($userTokenInfo['expire_time']) < time()) {
+        if (strtotime($tokenInfo['expire_time']) < time()) {
             $where['uid'] = $userId;
             $where['access_id'] = $accessId;
             $where['device_id'] = $deviceId;
-            $UserTokenInfoModel->where($where)->setField('status', UserTokenInfoModel::STATUS_EXPIRED);
+            $TokenModel->where($where)->setField('status', TokenModel::STATUS_EXPIRED);
 
-            $userTokenInfo = $UserTokenInfoModel->updateUserTokenInfo($userId, $accessId, $deviceId);
+            $tokenInfo = $TokenModel->updateTokenInfo($userId, $accessId, $deviceId);
         }
 
-        return $userTokenInfo;
+        return $tokenInfo;
     }
 
     public function fillUserStuff(&$user, $accessId, $deviceId)
     {
         $userId = $user['id'];
 
-        $UserPushTokenModel = new UserPushTokenModel();
-        $userPushToken = $UserPushTokenModel->findByUserId($userId, $accessId, $deviceId);
-        if ($userPushToken) {
-            if ($userPushToken['os'] == Os::Android) {
-                $user['android_push_token'] = $userPushToken['push_token'];
-            } else if ($userPushToken['os'] == Os::iOS) {
-                $user['ios_push_token'] = $userPushToken['push_token'];
+        $PushTokenModel = new PushTokenModel();
+        $pushTokenModel = $PushTokenModel->findByUserId($userId, $accessId, $deviceId);
+        if ($pushTokenModel) {
+            if ($pushTokenModel['os'] == Os::Android) {
+                $user['android_push_token'] = $pushTokenModel['push_token'];
+            } else if ($pushTokenModel['os'] == Os::iOS) {
+                $user['ios_push_token'] = $pushTokenModel['push_token'];
             }
         }
         $user['device_id'] = $deviceId;
 
-        $userTokenInfo = $this->findOrCreateToken($userId, $accessId, $deviceId);
-        if ($userTokenInfo) {
-            $user['token'] = $userTokenInfo['token'];
-            $user['expire_time'] = $userTokenInfo['expire_time'];
+        $tokenInfo = $this->findOrCreateToken($userId, $accessId, $deviceId);
+        if ($tokenInfo) {
+            $user['token'] = $tokenInfo['token'];
+            $user['expire_time'] = $tokenInfo['expire_time'];
         }
 
         return $user;

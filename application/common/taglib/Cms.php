@@ -196,9 +196,11 @@ class Cms extends TagLib
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
+        $parse .= "  \$where = [];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\LinkModel::STATUS_ONLINE]; ";
         $parse .= "  if (empty($internalList)) { ";
-        $parse .= "    \$LinksModel = new \app\common\model\LinksModel();";
-        $parse .= "    $internalList = \$LinksModel->field('id,title,url')->order('sort asc')->limit($limit)->select();";
+        $parse .= "    \$LinkModel = new \app\common\model\LinkModel();";
+        $parse .= "    $internalList = \$LinkModel->where(\$where)->field('id,title,url')->order('sort asc')->limit($limit)->select();";
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $internalList, $cache); ";
         $parse .= "    } ";

@@ -2,8 +2,9 @@
 namespace app\admin\controller;
 
 use app\common\model\ActionLogModel;
+use app\common\model\CategoryModel;
 use app\common\model\ConfigModel;
-use app\common\model\LinksModel;
+use app\common\model\LinkModel;
 use think\Controller;
 use think\Db;
 use think\facade\Cache;
@@ -154,18 +155,41 @@ class System extends Base
     //友情链接设置
     public function links()
     {
-        $LinksModel = new LinksModel();
-        $list = $LinksModel->order('sort')->select();
-        $this->assign('list',$list);
-        return view();
+        if (request()->isPost()) {
+            $id = input('post.id', 0);
+            $checked = input('post.checked', 'false');
+            $link = LinkModel::get($id);
+            if (!$link) {
+                $this->error('友链不存在!');
+            }
+
+            $msg = "";
+            if ($checked == 'true') {
+                $link->status = LinkModel::STATUS_ONLINE;
+                $msg = '友链上线成功!';
+            } else {
+                $link->status = LinkModel::STATUS_OFFLINE;
+                $msg = '友链下线成功!';
+            }
+
+            $link->save();
+
+            $this->success($msg);
+        }
+
+        $LinkModel = new LinkModel();
+        $list = $LinkModel->order('sort')->select();
+        $this->assign('list', $list);
+
+        return $this->fetch("links");
     }
 
     //新增友链
     public function addLinks()
     {
         $data = input('post.');
-        $LinksModel = new LinksModel();
-        $res = $LinksModel->insert($data);
+        $LinkModel = new LinkModel();
+        $res = $LinkModel->allowField(true)->save($data);
         if ($res) {
             cache('links',null);
             $this->success('添加成功');
@@ -179,7 +203,7 @@ class System extends Base
     {
         $data = input('post.');
 
-        $res = LinksModel::update($data);
+        $res = LinkModel::update($data);
         if ($res) {
             cache('links',null);
             $this->success('修改成功');
@@ -192,9 +216,9 @@ class System extends Base
     public function orderLinks()
     {
         $data = input('post.');
-        $LinksModel = new LinksModel();
+        $LinkModel = new LinkModel();
         foreach ($data as $k => $v) {
-            $LinksModel->where('id',$k)->setField('sort',$v);
+            $LinkModel->where('id',$k)->setField('sort',$v);
         }
         cache('links',null);
         $this->success('成功排序');
@@ -204,8 +228,8 @@ class System extends Base
     public function deleteLinks()
     {
         $id = input('param.id/d',0);
-        $LinksModel = new LinksModel();
-        $res = $LinksModel->where('id',$id)->delete();
+        $LinkModel = new LinkModel();
+        $res = $LinkModel->where('id', $id)->delete();
         if ($res) {
             cache('links',null);
             $this->success('删除成功');
