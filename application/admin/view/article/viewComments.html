@@ -100,18 +100,18 @@
     $(function(){
         //ueditor代码
         var url="{:url('admin/BaiduUeditor/index')}";
-        var ue = UE.getEditor('content',{
-            serverUrl :url,
-            UEDITOR_HOME_URL:'__PUBLIC__/static/ueditor/',
-            initialFrameHeight :120,
-            autoHeightEnabled : false,
-            maximumWords : 200000,
+        var ue = UE.getEditor('content', {
+            serverUrl: url,
+            UEDITOR_HOME_URL: '__PUBLIC__/static/ueditor/',
+            initialFrameHeight: 120,
+            autoHeightEnabled: false,
+            maximumWords: 200000,
             toolbars: [["undo","redo","link","cleardoc","simpleupload","bold","forecolor","fontsize"]]
         });
 
         //图片增加自适应属性
         $('#questionContent,#answerContent').find('img').addClass('img-responsive');
-    })
+    });
 
     var clipboard = new Clipboard('#btnCopy');
 </script>

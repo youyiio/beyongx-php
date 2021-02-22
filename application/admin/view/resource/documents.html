@@ -3,6 +3,7 @@
 {block name="css"}
 <link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
 {/block}
+
 {block name="main"}
 <div class="wrapper wrapper-content">
     <div class="row">
@@ -47,7 +48,7 @@
                         <div class="file-box">
                             <div class="file">
                                 <div class="pull-right " id="deleteBtn" style="display: none">
-                                    <a class="btn-circle ajax-a" href="{:url('Resource/deleteDocument',['fileId'=> $file.file_id])}"><i class="fa fa-times-circle fa-2x "></i></a>
+                                    <a class="btn-circle ajax-a" href="{:url('Resource/deleteDocument',['fileId'=> $file.id])}"><i class="fa fa-times-circle fa-2x "></i></a>
                                 </div>
 
                                 <span class="corner"></span>

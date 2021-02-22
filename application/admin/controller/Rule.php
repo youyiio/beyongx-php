@@ -301,12 +301,12 @@ class Rule extends Base
     public function addUserToGroup()
     {
         $data = input('param.');
-        $map = [
+        $where = [
             'uid' => $data['uid'],
             'group_id' => $data['group_id']
         ];
         $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $count = $AuthGroupAccessModel->where($map)->count();
+        $count = $AuthGroupAccessModel->where($where)->count();
         if ($count == 0) {
             $res = $AuthGroupAccessModel->save($data);
             if ($res) {
@@ -325,11 +325,15 @@ class Rule extends Base
      */
     public function deleteUserFromGroup()
     {
-        $map = input('param.');
+        $data = input('param.');
+        $where = [
+            'uid' => $data['uid'],
+            'group_id' => $data['group_id']
+        ];
         $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $numRows = $AuthGroupAccessModel->where($map)->delete();
+        $numRows = $AuthGroupAccessModel->where($where)->delete();
         if ($numRows >= 1) {
-            Cache::tag('menu')->rm($map['uid']);
+            Cache::tag('menu')->rm($data['uid']);
             $this->success('操作成功', url('Rule/userList'));
         } else {
             $this->error('操作失败');

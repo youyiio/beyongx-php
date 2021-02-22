@@ -145,7 +145,7 @@
             var thumbHeight = $element.data('thumbHeight');
             if (response.code == 1) {
                 //将图片id填入input
-                var imageId = response.data.image_id;
+                var imageId = response.data.id;
                 var imageUrl = "" + response.data.image_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';

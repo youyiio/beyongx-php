@@ -134,7 +134,7 @@
         let crawlerId = $("select[name='crawlerId']").val();
         let searchText = $("input[name='searchText']").val();
         if (crawlerId < 0) {
-            layer.msg('请选择替换规则');
+            layer.msg('请选择采集规则');
             return false;
         }
         if (!searchText) {

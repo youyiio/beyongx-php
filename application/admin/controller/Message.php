@@ -22,7 +22,10 @@ class Message extends Base
             $MessageModel = new MessageModel();
 
             //系统消息
-            $systemMsgWhere = ['type' => $MessageModel::TYPE_SYSTEM, 'status' => $MessageModel::STATUS_SEND];
+            $systemMsgWhere = [
+                'type' => MessageModel::TYPE_SYSTEM,
+                'status' => $MessageModel::STATUS_SEND
+            ];
             $systemMsgCount = $MessageModel->where($systemMsgWhere)->count();
             $systemMsg = [
                 'count' => $systemMsgCount
@@ -33,7 +36,10 @@ class Message extends Base
             }
 
             //评论消息
-            $commentMsgWhere = ['type' => $MessageModel::TYPE_COMMENT, 'status' => $MessageModel::STATUS_SEND];
+            $commentMsgWhere = [
+                'type' => MessageModel::TYPE_COMMENT,
+                'status' => $MessageModel::STATUS_SEND
+            ];
             $commentMsgCount = $MessageModel->where($commentMsgWhere)->count();
             $commentMsg = [
                 'count' => $commentMsgCount
@@ -45,7 +51,10 @@ class Message extends Base
 
 
             //站内信消息
-            $mailMsgWhere = ['type' => $MessageModel::TYPE_MAIL, 'status' => $MessageModel::STATUS_SEND];
+            $mailMsgWhere = [
+                'type' => MessageModel::TYPE_MAIL,
+                'status' => $MessageModel::STATUS_SEND
+            ];
             $mailMsgCount = $MessageModel->where($mailMsgWhere)->count();
             $mailMsg = [
                 'count' => $mailMsgCount

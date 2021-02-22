@@ -27,7 +27,7 @@ class System extends Base
             $ConfigModel = new ConfigModel();
             foreach ($data as $k => $v) {
                 if (ConfigModel::get($k)) {
-                    $ConfigModel->where('name',$k)->setField('value', $v);
+                    $ConfigModel->where('name', $k)->setField('value', $v);
                 } else {
                     $ConfigModel->save(['name' => $k, 'value' => $v]);
                 }
@@ -100,36 +100,40 @@ class System extends Base
     public function clearCache()
     {
         if (request()->isPost()) {
-            $dir = new \youyi\util\Dir(Env::get('runtime_path'));
             $types = input('types');
-            if (count($types)) {
-                foreach($types as $k=>$v) {
-                    switch($v) {
-                        case 'temp':
-                            is_dir(Env::get('runtime_path') . 'temp') && $dir->delDir(Env::get('runtime_path') . 'temp');
-                            break;
-                        case 'data':
-                            if (config('cache.type') == 'File') {
-                                is_dir(Env::get('runtime_path') . 'cache') && $dir->delDir(Env::get('runtime_path') . 'cache');
-                            } elseif (config('cache.type') == 'Redis') {
-                                Cache::clear();
-                            }
 
-                            break;
-                        case 'log':
-                            is_dir(Env::get('runtime_path') . 'log') && $dir->delDir(Env::get('runtime_path') . 'log');
-                            break;
-                        case 'vars':
-                            //删除自定义的缓存，已经的缓存变量
-                            //is_dir(Env::get('runtime_path') . 'cache') && $dir->delDir(Env::get('runtime_path') . 'cache');
-                            Cache::rm('menu' . session('uid'));
-                            Cache::rm('config');
-                            break;
-                        default:
-                            break;
-                    }
+            if (count($types) <= 0) {
+                $this->error("请选择要清理的缓存！");
+            }
+
+            $dir = new \youyi\util\Dir(Env::get('runtime_path'));
+            foreach($types as $k => $v) {
+                switch($v) {
+                    case 'temp':
+                        is_dir(Env::get('runtime_path') . 'temp') && $dir->delDir(Env::get('runtime_path') . 'temp');
+                        break;
+                    case 'data':
+                        if (config('cache.type') == 'File') {
+                            is_dir(Env::get('runtime_path') . 'cache') && $dir->delDir(Env::get('runtime_path') . 'cache');
+                        } elseif (config('cache.type') == 'Redis') {
+                            Cache::clear();
+                        }
+
+                        break;
+                    case 'log':
+                        is_dir(Env::get('runtime_path') . 'log') && $dir->delDir(Env::get('runtime_path') . 'log');
+                        break;
+                    case 'vars':
+                        //删除自定义的缓存，已经的缓存变量
+                        //is_dir(Env::get('runtime_path') . 'cache') && $dir->delDir(Env::get('runtime_path') . 'cache');
+                        Cache::rm('menu' . session('uid'));
+                        Cache::rm('config');
+                        break;
+                    default:
+                        break;
                 }
             }
+
 
             $this->success("清除缓存成功！");
         }

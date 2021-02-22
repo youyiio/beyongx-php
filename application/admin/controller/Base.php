@@ -22,7 +22,7 @@ class Base extends Controller
             if (request()->isAjax()) {
                 $this->error('请重新登陆', url(request()->module() . '/Sign/login'));
             }
-            $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
+            $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->url())]);
         }
         $this->uid = $uid;
 
@@ -33,7 +33,7 @@ class Base extends Controller
             if (request()->isAjax()) {
                 $this->error('请重新登陆', url(request()->module() . '/Sign/index'));
             } else {
-                $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->request->url(true))]);
+                $this->redirect(request()->module() . '/Sign/index', ['redirect' => urlencode($this->url())]);
             }
         }
 
@@ -71,6 +71,17 @@ class Base extends Controller
         }
 
         $this->assign('menus', $menus);
+    }
+
+    //兼容swoole的request->url()处理
+    protected function url()
+    {
+        if ($this->request->isCli()) {
+            $scheme = $this->request->header('scheme') ? $this->request->header('scheme') : $this->request->scheme();
+            return $scheme . '://' . $this->request->header('x-original-host') . $this->request->server('REQUEST_URI');
+        } else {//cgi
+            return $this->request->url(true);
+        }
     }
 
     //空操作：系统在找不到指定的操作方法的时候，会定位到空操作

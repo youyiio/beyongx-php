@@ -7,8 +7,12 @@
  */
 
 return [
-    'theme_name' => 'classic', //配置主题名称，与配置的主题文件夹一致
+    'name' => '经典主题', //主题名称
+    'package_name' => 'classic', //配置主题报名，与配置的主题文件夹一致
     'responsive' => false, //是否响应式界面：值为true,false; 可自动响应至pc,mobile,tablet
+
+    'version' => 'v1.0.0',
+    'update_time' => '2020-08-17 10:20:00',
 
     //网站配置
     'logo_image' => ["width" => 80, "height" => 52, "thumb_width" => 80, "thumb_height" => 52],

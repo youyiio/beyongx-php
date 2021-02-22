@@ -411,7 +411,7 @@
 
     <div class="copyright">
         <a href="https://www.beyongx.com" target="_blank" title="BeyongCms官方网站">BeyongCms </a>
-        <span> base on ThinkPHP 5.1.x, 当前版本：V<?php echo \think\facade\App::beyongCmsVersion(); ?></span>
+        <span> base on ThinkPHP 5.1.x, 当前版本：V<?php echo \app\common\thinkphp\App::beyongCmsVersion(); ?></span>
         <span>{ 一款安全极速的开源内容管理框架 } ;</span>
         <br/>
         <span>github地址：<a href="https://github.com/youyiio/BeyongCms" target="_blank">https://github.com/youyiio/BeyongCms</a></span>

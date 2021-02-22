@@ -2,8 +2,6 @@
 composer.lock
 *.log
 #thinkphp
-
-.svn
 #vendor/*
 
 .svn

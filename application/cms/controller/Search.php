@@ -13,6 +13,7 @@ class Search extends Base
 {
 
     //搜索词：q, 分页：p；路由为 search/:q/[:p] 模式
+    //返回 list 结果集，page 分页
     public function index($q='', $p=1)
     {
         if (empty($q)) {
@@ -40,8 +41,9 @@ class Search extends Base
         $field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';
         $order = 'is_top desc,sort,post_time desc';
         $pageConfig = [
+            'var_page' => 'p', //设置分页变量是p
             'query' => input('param.'),
-            'page' => $p
+            'page' => $p, //设置分页值
         ];
         $resultSet = $ArticleModel->where($where)->whereLike('title','%' . $q . '%','and')->field($field)->order($order)->paginate(10,false, $pageConfig);
 

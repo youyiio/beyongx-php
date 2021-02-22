@@ -24,16 +24,21 @@ class Article extends Base
 
         $categoryId = input('param.categoryId/d');
         $where[] = ['status', '>=', ArticleModel::STATUS_DRAFT]; //状态
-        if ($categoryId > 0) {
-            $childs = CategoryModel::getChild($categoryId);
-            $childCateIds = $childs['ids'];
-            array_push($childCateIds, $categoryId);
-            $ArticleModel = ArticleModel::has('CategoryArticle', [['category_id','in',$childCateIds]]);
-        }
 
         $key = input('param.key');
         if (!empty($key)) {
             $where[] = ['title', 'like', "%{$key}%"];
+        }
+
+        $fields = 'id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
+        if ($categoryId > 0) {
+            $childs = CategoryModel::getChild($categoryId);
+            $childCateIds = $childs['ids'];
+            array_push($childCateIds, $categoryId);
+
+            //$ArticleModel = ArticleModel::has('CategoryArticle', [['category_id','in',$childCateIds]]);
+            $fields = 'ArticleModel.id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
+            $ArticleModel = ArticleModel::hasWhere('CategoryArticle', [['category_id','in',$childCateIds]], $fields)->group([]); //hack:group用于清理hasmany默认加group key
         }
 
         //文章状态
@@ -53,19 +58,20 @@ class Article extends Base
             $where[] = [$queryTimeField, '>=', $startTime . ' 00:00:00'];
         }
 
-        $fields = 'id,title,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,ad_id';
+
         $orders = [
-            'is_top' => 'desc',
+            'sort' => 'desc',
             'post_time' => 'desc',
-            'update_time' => 'desc'
+            //'update_time' => 'desc'  post_time已经可以确保排序固定了，因为post_time基本不重复
         ];
 
         $sortedFields = ['post_time' => '', 'create_time' => ''];
         $field =input('field');
         $sort = input('sort');
         if ($field && $sort) {
-            unset($orders['update_time']);
+            unset($orders['sort']);
             unset($orders['post_time']);
+            unset($orders['update_time']);
             $orders = array_merge($orders, [$field => $sort]);
             $sortedFields[$field] = $sort;
         }
@@ -85,7 +91,7 @@ class Article extends Base
 
         //文章分类列表
         $CategoryModel = new CategoryModel();
-        $cateList = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
+        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title_cn');
         $this->assign('categoryList', $cateList);
 
         return $this->fetch('article/index');
@@ -195,7 +201,7 @@ class Article extends Base
         $pageConfig = [
             'type' => '\\app\\common\\paginator\\BootstrapTable',
         ];
-        $comments = $CommentModel->where($where)->order('create_time desc')->paginate(6, false, $pageConfig);
+        $comments = $CommentModel->where($where)->order('id desc')->paginate(6, false, $pageConfig);
         $this->assign('comments', $comments);
         $this->assign('id', $id);
 
@@ -391,56 +397,61 @@ class Article extends Base
         return $this->fetch('batchCategory');
     }
 
-    //上头条
-    public function upTop()
-    {
-        $data = input('post.');
-        $rule = [
-            'image_id|头条图片' => 'require|number',
-            'title|标题' => 'require',
-        ];
-        $check = $this->validate($data,$rule);
-        if ($check !== true) {
-            $this->error($check);
-        }
-
-        $data['type'] = AdSlotModel::TYPE_BANNER_HEADLINE;
-        $data['create_time'] = date_time();
-        $AdModel = new AdModel();
-        $res = $AdModel->allowField(true)->save($data);
-        if ($res) {
-            $ArticleModel = new ArticleModel();
-            $ArticleModel->where('id', $data['artId'])->setField('ad_id', $AdModel->id);
-            $this->success('成功新增头条');
-        } else {
-            $this->error('新增失败');
-        }
-    }
-
-    //取消头条
-    public function deleteTop()
-    {
-        $adId = input('adId/d', 0);
-        $artId = input('artId/d', 0);
-        if (empty($adId) || empty($artId)) {
-            $this->error('参数错误');
-        }
-        $res = AdModel::destroy($adId);
-        $ArticleModel = new ArticleModel();
-        $res = $ArticleModel->where('id', $artId)->setField('ad_id', 0);
-        if ($res) {
-            $this->success('操作成功');
-        } else {
-            $this->error('操作失败');
-        }
-    }
+//    //上头条
+//    public function upTop()
+//    {
+//        $data = input('post.');
+//        $rule = [
+//            'image_id|头条图片' => 'require|number',
+//            'title|标题' => 'require',
+//        ];
+//        $check = $this->validate($data,$rule);
+//        if ($check !== true) {
+//            $this->error($check);
+//        }
+//
+//        $data['type'] = AdSlotModel::TYPE_BANNER_HEADLINE;
+//        $data['create_time'] = date_time();
+//        $AdModel = new AdModel();
+//        $res = $AdModel->allowField(true)->save($data);
+//        if ($res) {
+//            $ArticleModel = new ArticleModel();
+//            $ArticleModel->where('id', $data['artId'])->setField('ad_id', $AdModel->id);
+//            $this->success('成功新增头条');
+//        } else {
+//            $this->error('新增失败');
+//        }
+//    }
+//
+//    //取消头条
+//    public function deleteTop()
+//    {
+//        $adId = input('adId/d', 0);
+//        $artId = input('artId/d', 0);
+//        if (empty($adId) || empty($artId)) {
+//            $this->error('参数错误');
+//        }
+//        $res = AdModel::destroy($adId);
+//        $ArticleModel = new ArticleModel();
+//        $res = $ArticleModel->where('id', $artId)->setField('ad_id', 0);
+//        if ($res) {
+//            $this->success('操作成功');
+//        } else {
+//            $this->error('操作失败');
+//        }
+//    }
 
     //置顶文章
     public function setTop()
     {
-        $artId = input('param.id/d');
-        $article = ArticleModel::get(['id'=>$artId]);
-        $article->is_top = 1;
+        $aid = input('param.id/d');
+        $article = ArticleModel::get(['id' => $aid]);
+        if (empty($article)) {
+            $this->error('文章不存在!');
+        }
+
+        $article->is_top = 1; //只用于置顶标记
+        $article->sort = ArticleModel::max('sort') + 1;  //实际用于置顶排序
         $res = $article->save();
         if ($res) {
             $this->success('成功置顶');
@@ -452,9 +463,14 @@ class Article extends Base
     //取消置顶文章
     public function unsetTop()
     {
-        $artId = input('param.id/d');
-        $article = ArticleModel::get(['id'=>$artId]);
+        $aid = input('param.id/d');
+        $article = ArticleModel::get(['id' => $aid]);
+        if (empty($article)) {
+            $this->error('文章不存在!');
+        }
+
         $article->is_top = 0;
+        $article->sort = 0;
         $res = $article->save();
         if ($res) {
             $this->success('成功取消置顶');
@@ -602,7 +618,7 @@ class Article extends Base
         $pageConfig = [
             'type' => '\\app\\common\\paginator\\BootstrapTable',
         ];
-        $comments = $CommentModel->where($where)->order('create_time desc')->paginate(6, false, $pageConfig);
+        $comments = $CommentModel->where($where)->order('id desc')->paginate(6, false, $pageConfig);
 
         $this->assign('comments', $comments);
         $this->assign('comment', $comment);
@@ -613,6 +629,28 @@ class Article extends Base
     //文章分类
     public function categoryList()
     {
+        if (request()->isPost()) {
+            $id = input('post.id', 0);
+            $checked = input('post.checked', 'false');
+            $category = CategoryModel::get($id);
+            if (!$category) {
+                $this->error('分类不存在!');
+            }
+
+            $msg = "";
+            if ($checked == 'true') {
+                $category->status = CategoryModel::STATUS_ONLINE;
+                $msg = '分类上线成功!';
+            } else {
+                $category->status = CategoryModel::STATUS_OFFLINE;
+                $msg = '分类下线成功!';
+            }
+
+            $category->save();
+
+            $this->error($msg);
+        }
+
         $CategoryModel = new CategoryModel();
         $list = $CategoryModel->getTreeData('tree','sort,id', 'title_cn', 'id', 'pid');
         $this->assign('list', $list);
@@ -634,11 +672,19 @@ class Article extends Base
             }
 
             if ($res) {
-                $this->success('操作成功',url('Article/categoryList'));
+                $this->success('操作成功', url('Article/categoryList'));
             } else {
                 $this->error('操作失败');
             }
         }
+
+        //获取默认排序
+        $where = [];
+        if (input('pid', 0)) {
+            $where['pid'] = input('pid', 0);
+        }
+        $defaultSort = CategoryModel::where($where)->max('sort') + 1;
+        $this->assign('defaultSort', $defaultSort);
 
         return $this->fetch('addCategory');
     }
@@ -702,12 +748,13 @@ class Article extends Base
             $adIds = $AdServingModel->where('slot_id', $slotId)->field('distinct ad_id')->column('ad_id');//column变成一维数组
             $where[] = ['id', 'in', $adIds];
         }
+
         $AdModel = new AdModel();
-        $list = $AdModel->where($where)->order('sort,create_time desc')->paginate(10, false, ['query'=>input('param.')]);
+        $list = $AdModel->where($where)->order('sort asc,id desc')->paginate(10, false, ['query'=>input('param.')]);
         $this->assign('list', $list);
         $this->assign('pages', $list->render());
 
-        //类型列表
+        //广告槽列表
         $AdSlotModel = new AdSlotModel();
         $slotList = $AdSlotModel->order('id asc')->field('id, title_cn')->select();
         $this->assign('slotList', $slotList);

@@ -22,8 +22,8 @@ class Cms extends TagLib
         'config' => ['attr' => 'key', 'close' => false], //配置值标签
         'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //分类列表标签，cid|cname有值时，获取二级分类列表
         'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息标签
-        'links'  => ['attr' => 'cache,limit,id', 'close' => true], //友情链接标签
-        'ads'  => ['attr' => 'cache,slot,slot-id,limit,id', 'close' => true], //广告链接标签,slot对应ad_slot表的title_en
+        'links'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //友情链接标签
+        'ads'  => ['attr' => 'cache,slot,slot-id,limit,id,assign', 'close' => true], //广告链接标签,slot对应ad_slot表的title_en
         'tags'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //标签云
     ];
 
@@ -124,7 +124,8 @@ class Cms extends TagLib
         $limit = empty($tag['limit']) ? 0 : $tag['limit'];
         $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
-        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        //用于绑定上下文变量，此时值允许是表达式
+        //以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
         $cid = $this->autoBuildVar($cid);
         $limit = $this->autoBuildVar($limit);
         $assign = $this->autoBuildVar($assign);
@@ -180,24 +181,32 @@ class Cms extends TagLib
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
 
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
+
+        //用于绑定上下文变量，此时值允许是表达式
+        //以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $limit = $this->autoBuildVar($limit);
+        $assign = $this->autoBuildVar($assign);
+
+        //标签内局部变量
+        $internalList = '$_list_' . $this->_randVarName(10);
 
         $parse  = "<?php ";
         $parse .= "  \$cacheMark = 'links_' . $cache . $limit;";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
+        $parse .= "  if (empty($internalList)) { ";
         $parse .= "    \$LinksModel = new \app\common\model\LinksModel();";
-        $parse .= "    $list = \$LinksModel->field('id,title,url')->order('sort asc')->limit($limit)->select();";
+        $parse .= "    $internalList = \$LinksModel->field('id,title,url')->order('sort asc')->limit($limit)->select();";
         $parse .= "    if ($cache) { ";
-        $parse .= "      cache(\$cacheMark, $list, $cache); ";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache); ";
         $parse .= "    } ";
+        $parse .= "  $assign = $internalList;";
         $parse .= "  } ";
-
         $parse .= '  ?>';
-        $parse .= "  {volist name='$list' id='$id'}";
+
+        $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -218,30 +227,43 @@ class Cms extends TagLib
         $slot = empty($tag['slot']) ? '' : $tag['slot'];
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
+        $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
-        $list = $this->_randVarName(10);
-        $list = $this->autoBuildVar($list);
+        //用于绑定上下文变量，此时值允许是表达式
+        //以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        $limit = $this->autoBuildVar($limit);
+        $assign = $this->autoBuildVar($assign);
+
+        //标签内局部变量
+        $internalSlot = '$_slot_' . $this->_randVarName(10);
+        $internalSlotId = '$_slot_id_' . $this->_randVarName(10);
+        $internalList = '$_list_' . $this->_randVarName(10);
 
         $parse  = "<?php ";
-        $parse .= "  \$internalSlotId = $slotId; ";
-        $parse .= "  \$internalSlot = \"$slot\";";
-        $parse .= "  if (empty(\$internalSlotId) && !empty(\$internalSlot)) {";
-        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>\$internalSlot])->find();";
-        $parse .= "    if (!empty(\$internalAdSlot)) { \$internalSlotId = \$internalAdSlot['id'];}";
+        $parse .= "  $internalSlotId = $slotId; ";
+        $parse .= "  $internalSlot = \"$slot\";";
+        $parse .= "  if (empty($internalSlotId) && !empty($internalSlot)) {";
+        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>$internalSlot])->find();";
+        $parse .= "    if (!empty(\$internalAdSlot)) { $internalSlotId = \$internalAdSlot['id'];}";
         $parse .= "  }";
-        $parse .= "  \$cacheMark = 'ads_' . \$internalSlotId . $cache . $limit;";
+        $parse .= "  \$cacheMark = 'ads_' . $internalSlotId . $cache . $limit;";
+        $parse .= "  \$AdModel = new app\common\model\AdModel();";
         $parse .= "  if ($cache) { ";
-        $parse .= "    $list = cache(\$cacheMark); ";
+        $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
-        $parse .= "  if (empty($list)) { ";
-        $parse .= "    \$adLogic = new \app\common\logic\AdLogic();";
-        $parse .= "    $list = \$adLogic->getAdList(\$internalSlotId, $limit);";
+        $parse .= "  if (empty($internalList)) { ";
+        $parse .= "    if ($internalSlotId) { ";
+        $parse .= "       \$AdModel = app\common\model\AdModel::has('adServings', ['slot_id'=>$internalSlotId]);";
+        $parse .= "    }";
+        $parse .= "    $internalList = \$AdModel->order('sort asc')->limit($limit)->select();";
         $parse .= "    if ($cache) { ";
-        $parse .= "      cache(\$cacheMark, $list, $cache); ";
+        $parse .= "      cache(\$cacheMark, $internalList, $cache); ";
         $parse .= "    } ";
         $parse .= "  } ";
+        $parse .= "  $assign = $internalList;";
         $parse .= "  ?>";
-        $parse .= "  {volist name='$list' id='$id'}";
+
+        $parse .= "  {volist name='$internalList' id='$id'}";
         $parse .= $content;
         $parse .= "  {/volist}";
 
@@ -263,7 +285,7 @@ class Cms extends TagLib
         $limit = empty($tag['limit']) ? 0 : $tag['limit'];
         $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
-        //作用绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
+        //用于绑定上下文变量，以':'开头调用函数；以'$'解析为值；非'$'开头的字符串中解析为变量名表达式；
         $limit = $this->autoBuildVar($limit);
         $assign = $this->autoBuildVar($assign);
 

@@ -130,7 +130,7 @@ class App extends \think\App
      * 获取beyongCms 版本
      * @return string
      */
-    public function beyongCmsVersion()
+    public static function beyongCmsVersion()
     {
         return static::BEYONG_CMS_VERSION;
     }

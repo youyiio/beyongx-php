@@ -81,13 +81,19 @@ class Dir  implements \IteratorAggregate
 					$dir[$i]['isReadable']    = is_readable($file);
 					$dir[$i]['isWritable']    = is_writable($file);
 			}
-			$cmp_func = create_function('$a,$b','
-			$k  =  "isDir";
-			if($a[$k]  ==  $b[$k])  return  0;
-			return  $a[$k]>$b[$k]?-1:1;
-			');
+
+			//自PHP 7.2起，函数create_function因为代码注入漏洞已被弃用
+//			$cmp_func = create_function('$a,$b','
+//			$k  =  "isDir";
+//			if($a[$k]  ==  $b[$k])  return  0;
+//			return  $a[$k]>$b[$k]?-1:1;
+//			');
 			// 对结果排序 保证目录在前面
-			usort($dir,$cmp_func);
+			usort($dir, function($a, $b) {
+                $k  =  "isDir";
+                if($a[$k]  ==  $b[$k])  return  0;
+                return  $a[$k]>$b[$k]?-1:1;
+            });
 			$this->_values = $dir;
 			$_listDirs[$guid] = $dir;
 		}else{

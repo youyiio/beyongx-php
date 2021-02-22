@@ -13,13 +13,13 @@ return [
     // 数据库类型
     'type'            => 'mysql',
     // 服务器地址
-    'hostname'        => '',
+    'hostname'        => 'test.youyi.io',
     // 数据库名
-    'database'        => '',
+    'database'        => 'cmsdb',
     // 用户名
-    'username'        => '',
+    'username'        => 'cmsdba',
     // 密码
-    'password'        => '',
+    'password'        => 'fcZDY48W2#!Qq.h5*Ox5=8y)',
     // 端口
     'hostport'        => '',
     // 连接dsn

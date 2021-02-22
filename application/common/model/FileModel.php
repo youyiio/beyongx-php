@@ -15,5 +15,18 @@ class FileModel extends Model
 {
     protected $name = CMS_PREFIX . 'file';
 
-    protected $pk = 'file_id';
+    protected $pk = 'id';
+
+    public function getFullFileUrlAttr($value, $data)
+    {
+        $switch = 'false';//get_config('oss_switch');
+        if ($switch !== 'true') {
+            $fullImageUrl = url_add_domain($data['file_url']);
+            $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
+        } else {
+            $fullImageUrl = $data['oss_image_url'];
+        }
+
+        return $fullImageUrl;
+    }
 }

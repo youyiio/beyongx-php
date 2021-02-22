@@ -1,0 +1,201 @@
+{extend name="public/base" /}
+
+{block name="title"}主题管理{/block}
+
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="__PUBLIC__/static/inspinia/css/plugins/dropzone/dropzone-4.3.0.min.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="row">
+
+
+    <div class="col-sm-12">
+
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>主题广场</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+
+                <div class="tabs-container">
+
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tab-base">已安装 <span class="badge badge-info">14</span></a></li>
+                        <li><a data-toggle="tab" href="#tab-advance">广场精选 <span class="badge">14</span></a></li>
+
+                        <li class="pull-right">
+                            <button class="btn btn-primary" type="button"><i class="fa fa-plus-circle"></i> 私人空间</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        <div id="tab-base" class="tab-pane active">
+                            <div class="panel-body">
+                                <div class="row gray-bg p-sm">
+
+                                    <div class="col-md-3">
+                                        <div class="ibox">
+                                            <div class="ibox-content product-box">
+                                                <div class="product-imitation" style="padding: 20px 20px">
+                                                    <img src="__PUBLIC__/static/admin/img/a1.jpg" style="width:80%;height:80%"/>
+                                                </div>
+                                                <div class="product-desc">
+                                                    <span class="product-price">
+                                                      ￥20.0 元
+                                                    </span>
+                                                    <small class="text-muted">hero主题</small>
+                                                    <a href="#" class="product-name"> hero主题</a>
+                                                    <div class="small m-t-xs">
+                                                        英雄主题备注
+                                                    </div>
+                                                    <div class="m-t text-righ">
+                                                        <a href="#" class="btn btn-info">修改</a>
+                                                        <button data-action="" class="btn btn-warning ajax-btn">下架</button>
+                                                        <button data-action="" class="btn btn-danger ajax-btn">删除</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="ibox">
+                                            <div class="ibox-content product-box">
+                                                <div class="product-imitation" style="padding: 20px 20px">
+                                                    <img src="__PUBLIC__/static/admin/img/a1.jpg" style="width:80%;height:80%"/>
+                                                </div>
+                                                <div class="product-desc">
+                                                    <span class="product-price">
+                                                      ￥20.0 元
+                                                    </span>
+                                                    <small class="text-muted">hero主题</small>
+                                                    <a href="#" class="product-name"> hero主题</a>
+                                                    <div class="small m-t-xs">
+                                                        英雄主题备注
+                                                    </div>
+                                                    <div class="m-t text-righ">
+                                                        <a href="#" class="btn btn-info">修改</a>
+                                                        <button data-action="" class="btn btn-warning ajax-btn">下架</button>
+                                                        <button data-action="" class="btn btn-danger ajax-btn">删除</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="ibox">
+                                            <div class="ibox-content product-box">
+                                                <div class="product-imitation" style="padding: 20px 20px">
+                                                    <img src="__PUBLIC__/static/admin/img/a1.jpg" style="width:80%;height:80%"/>
+                                                </div>
+                                                <div class="product-desc">
+                                                    <span class="product-price">
+                                                      ￥20.0 元
+                                                    </span>
+                                                    <small class="text-muted">hero主题</small>
+                                                    <a href="#" class="product-name"> hero主题</a>
+                                                    <div class="small m-t-xs">
+                                                        英雄主题备注
+                                                    </div>
+                                                    <div class="m-t text-righ">
+                                                        <a href="#" class="btn btn-info">修改</a>
+                                                        <button data-action="" class="btn btn-warning ajax-btn">下架</button>
+                                                        <button data-action="" class="btn btn-danger ajax-btn">删除</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="ibox">
+                                            <div class="ibox-content product-box">
+                                                <div class="product-imitation" style="padding: 20px 20px">
+                                                    <img src="__PUBLIC__/static/admin/img/a1.jpg" style="width:80%;height:80%"/>
+                                                </div>
+                                                <div class="product-desc">
+                                                    <span class="product-price">
+                                                      ￥20.0 元
+                                                    </span>
+                                                    <small class="text-muted">hero主题</small>
+                                                    <a href="#" class="product-name"> hero主题</a>
+                                                    <div class="small m-t-xs">
+                                                        英雄主题备注
+                                                    </div>
+                                                    <div class="m-t text-righ">
+                                                        <a href="#" class="btn btn-info">修改</a>
+                                                        <button data-action="" class="btn btn-warning ajax-btn">下架</button>
+                                                        <button data-action="" class="btn btn-danger ajax-btn">删除</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="ibox">
+                                            <div class="ibox-content product-box">
+                                                <div class="product-imitation" style="padding: 20px 20px">
+                                                    <img src="__PUBLIC__/static/admin/img/a1.jpg" style="width:80%;height:80%"/>
+                                                </div>
+                                                <div class="product-desc">
+                                                    <span class="product-price">
+                                                      ￥20.0 元
+                                                    </span>
+                                                    <small class="text-muted">hero主题</small>
+                                                    <a href="#" class="product-name"> hero主题</a>
+                                                    <div class="small m-t-xs">
+                                                        英雄主题备注
+                                                    </div>
+                                                    <div class="m-t text-righ">
+                                                        <a href="#" class="btn btn-info">修改</a>
+                                                        <button data-action="" class="btn btn-warning ajax-btn">下架</button>
+                                                        <button data-action="" class="btn btn-danger ajax-btn">删除</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div id="tab-advance" class="tab-pane">
+                            <div class="panel-body">
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+{/block}
+
+{block name="js"}
+
+{/block}

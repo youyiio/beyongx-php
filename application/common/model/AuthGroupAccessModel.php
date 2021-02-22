@@ -14,9 +14,10 @@ class AuthGroupAccessModel extends BaseModel
 	 * @param  int $group_id 用户组id
 	 * @return array         用户数组
 	 */
-	public function getUidsByGroupId($group_id){
-		$userIds = $this->where(['group_id' => $group_id])->getField('uid', true);
-		return $userIds;
+	public function getUidsByGroupId($group_id)
+    {
+		$uids = $this->where(['group_id' => $group_id])->column('uid');
+		return $uids;
 	}
 
 }

@@ -7,20 +7,23 @@ BeyongCms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用于
 其主要特性包括：
 
  + 基于PHP最流行的ThinkPHP5.1框架，web端采用jquery+bootstrap框架
- + 用户系统
- + 文章系统
- + 灵活的角色权限控制
- + Composer第三方库支持
+ + 用户系统，邮箱、手机注册|登录支持
+ + 文章系统，文章栏目管理、评论审核管理
+ + 灵活的角色权限控制，RBAC管理
+ + crontab定时任务;window下使用计划任务；linux下使用crontab
+ + 主题系统;支持主题自定义开发；主题切换等
  + 插件系统
- + 主题系统
+ + 站长特性支持，友链管理，Sitemap地图，收录检测，相关推荐，热门推荐等
+ + 默认Composer第三方库支持，PHPQuery,think-queue
+ + Swoole和Swoole协程支持
  + 针对App及小程序的api优化
  + 阿里云和七牛云OSS支持
- + 站长特性支持，友链管理，Sitemap地图，收录检测，相关推荐，热门推荐等
  + 支持文章全文检索(开发中，支持ElasticSearch)
  
 支持官网: https://www.beyongcms.com
+交流QQ群1： 60916041
 
-> ThinkPHP5.1的运行环境要求PHP5.6以上，建议使用PHP7.0及以上。
+> ThinkPHP5.1的运行环境要求PHP7.0及以上。
 
 ##软件架构
 
@@ -68,6 +71,15 @@ Linux下
 >sh start_queue.sh
 >sh start_timer.bat
 
+### Swoole模式的启动方式
+
+Window下
+>start_swoole.bat
+
+Linux下
+>start_swoole.sh 
+
+
 系统的目录结构如下：
 
 ~~~
@@ -88,7 +100,6 @@ POROJECT_NAME  WEB部署目录（或者子目录）
 ├─route                 路由定义目录
 │  ├─cms.php           Cms模块的路由定义（优化搜索引擎收录）
 │  └─route.php.        通用的路由定义
-├─theme                主题模板目录（废弃）
 ├─public                WEB目录（对外访问目录）
 │  ├─static            全局静态文件（img,css,js,fonts）
 │  ├─theme             主题模板目录
@@ -106,6 +117,8 @@ POROJECT_NAME  WEB部署目录（或者子目录）
 ├─check_env.sh          Linux权限检测及调整脚本
 ├─start_queue.bat       Window消息队列启动脚本
 ├─start_queue.sh        Linux消息队列启动脚本
+├─start_swoole.bat      Window Swoole启动脚本(使用了swoole官方的cygwin)
+├─start_swoole.sh       Linux swoole启动脚本
 ├─start_timer.bat       Window定时启动脚本（增加执行计划）
 ├─start_timer.sh        Linux定时启动脚本（添加crontab）
 ~~~

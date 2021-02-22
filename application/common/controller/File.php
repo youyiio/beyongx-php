@@ -11,42 +11,51 @@ use think\facade\Env;
  */
 trait File
 {
+
     /**
      * 通用文件上传
      * 支持参数：file,exts
      */
     public function upload()
     {
-        $file = request()->file('file');
-        if (empty($file)) {
-            $this->error('请选择上传文件');
+        $tmpFile = request()->file('file');
+        if (empty($tmpFile)) {
             $this->result(null, 0, '请选择上传文件', 'json');
         }
 
         $rule = [
             'size' => 1024 * 1024 * 200, //200M
         ];
+
+        //通用文件后缀，加强安全;
+        $common_file_exts = 'zip,rar,doc,docx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
-        if (!empty($exts)) {
-            $rule['ext'] = $exts;
+        if (empty($exts)) {
+            $exts = $common_file_exts;
+        } else {
+            $exts = strtolower($exts);
+            $exts = explode(',', $exts);
+            $exts = array_diff($exts, ['php']);
+            $exts = implode(',', $exts);
         }
+        $rule['ext'] = $exts;
 
-        $check = $file->validate($rule);
-        if (!$check) {
-            //$this->error($file->getError());
-            $this->result(null, 0, $file->getError(), 'json');
-        }
-
+        //文件目录
         $filePath = Env::get('root_path') . 'public';
         $fileUrl = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR . 'file';
         $path = $filePath . $fileUrl;
 
-        $info = $file->move($path);
-        $saveName = $info->getSaveName(); //实际包含日期+名字：如20180724/erwrwiej...dfd.ext
+        //不能信任前端传进来的文件名, thinkphp默认使表单里的filename后缀
+        $file = $tmpFile->validate($rule)->move($path);;
+        if (!$file) {
+            $this->result(null, 0, $tmpFile->getError(), 'json');
+        }
+
+        $saveName = $file->getSaveName(); //实际包含日期+名字：如20180724/erwrwiej...dfd.ext
         $fileUrl = DIRECTORY_SEPARATOR . 'upload'. DIRECTORY_SEPARATOR . 'file' . DIRECTORY_SEPARATOR . $saveName;
 
-        $fileSize = $info->getSize();
-        $ext = $info->getExtension();
+        $fileSize = $file->getSize();
+        $ext = $file->getExtension();
 
         //原始上传文件名
         $fileName = $_FILES['file']['name'];
@@ -62,7 +71,7 @@ trait File
         $FileModel = new FileModel();
         $fileId = $FileModel->insertGetId($data);
 
-        $data['file_id'] = $fileId;
+        $data['id'] = $fileId;
         $data['ext_icon_url'] = '/static/common/img/format/' . strtolower($ext) . '.png';
 
         $this->result($data, 1, '文件上传成功', 'json');
@@ -119,7 +128,7 @@ trait File
         $FileModel = new FileModel();
         $fileId = $FileModel->insertGetId($data);
 
-        $data['file_id'] = $fileId;
+        $data['id'] = $fileId;
         $data['ext'] = $info->getExtension(); //文件后缀
 
         $this->success('文件上传成功', false, $data);
@@ -172,7 +181,7 @@ trait File
         $FileModel = new FileModel();
         $fileId = $FileModel->insertGetId($data);
 
-        $data['file_id'] = $fileId;
+        $data['id'] = $fileId;
         $data['ext'] = $info->getExtension(); //文件后缀
 
         $this->success('文件上传成功', false, $data);

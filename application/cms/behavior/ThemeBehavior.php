@@ -34,7 +34,7 @@ class ThemeBehavior
         }
 
         //设置所有主题的存放路径
-        $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $config['theme_name'] . DIRECTORY_SEPARATOR;
+        $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $config['package_name'] . DIRECTORY_SEPARATOR;
         $viewPath = $themePath . 'tpl' . DIRECTORY_SEPARATOR;
         $paginateFile = $themePath . 'paginate.php';
         if (isset($config['responsive']) && $config['responsive'] == true) {

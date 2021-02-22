@@ -34,7 +34,7 @@ class Resource extends Base
         $this->assign('files', $files);
         $this->assign('pages', $pages);
 
-        return view();
+        return $this->fetch('documents');
     }
 
     public function uploadDocument()
@@ -45,7 +45,7 @@ class Resource extends Base
 
             if ($fileId && $remark) {
                 $FileModel = new FileModel();
-                $result = $FileModel->save(['remark' => $remark], ['file_id' => $fileId]);
+                $result = $FileModel->save(['remark' => $remark], ['id' => $fileId]);
 
                 if ($result) {
                     $this->success('上传成功','documents');
@@ -61,7 +61,7 @@ class Resource extends Base
     public function deleteDocument($fileId = 0)
     {
         $FileModel = new FileModel();
-        $file = $FileModel->where('file_id', $fileId)->find();
+        $file = $FileModel->where('id', $fileId)->find();
         if (empty($file)) {
             $this->error('文件不存在');
         }
@@ -72,7 +72,7 @@ class Resource extends Base
 
         //删除数据
         $FileModel = new FileModel();
-        $res = $FileModel->where('file_id', $fileId)->delete();
+        $res = $FileModel->where('id', $fileId)->delete();
 
         if (!$res) {
             $this->error('删除失败');
@@ -107,7 +107,7 @@ class Resource extends Base
 
             if ($imageId) {
                 $ImageModel = new ImageModel();
-                $result = $ImageModel->save(['remark' =>$remark],['image_id' =>$imageId]);
+                $result = $ImageModel->save(['remark' =>$remark], ['id' =>$imageId]);
 
                 if ($result) {
                     $this->success('上传成功','images');
@@ -124,7 +124,7 @@ class Resource extends Base
     public function deleteImage($imageId = 0)
     {
         $ImageModel = new ImageModel();
-        $image = $ImageModel->where('image_id', $imageId)->find();
+        $image = $ImageModel->where('id', $imageId)->find();
         if (empty($image)) {
             $this->error('图片不存在');
         }
@@ -135,7 +135,7 @@ class Resource extends Base
         is_file($tbImageUrl) && unlink($tbImageUrl);
 
         //删除数据
-        $res = $ImageModel->where('image_id', $imageId)->delete();
+        $res = $ImageModel->where('id', $imageId)->delete();
 
         if (!$res) {
             $this->error('删除失败');

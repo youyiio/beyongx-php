@@ -1,0 +1,268 @@
+
+
+
+    <div class="form-group">
+        <label class="col-lg-2 control-label">附加图片（支持多张）</label>
+        <div class="col-lg-10">
+            <input type="hidden" name="meta_image_ids" id="meta_image_ids" value="{present name='article'}{$article->metas('image')|implode=',',###|default=''}{/present}">
+
+            <div class="dropzone needsclick dz-clickable" id="uploadMetaImage" data-input-name="meta_image_ids" data-width="" data-height=""
+                 data-thumb-width="" data-thumb-height="">
+                <div class="dz-message needsclick">
+                    {if isset($article) && $article->metas('image')}
+                    {else/}
+                    点击此处上传附加图片<br>
+                    <span class="note needsclick"></span>
+                    {/if}
+                </div>
+            </div>
+            <span class="help-block m-b-none">附加图片 支持jpg,png,gif,bmp,webp</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-lg-2 control-label">附加文件（支持多个）</label>
+        <div class="col-lg-10">
+            <input type="hidden" name="meta_file_ids" id="meta_file_ids" value="{present name='article'}{$article->metas('file')|implode=',',###|default=''}{/present}">
+
+            <div class="dropzone needsclick dz-clickable" id="uploadMetaFile" data-input-name="meta_file_ids" data-width="" data-height=""
+                 data-thumb-width="" data-thumb-height="">
+                <div class="dz-message needsclick">
+                    {if isset($article) && $article->meta('file')}
+                    {else/}
+                    点击此处上传附加文件<br>
+                    <span class="note needsclick"></span>
+                    {/if}
+                </div>
+            </div>
+            <span class="help-block m-b-none">附加文件 支持文件格式.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.apk,.ipa</span>
+        </div>
+    </div>
+
+    {php}
+    $images = array();
+    if (isset($article) && $article->metas('image')) {
+        $images = get_image($article->metas('image'));
+        $images = $images->toArray();
+    }
+    $metaImages = json_encode($images);
+
+    $files = array();
+    if (isset($article) && $article->metas('file')) {
+        $files = get_file($article->metas('file'));
+        $files = $files->toArray();
+    }
+    $metaFiles = json_encode($files);
+    {/php}
+
+    <script>
+        $(function() {
+
+            let mockImages = {$metaImages|raw};
+            let mockFiles = {$metaFiles|raw};
+
+            //图片上传
+            Dropzone.autoDiscover = false;
+            $("#uploadMetaImage").dropzone({
+                url: "{:url('Image/upload')}",
+                paramName: 'file', //input的name
+                maxFilesize: 5, // MB
+                addRemoveLinks: true, //添加删除链接
+                clickable: true, //预览图可点击
+                maxFiles: 10, //最多上传文件数量
+                acceptedFiles: '.jpg,.gif,.png,.jpeg,.webp,.bmp', //允许上传的文件后缀
+                // thumbnailWidth: 320,
+                // thumbnailHeight: 200,
+                dictCancelUpload: '取消上传',
+                dictRemoveFile: '删除图片',
+                maxfilesexceeded: function(file) {
+                    layer.alert('超最大数量,请删除现有文件后再上传', {icon: 2, title: '错误'});
+                    file.previewElement.remove();
+                },
+                init: function() {
+                    //添加现存图片
+                    var myDropzone = this;
+
+                    for(var i = 0; i < mockImages.length; i++) {
+                        let mock = mockImages[i];
+                        var file = {
+                            id: mock['id'],
+                            name: mock['image_name'], //需要显示给用户的图片名
+                            size: mock['image_size'], //图片尺寸
+                            type: 'image/jpeg', //图片文件类型,
+                            status: "success",
+                        };
+
+                        this.options.addedfile.call(this, file); //添加mock图片到显示区域
+                        this.options.thumbnail.call(this, file, mock['image_url']);  //添加数据源给mock图片
+                        this.emit("complete", file); //通知文件添加成功，进度条才会消失
+                    }
+
+                    //建议使用on方法来监听事件，避免覆盖了默认的removedfile方法
+                    myDropzone.on('removedfile', function(file) {
+                        console.log(file);
+                        var $element = $(this.element);
+                        let value = $('#' + $element.data('inputName')).val();
+                        //删除拼接可能三种方式
+                        value = value.replace(file.id + ',', '');
+                        value = value.replace(',' + file.id, '');
+                        value = value.replace(file.id + '', '');
+                        $('#' + $element.data('inputName')).val(value);
+                    });
+                },
+                sending: function(file,xhr,formData) {
+                    var $element = $(this.element);
+                    //图片尺寸
+                    formData.append("width", $element.data('width'));
+                    formData.append("height", $element.data('height'));
+                    //缩略图尺寸
+                    formData.append("thumbWidth", $element.data('thumbWidth'));
+                    formData.append("thumbHeight", $element.data('thumbHeight'));
+                },
+                success: function(file,response) {
+                    var $element = $(this.element);
+                    var thumbWidth = $element.data('thumbWidth');
+                    var thumbHeight = $element.data('thumbHeight');
+                    if (response.code) {
+                        //将图片id填入input
+                        var imageId = response.data.id;
+                        var imageUrl = ""+response.data.image_url;
+
+                        let value = $('#' + $element.data('inputName')).val();
+                        value = value == '' ? imageId : value + ',' + imageId;
+                        $('#' + $element.data('inputName')).val(value);
+
+                        file.id = imageId;
+                    } else {
+                        layer.alert(response.msg, {icon: 2, title: '上传失败'});
+                    }
+
+                    return true;
+                },
+                error: function(file, message) {
+                    //上传错误
+                    layer.alert(message, {icon: 2, title: '上传失败'});
+                    //file.previewElement.remove();
+                    this.removeFile(file);
+                }
+            });
+
+            //文件上传
+            $("#uploadMetaFile").dropzone({
+                url: "{:url('File/upload')}",
+                paramName: 'file', //input的name
+                maxFilesize: 20, // MB
+                addRemoveLinks: true, //添加删除链接
+                clickable: true, //预览图可点击
+                maxFiles: 10, //最多上传文件数量
+                acceptedFiles: '.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.apk,.ipa', //允许上传的文件后缀
+                thumbnailWidth: 120,
+                thumbnailHeight: 120,
+                dictCancelUpload: '取消上传',
+                dictRemoveFile: '删除文件',
+                maxfilesexceeded: function(file) {
+                    layer.alert('超最大数量,请删除现有文件后再上传', {icon: 2, title: '错误'});
+                    file.previewElement.remove();
+                },
+                init: function() {
+                    //添加现存图片
+                    var myDropzone = this;
+
+                    for(var i = 0; i < mockFiles.length; i++) {
+                        let mock = mockFiles[i];
+                        var file = {
+                            id: mock['id'],
+                            name: mock['file_name'], //需要显示给用户的图片名
+                            size: mock['file_size'], //图片尺寸
+                            type: '', //图片文件类型,
+                            status: "success",
+                        };
+
+                        this.options.addedfile.call(this, file); //添加mock图片到显示区域
+                        // this.options.generateThumbnail.call(this, file, function(thumb) {
+                        //     myDropzone.options.thumbnail.call(myDropzone, file, thumb);  //添加数据源给mock图片
+                        // });
+                        this.options.thumbnail.call(this, file, '/static/common/img/format/zip.png');  //添加数据源给mock图片
+                        this.emit("complete", file); //通知文件添加成功，进度条才会消失
+                    }
+
+                    //建议使用on方法来监听事件，避免覆盖了默认的removedfile方法
+                    myDropzone.on('removedfile', function(file) {
+                        console.log(file);
+                        var $element = $(this.element);
+                        let value = $('#' + $element.data('inputName')).val();
+                        //删除拼接可能三种方式
+                        value = value.replace(file.id + ',', '');
+                        value = value.replace(',' + file.id, '');
+                        value = value.replace(file.id + '', '');
+                        $('#' + $element.data('inputName')).val(value);
+                    });
+                },
+                sending: function(file,xhr,formData) {
+                    var $element = $(this.element);
+                    //图片尺寸
+                    formData.append("width", $element.data('width'));
+                    formData.append("height", $element.data('height'));
+                    //缩略图尺寸
+                    formData.append("thumbWidth", $element.data('thumbWidth'));
+                    formData.append("thumbHeight", $element.data('thumbHeight'));
+                },
+                success: function(file,response) {
+                    var $element = $(this.element);
+                    var thumbWidth = $element.data('thumbWidth');
+                    var thumbHeight = $element.data('thumbHeight');
+                    if (response.code) {
+                        //将图片id填入input
+                        var fileId = response.data.id;
+                        var imageUrl = ""+response.data.image_url;
+
+                        let value = $('#' + $element.data('inputName')).val();
+                        value = value == '' ? fileId : value + ',' + fileId;
+                        $('#' + $element.data('inputName')).val(value);
+
+                        file.id = fileId;
+                    } else {
+                        layer.alert(response.msg, {icon: 2, title: '上传失败'});
+                    }
+
+                    return true;
+                },
+                error: function(file, message) {
+                    //上传错误
+                    layer.alert(message, {icon: 2, title: '上传失败'});
+                    //file.previewElement.remove();
+                    this.removeFile(file);
+                },
+                //调整缩略图
+                generateThumbnail: function(file, callback) {
+                    var img = document.createElement("img");
+                    img.onload = function() {
+                        console.log(img);
+                        canvas = document.createElement("canvas");
+                        ctx = canvas.getContext("2d");
+                        canvas.width = 120;
+                        canvas.height = 120;
+                        try {
+                            console.log(img.width + '|' + img.height);
+                            ctx.drawImage(img, 0, 0, 200, 200, 0, 0, 120, 120);
+                        } catch (e) {
+                            console.log(e);
+                        }
+
+
+                        thumbnail = canvas.toDataURL("image/png");
+                        console.log(thumbnail);
+
+                        callback(thumbnail);
+                    };
+                    img.onerror = function() {
+
+                    };
+                    img.src = '/static/common/img/format/zip.png';
+                },
+            });
+
+        });
+    </script>
+
+

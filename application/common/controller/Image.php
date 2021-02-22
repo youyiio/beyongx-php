@@ -58,6 +58,8 @@ trait Image
         }
 
         $saveName = $file->getSaveName();
+        $fileName = $file->getInfo()['name'];
+        $fileSize = $file->getSize();
         $imgUrl = $path . DIRECTORY_SEPARATOR . $saveName;
 
         //图片缩放处理
@@ -82,6 +84,8 @@ trait Image
             $image->save($tbImgUrl, $extension, $quality, true);
 
             $data = [
+                'image_name' => $fileName,
+                'image_size' => $fileSize,
                 'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$file->getFilename(),
                 'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
                 'create_time' => date_time(),
@@ -89,6 +93,8 @@ trait Image
             ];
         } else {
             $data = [
+                'image_name' => $fileName,
+                'image_size' => $fileSize,
                 'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
                 'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
                 'create_time' => date_time(),
@@ -110,7 +116,7 @@ trait Image
         $ImageModel = new ImageModel();
         $imageId = $ImageModel->insertGetId($data);
 
-        $data['image_id'] = $imageId;
+        $data['id'] = $imageId;
 
         //$this->success('图片上传成功',null, $data);
         $this->result($data, 1, '图片上传成功', 'json');

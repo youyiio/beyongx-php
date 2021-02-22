@@ -111,7 +111,7 @@
             var $element = $(this.element);
             if (response.code) {
                 //将图片id填入input
-                var fileId = response.data.file_id;
+                var fileId = response.data.id;
                 var fileName = "" + response.data.file_name;
                 //console.log(fileName);
                 $('#' + $element.data('inputName')).val(fileId);

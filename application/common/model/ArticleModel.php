@@ -23,7 +23,7 @@ class ArticleModel extends BaseModel
     protected $pk = 'id';
 
     protected $auto = ['update_time'];
-    protected $insert = ['status','create_time','uid'];
+    protected $insert = ['status','create_time','sort'=>0,'uid'];
     protected $update = ['update_time'];
 
     //静态初始化时，依赖注入事件
@@ -141,7 +141,7 @@ class ArticleModel extends BaseModel
     //关联表：缩略图
     public function thumbImage()
     {
-        return $this->hasOne('ImageModel', 'image_id', 'thumb_image_id');
+        return $this->hasOne('ImageModel', 'id', 'thumb_image_id');
     }
 
     //关联表：文章分类
@@ -152,7 +152,7 @@ class ArticleModel extends BaseModel
     //关联表：中间表，用于获取中间表数据，或查询has/hasWhere
     protected function categoryArticle()
     {
-        return $this->hasMany('CategoryArticleModel','article_id','id');
+        return $this->hasMany('CategoryArticleModel', 'article_id', 'id');
     }
 
     //关联表：用户
@@ -197,13 +197,39 @@ class ArticleModel extends BaseModel
         //分类，新增中间表数据
         $this->categorys()->saveAll($data['category_ids']);
 
-        //标签,添加至meta表
+        //标签，添加至meta表
         if (!empty($data['tags'])) {
             $tags = explode(',', $data['tags']);
-            foreach ($tags as $tag) {
-                if (!empty($tag)) {
-                    $this->meta(ArticleMetaModel::KEY_TAG, $tag, BaseModel::MODE_MULTIPLE_VALUE);
+            foreach($tags as $tag) {
+                if (empty($tag)) {
+                    continue;
                 }
+
+                $this->meta(ArticleMetaModel::KEY_TAG, $tag, BaseModel::MODE_MULTIPLE_VALUE);
+            }
+        }
+
+        //附加图片，添加至meta表
+        if (!empty($data['meta_image_ids'])) {
+            $imageIds = explode(',', $data['meta_image_ids']);
+            foreach($imageIds as $imageId) {
+                if (empty($imageId)) {
+                    continue;
+                }
+
+                $this->meta(ArticleMetaModel::KEY_IMAGE, $imageId, BaseModel::MODE_MULTIPLE_VALUE);
+            }
+        }
+
+        //附加图片，添加至meta表
+        if (!empty($data['meta_file_ids'])) {
+            $fileIds = explode(',', $data['meta_file_ids']);
+            foreach($fileIds as $fileId) {
+                if (empty($fileId)) {
+                    continue;
+                }
+
+                $this->meta(ArticleMetaModel::KEY_FILE, $fileId, BaseModel::MODE_MULTIPLE_VALUE);
             }
         }
 
@@ -244,13 +270,35 @@ class ArticleModel extends BaseModel
             $art->categorys()->saveAll($data['category_ids']);
         }
 
-        //标签,添加至meta表
+        //标签，添加至meta表
         $this->meta(ArticleMetaModel::KEY_TAG, null, BaseModel::MODE_MULTIPLE_VALUE);
         if (!empty($data['tags'])) {
             $tags = explode(',', $data['tags']);
             foreach ($tags as $tag) {
                 if (!empty($tag)) {
                     $this->meta(ArticleMetaModel::KEY_TAG, $tag, BaseModel::MODE_MULTIPLE_VALUE);
+                }
+            }
+        }
+
+        //附加图片，添加至meta表
+        $this->meta(ArticleMetaModel::KEY_IMAGE, null, BaseModel::MODE_MULTIPLE_VALUE);
+        if (!empty($data['meta_image_ids'])) {
+            $imageIds = explode(',', $data['meta_image_ids']);
+            foreach ($imageIds as $imageId) {
+                if (!empty($imageId)) {
+                    $this->meta(ArticleMetaModel::KEY_IMAGE, $imageId, BaseModel::MODE_MULTIPLE_VALUE);
+                }
+            }
+        }
+
+        //附加文件，添加至meta表
+        $this->meta(ArticleMetaModel::KEY_FILE, null, BaseModel::MODE_MULTIPLE_VALUE);
+        if (!empty($data['meta_file_ids'])) {
+            $fileIds = explode(',', $data['meta_file_ids']);
+            foreach ($fileIds as $fileId) {
+                if (!empty($fileId)) {
+                    $this->meta(ArticleMetaModel::KEY_FILE, $fileId, BaseModel::MODE_MULTIPLE_VALUE);
                 }
             }
         }

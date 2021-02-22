@@ -165,11 +165,11 @@
                                         </button>
 
                                         <ul class="dropdown-menu">
-                                            {eq name="vo.status" value="\app\common\model\ArticleModel::STATUS_DRAFT"}
+                                            {if $vo.status == \app\common\model\ArticleModel::STATUS_DRAFT}
                                             <li>
                                                 <a href="{:url('Article/postArticle',['id'=>$vo['id']])}" class="ajax-a" style="color: black">立即发布</a>
                                             </li>
-                                            {/eq}
+                                            {/if}
                                             {if get_config('article_audit_switch') == 'true'}
                                             <li>
                                                 {if $vo.status == \app\common\model\ArticleModel::STATUS_PUBLISHING}

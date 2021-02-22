@@ -125,82 +125,72 @@ function get_cur_url()
 }
 
 /**
- * 压缩文件
+ * 压缩文件|文件夹
  * @param string $path 需要压缩的文件[夹]路径
- * @param string $savedir 压缩文件所保存的目录
- * @return array zip文件路径
+ * @param string $zipFile 压缩文件所保存的目录
+ * @return string zip文件路径
  */
-function zip($path, $savedir)
+function x_zip($path, $zipFile)
 {
-    $path = preg_replace('/\/$/', '', $path);
-    preg_match('/\/([\d\D][^\/]*)$/', $path, $matches, PREG_OFFSET_CAPTURE);
-    $filename = $matches[1][0] . ".zip";
     set_time_limit(0);
 
     $zip = new \ZipArchive();
-    $zip->open($savedir . DIRECTORY_SEPARATOR . $filename, ZIPARCHIVE::OVERWRITE);
-    if (is_file($path)) {
-        $path = preg_replace('/\/\//', '/', $path);
-        $base_dir = preg_replace('/\/[\d\D][^\/]*$/', '/', $path);
-        $base_dir = addcslashes($base_dir, '/:');
-        $localname = preg_replace('/' . $base_dir . '/', '', $path);
-        $zip->addFile($path, $localname);
-        $zip->close();
-        return $filename;
-    } elseif (is_dir($path)) {
-        $path = preg_replace('/\/[\d\D][^\/]*$/', '', $path);
-        $base_dir = $path . '/';//基目录
-        $base_dir = addcslashes($base_dir, '/:');
-    }
+    $zip->open($zipFile, ZIPARCHIVE::CREATE);
 
     $path = preg_replace('/\/\//', '/', $path);
-    function addItem($path, &$zip, &$base_dir) {
+    $base_dir = strpos($path, DIRECTORY_SEPARATOR) == strlen($path) - 1 ? $path: $path . DIRECTORY_SEPARATOR; //基目录
+
+    if (is_file($path)) {
+        $localName = str_replace($base_dir, '', $path);
+        $zip->addFile($path, $localName);
+        $zip->close();
+
+        return $zipFile;
+    }
+
+    function addFileToZip($path, &$zip, &$base_dir) {
         $handle = opendir($path);
         while (false !== ($file = readdir($handle))) {
-            if (($file != '.') && ($file != '..')) {
-                $ipath = $path . DIRECTORY_SEPARATOR . $file;
-                if (is_file($ipath)){//条目是文件
-                    $localname = preg_replace('/' . $base_dir . '/', '', $ipath);
-                    var_dump($localname);
-                    $zip->addFile($ipath,$localname);
-                } else if (is_dir($ipath)){
-                    addItem($ipath,$zip,$base_dir);
-                    $localname = preg_replace('/' . $base_dir . '/', '', $ipath);
-                    var_dump($localname);
-                    $zip->addEmptyDir($localname);
-                }
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
+
+            $targetFile = $path . DIRECTORY_SEPARATOR . $file;
+            if (is_file($targetFile)) {//条目是文件
+                $localName = str_replace($base_dir, '', $targetFile);
+                //var_dump($localName);var_dump($targetFile);
+                $zip->addFile($targetFile, $localName);
+            } else if (is_dir($targetFile)) {
+                addFileToZip($targetFile, $zip, $base_dir);
+                $localName = str_replace($base_dir, '', $targetFile);
+                //var_dump($localName);
+                $zip->addEmptyDir($localName);
             }
         }
+
+        closedir($handle);
     }
-    addItem($path, $zip, $base_dir);
+
+    addFileToZip($path, $zip, $base_dir);
     $zip->close();
 
-    return $filename;
+    return $zipFile;
 }
 
 /**
- * 解压文件
- * @param String $zip 压缩包路径
- * @param string $hedef 解压路径
+ * 解压zip文件
+ * @param String $zipFile 压缩包路径
+ * @param string $unzipPath 解压路径
  */
-function ezip($zip, $hedef = '')
+function x_unzip($zipFile, $unzipPath = '.')
 {
-    $dirname = preg_replace('/.zip/', '', $zip);
-    $root = $_SERVER['DOCUMENT_ROOT'] . '/zip/';
-    $zip = zip_open($root . $zip);
-    @mkdir($root . $hedef . $dirname . '/' . $zip_dosya);
-    while ($zip_icerik = zip_read($zip)) {
-        $zip_dosya = zip_entry_name($zip_icerik);
-        if (strpos($zip_dosya, '.')) {
-            $hedef_yol = $root . $hedef . $dirname . '/' . $zip_dosya;
-            @touch($hedef_yol);
-            $yeni_dosya = @fopen($hedef_yol, 'w+');
-            @fwrite($yeni_dosya, zip_entry_read($zip_icerik), zip_entry_filesize($zip_icerik));
-            @fclose($yeni_dosya);
-        } else {
-            @mkdir($root . $hedef . $dirname . '/'. $zip_dosya);
-        };
-    };
+    $zip = new \ZipArchive();
+    if ($zip->open($zipFile) == true) {
+        //将压缩文件解压到指定的目录下
+        $zip->extractTo($unzipPath);
+        //关闭zip文档
+        $zip->close();
+    }
 }
 
 //日志输出，用于第三方库统一日志输出，如extend或vendor内的库输出
@@ -216,7 +206,7 @@ function money_show($fee)
 }
 
 //php获取中文字符拼音首字母
-function get_first_py($str)
+function get_first_pinyin($str)
 {
     $py  = new \app\common\library\PinYin;
     $str = $py->getFirstLetter($str);
@@ -366,7 +356,7 @@ function obj_to_array(&$object) {
  * 获取网站配置信息
  * @param  string $key 配置的键名,为空获取全部配置数组
  * @param  string $default 默认值,如果有值且配置值为空返回默认值
- * @return max
+ * @return mixed
  */
 function get_config($key = '', $default = null)
 {
@@ -387,24 +377,56 @@ function get_config($key = '', $default = null)
 }
 
 /**
+ * 获取图片信息
+ * @param  string|array $id 图片id
+ * @return mixed
+ * @throws Exception
+ */
+function get_image($id)
+{
+    if (is_array($id)) {
+        $ImageModel = new \app\common\model\ImageModel();
+        return $ImageModel->where('id', 'in', $id)->select();
+    } else {
+        return \app\common\model\ImageModel::get($id);
+    }
+}
+
+/**
+ * 获取文件信息
+ * @param  string|array $id 文件id
+ * @return mixed
+ * @throws Exception
+ */
+function get_file($id)
+{
+    if (is_array($id)) {
+        $FileModel = new \app\common\model\FileModel();
+        return $FileModel->where('id', 'in', $id)->select();
+    } else {
+        return \app\common\model\FileModel::get($id);
+    }
+}
+
+/**
  * 获取主题配置信息
  * @return array
  */
 function get_theme_config()
 {
     //优先通过数据库配置加载当前主题，无配置时通过config/theme.php加载
-    $themeName = get_config('theme_name', '');
-    if (empty($themeName)) {
+    $packageName = get_config('theme_package_name', '');
+    if (empty($packageName)) {
         //通过config文件加载当前主题信息
         $config = Config::pull('theme');
-        $themeName = $config['theme_name'];
+        $packageName = $config['package_name'];
     }
-    if (empty($themeName)) {
+    if (empty($packageName)) {
         die('未配置主题信息!');
     }
 
     //当前主题的存放路径
-    $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $themeName . DIRECTORY_SEPARATOR;
+    $themePath = Env::get('root_path')  . 'public' . DIRECTORY_SEPARATOR . 'theme' . DIRECTORY_SEPARATOR . $packageName . DIRECTORY_SEPARATOR;
     if (!file_exists($themePath)) {
         die('主题路径不存在：' . $themePath);
     }
@@ -711,6 +733,30 @@ function menu_select($mca = '')
     return '';
 }
 
+//请求的host
+function request_host()
+{
+    $request = request();
+    if ($request->isCli()) {
+        return $request->header('x-original-host') ? $request->header('x-original-host') : $request->header('host');
+    } else {
+        return $host = $request->host();
+    }
+}
+
+//请求的域名(含scheme)
+function request_domain()
+{
+    $request = request();
+    $domain = $request->domain();
+    if ($request->isCli()) {
+        $scheme = $request->header('scheme') ? $request->header('scheme') : $request->scheme();
+        $host = $request->header('x-original-host') ? $request->header('x-original-host') : $request->header('host');
+        $domain = $scheme . '://' . $host;
+    }
+    return $domain;
+}
+
 //处理链接地址 添加域名部分
 function url_add_domain($url = '')
 {
@@ -720,7 +766,10 @@ function url_add_domain($url = '')
     if (empty($url)) {
         return '';
     }
-    return request()->domain() . config('view_replace_str.__PUBLIC__') . $url;
+
+    $domain = request_domain();
+
+    return $domain . config('view_replace_str.__PUBLIC__') . $url;
 }
 
 //从url中获取域名, $root_domain=true时返回根域名
@@ -756,18 +805,6 @@ function sub_str($str, $start = 0, $length = 17)
     }
     $str = mb_substr($str, $start, $length);
     return $str . '...';
-}
-
-//清理百度编辑器文章底部白色底纹
-function remove_white_background($con)
-{
-    return $con = preg_replace('/background\: white;/', '', $con);
-}
-
-//前台图片background-image地址\得转换成/
-function background_image_url($url)
-{
-    return str_replace('\\', '/', $url);
 }
 
 //请求参数签名

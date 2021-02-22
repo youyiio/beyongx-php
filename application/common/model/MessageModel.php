@@ -24,9 +24,9 @@ class MessageModel extends Model
     const UID_ALL = 'all'; //表示uid为所有的人
     const UID_SYSTEM = 'sys'; //表示uid为系统
 
-    const TYPE_SYSTEM = 0x0001; //系统消息
-    const TYPE_MAIL = 0x0002;   //站内信
-    const TYPE_COMMENT = 0x0003; //评论
+    const TYPE_SYSTEM = 'system'; //系统消息
+    const TYPE_MAIL = 'mail';   //站内信
+    const TYPE_COMMENT = 'comment'; //评论
 
     //属性：status_text
     public function getStatusTextAttr($value ,$data)

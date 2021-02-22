@@ -76,9 +76,16 @@ class BaseModel extends Model
         $model = substr(get_class($this), 0, -5)  . 'MetaModel';
         $MetaModel = new $model;
         if ($metaValue === '') {
-            return $MetaModel->_meta($this->$pk, $metaKey);
+            //属性已经有值时，直接返回
+            if (isset($this->$metaKey)) {
+                return $this->$metaKey;
+            }
+
+            $this->$metaKey = $MetaModel->_meta($this->$pk, $metaKey);
+            return $this->$metaKey;
         }
 
+        isset($this->$metaKey) ? $this->$metaKey = null : false;
         $MetaModel->_meta($this->$pk, $metaKey, $metaValue, $mode);
     }
 
@@ -90,7 +97,8 @@ class BaseModel extends Model
         $model = substr(get_class($this), 0, -5)  . 'MetaModel';
         $MetaModel = new $model;
 
-        return $MetaModel->_metas($this->$pk, $metaKey);
+        $this->$metaKey = $MetaModel->_metas($this->$pk, $metaKey);
+        return $this->$metaKey;
     }
 
     /**

@@ -41,7 +41,7 @@ class AdModel extends BaseModel
     //关联表:图片
     public function image()
     {
-        return $this->hasOne('ImageModel','image_id','image_id');
+        return $this->hasOne('ImageModel','id','image_id');
     }
 
     //关联表:投放时间段

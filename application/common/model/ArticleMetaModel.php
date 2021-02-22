@@ -16,6 +16,8 @@ class ArticleMetaModel extends BaseMetaModel
     const KEY_TAG = 'tag'; //标签key
     const KEY_TIMING_POST = '__timing_post__'; //定时发布
     const KEY_BAIDU_INDEX = 'baidu_index'; //百度索引key
+    const KEY_IMAGE = 'image'; //标签image
+    const KEY_FILE = 'file'; //标签file
 
     protected $auto = ['update_time'];
     protected $insert = ['create_time', 'update_time'];

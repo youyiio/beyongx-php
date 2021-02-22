@@ -28,7 +28,8 @@
         "cattong/think-addons": "^1.0",
         "cattong/think-auth": "^1.0",
         "jaeger/querylist": "4.*",
-        "topthink/think-queue": "v2.0.4"
+        "topthink/think-queue": "v2.0.4",
+        "topthink/think-swoole": "v2.0.17"
     },
     "autoload": {
         "psr-4": {

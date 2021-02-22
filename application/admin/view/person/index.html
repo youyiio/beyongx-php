@@ -79,7 +79,7 @@
                                     <a href="{:url(request()->module().'/Article/postArticle',['id'=>$al['id']])}" class="ajax-a"><button class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="发布"><i class="fa fa-upload"></i> 发布</button></a>
                                     {/eq}
                                     {eq name="al.ad_id" value="0"}
-                                    <button class="btn btn-xs btn-success addHeadline" data-title="{$al.title}" data-url="{:url('cms/Article/viewArticle',['aid'=>$al['id']])}" data-article-id="{$al.id}" data-ad-id="{$al.ad_id|default=0}"><i class="fa fa-hand-o-up"></i> 上头条</button>
+                                    <button class="btn btn-xs btn-success addHeadline" data-title="{$al.title}" data-url="{:url('cms/Article/upTop',['aid'=>$al['id']])}" data-article-id="{$al.id}" data-ad-id="{$al.ad_id|default=0}"><i class="fa fa-hand-o-up"></i> 上头条</button>
                                     {else/}
                                     <button class="btn btn-xs btn-white js-btn" data-action="{:url(request()->controller().'/deleteTop',['adId'=>$al['ad_id'],'artId'=>$al['id']])}"><i class="fa fa-hand-o-down"></i> 取消头条</button>
                                     {/eq}
@@ -104,6 +104,7 @@
         </div>
     </div>
 </div>
+
 <div class="modal inmodal" id="addAd" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content animated bounceInRight">
@@ -183,7 +184,7 @@
         success: function(file,response) {
             if (response.code) {
                 //将图片id填入input
-                var imageId = response.data.image_id;
+                var imageId = response.data.id;
                 var imageUrl = "__PUBLIC__"+response.data.image_url;
                 $('#image_id').val(imageId);
                 $('.dz-message').html('').append('<img src="'+imageUrl+'" style="border:1px solid #ccc;width:1002px;height:375px;max-width:100%">');

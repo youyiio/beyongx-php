@@ -1,8 +1,9 @@
 {extend name="public/base" /}
 {block name="title"}文章列表{/block}
 {block name="css"}
-
+<link href="__PUBLIC__/static/inspinia/css/plugins/switchery/switchery.css" rel="stylesheet">
 {/block}
+
 {block name="main"}
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
@@ -35,6 +36,7 @@
                                 <th>分类名称</th>
                                 <th>英文名称</th>
                                 <th>备注</th>
+                                <th>状态</th>
                                 <th>操作</th>
                             </tr>
                             {foreach name="list" item="vo"}
@@ -46,6 +48,7 @@
                                 <td>{$vo['_name']|raw}</td>
                                 <td>{$vo['title_en']}</td>
                                 <td>{$vo.remark}</td>
+                                <td><input type="checkbox" name="status[]" value="{$vo.id}" class="ajax-switch" {if $vo.status == \app\common\model\CategoryModel::STATUS_ONLINE}checked="checked"{/if} ></td>
                                 <td>
                                     <a href="{:url('Article/addCategory',['pid'=>$vo['id']])}" class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="新增子类"><i class="icon-remove"></i> 新增子类 </a>
                                     <a href="{:url('Article/editCategory',['id'=>$vo['id']])}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="icon-pencil"></i> 修改</a>
@@ -54,7 +57,7 @@
                             </tr>
                             {/foreach}
                             <tr>
-                                <th colspan="6">
+                                <th colspan="7">
                                     <button class="btn btn-success" type="submit">排序</button>
                                 </th>
                             </tr>
@@ -70,5 +73,30 @@
 {/block}
 
 {block name="js"}
+<script src="__PUBLIC__/static/inspinia/js/plugins/switchery/switchery.js"></script>
+<script>
+    function changeStatus(value, checked) {
+        var url = "{:url(request()->controller() . '/categoryList')}" + "?id=" + value + '&checked=' + checked;
+        var data = {id: value, checked: checked};
 
+        $.post(url, data, function(res) {
+            if (res.code) {
+                layer.msg(res.msg);
+            } else {
+                layer.msg(res.msg, function(){});
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        var elems = document.querySelectorAll('.ajax-switch');
+        for (var i = 0; i < elems.length; i++) {
+            var checkbox = elems[i];
+            var switchery = new Switchery(checkbox, { color: '#1AB394' });
+            checkbox.onchange = function() {
+                changeStatus(this.value, this.checked);
+            }
+        }
+    })
+</script>
 {/block}

@@ -3,7 +3,7 @@ SET FOREIGN_KEY_CHECKS=0;
 /* ============================================建表脚本================================*/
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2019-04-28 14:47:38                          */
+/* Created on:     2020-08-06 14:47:38                          */
 /*==============================================================*/
 
 
@@ -23,11 +23,25 @@ drop table if exists cms_ad_slot;
 
 drop table if exists cms_addons;
 
-drop table if exists cms_article;
+#drop index idx_article_sort on cms_article;
+
+#drop index idx_article_update_time on cms_article;
+
+#drop index idx_article_post_time on cms_article;
 
 #drop index idx_article_status on cms_article;
 
+drop table if exists cms_article;
+
+#drop index idx_article_data_title_similar on cms_article_data;
+
+#drop index idx_article_data_b_id on cms_article_data;
+
+#drop index idx_article_data_a_id on cms_article_data;
+
 drop table if exists cms_article_data;
+
+#drop index idx_article_meta_update_time on cms_article_meta;
 
 #drop index idx_article_meta_meta_key on cms_article_meta;
 
@@ -43,7 +57,13 @@ drop table if exists cms_auth_rule;
 
 drop table if exists cms_category;
 
+#drop index idx_category_article_aid on cms_category_article;
+
+#drop index idx_category_article_cid on cms_category_article;
+
 drop table if exists cms_category_article;
+
+#drop index idx_comment_article_id on cms_comment;
 
 drop table if exists cms_comment;
 
@@ -53,7 +73,7 @@ drop table if exists cms_config_access;
 
 drop table if exists cms_crawler;
 
-#drop index idx_crawler_meta_uid_meta_key on cms_crawler_meta;
+#drop index idx_crawler_meta_target_id_meta_key on cms_crawler_meta;
 
 drop table if exists cms_crawler_meta;
 
@@ -81,7 +101,7 @@ drop table if exists cms_region;
 
 drop table if exists cms_user;
 
-#drop index idx_user_meta_uid_meta_key on cms_user_meta;
+#drop index idx_user_meta_target_id_meta_key on cms_user_meta;
 
 drop table if exists cms_user_meta;
 
@@ -99,7 +119,7 @@ drop table if exists cms_user_verify_code;
 create table cms_action_log
 (
    id                   bigint not null auto_increment,
-   uid              int,
+   uid                  int,
    action               varchar(64) not null,
    module               varchar(16),
    ip                   varchar(64) not null,
@@ -122,7 +142,7 @@ create index idx_action_log_create_time on cms_action_log
 );
 
 /*==============================================================*/
-/* Index: idx_action_log_uid_action                         */
+/* Index: idx_action_log_uid_action                             */
 /*==============================================================*/
 create index idx_action_log_uid_action on cms_action_log
 (
@@ -153,7 +173,7 @@ alter table cms_ad comment '广告表';
 /*==============================================================*/
 create table cms_ad_serving
 (
-   id                   int not null,
+   id                   int not null auto_increment,
    ad_id                int not null,
    slot_id              int not null,
    status               tinyint comment '0.下线;1.上线',
@@ -227,14 +247,14 @@ create table cms_article
    content              mediumtext not null,
    post_time            datetime,
    create_time          datetime not null,
-   update_time     datetime not null,
+   update_time          datetime not null,
    status               tinyint,
    is_top               boolean default 0,
    thumb_image_id       int,
    read_count           int not null default 0,
    comment_count        int not null default 0,
    author               varchar(64),
-   uid              int not null,
+   uid                  int not null,
    sort                 int default 0,
    ad_id                int default 0,
    primary key (id)
@@ -244,9 +264,36 @@ DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_article comment '文章表';
 
+/*==============================================================*/
+/* Index: idx_article_status                                    */
+/*==============================================================*/
 create index idx_article_status on cms_article
 (
    status
+);
+
+/*==============================================================*/
+/* Index: idx_article_post_time                                 */
+/*==============================================================*/
+create index idx_article_post_time on cms_article
+(
+   post_time
+);
+
+/*==============================================================*/
+/* Index: idx_article_update_time                               */
+/*==============================================================*/
+create index idx_article_update_time on cms_article
+(
+   update_time
+);
+
+/*==============================================================*/
+/* Index: idx_article_sort                                      */
+/*==============================================================*/
+create index idx_article_sort on cms_article
+(
+   sort
 );
 
 /*==============================================================*/
@@ -259,7 +306,7 @@ create table cms_article_data
    article_b_id         int not null,
    title_similar        float not null,
    content_similar      float not null,
-   update_time     datetime not null,
+   update_time          datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -267,6 +314,30 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_article_data comment '文章相关表';
+
+/*==============================================================*/
+/* Index: idx_article_data_a_id                                 */
+/*==============================================================*/
+create index idx_article_data_a_id on cms_article_data
+(
+   article_a_id
+);
+
+/*==============================================================*/
+/* Index: idx_article_data_b_id                                 */
+/*==============================================================*/
+create index idx_article_data_b_id on cms_article_data
+(
+   article_b_id
+);
+
+/*==============================================================*/
+/* Index: idx_article_data_title_similar                        */
+/*==============================================================*/
+create index idx_article_data_title_similar on cms_article_data
+(
+   title_similar
+);
 
 /*==============================================================*/
 /* Table: cms_article_meta                                      */
@@ -277,7 +348,7 @@ create table cms_article_meta
    article_id           int not null,
    meta_key             varchar(255) not null,
    meta_value           longtext,
-   update_time     datetime not null,
+   update_time          datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -300,6 +371,14 @@ create index idx_article_meta_article_id on cms_article_meta
 create index idx_article_meta_meta_key on cms_article_meta
 (
    meta_key
+);
+
+/*==============================================================*/
+/* Index: idx_article_meta_update_time                          */
+/*==============================================================*/
+create index idx_article_meta_update_time on cms_article_meta
+(
+   update_time
 );
 
 /*==============================================================*/
@@ -380,12 +459,29 @@ alter table cms_category comment '分类表';
 /*==============================================================*/
 create table cms_category_article
 (
+   id                   int not null auto_increment,
    category_id          int not null,
    article_id           int not null,
-   primary key (category_id, article_id)
+   primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
+
+/*==============================================================*/
+/* Index: idx_category_article_cid                              */
+/*==============================================================*/
+create index idx_category_article_cid on cms_category_article
+(
+   category_id
+);
+
+/*==============================================================*/
+/* Index: idx_category_article_aid                              */
+/*==============================================================*/
+create index idx_category_article_aid on cms_category_article
+(
+   article_id
+);
 
 /*==============================================================*/
 /* Table: cms_comment                                           */
@@ -409,6 +505,14 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_comment comment '评论表';
+
+/*==============================================================*/
+/* Index: idx_comment_article_id                                */
+/*==============================================================*/
+create index idx_comment_article_id on cms_comment
+(
+   article_id
+);
 
 /*==============================================================*/
 /* Table: cms_config                                            */
@@ -474,8 +578,8 @@ create table cms_crawler
    article_author       varchar(128),
    article_image        varchar(128),
    category_id          int,
+   update_time          datetime not null,
    create_time          datetime not null,
-   update_time     datetime not null,
    primary key (id)
 )
 ENGINE = InnoDB
@@ -493,8 +597,7 @@ create table cms_crawler_meta
    meta_key             varchar(32) not null,
    meta_value           text not null,
    remark               varchar(128),
-   article_id           int,
-   update_time     datetime not null,
+   update_time          datetime not null,
    create_time          datetime not null,
    primary key (id)
 )
@@ -504,9 +607,9 @@ DEFAULT CHARACTER SET = utf8mb4;
 alter table cms_crawler_meta comment '采集元数据表';
 
 /*==============================================================*/
-/* Index: idx_crawler_meta_uid_meta_key                         */
+/* Index: idx_crawler_meta_target_id_meta_key                         */
 /*==============================================================*/
-create index idx_crawler_meta_uid_meta_key on cms_crawler_meta
+create index idx_crawler_meta_target_id_meta_key on cms_crawler_meta
 (
    target_id,
    meta_key
@@ -528,8 +631,8 @@ create table cms_device
    cpu                  varchar(64),
    ram                  bigint,
    rom                  bigint,
+   update_time          datetime not null,
    create_time          datetime not null,
-   update_time     datetime not null,
    primary key (device_id)
 )
 ENGINE = InnoDB
@@ -566,15 +669,16 @@ alter table cms_feedback comment '意见反馈表';
 /*==============================================================*/
 create table cms_file
 (
-   file_id              int not null auto_increment,
+   id              int not null auto_increment,
    file_url             varchar(256) not null,
    file_path            varchar(256) not null default '0' comment 'file_ulr所在目录',
    file_name            varchar(128) not null,
    file_size            int not null,
+   oss_image_url        varchar(512),
    ext                  text,
    remark               varchar(512),
    create_time          datetime not null,
-   primary key (file_id)
+   primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -606,7 +710,7 @@ alter table cms_hooks comment '钩子表';
 /*==============================================================*/
 create table cms_image
 (
-   image_id             int not null auto_increment,
+   id             int not null auto_increment,
    thumb_image_url      varchar(256) not null,
    image_url            varchar(256) not null default '0',
    thumb_image_size     int,
@@ -615,7 +719,7 @@ create table cms_image
    ext                  text,
    remark               varchar(512),
    create_time          datetime not null,
-   primary key (image_id)
+   primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
@@ -644,7 +748,7 @@ alter table cms_links comment '链接';
 create table cms_message
 (
    id                   bigint not null auto_increment,
-   type                 tinyint not null,
+   type                 varchar(16) not null,
    title                varchar(256) not null,
    content              text not null,
    status               tinyint not null comment '-1.删除.0.草稿;1.提交;2.已发送;',
@@ -661,6 +765,23 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4;
 
 alter table cms_message comment '消息表';
+
+/*==============================================================*/
+/* Index: idx_message_type_status                               */
+/*==============================================================*/
+create index idx_message_type_status on cms_message
+(
+   type,
+   status
+);
+
+/*==============================================================*/
+/* Index: idx_message_to_uid                                    */
+/*==============================================================*/
+create index idx_message_to_uid on cms_message
+(
+   to_uid
+);
 
 /*==============================================================*/
 /* Table: cms_region                                            */
@@ -691,7 +812,7 @@ alter table cms_region comment '地区表,';
 /*==============================================================*/
 create table cms_user
 (
-   id              int not null auto_increment,
+   id                   int not null auto_increment,
    mobile               varchar(24) not null,
    email                varchar(32) not null,
    account              varchar(32) not null,
@@ -774,14 +895,14 @@ create index idx_user_meta_target_id_meta_key on cms_user_meta
 /*==============================================================*/
 create table cms_user_push_token
 (
-   uid              int not null,
+   uid                  int not null,
    access_id            int not null,
    device_id            varchar(64) not null,
    status               tinyint not null comment '1.登入;2.登出',
    os                   int not null,
    push_token           varchar(128) not null,
+   update_time          datetime not null,
    create_time          datetime not null,
-   update_time     datetime not null,
    primary key (uid, access_id, device_id)
 )
 ENGINE = InnoDB
@@ -794,14 +915,14 @@ alter table cms_user_push_token comment '用户推送token';
 /*==============================================================*/
 create table cms_user_token_info
 (
-   uid              int not null,
+   uid                  int not null,
    access_id            int not null,
    device_id            varchar(64) not null,
    status               tinyint not null comment '1.有效;2.失效;3.过期',
    token                varchar(64) not null,
    expire_time          datetime not null,
+   update_time          datetime not null,
    create_time          datetime not null,
-   update_time     datetime not null,
    primary key (uid, access_id, device_id)
 )
 ENGINE = InnoDB
@@ -814,7 +935,7 @@ alter table cms_user_token_info comment '用户token信息表';
 /*==============================================================*/
 create table cms_user_verify_code
 (
-   id              int not null auto_increment,
+   id                   int not null auto_increment,
    type                 varchar(32) not null comment 'register:注册验证码;reset_password:重置密码;email_active:邮件激活',
    target               varchar(32) not null comment '如手机，邮箱或uid',
    status               tinyint not null comment '1.未使用;2.已使用',
@@ -877,8 +998,8 @@ INSERT INTO `cms_config` VALUES ('keywords', 'Beyongx,ThinkPHP,CMS内容管理�
 INSERT INTO `cms_config` VALUES ('password_key', 'lGfFSc17z8Q15P5kU0guNqq906DHNbA3', '加密密钥', 'text', NULL, 0);
 INSERT INTO `cms_config` VALUES ('site_name', 'BeyongX内容管理系统', '网站名称', 'text', 'base', 1);
 INSERT INTO `cms_config` VALUES ('company_name', 'XXX公司', '公司名称', 'text', null, 1);
-INSERT INTO `cms_config` VALUES ('theme_name', 'classic', '主题名称', 'text', null, 2);
-INSERT INTO `cms_config` VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?ce074243117e698438c49cd037b593eb\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
+INSERT INTO `cms_config` VALUES ('theme_package_name', 'classic', '主题名称', 'text', null, 2);
+INSERT INTO `cms_config` VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?3d0c1af3caa383b0cd59822f1e7a751b\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
 
 INSERT INTO `cms_config` VALUES ('tab_meta', '[{\"tab\":\"base\",\"name\":\"基本设置\",\"sort\":1},{\"tab\":\"seo\",\"name\":\"SEO设置\",\"sort\":2},{\"tab\":\"contact\",\"name\":\"联系方式\",\"sort\":3},{\"tab\":\"email\",\"name\":\"邮箱设置\",\"sort\":4},{\"tab\":\"article\",\"name\":\"文章设置\",\"sort\":5},{\"tab\":\"aliyun_oss\",\"name\":\"阿里OSS存储\",\"sort\":6},{\"tab\":\"qiniuyun_oss\",\"name\":\"七牛OSS存储\",\"sort\":7},{\"tab\":\"email_template\",\"name\":\"邮件模板\",\"sort\":8},{\"tab\":\"oss\",\"name\":\"OSS存储设置\",\"sort\":9}]', 'tab标签元数据', 'text', NULL, 0);
 
@@ -1002,13 +1123,14 @@ INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`con
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (612, 6, '主题演示', 'admin/Theme/demo', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (613, 6, '下载主题', 'admin/Theme/download', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (614, 6, '上传主题', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (615, 6, '更新主题', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (615, 6, '更新主题', 'admin/Theme/update', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (616, 6, '切换主题', 'admin/Theme/setCurrentTheme', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (62, 6, '插件管理', 'admin/Addon/index', '', 1, 1, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (621, 6, '查看插件', 'admin/Theme/viewTheme', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (622, 6, '插件演示', 'admin/Theme/demo', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (623, 6, '下载插件', 'admin/Theme/download', '', 1, 0, 1, 1,'','admin');
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (624, 6, '上传插件', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
-INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (625, 6, '更新插件', 'admin/Theme/upload', '', 1, 0, 1, 1,'','admin');
+INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (625, 6, '更新插件', 'admin/Theme/update', '', 1, 0, 1, 1,'','admin');
 
 #文章管理
 INSERT INTO `cms_auth_rule`(id,pid,title,name,icon,type,is_menu,sort,status,`condition`,belongto) VALUES (7, 0, '文章管理', 'admin/ShowNav/Article', 'fa-file-text', 1, 1, 11, 1,'','admin');

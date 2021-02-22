@@ -1,0 +1,164 @@
+{extend name="public/base" /}
+
+{block name="title"}主题管理{/block}
+
+{block name="css"}
+
+<style>
+    .theme-box {
+
+        width: 100%;
+    }
+    .theme-body {
+        border: 1px solid #e7eaec;
+        padding: 0;
+        background-color: #fff;
+
+        margin-bottom: 20px;
+        margin-right: 20px;
+    }
+    .theme-image {
+        height: 100px;
+        overflow: hidden;
+    }
+    .theme-name {
+        padding: 10px;
+        background-color: #f8f8f8;
+        border-top: 1px solid #e7eaec;
+    }
+    .theme-name strong {
+
+    }
+    .theme-name small {
+        color: #676a6c;
+    }
+
+    input.layui-upload-file {
+        display: none;
+    }
+</style>
+
+{/block}
+
+{block name="main"}
+<div class="row">
+
+    <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+            <div class="ibox-content">
+                <div class="file-manager">
+                    <h5>本地已安装主题：</h5>
+                    <ul class="folder-list" style="padding: 0">
+                        <li><a href="javascript:void(0)"><i class="fa fa-folder"></i> Cms(<span class="text-danger">0</span>)</a>
+                        </li>
+                        <li><a href="javascript:void(0)"><i class="fa fa-folder"></i> 企业官网(0)</a>
+                        </li>
+                        <li><a href="javascript:void(0)"><i class="fa fa-file"></i> 图片主题(0)</a>
+                        </li>
+                        <li><a href="javascript:void(0)"><i class="fa fa-file"></i> 淘宝客(0)</a>
+                        </li>
+                    </ul>
+                    <h5>上传开发主题：</h5>
+                    <button class="btn btn-primary btn-block" id="uploadTheme">上传新主题(zip)</button>
+                    <div class="hr-line-dashed"></div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-9 animated fadeInRight">
+        <div class="row">
+            {volist name="themes" id="vo"}
+            <div class="col-md-4 col-sm-4">
+                <div class="theme-box">
+                    <div class="theme-body">
+                        <a href="javascript:void(0)">
+                            <span class="corner"></span>
+
+                            <div class="theme-image">
+                                <img alt="image" class="img-responsive" src="__PUBLIC__/static/inspinia/img/p1.jpg">
+                            </div>
+                            <div class="theme-name">
+                                <strong>{$vo.name}</strong>
+                                <br>
+                                <small>版本：{$vo.version|default='无'}, 最近更新：{$vo.update_time|default='无'}</small>
+                                <br>
+                                <small>作者: {$vo.author|default='未知'} </small>
+                            </div>
+
+                            <div class="m-sm text-right">
+                                {if $vo.package_name == get_config('theme_package_name')}
+                                <a href="#" class="btn btn-sm btn-primary" disabled="">当前主题</a>
+                                {else/}
+                                <a href="{:url('Theme/setCurrentTheme', ['package_name'=>$vo.package_name])}" class="btn btn-sm btn-primary ajax-a">切换</a>
+                                {/if}
+                                <a href="{$vo.download_url|default='#'}" class="btn btn-sm btn-success" disabled="">安装</a>
+                                <a href="{$vo.demo_url|default='#'}" class="btn btn-sm btn-white">在线演示</a>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+            {/volist}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{/block}
+
+{block name="js"}
+<script>
+    $(function() {
+        layui.use('upload', function(){
+            var upload = layui.upload;
+
+            var loading = '';
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#uploadTheme' //绑定元素
+                ,url: "{:url('admin/File/upload')}" //上传接口
+                ,accept: 'file'
+                ,exts: 'zip|7z'
+                ,before: function() {
+                    loading = layer.load(1);
+                }
+                ,done: function(res) {
+                    //上传完毕回调
+                    if (res.code != 1) {
+                        layer.close(loading);
+                        layer.msg(res.msg, function(){});
+                        return;
+                    }
+
+                    let fileId = res.data.id;
+                    $.getJSON("{:url('admin/Theme/upload')}", {fileId: fileId}, function (json) {
+                        layer.close(loading);
+                        if (json.code != 1) {
+                            layer.msg(json.msg, function(){});
+                            return;
+                        }
+
+                        layer.msg(json.msg);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+
+                    });
+
+                }
+                ,error: function() {
+                    //请求异常回调
+                    layer.msg('上传出错!', function(){});
+                }
+            });
+        });
+    });
+
+</script>
+{/block}

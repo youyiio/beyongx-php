@@ -30,6 +30,7 @@
                 <div class="row">
                     <div class="col-lg-4 col-md-12">
                         <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in" data-title="提示" data-text="确认要审核通过吗？" data-action="{:url('Article/auditComment')}"> <i class="fa fa-check"></i> 审核 </label>
                             <label class="ladda-button btn btn-sm btn-danger ajax-batch-set-prompt" data-style="zoom-in" data-title="提示" data-text="确认要批量删除评论吗？" data-action="{:url('Article/deleteComment')}"> <i class="fa fa-trash"></i> 删除 </label>
                         </div>
                     </div>
@@ -86,12 +87,11 @@
                                 <td>{$vo.ip|ip_to_address=###, 'province,city'}</td>
                                 <td>
                                     <a class="J_addMenuTab" href="{:url(request()->controller().'/viewComments', ['id'=>$vo['id']])}" data-menu-name="{$vo.article.title}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
-                                    <a class="J_addMenuTab" href="{:url(request()->controller().'/editArticle', ['id'=>$vo['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="编辑"><i class="fa fa-pencil"></i> 编辑</button></a>
 
                                     {if $vo.status == app\common\model\commentModel::STATUS_PUBLISHING}
                                     <button class="btn btn-xs btn-primary ajax-btn-warning"
                                             data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
-                                            data-title="提示" data-text="审核通过后将自动发布，确认要审核通过吗？"><i class="fa fa-check"></i> 审核</button>
+                                            data-title="提示" data-text="确认评论审核通过？"><i class="fa fa-check"></i> 审核</button>
                                     {elseif $vo.status >= app\common\model\commentModel::STATUS_PUBLISHED /}
                                     <button class="btn btn-xs btn-primary ajax-btn-warning"
                                             data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
@@ -163,8 +163,35 @@
 <script>
     //批量操作
     $(function() {
+        //批量操作 审核,取消审核,删除
         var laddaBtn = $('.ajax-batch-set').ladda();
+        laddaBtn.click(function() {
+            // Start loading
+            $(this).ladda('start');
 
+            var ids = getAjaxCheckedValues();
+            if (!ids) {
+                layer.msg('请选择要操作的评论!', function(){});
+                $(this).ladda('stop');
+                return;
+            }
+            var action = $(this).data('action');
+            $.each(ids, function (i, id) {
+                $.post(action, {id: id}, function (data) {
+                    console.log(data);
+                    console.log(ids);
+                    if (data.code == 0 && ids.length == 1) {
+                        layer.msg(data.msg, function(){});
+
+                        return false;
+                    }
+                });
+            });
+
+            setTimeout(function () {
+                location.reload();
+            }, 800);
+        });
         //删除前提示
         $('.ajax-batch-set-prompt').click(function() {
             var title = $(this).data('title') != undefined ? $(this).data('title') : '提示';
@@ -188,7 +215,7 @@
                 }
                 var action = $(laddaBtn).data('action');
                 $.post(action, {id: ids.join(',')}, function (data) {
-                    //console.log(data);
+                    console.log(data);
                     if (data.code == 0 && ids.length == 1) {
                         layer.msg(data.msg, function(){});
                         location.reload();

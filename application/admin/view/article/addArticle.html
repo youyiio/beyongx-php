@@ -21,122 +21,53 @@
             </div>
         </div>
         <div class="ibox-content">
-            <form class="form-horizontal ajax-form" action="{:url(request()->controller().'/'.request()->action())}" method="post">
-                {present name="article"}
-                <!--编辑-->
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">所属分类<span class="text text-danger">*</span></label>
-                    <div class="col-lg-10">
-                        <select name="category_ids[]" tabindex="4" required="" placeholder="选择分类" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple style="width:100%!important;" >
-                            {volist name="categoryList" id="cl"}
-                            <option value="{$cl.id}" {in name="cl.id" value="$oldCategoryIds"}selected{/in}>{$cl._name|raw}</option>
-                            {/volist}
-                        </select>
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
-                {else/}
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">所属分类<span class="text text-danger">*</span></label>
-                    <div class="col-lg-10">
-                        <select data-placeholder="选择分类" tabindex="4" name="category_ids[]" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search" multiple style="width:100%!important;">
-                            {volist name="categoryList" id="cl"}
-                            <option value="{$cl.id}">{$cl._name|raw}</option>
-                            {/volist}
-                        </select>
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
-                {/present}
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label" for="title">文章标题<span class="text text-danger">*</span></label>
-                    <div class="col-lg-10">
-                        <input class="form-control" type="text" id="title" name="title" placeholder="文章标题" value="{$article.title|default=''}" required>
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-lg-2 control-label" for="author">文章作者</label>
-                    <div class="col-lg-10">
-                        <input class="form-control" type="text" id="author" name="author" placeholder="文章作者" value="{$article.author|default=$myself['nickname']}">
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-lg-2 control-label" for="keywords">关键词</label>
-                    <div class="col-lg-10">
-                        <input class="form-control" type="text" id="keywords" name="keywords" placeholder="关键词" value="{$article.keywords|default=''}">
-                        <span class="help-block m-b-none">多个关键词以英文逗号(,)分隔</span>
-                    </div>
-                </div>
+            <div class="tabs-container">
+                <form class="form-horizontal ajax-form" action="{:url(request()->controller().'/'.request()->action())}" method="post">
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">摘要</label>
-                    <div class="col-lg-10">
-                        <textarea class="form-control" name="description">{$article.description|default=''}</textarea>
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#tab-base">文章内容</a></li>
+                        <li><a data-toggle="tab" href="#tab-advance">高级属性</a></li>
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label" for="keywords">标签</label>
-                    <div class="col-lg-10">
-                        <input class="form-control" type="text" id="tags" name="tags" placeholder="添加标签" value="{$article ? implode(',',$article->metas('tag')) : ''}">
-                        <span class="help-block m-b-none"></span>
-                    </div>
-                </div>
+                        <li class="pull-right">
+                            {present name="article"}
+                            <input type="hidden" name="id" value="{$article.id}">
+                            <input type="hidden" name="oldCategoryIds" value="{$oldCategoryIds|json_encode}">
+                            {/present}
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">是否发布<span class="text text-danger">*</span></label>
-                    <div class="col-lg-10">
-                        <select class="form-control" name="status">
-                            <option value="{:\\app\\common\\model\\ArticleModel::STATUS_DRAFT}" {present name="article"}{eq name="article.status" value="0"}selected{/eq}{/present}>存草稿</option>
-                            <option value="{:\\app\\common\\model\\ArticleModel::STATUS_PUBLISHED}" {present name="article"}{neq name="article.status" value="0"}selected{/neq}{/present}>立即发布</option>
-                        </select>
-                    </div>
-                </div>
+                            <button class="btn btn-white btn-save" type="submit"><i class="fa fa-plus"></i> {$article ? '保 存' : '保存为草稿'}</button>
+                            <button class="btn btn-primary btn-post" type="submit"><i class="fa fa-plus-circle"></i> {$article ? '发 布' : '立即发布'}</button>
+                        </li>
+                    </ul>
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">缩略图</label>
-                    <div class="col-lg-10">
-                        <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$article.thumb_image_id|default=''}">
-                        {php}
-                        $themeConfig = get_theme_config();
-                        $articleThumbImage = $themeConfig['article_thumb_image'];
-                        {/php}
-                        <div class="dropzone needsclick dz-clickable" id="uploadImage" data-input-name="thumb_image_id" data-width="{$articleThumbImage.width}" data-height="{$articleThumbImage.height}"
-                             data-thumb-width="{$articleThumbImage.thumb_width}" data-thumb-height="{$articleThumbImage.thumb_height}">
-                            <div class="dz-message needsclick">
-                                {if isset($article) && $article.thumb_image_id > 0}
-                                <img src="{$article.thumb_image.full_image_url}" style="border:1px solid #ccc;{$articleThumbImage.thumb_width}px;height:{$articleThumbImage.thumb_height}px">
-                                {else/}
-                                点击此处上传文章缩略图 {$articleThumbImage.width}*{$articleThumbImage.height}<br>
-                                <span class="note needsclick"></span>
-                                {/if}
+                    <div class="tab-content">
+
+                        <div id="tab-base" class="tab-pane active">
+                            <div class="panel-body">
+                                {include file="article/addArticleBase"}
                             </div>
                         </div>
-                        <span class="help-block m-b-none">文章缩略图 {$articleThumbImage.width}*{$articleThumbImage.height}</span>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="col-lg-2 control-label">内容<span class="text text-danger">*</span></label>
-                    <div class="col-lg-10">
-                        <script id="container" name="content" type="text/plain">{$article ? html_entity_decode($article['content']) : ''}</script>
-                    </div>
-                </div>
+                        <div id="tab-advance" class="tab-pane">
+                            <div class="panel-body">
+                               {include file="article/addArticleAdvance"}
+                            </div>
+                        </div>
 
-                <div class="form-group">
-                    <div class="col-lg-offset-2 col-lg-10">
-                        {present name="article"}
-                        <input type="hidden" name="id" value="{$article.id}">
-                        <input type="hidden" name="oldCategoryIds" value="{$oldCategoryIds|json_encode}">
-                        {/present}
-                        <button class="btn btn-primary btn-lg" type="submit" id="submitBtn">{$article ? '修改' : '新增'}</button>
                     </div>
-                </div>
-            </form>
+
+                    <div class="row m-t-md">
+                        <div class="col-lg-12 text-right">
+                            <button class="btn btn-white btn-save" type="submit"><i class="fa fa-plus"></i> {$article ? '保 存' : '保存为草稿'}</button>
+                            <button class="btn btn-primary btn-post" type="submit"><i class="fa fa-plus-circle"></i> {$article ? '发 布' : '立即发布'}</button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+
+
         </div>
     </div>
 </div>
@@ -169,7 +100,7 @@
       maximumWords : 200000,
     });
 
-    var config = {
+    let config = {
         '.chosen-select'           : {},
         '.chosen-select-deselect'  : {allow_single_deselect:true},
         '.chosen-select-search'    : {search_contains:true},
@@ -177,9 +108,16 @@
         '.chosen-select-no-results': {no_results_text:'没有匹配的选项'},
         '.chosen-select-width'     : {width:"100%!important"}
     };
-    for (var selector in config) {
+    for (let selector in config) {
         $(selector).chosen(config[selector]);
     }
+
+    $('button.btn-save').click(function() {
+        //$('input[name=status]').val("{:\\app\\common\\model\\ArticleModel::STATUS_DRAFT}");
+    });
+    $('button.btn-post').click(function() {
+        $('input[name=status]').val("{:\\app\\common\\model\\ArticleModel::STATUS_PUBLISHED}");
+    });
 
     $('#tags').tagsInput({
         'height': '48px',
@@ -198,7 +136,7 @@
 
     //图片上传
     Dropzone.autoDiscover = false;
-    $("#uploadImage").dropzone({
+    $("#uploadThumbImage").dropzone({
         url: "{:url('Image/upcrop')}",
         paramName: 'file', //input的name
         maxFilesize: 5, // MB
@@ -207,7 +145,7 @@
         maxFiles: 1, //最多上传文件数量
         acceptedFiles: '.jpg,.gif,.png,.jpeg', //允许上传的文件后缀
         // thumbnailWidth: 320,
-        // thumbnailheight: 200,
+        // thumbnailHeight: 200,
         dictCancelUpload: '取消上传',
         dictRemoveFile: '删除图片',
         maxfilesexceeded: function(file) {
@@ -229,7 +167,7 @@
             var thumbHeight = $element.data('thumbHeight');
             if (response.code) {
                 //将图片id填入input
-                var imageId = response.data.image_id;
+                var imageId = response.data.id;
                 var imageUrl = ""+response.data.image_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';

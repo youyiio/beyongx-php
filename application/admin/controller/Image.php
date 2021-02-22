@@ -67,7 +67,7 @@ class Image extends Base
             $ImageModel = new ImageModel();
             $imageId = $ImageModel->insertGetId($data);
 
-            $data['image_id'] = $imageId;
+            $data['id'] = $imageId;
 
             if ($imgWidth > 0 && $imgHeight > 0) {
                 if (!($width >= $imgWidth-10 && $width <= $imgWidth+10 && $height >= $imgHeight-10 && $height <= $imgHeight+10)) {
