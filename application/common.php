@@ -21,7 +21,8 @@ if (\think\facade\Config::get('cache.type') == 'Redis')
 else
     define('CACHE_SEPARATOR', '_');
 
-function ip() {
+function ip()
+{
     //strcasecmp 比较两个字符，不区分大小写。返回0，>0，<0。
     if(getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
         $ip = getenv('HTTP_CLIENT_IP');
@@ -32,7 +33,7 @@ function ip() {
     } elseif(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
         $ip = $_SERVER['REMOTE_ADDR'];
     }
-    $res =  preg_match ( '/[\d\.]{7,15}/', $ip, $matches ) ? $matches [0] : '';
+    $res =  preg_match('/[\d\.]{7,15}/', $ip, $matches) ? $matches [0] : '';
     return $res;
     //dump(phpinfo());//所有PHP配置信息
 }
@@ -110,18 +111,26 @@ function ip_to_address($ip, $fields = '')
 //获取当前完整的url路径
 function get_cur_url()
 {
-    $url = 'http://';
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-        $url = 'https://';
-    }
+//    $url = 'http://';
+//    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+//        $url = 'https://';
+//    }
+//
+//    if ($_SERVER['SERVER_PORT'] != '80') {
+//        $url .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
+//    } else {
+//        $url .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+//    }
+//
+//    return $url;
 
-    if ($_SERVER['SERVER_PORT'] != '80') {
-        $url .= $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . $_SERVER['REQUEST_URI'];
-    } else {
-        $url .= $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+    $request = request();
+    if ($request->isCli()) {
+        $scheme = $request->header('scheme') ? $request->header('scheme') : $request->scheme();
+        return $scheme . '://' . $request->header('x-original-host') . $request->server('REQUEST_URI');
+    } else {//cgi
+        return $request->url(true);
     }
-
-    return $url;
 }
 
 /**
@@ -410,12 +419,15 @@ function get_file($id)
 
 /**
  * 获取主题配置信息
+ * @param string $module 模块，默认是cms
  * @return array
  */
-function get_theme_config()
+function get_theme_config($module='cms')
 {
+    $prefix = $module == 'cms' ? '' : $module . '_';
+
     //优先通过数据库配置加载当前主题，无配置时通过config/theme.php加载
-    $packageName = get_config('theme_package_name', '');
+    $packageName = get_config($prefix . 'theme_package_name', '');
     if (empty($packageName)) {
         //通过config文件加载当前主题信息
         $config = Config::pull('theme');

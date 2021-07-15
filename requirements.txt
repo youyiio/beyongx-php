@@ -37,6 +37,7 @@ composer require youyiio/think-oss
 
 #swoole 默认不安装
 composer require topthink/think-swoole v2.0.17
+  注意:swoole的Application需要继承\app\common\thinkphp\App
 
 #控制台常用操作
 >composer update  //整体依赖库更新

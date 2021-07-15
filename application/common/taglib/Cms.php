@@ -329,9 +329,9 @@ class Cms extends TagLib
         $count = strlen($pattern);
         for($i = 0; $i < $length; $i++) {
             if ($i == 0) {
-                $key .= $pattern{mt_rand(10, $count - 1)};
+                $key .= $pattern[mt_rand(10, $count - 1)];
             } else {
-                $key .= $pattern{mt_rand(0, $count - 1)};    //生成php随机数
+                $key .= $pattern[mt_rand(0, $count - 1)];    //生成php随机数
             }
         }
 

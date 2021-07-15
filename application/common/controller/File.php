@@ -28,7 +28,7 @@ trait File
         ];
 
         //通用文件后缀，加强安全;
-        $common_file_exts = 'zip,rar,doc,docx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
+        $common_file_exts = 'zip,rar,doc,docx,xls,xlsx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
         if (empty($exts)) {
             $exts = $common_file_exts;

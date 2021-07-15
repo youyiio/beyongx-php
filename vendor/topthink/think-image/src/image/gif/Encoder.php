@@ -128,7 +128,7 @@ class Encoder
                 }
             }
         }
-        switch ($Locals_tmp{0}) {
+        switch ($Locals_tmp[0]) {
             case "!":
                 /**
                  * @var string $Locals_img ;
