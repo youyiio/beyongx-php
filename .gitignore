@@ -1,7 +1,14 @@
+# all project
 .idea
 composer.lock
 *.log
-#thinkphp
-#vendor/*
-
 .svn
+
+# php & thinkphp
+#vendor/*
+#thinkphp
+
+# my project
+data/runtime
+data/backup
+data/install.lock

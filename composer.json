@@ -1,6 +1,6 @@
 {
     "name": "youyiio/beyongx",
-    "description": "BeyongX  is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
+    "description": "Beyongx is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
     "type": "project",
     "keywords": [
         "beyongx",
@@ -10,7 +10,7 @@
         "thinkphp",
         "swoole"
     ],
-    "homepage": "http://www.beyongx.com/",
+    "homepage": "https://www.beyongx.com/",
     "license": "Apache-2.0",
     "authors": [
         {
@@ -21,15 +21,14 @@
     "require": {
         "php": ">=5.6.0",
         "topthink/framework": "5.1.*",
-        "topthink/think-image": "^1.0",
-        "topthink/think-helper": "^1.0",
-        "topthink/think-captcha": "^2.0",
-        "cattong/think-mailer": "^1.0",
-        "cattong/think-addons": "^1.0",
-        "cattong/think-auth": "^1.0",
-        "jaeger/querylist": "4.*",
-        "topthink/think-queue": "v2.0.4",
-        "overtrue/wechat": "~4.0"
+        "topthink/think-image": "v1.0.7",
+        "topthink/think-helper": "v1.0.7",
+        "topthink/think-captcha": "v2.0.2",
+        "cattong/think-mailer": "v1.0.2",
+        "cattong/think-addons": "v1.0.3",
+        "cattong/think-auth": "1.0.3",
+        "jaeger/querylist": "V4.0.4",
+        "topthink/think-queue": "v2.0.4"
     },
     "autoload": {
         "psr-4": {
