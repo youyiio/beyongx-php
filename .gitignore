@@ -11,4 +11,5 @@ thinkphp
 # my project
 data/runtime
 data/backup
-data/install.lock
+#data/install.lock
+data/install/database.php
