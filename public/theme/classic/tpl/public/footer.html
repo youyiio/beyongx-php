@@ -14,3 +14,9 @@
         </div>
     </div>
 </div>
+
+<div class="links" style="margin: 0%;text-align: center;">
+    {cms:links cache="300" limit='10' id='vo'}
+        <a href="{$vo.url}" target="_blank">{$vo.title}</a>
+    {/cms:links}
+</div>

@@ -1,10 +1,10 @@
 <?php
 namespace app\cms\controller;
 
-use app\common\model\ArticleMetaModel;
-use app\common\model\ArticleModel;
-use app\common\model\CategoryModel;
-use app\common\model\CommentModel;
+use app\common\model\cms\ArticleMetaModel;
+use app\common\model\cms\ArticleModel;
+use app\common\model\cms\CategoryModel;
+use app\common\model\cms\CommentModel;
 use think\helper\Time;
 
 /**

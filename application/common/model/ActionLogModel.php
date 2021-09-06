@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-05-29
  * Time: 15:00
@@ -13,7 +13,7 @@ namespace app\common\model;
  */
 class ActionLogModel extends BaseModel
 {
-    protected $name =  CMS_PREFIX . 'action_log';
+    protected $name = 'sys_action_log';
     protected $pk = 'id';
 
     const ACTION_LOGIN = 'login'; //登录

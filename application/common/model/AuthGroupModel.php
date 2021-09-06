@@ -7,7 +7,7 @@ use think\Model;
  */
 class AuthGroupModel extends BaseModel
 {
-    protected $name = CMS_PREFIX . 'auth_group';
+    protected $name = 'sys_auth_group';
 
 	/**
 	 * 传递主键id删除数据

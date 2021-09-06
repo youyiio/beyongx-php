@@ -1,8 +1,9 @@
 {
-    "name": "youyiio/beyongx",
-    "description": "Beyongx is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
+    "name": "youyiio/beyongcms",
+    "description": "BeyongCms is a free and open source Content Management System, based on ThinkPHP 5.1.* and easy to secondary development.",
     "type": "project",
     "keywords": [
+        "BeyongCms",
         "beyongx",
         "cms",
         "framework",
@@ -21,14 +22,17 @@
     "require": {
         "php": ">=5.6.0",
         "topthink/framework": "5.1.*",
-        "topthink/think-image": "v1.0.7",
-        "topthink/think-helper": "v1.0.7",
-        "topthink/think-captcha": "v2.0.2",
-        "cattong/think-mailer": "v1.0.2",
-        "cattong/think-addons": "v1.0.3",
-        "cattong/think-auth": "1.0.3",
-        "jaeger/querylist": "V4.0.4",
-        "topthink/think-queue": "v2.0.4"
+        "topthink/think-image": "^1.0",
+        "topthink/think-helper": "^1.0",
+        "topthink/think-captcha": "^2.0",
+        "cattong/think-mailer": "^1.0",
+        "cattong/think-addons": "^1.0",
+        "cattong/think-auth": "^1.0",
+        "jaeger/querylist": "4.*",
+        "topthink/think-queue": "^2.0",
+        "phpoffice/phpspreadsheet": "^1.0",
+        "firebase/php-jwt": "^5.4",
+        "youyiio/beyong-sms": "^0.9.1"
     },
     "autoload": {
         "psr-4": {

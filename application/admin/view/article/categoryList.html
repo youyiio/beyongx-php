@@ -48,7 +48,7 @@
                                 <td>{$vo['_name']|raw}</td>
                                 <td>{$vo['title_en']}</td>
                                 <td>{$vo.remark}</td>
-                                <td><input type="checkbox" name="status[]" value="{$vo.id}" class="ajax-switch" {if $vo.status == \app\common\model\CategoryModel::STATUS_ONLINE}checked="checked"{/if} ></td>
+                                <td><input type="checkbox" name="status[]" value="{$vo.id}" class="ajax-switch" {if $vo.status == \app\common\model\cms\CategoryModel::STATUS_ONLINE}checked="checked"{/if} ></td>
                                 <td>
                                     <a href="{:url('Article/addCategory',['pid'=>$vo['id']])}" class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="新增子类"><i class="icon-remove"></i> 新增子类 </a>
                                     <a href="{:url('Article/editCategory',['id'=>$vo['id']])}" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="icon-pencil"></i> 修改</a>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-03-05
  * Time: 11:22
@@ -9,7 +9,7 @@
 namespace app\common\logic;
 
 
-use app\common\model\AdModel;
+use app\common\model\cms\AdModel;
 use think\Model;
 
 class AdLogic extends Model

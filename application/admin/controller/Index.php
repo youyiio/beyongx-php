@@ -5,7 +5,7 @@ use app\common\model\MessageModel;
 use think\App;
 use think\helper\Time;
 use app\common\model\UserModel;
-use app\common\model\ArticleModel;
+use app\common\model\cms\ArticleModel;
 
 /**
 * 首页控制器

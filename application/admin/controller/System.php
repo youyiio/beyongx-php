@@ -2,9 +2,9 @@
 namespace app\admin\controller;
 
 use app\common\model\ActionLogModel;
-use app\common\model\CategoryModel;
+use app\common\model\cms\CategoryModel;
 use app\common\model\ConfigModel;
-use app\common\model\LinkModel;
+use app\common\model\cms\LinkModel;
 use think\Controller;
 use think\Db;
 use think\facade\Cache;
@@ -27,7 +27,7 @@ class System extends Base
 
             $ConfigModel = new ConfigModel();
             foreach ($data as $k => $v) {
-                if (ConfigModel::get($k)) {
+                if ($ConfigModel->where('name', $k)->select()) {
                     $ConfigModel->where('name', $k)->setField('value', $v);
                 } else {
                     $ConfigModel->save(['name' => $k, 'value' => $v]);
@@ -49,53 +49,65 @@ class System extends Base
         return $this->fetch('index');
     }
 
-    //联系信息
-    public function contact()
+    //通知设置
+    public function notification()
     {
+        $tab = input('get.tab', 'email');
+        $this->assign('tab', $tab);
+
         if (request()->isAjax()) {
-            $data = input('post.');
+            $data = input('param.');
+            unset($data['s']); //路由地址参数不做处理；
+
             $ConfigModel = new ConfigModel();
             foreach ($data as $k => $v) {
-                $ConfigModel->where('name',$k)->setField('value', $v);
+                if ($ConfigModel->where('name', $k)->select()) {
+                    $ConfigModel->where('name', $k)->setField('value', $v);
+                } else {
+                    $ConfigModel->save(['name' => $k, 'value' => $v]);
+                }
             }
-            cache('config',null);
+            cache('config', null);
             $this->success('设置成功');
         }
 
-        return view();
+        //获取标签组
+        $ConfigModel = new ConfigModel();
+        $tabs = [
+            ["tab" => "email", "name" => "邮箱设置", "sort" => "1"],
+            ["tab" => "email_template", "name" => "邮件模板", "sort" => "2"],
+        ];
+        $this->assign('tabs', $tabs);
+
+        $configs = $ConfigModel->where('tab', '=', $tab)->order('sort asc')->select();
+        $this->assign('configs', $configs);
+
+        return $this->fetch('notification');
     }
 
-    //邮箱设置
-    public function email()
+    //email测试
+    public function testEmail()
     {
-        if (request()->isAjax()) {
-            $data = input('post.');
-            $ConfigModel = new ConfigModel();
-            foreach ($data as $k => $v) {
-                $ConfigModel->where('name',$k)->setField('value',$v);
-            }
-            cache('config',null);
-            $this->success('设置成功');
+        $res = send_mail("28897292@qq.com", "test", "test");
+        if ($res) {
+            $this->success('邮件已发送');
+        } else {
+            $this->error('邮件发送失败');
         }
-
-        return view();
     }
 
-    //SEO设置
-    public function seo()
+    //短信测试
+    public function testSms()
     {
-        if (request()->isAjax()) {
-            $data = input('post.');
-            $ConfigModel = new ConfigModel();
-            foreach ($data as $k => $v) {
-                $ConfigModel->where('name',$k)->setField('value',$v);
-            }
-            cache('config',null);
-            $this->success('设置成功');
-        }
 
-        return view();
     }
+
+    //公众号测试
+    public function testMp()
+    {
+
+    }
+
 
     //清理缓存
     public function clearCache()
@@ -188,6 +200,13 @@ class System extends Base
     public function addLinks()
     {
         $data = input('post.');
+        if (empty($data['start_time'])) {
+            $data['start_time'] = null;
+        }
+        if (empty($data['end_time'])) {
+            $data['end_time'] = null;
+        }
+        
         $LinkModel = new LinkModel();
         $res = $LinkModel->allowField(true)->save($data);
         if ($res) {
@@ -202,7 +221,13 @@ class System extends Base
     public function editLinks()
     {
         $data = input('post.');
-
+        if (empty($data['start_time'])) {
+            $data['start_time'] = null;
+        }
+        if (empty($data['end_time'])) {
+            $data['end_time'] = null;
+        }
+    
         $res = LinkModel::update($data);
         if ($res) {
             cache('links',null);

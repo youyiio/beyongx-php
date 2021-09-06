@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-02-09
  * Time: 11:11
@@ -9,7 +9,7 @@
 namespace app\common\logic;
 
 
-use app\common\model\ArticleModel;
+use app\common\model\cms\ArticleModel;
 use think\Model;
 
 class ArticleLogic extends Model

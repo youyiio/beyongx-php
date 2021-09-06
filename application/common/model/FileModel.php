@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: Administrator
  * Date: 2018/5/9
  * Time: 14:55
@@ -13,7 +13,7 @@ use think\Model;
 
 class FileModel extends Model
 {
-    protected $name = CMS_PREFIX . 'file';
+    protected $name = 'sys_file';
 
     protected $pk = 'id';
 

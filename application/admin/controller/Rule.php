@@ -19,7 +19,7 @@ class Rule extends Base
     public function index()
     {
         $AuthRuleModel = new AuthRuleModel();
-        $data = $AuthRuleModel->getTreeDataBelongto('tree', 'id','title', 'id', 'pid', 'admin');
+        $data = $AuthRuleModel->getTreeDataBelongsTo('tree', 'id','title', 'id', 'pid', 'admin');
 
         $this->assign('data', $data);
         return $this->fetch('index');
@@ -35,7 +35,7 @@ class Rule extends Base
 
         //验证规则唯一性
         $rule = [
-            'name|权限规则' => 'require|unique:'. config('database.prefix') . CMS_PREFIX . 'auth_rule,name',
+            'name|权限规则' => 'require|unique:'. config('database.prefix') . 'sys_auth_rule,name',
         ];
         $check = $this->validate($data,$rule);
         if ($check !== true) {

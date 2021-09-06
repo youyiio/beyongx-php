@@ -1,14 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cattong
- * Date: 2018-03-15
- * Time: 16:53
- */
-
 namespace youyi\util;
 
-use think\facade\Env;
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 class ExcelExporter
 {
@@ -40,15 +36,7 @@ class ExcelExporter
             $writerType = 'xlsx';
         }
 
-        //查询数据
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/IOFactory.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/IWriter.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel5.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel2007.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Cell/DataType.php';
-
-        $objPHPExcel = new \PHPExcel();
+        $objPHPExcel = new Spreadsheet();
         $objPHPExcel->setActiveSheetIndex(0);//设置当前sheet为第一个
 
         /*--------------表头信息插入Excel表中------------------*/
@@ -65,7 +53,7 @@ class ExcelExporter
             for ($i = 0; $i < count($dataMetaArr); $i++) {
                 $col = chr(ord('A') + $i);
                 //$activeSheet->setCellValue($col . $row, $data[$dataMetaArr[$i]]);
-                $activeSheet->setCellValueExplicit($col . $row, $data[$dataMetaArr[$i]], \PHPExcel_Cell_DataType::TYPE_STRING);
+                $activeSheet->setCellValueExplicit($col . $row, $data[$dataMetaArr[$i]], DataType::TYPE_STRING);
             }
 
             $row++;
@@ -75,9 +63,9 @@ class ExcelExporter
         $objPHPExcel->getActiveSheet()->setTitle('导出');      //设置sheet的名称
         $objPHPExcel->setActiveSheetIndex(0); //设置sheet的起始位置
         if ($writerType == 'xls') {
-            $PHPWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');   //通过PHPExcel_IOFactory的写函数将上面数据写出来
+            $PHPWriter = IOFactory::createWriter($objPHPExcel, 'Excel5');   //通过IOFactory的写函数将上面数据写出来
         } else {
-            $PHPWriter = \PHPExcel_IOFactory::createWriter( $objPHPExcel, "Excel2007");
+            $PHPWriter = IOFactory::createWriter( $objPHPExcel, "Excel2007");
         }
 
         //输出路径
@@ -127,15 +115,7 @@ class ExcelExporter
             $writerType = 'xlsx';
         }
 
-        //查询数据
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/IOFactory.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/IWriter.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel5.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel2007.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Cell/DataType.php';
-
-        $phpExcelTpl = \PHPExcel_IOFactory::createReader('Excel5')->load($templateFile);
+        $phpExcelTpl = IOFactory::createReader('Excel5')->load($templateFile);
         $objPHPExcel = clone $phpExcelTpl;
         $objPHPExcel->setActiveSheetIndex(0);//设置当前sheet为第一个
 
@@ -153,7 +133,7 @@ class ExcelExporter
             for ($i = 0; $i < count($dataMetaArr); $i++) {
                 $col = chr(ord('A') + $i);
                 //$activeSheet->setCellValue($col . $row, $data[$dataMetaArr[$i]]);
-                $activeSheet->setCellValueExplicit($col . $row, $data[$dataMetaArr[$i]], \PHPExcel_Cell_DataType::TYPE_STRING);
+                $activeSheet->setCellValueExplicit($col . $row, $data[$dataMetaArr[$i]], DataType::TYPE_STRING);
             }
 
             $row++;
@@ -163,9 +143,9 @@ class ExcelExporter
         $objPHPExcel->getActiveSheet()->setTitle('导出');      //设置sheet的名称
         $objPHPExcel->setActiveSheetIndex(0); //设置sheet的起始位置
         if ($writerType == 'xls') {
-            $PHPWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');   //通过PHPExcel_IOFactory的写函数将上面数据写出来
+            $PHPWriter = IOFactory::createWriter($objPHPExcel, 'Excel5');   //通过PHPExcel_IOFactory的写函数将上面数据写出来
         } else {
-            $PHPWriter = \PHPExcel_IOFactory::createWriter( $objPHPExcel, "Excel2007");
+            $PHPWriter = IOFactory::createWriter( $objPHPExcel, "Excel2007");
         }
 
         //输出路径

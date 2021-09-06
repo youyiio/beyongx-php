@@ -13,6 +13,8 @@
 // | 应用设置
 // +----------------------------------------------------------------------
 
+use think\facade\Env;
+
 return [
 
     // 应用调试模式
@@ -27,8 +29,8 @@ return [
     'auto_bind_module'       => false,
     // 注册的根命名空间
     'root_namespace'         => [
-        'theme' => \think\facade\Env::get('root_path') . 'public/theme/',
-        'addons' => \think\facade\Env::get('root_path') . '/addons/',
+        'theme' => Env::get('root_path') . 'public/theme/',
+        'addons' => Env::get('root_path') . '/addons/',
     ],
     // 默认输出类型
     'default_return_type'    => 'html',
@@ -52,7 +54,7 @@ return [
     'controller_suffix'      => false,
 
     // 默认模块名
-    'default_module'         => 'cms',
+    'default_module'         => 'frontend',
     // 禁止访问模块
     'deny_module_list'       => ['common'],
     // 默认控制器名

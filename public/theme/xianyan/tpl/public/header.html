@@ -1,7 +1,7 @@
 <div class="header">
     <div class="header-wrap">
         <h1 class="logo pull-left">
-            <a href="{:url('cms/Index/index')}">
+            <a href="{:url('frontend/Index/index')}">
                 <img src="__THEME__/xianyan/static/images/logo.png" alt="" class="logo-img">
                 <img src="__THEME__/xianyan/static/images/logo-text.png" alt="" class="logo-text">
             </a>
@@ -17,9 +17,9 @@
 
         <div class="blog-nav pull-right">
             <ul class="layui-nav pull-left">
-                <li class="layui-nav-item {if request()->controller() == 'Index' && request()->action() == 'index'}layui-this{/if}"><a href="{:url('cms/Index/index')}">首页</a></li>
+                <li class="layui-nav-item {if request()->controller() == 'Index' && request()->action() == 'index'}layui-this{/if}"><a href="{:url('frontend/Index/index')}">首页</a></li>
                 <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('cms/Feedback/index')}">留言</a></li>
-                <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('cms/Index/about')}">关于</a></li>
+                <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('frontend/Index/about')}">关于</a></li>
             </ul>
             <a href="#" class="personal pull-left">
                 <i class="layui-icon layui-icon-username"></i>
@@ -32,8 +32,8 @@
         </div>
     </div>
     <ul class="pop-nav" id="pop-nav">
-        <li class="layui-nav-item {if request()->action() == 'index'}layui-this{/if}"><a href="{:url('cms/Index/index')}">首页</a></li>
+        <li class="layui-nav-item {if request()->action() == 'index'}layui-this{/if}"><a href="{:url('frontend/Index/index')}">首页</a></li>
         <li class="layui-nav-item {if request()->controller() == 'Feedback'}layui-this{/if}"><a href="{:url('cms/Feedback/index')}">留言</a></li>
-        <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('cms/Index/about')}">关于</a></li>
+        <li class="layui-nav-item {if request()->action() == 'about'}layui-this{/if}"><a href="{:url('frontend/Index/about')}">关于</a></li>
     </ul>
 </div>

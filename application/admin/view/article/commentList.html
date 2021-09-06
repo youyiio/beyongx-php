@@ -88,11 +88,11 @@
                                 <td>
                                     <a class="J_addMenuTab" href="{:url(request()->controller().'/viewComments', ['id'=>$vo['id']])}" data-menu-name="{$vo.article.title}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
 
-                                    {if $vo.status == app\common\model\commentModel::STATUS_PUBLISHING}
+                                    {if $vo.status == app\common\model\cms\CommentModel::STATUS_PUBLISHING}
                                     <button class="btn btn-xs btn-primary ajax-btn-warning"
                                             data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
                                             data-title="提示" data-text="确认评论审核通过？"><i class="fa fa-check"></i> 审核</button>
-                                    {elseif $vo.status >= app\common\model\commentModel::STATUS_PUBLISHED /}
+                                    {elseif $vo.status >= app\common\model\cms\CommentModel::STATUS_PUBLISHED /}
                                     <button class="btn btn-xs btn-primary ajax-btn-warning"
                                             data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
                                             disabled><i class="fa fa-check"></i> 已发布</button>

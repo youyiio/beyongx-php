@@ -5,8 +5,8 @@ composer.lock
 .svn
 
 # php & thinkphp
-#vendor/*
-#thinkphp
+vendor/*
+thinkphp
 
 # my project
 data/runtime

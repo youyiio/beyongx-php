@@ -192,7 +192,7 @@ function update_config($dbConnect, $prefix, $site)
     \think\facade\Log::debug($site);
     foreach ($site as $k => $v) {
         \think\facade\Log::debug('config: ' . $k . '=' . $v);
-        $sql = "UPDATE ". $prefix ."config SET value = '". $v . "' WHERE name = '". $k ."'";
+        $sql = "UPDATE sys_config SET value = '". $v . "' WHERE name = '". $k ."'";
         $dbConnect->execute($sql);
     }
 
@@ -219,7 +219,7 @@ function update_admin($dbConnect, $prefix, $admin)
 
     $email = $admin['email'];
     $username = $admin['username'];
-    $sql = "UPDATE ". $prefix ."user SET email = '". $email . "',password = '". $password . "',account='" . $username . "' WHERE email = 'admin@admin.com'";
+    $sql = "UPDATE sys_user SET email = '". $email . "',password = '". $password . "',account='" . $username . "' WHERE email = 'admin@admin.com'";
 
     //执行sql
     return $dbConnect->execute($sql);

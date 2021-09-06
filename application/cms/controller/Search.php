@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2019-08-05
  * Time: 14:57
@@ -35,9 +35,9 @@ class Search extends Base
     private function _searchFromDb($q='', $p='')
     {
         $where = [];
-        $where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];
+        $where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];
 
-        $ArticleModel = new \app\common\model\ArticleModel();
+        $ArticleModel = new \app\common\model\cms\ArticleModel();
         $field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';
         $order = 'is_top desc,sort,post_time desc';
         $pageConfig = [

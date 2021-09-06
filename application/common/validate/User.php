@@ -12,7 +12,7 @@ class User extends Validate
     protected $rule = [
         'uid'        => ['require', 'integer'],
         'nickname'   => ['require','max'=> 32],
-        'email'      => ['email','unique:' . CMS_PREFIX . 'user,email'],
+        'email'      => ['email','unique:' . 'sys_user,email'],
         'password'   => ['require','min'=> 6, 'max'=> 16],
         'repassword' => ['require','confirm:password'],
         'code'       => ['require','captcha'],

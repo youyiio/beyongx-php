@@ -5,7 +5,7 @@ use think\Model;
 
 class RegionModel extends Model
 {
-    protected $name = CMS_PREFIX . 'region';
+    protected $name = 'sys_region';
     protected $pk = 'id';
 
     //定义常量

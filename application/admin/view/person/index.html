@@ -60,35 +60,31 @@
                                 <th>发布时间</th>
                                 <th>操作</th>
                             </tr>
-                            {foreach name="articleList" item="al"}
+                            {foreach name="articleList" item="vo"}
                             <tr>
-                                <td><input type="checkbox" class="js-check" id="{$al.id}"></td>
-                                <td>{$al.id}</td>
+                                <td><input type="checkbox" class="js-check" id="{$vo.id}"></td>
+                                <td>{$vo.id}</td>
                                 <td>
-                                    {volist name="al.categorys" id="vo" empty="未分类"}
-                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$vo.title_cn}</span>
+                                    {volist name="vo.categorys" id="categoryVo" empty="未分类"}
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
                                     {/volist}
                                 </td>
-                                <td><a href="{:url(request()->module() . '/Article/viewArticle',['id'=>$al['id']])}">{$al.title}</a>{eq name="al.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
-                                <td>{$al.status_text}</td>
-                                <td>{$al.post_time}</td>
+                                <td><a href="{:url(request()->module() . '/Article/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a>{eq name="vo.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>
+                                <td>{$vo.status_text}</td>
+                                <td>{$vo.post_time}</td>
                                 <td>
-                                    <a href="{:url(request()->module().'/Article/viewArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
-                                    <a href="{:url(request()->module().'/Article/editArticle',['id'=>$al['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
-                                    {eq name="al.status" value="0"}
-                                    <a href="{:url(request()->module().'/Article/postArticle',['id'=>$al['id']])}" class="ajax-a"><button class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="发布"><i class="fa fa-upload"></i> 发布</button></a>
+                                    <a href="{:url(request()->module().'/Article/viewArticle',['id'=>$vo['id']])}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
+                                    <a href="{:url(request()->module().'/Article/editArticle',['id'=>$vo['id']])}"><button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" title="修改"><i class="fa fa-pencil"></i> 修改</button></a>
+                                    {eq name="vo.status" value="0"}
+                                    <a href="{:url(request()->module().'/Article/postArticle',['id'=>$vo['id']])}" class="ajax-a"><button class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="发布"><i class="fa fa-upload"></i> 发布</button></a>
                                     {/eq}
-                                    {eq name="al.ad_id" value="0"}
-                                    <button class="btn btn-xs btn-success addHeadline" data-title="{$al.title}" data-url="{:url('cms/Article/upTop',['aid'=>$al['id']])}" data-article-id="{$al.id}" data-ad-id="{$al.ad_id|default=0}"><i class="fa fa-hand-o-up"></i> 上头条</button>
+                                    
+                                    {eq name="vo.is_top" value="0"}
+                                    <button class="btn btn-xs btn-info ajax-btn" data-action="{:url(request()->module().'/Article/setTop',['id'=>$vo['id']])}"><i class="fa fa-arrow-circle-up"></i> 置顶</button>
                                     {else/}
-                                    <button class="btn btn-xs btn-white js-btn" data-action="{:url(request()->controller().'/deleteTop',['adId'=>$al['ad_id'],'artId'=>$al['id']])}"><i class="fa fa-hand-o-down"></i> 取消头条</button>
+                                    <button class="btn btn-xs btn-white ajax-btn" data-action="{:url(request()->module().'/Article/unsetTop',['id'=>$vo['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
                                     {/eq}
-                                    {eq name="al.is_top" value="0"}
-                                    <button class="btn btn-xs btn-info ajax-btn" data-action="{:url(request()->module().'/Article/setTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-up"></i> 置顶</button>
-                                    {else/}
-                                    <button class="btn btn-xs btn-white ajax-btn" data-action="{:url(request()->module().'/Article/unsetTop',['id'=>$al['id']])}"><i class="fa fa-arrow-circle-down"></i> 取消置顶</button>
-                                    {/eq}
-                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url(request()->module().'/Article/deleteArticle',['id'=>$al['id']])}"><i class="fa fa-remove"></i> 删除</button>
+                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url(request()->module().'/Article/deleteArticle',['id'=>$vo['id']])}"><i class="fa fa-remove"></i> 删除</button>
                                 </td>
                             </tr>
                             {/foreach}

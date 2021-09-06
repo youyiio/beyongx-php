@@ -44,7 +44,3 @@ composer require topthink/think-swoole v2.0.17
 >composer update xxx/xxx //建议指定具体的依赖库
 >composer update xxx/xxx v1.7.0 //指定具体版本的依赖库，^1.7.0=>大于1.7.0版本，
 >php think version //查看tp版本
-
-
-#####Beyongx########
->composer require overtrue/wechat:~4.0

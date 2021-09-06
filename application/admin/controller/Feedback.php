@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: Administrator
  * Date: 2018/4/16
  * Time: 17:49
@@ -9,7 +9,7 @@
 namespace app\admin\controller;
 
 
-use app\common\model\FeedbackModel as FeedbackModel;
+use app\common\model\cms\FeedbackModel as FeedbackModel;
 use app\common\model\UserModel;
 use think\facade\Log;
 

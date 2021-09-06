@@ -1,17 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cattong
- * Date: 2019-06-03
- * Time: 14:31
- */
-
 namespace app\common\model;
 
 
 class UserMetaModel extends BaseMetaModel
 {
-    protected $name = CMS_PREFIX . 'user_meta';
+    protected $name = 'sys_user_meta';
 
     //读取|设置meta值
     public function _meta($fkId, $metaKey='', $metaValue='', $mode=BaseModel::MODE_SINGLE_VALUE)

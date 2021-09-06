@@ -3,27 +3,27 @@
         <div class="menu"></div>
     </div>
     <h1 class="logo">
-        <a href="{:url('cms/index/index')}">
+        <a href="{:url('frontend/Index/index')}">
             <span>MYBLOG</span>
             <img src="__THEME__/classic/static/img/logo.png">
         </a>
     </h1>
 
     <div class="nav">
-        <a href="{:url('cms/index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active" {/if}>首页</a>
+        <a href="{:url('frontend/Index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active" {/if}>首页</a>
         <a href="{:url('cms/Article/index')}">微语</a>
         {cms:categorys cache="false" limit="2" id="vo"}
         <a href="{:url('cms/Article/articleList',['cname'=>$vo.title_en])}">{$vo.title_cn}</a>
         {/cms:categorys}
         <a href="{:url('cms/Feedback/index')}" {if request()->controller() == 'Feedback' && request()->action() == 'index'} class="active" {/if}>留言</a>
-        <a href="{:url('cms/Index/about')}" {if request()->controller() == 'Index' && request()->action() == 'about'} class="active" {/if}>关于</a>
+        <a href="{:url('frontend/Index/about')}" {if request()->controller() == 'Index' && request()->action() == 'about'} class="active" {/if}>关于</a>
     </div>
     <ul class="layui-nav header-down-nav">
-        <li class="layui-nav-item"><a href="{:url('cms/index/index')}" >文章</a></li>
+        <li class="layui-nav-item"><a href="{:url('frontend/Index/index')}" >文章</a></li>
         <li class="layui-nav-item"><a href="{:url('cms/Article/index')}">微语</a></li>
         <li class="layui-nav-item"><a href="#">相册</a></li>
         <li class="layui-nav-item"><a href="{:url('cms/Feedback/index')}" >留言</a></li>
-        <li class="layui-nav-item"><a href="{:url('cms/Index/about')}">关于</a></li>
+        <li class="layui-nav-item"><a href="{:url('frontend/Index/about')}">关于</a></li>
     </ul>
     <p class="welcome-text">
         {:get_config('site_name')}

@@ -7,7 +7,7 @@ use think\Model;
  */
 class AuthGroupAccessModel extends BaseModel
 {
-    protected $name = CMS_PREFIX . 'auth_group_access';
+    protected $name = 'sys_auth_group_access';
 
 	/**
 	 * 根据group_id获取全部用户id

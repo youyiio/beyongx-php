@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-05-25
  * Time: 17:57
@@ -82,14 +82,14 @@ class Cms extends TagLib
         $parse .= "    $internalCategory = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (!empty($internalCname)) {";
-        $parse .= "    \$where = ['title_en'=>$internalCname,'status'=>\app\common\model\CategoryModel::STATUS_ONLINE];";
-        $parse .= "    $internalCategory = \app\common\model\CategoryModel::where(\$where)->find();";
+        $parse .= "    \$where = ['title_en'=>$internalCname,'status'=>\app\common\model\cms\CategoryModel::STATUS_ONLINE];";
+        $parse .= "    $internalCategory = \app\common\model\cms\CategoryModel::where(\$where)->find();";
         $parse .= "    if ($cache && $internalCategory) {";
         $parse .= "      cache(\$cacheMark, $internalCategory, $cache);";
         $parse .= "    }";
         $parse .= "  } else if (!empty($internalCid)) { ";
-        $parse .= "    \$where = ['id'=>$internalCid,'status'=>\app\common\model\CategoryModel::STATUS_ONLINE];";
-        $parse .= "    \$CategoryModel = new \app\common\model\CategoryModel();";
+        $parse .= "    \$where = ['id'=>$internalCid,'status'=>\app\common\model\cms\CategoryModel::STATUS_ONLINE];";
+        $parse .= "    \$CategoryModel = new \app\common\model\cms\CategoryModel();";
         $parse .= "    $internalCategory = \$CategoryModel->where(\$where)->find();";
         $parse .= "    if ($cache && $internalCategory) {";
         $parse .= "      cache(\$cacheMark, $internalCategory, $cache);";
@@ -140,18 +140,18 @@ class Cms extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status' , '=', \app\common\model\CategoryModel::STATUS_ONLINE];";
+        $parse .= "  \$where[] = ['status' , '=', \app\common\model\cms\CategoryModel::STATUS_ONLINE];";
         $parse .= "  \$where[] = ['pid' , '=', $internalCid];";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($internalList)) { ";
-        $parse .= "    \$CategoryModel = new \app\common\model\CategoryModel();";
+        $parse .= "    \$CategoryModel = new \app\common\model\cms\CategoryModel();";
         $parse .= "    $internalList = \$CategoryModel->where(\$where)->order('sort asc,id asc')->limit($limit)->select();";
         $parse .= "    if ($cache) {";
         $parse .= "      cache(\$cacheMark, $internalList, $cache);";
@@ -180,7 +180,7 @@ class Cms extends TagLib
         $cache = empty($tag['cache']) ? $defaultCache : (strtolower($tag['cache'] =='true')? $defaultCache:intval($tag['cache']));
         $limit = empty($tag['limit']) ? 10 : $tag['limit'];
         $id = empty($tag['id']) ? '_id' : $tag['id'];
-
+      
         $assign = empty($tag['assign']) ? $this->_randVarName(10) : $tag['assign'];
 
         //用于绑定上下文变量，此时值允许是表达式
@@ -197,10 +197,17 @@ class Cms extends TagLib
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\LinkModel::STATUS_ONLINE]; ";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\LinkModel::STATUS_ONLINE]; ";
+        $parse .= "  \$current_time = date_time(); ";
+        $parse .= "  \$where[] = ['start_time', '<=', \$current_time]; ";
+        $parse .= "  \$where[] = ['end_time', '>', \$current_time]; ";
+        $parse .= "  \$where2 = [];";
+        $parse .= "  \$where2[] = ['status', '=', \app\common\model\cms\LinkModel::STATUS_ONLINE]; ";
+        $parse .= "  \$where2[] = ['start_time', '=', null]; ";
+        $parse .= "  \$where2[] = ['end_time', '=', null]; ";
         $parse .= "  if (empty($internalList)) { ";
-        $parse .= "    \$LinkModel = new \app\common\model\LinkModel();";
-        $parse .= "    $internalList = \$LinkModel->where(\$where)->field('id,title,url')->order('sort asc')->limit($limit)->select();";
+        $parse .= "    \$LinkModel = new \app\common\model\cms\LinkModel();";
+        $parse .= "    $internalList = \$LinkModel->whereOr([\$where,\$where2])->field('id,title,url')->order('sort asc')->limit($limit)->select();";
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $internalList, $cache); ";
         $parse .= "    } ";
@@ -245,17 +252,17 @@ class Cms extends TagLib
         $parse .= "  $internalSlotId = $slotId; ";
         $parse .= "  $internalSlot = \"$slot\";";
         $parse .= "  if (empty($internalSlotId) && !empty($internalSlot)) {";
-        $parse .= "    \$internalAdSlot = \app\common\model\AdSlotModel::where(['title_en'=>$internalSlot])->find();";
+        $parse .= "    \$internalAdSlot = \app\common\model\cms\AdSlotModel::where(['title_en'=>$internalSlot])->find();";
         $parse .= "    if (!empty(\$internalAdSlot)) { $internalSlotId = \$internalAdSlot['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'ads_' . $internalSlotId . $cache . $limit;";
-        $parse .= "  \$AdModel = new app\common\model\AdModel();";
+        $parse .= "  \$AdModel = new app\common\model\cms\AdModel();";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($internalList)) { ";
         $parse .= "    if ($internalSlotId) { ";
-        $parse .= "       \$AdModel = app\common\model\AdModel::has('adServings', ['slot_id'=>$internalSlotId]);";
+        $parse .= "       \$AdModel = app\common\model\cms\AdModel::has('adServings', ['slot_id'=>$internalSlotId]);";
         $parse .= "    }";
         $parse .= "    $internalList = \$AdModel->order('sort asc')->limit($limit)->select();";
         $parse .= "    if ($cache) { ";
@@ -299,12 +306,12 @@ class Cms extends TagLib
         $parse .= "  $internalList = [];";
         $parse .= "  \$cacheMark = 'tags_' . $cache . $limit;";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['meta_key' , '=', \app\common\model\ArticleMetaModel::KEY_TAG];";
+        $parse .= "  \$where[] = ['meta_key' , '=', \app\common\model\cms\ArticleMetaModel::KEY_TAG];";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (empty($internalList)) { ";
-        $parse .= "    \$ArticleMetaModel = new \app\common\model\ArticleMetaModel();";
+        $parse .= "    \$ArticleMetaModel = new \app\common\model\cms\ArticleMetaModel();";
         $parse .= "    \$field = 'meta_key,meta_value,count(meta_value) as article_count';";
         $parse .= "    \$order = ['article_count' => 'desc'];";
         $parse .= "    $internalList = \$ArticleMetaModel->where(\$where)->field(\$field)->order(\$order)->group('meta_key,meta_value')->limit($limit)->select();";

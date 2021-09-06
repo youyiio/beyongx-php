@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-03-22
  * Time: 16:46
@@ -8,9 +8,9 @@
 
 namespace youyi\util;
 
-use think\facade\Env;
-use think\Loader;
-use think\Log;
+
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class ExcelReader
 {
@@ -18,7 +18,7 @@ class ExcelReader
     public function readRows($filePath, $dataMetaArr=[], $hasTitle=true)
     {
         if (!file_exists($filePath)) {
-            $this->error('文件不存在!');
+            return '文件不存在!';
         }
 
         $ext = pathinfo($filePath,PATHINFO_EXTENSION); //文件后缀
@@ -27,19 +27,11 @@ class ExcelReader
              return '文件后缀格式不正确!';
         }
 
-        //文件分析
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/IOFactory.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/IWriter.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel5.php';
-        include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer/Excel2007.php';
-        //include Env::get('root_path') . 'extend/' . 'PHPExcel/PHPExcel/Writer.Abstract';
-
         //判断excel表类型为2003还是2007
         if(strtolower($ext)=='xls') {
-            $objReader = \PHPExcel_IOFactory::createReader('Excel5');
+            $objReader = IOFactory::createReader('Excel5');
         } else if(strtolower($ext)=='xlsx') {
-            $objReader = \PHPExcel_IOFactory::createReader('Excel2007');
+            $objReader = IOFactory::createReader('Excel2007');
         }
         $objReader->setReadDataOnly(true);
         $objPHPExcel = $objReader->load($filePath);
@@ -48,7 +40,7 @@ class ExcelReader
         $objWorksheet = $objPHPExcel->getActiveSheet();
         $highestRow = $objWorksheet->getHighestRow();
         $highestColumn = $objWorksheet->getHighestColumn();
-        $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
 
         $excelData = array();
         $offset = $hasTitle ? 1 : 0;

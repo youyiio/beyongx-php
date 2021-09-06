@@ -260,16 +260,16 @@
                                         </button>
 
                                         <ul class="dropdown-menu">
-                                            {if $vo.status == \app\common\model\ArticleModel::STATUS_DRAFT}
+                                            {if $vo.status == \app\common\model\cms\ArticleModel::STATUS_DRAFT}
                                             <li>
                                                 <a href="{:url('Article/postArticle',['id'=>$vo['id']])}" class="ajax-a" style="color: black">立即发布</a>
                                             </li>
                                             {/if}
                                             {if get_config('article_audit_switch') == 'true'}
                                             <li>
-                                                {if $vo.status == \app\common\model\ArticleModel::STATUS_PUBLISHING}
+                                                {if $vo.status == \app\common\model\cms\ArticleModel::STATUS_PUBLISHING}
                                                 <a href="{:url('Article/auditFirst',['id'=>$vo['id']])}" class="ajax-a" style="color: black">初审</a>
-                                                {elseif $vo.status >= \app\common\model\ArticleModel::STATUS_FIRST_AUDITED/}
+                                                {elseif $vo.status >= \app\common\model\cms\ArticleModel::STATUS_FIRST_AUDITED/}
                                                 <a class="firstTrial">已初审</a>
                                                 {else /}
                                                 <a class="trial">初审</a>
@@ -277,9 +277,9 @@
                                             </li>
                                             <li class="divider"></li>
                                             <li>
-                                                {if $vo.status == \app\common\model\ArticleModel::STATUS_FIRST_AUDITED}
+                                                {if $vo.status == \app\common\model\cms\ArticleModel::STATUS_FIRST_AUDITED}
                                                 <a href="{:url('Article/auditSecond',['id'=>$vo['id']])}" class="ajax-a" style="color: black">终审</a>
-                                                {elseif $vo.status >= \app\common\model\ArticleModel::STATUS_PUBLISHED/}
+                                                {elseif $vo.status >= \app\common\model\cms\ArticleModel::STATUS_PUBLISHED/}
                                                 <a class="secondTrial">已终审</a>
                                                 {else /}
                                                 <a class="trial">终审</a>

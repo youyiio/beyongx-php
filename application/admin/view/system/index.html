@@ -19,13 +19,13 @@
                     <div id="tab-{$tab}" class="tab-pane active">
                         <div class="panel-body">
 
-                            <div class="col-md-6">
+                            <div class="col-12">
 
                                 <form class="form-horizontal ajax-form" action="{:url('System/index')}" method="post">
                                     {volist name="configs" id="config"}
                                     <div class="form-group">
-                                        <label class="col-lg-2 control-label">{$config.remark}</label>
-                                        <div class="col-lg-10">
+                                        <label class="col-lg-2 col-md-3 control-label">{$config.remark}</label>
+                                        <div class="col-lg-6 col-md-9">
                                             {switch $config.value_type}
                                             {case text}<input type="text" name="{$config.name}" placeholder="{$config.remark}" class="form-control" autocomplete="off" value="{$config.value}">{/case}
                                             {case bool}<input type="checkbox" class="ajax-switch" name="{$config.name}" {if $config.value === 'true'} checked {/if}>{/case}

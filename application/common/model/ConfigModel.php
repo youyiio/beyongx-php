@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-09-05
  * Time: 15:22
@@ -13,6 +13,6 @@ use think\Model;
 
 class ConfigModel extends Model
 {
-    protected $name = CMS_PREFIX . 'config';
-    protected $pk = 'name';
+    protected $name = 'sys_config';
+    protected $pk = 'id';
 }

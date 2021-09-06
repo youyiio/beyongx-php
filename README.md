@@ -15,6 +15,7 @@ BeyongCms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用于
  + 插件系统
  + 站长特性支持，友链管理，Sitemap地图，收录检测，相关推荐，热门推荐等
  + 默认Composer第三方库支持，PHPQuery,think-queue
+ + Phpspreadsheet支持数据报表导出
  + Swoole和Swoole协程支持
  + 针对App及小程序的api优化
  + 阿里云和七牛云OSS支持
@@ -37,6 +38,59 @@ BeyongCms系统基于ThinkPHP5.1框架的轻量级内容管理系统，适用于
 准备好您的域名，并设置好指向；
 安装apache/nginx, php及Mysql；
 创建数据库，并分配数据库帐号密码（不建议用root），当前BeyongCms不支持帮助用户创建数据库；
+
+### nginx配置[推荐nginx]
+
+```
+      location / {
+          if (!-e $request_filename) {
+             rewrite ^(.*)$ /index.php?s=/$1 last;
+             rewrite ^(.*)$ /index.php/$1 last;
+          }
+      }
+
+      # 静态资源配置start: 
+      # nginx发现文件不存时，尽早404，不向后匹配规则,停止搜索，否则会按最后匹配的规则；
+      location ^~ /static/ {
+          
+      }
+      location ^~ /upload/ {
+          
+      }
+      ## 避免模板被查看, 目录下php文件被禁止执行
+      location ~ ^/theme/.*\.(html|php)/?.*$ {
+          deny all;
+          #return 404;
+      }
+      ## 若此规则调前，优先匹配当前规则？？！(window平台无此问题)
+      location ~ ^/theme/ {
+          
+      }
+      # 静态资源配置end
+      
+      location ~* /(.git|.svn) {
+          deny all;
+      }
+      
+      location ~ \.php/?.*$ {
+          fastcgi_pass php70cgi;
+          fastcgi_index  index.php;
+
+          fastcgi_split_path_info ^(.+\.php)(/.*)$;
+          fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+          fastcgi_param PATH_INFO $fastcgi_path_info;
+          include        conf/fastcgi_params;
+          
+          include limit/limit_condition.conf;
+          include limit/black_list.conf;
+      }
+```
+
+### composer安装依赖
+
+根目录下执行
+
+> composer update
 
 ### 自动安装引导
 

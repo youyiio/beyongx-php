@@ -25,7 +25,7 @@
                         <h1>
                             {$article.title}
                         </h1>
-                        {if $article.status == \app\common\model\ArticleModel::STATUS_PUBLISHED}
+                        {if $article.status == \app\common\model\cms\ArticleModel::STATUS_PUBLISHED}
                         <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：{$article.update_time}</span>
                         {else if}
                         <span class="text-muted"> 创建时间：{$article.create_time}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;发布时间：未发布</span>

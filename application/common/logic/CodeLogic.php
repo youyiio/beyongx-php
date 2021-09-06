@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2016/10/8
  * Time: 13:58
@@ -11,14 +11,24 @@ use think\Exception;
 use think\facade\Env;
 use think\Model;
 use app\common\model\UserModel;
-use app\common\model\UserVerifyCodeModel;
+use think\facade\Cache;
 use think\facade\Config;
 
 use youyi\util\PregUtil;
 use youyi\util\StringUtil;
 
+/**
+ * 验证码管理
+ */
 class CodeLogic extends Model
 {
+
+    const STATUS_UNUSED = 1; //未使用
+    const STATUS_USED = 2;  //已使用
+
+    const TYPE_REGISTER = 'register';
+    const TYPE_RESET_PASSWORD = 'reset_password';
+    const TYPE_MAIL_ACTIVE = 'mail_active';
 
     /**
      * 发送激活邮件，条件：1、设置邮件发送配置；2、发送的邮件模板,theme/xxx/email/email_template.html
@@ -38,23 +48,11 @@ class CodeLogic extends Model
         }
 
         $code = StringUtil::getRandString(12);
-        $UserVerifyCodeModel = new UserVerifyCodeModel();
-        $verifyCode = $UserVerifyCodeModel->createVerifyCode(UserVerifyCodeModel::TYPE_MAIL_ACTIVE, $email, $code, 24 * 60 * 60);
-        if (!$verifyCode) {
-            $this->error = '验证码生成失败!';
-            return false;
-        }
+        // 缓存验证码
+        Cache::set(self::TYPE_MAIL_ACTIVE . CACHE_SEPARATOR . $email, $code, 24 * 60 * 60);
+        
 
-        $config = Config::pull('theme');
-
-        $uid = $user['id'];
-        $url = url($activeAction, ['code' => $verifyCode['code'], 'email' => $email], false, true);
-
-//        if (isset($config['responsive']) && $config['responsive'] == true) {
-//            array_push($tplPaths, 'pc'); //默认放于pc下
-//        }
-//        array_push($tplPaths, 'email');
-//        array_push($tplPaths, 'mail_active.tpl');
+        $url = url($activeAction, ['code' => $code, 'email' => $email], false, true);
 
         $subject = '新用户激活';
         $message = get_config('email_activate_user');
@@ -113,12 +111,8 @@ class CodeLogic extends Model
         }
 
         $code = StringUtil::getRandString(12);
-        $UserVerifyCodeModel = new UserVerifyCodeModel();
-        $verifyCode = $UserVerifyCodeModel->createVerifyCode(UserVerifyCodeModel::TYPE_RESET_PASSWORD, $email, $code, 15 * 60);
-        if (!$verifyCode) {
-            $this->error = '重置验证码生成失败!';
-            return false;
-        }
+        // 缓存验证码
+        Cache::set(self::TYPE_RESET_PASSWORD . CACHE_SEPARATOR . $email, $code, 24 * 60 * 60);
 
         $url = '';//重置密码url
         $subject = '重置密码';
@@ -165,22 +159,9 @@ class CodeLogic extends Model
      */
     public function checkVerifyCode($type, $target, $code)
     {
-        $UserVerifyCodeModel = new UserVerifyCodeModel();
-        $userVerifyCode = $UserVerifyCodeModel->findLatestByTarget($type, $target);
-        if (!$userVerifyCode || $userVerifyCode['code'] != $code) {
-            $this->error = '验证码不正确!';
-            return false;
-        }
-
-        if ($userVerifyCode['status'] == UserVerifyCodeModel::STATUS_USED) {
-            $this->error = '验证码已使用!';
-            return false;
-        }
-
-        $currentTime = time();
-        $expireTime = strtotime($userVerifyCode->expire_time);
-        if ($currentTime > $expireTime) {
-            $this->error = '验证码已过期!';
+        $cacheCode = Cache::get($type . CACHE_SEPARATOR . $target, null);
+        if ($cacheCode == null || $cacheCode !== $code) {
+            $this->error = '验证码不正确或已过期!';
             return false;
         }
 
@@ -196,58 +177,15 @@ class CodeLogic extends Model
      */
     public function consumeCode($type, $target, $code)
     {
-        $UserVerifyCodeModel = new UserVerifyCodeModel();
-        $userVerifyCode = $UserVerifyCodeModel->findLatestByTarget($type, $target);
-        if (!$userVerifyCode || $userVerifyCode['code'] != $code) {
-            $this->error = '验证码不正确!';
+        $cacheCode = Cache::get($type . CACHE_SEPARATOR . $target, null);
+        if ($cacheCode == null || $cacheCode !== $code) {
+            $this->error = '验证码不正确或已过期!';
             return false;
         }
 
-        $codeId = $userVerifyCode['id'];
-        $res = $UserVerifyCodeModel->setCodeUsed($codeId);
+        Cache::rm($type . CACHE_SEPARATOR . $target);
 
-        return $res;
+        return true;
     }
 
-//    public function checkInviteCode($inviteCode)
-//    {
-//        if (empty($code)) {
-//            $this->error = '邀请码不能为空！';
-//        }
-//
-//        $userInviteCode = model('UserInviteCode')->getByCode($inviteCode);
-//        if (!$userInviteCode) {
-//            $this->error = '邀请码不正确!';
-//            return false;
-//        }
-//
-//        if ($userInviteCode['status'] == UserInviteCode::STATUS_USED) {
-//            $this->error = '邀请码已经被使用!';
-//            return false;
-//        }
-//        if (time() > strtotime($userInviteCode['expire_time'])) {
-//            $this->error = '邀请码已过期!';
-//            return false;
-//        }
-//
-//        return true;
-//    }
-//
-//    public function generateInviteCode($userId, $count)
-//    {
-//        $data = [
-//            'target' => $userId,
-//            'status' => UserInviteCode::STATUS_UNUSED,
-//            'code' => '',
-//            'expire_time' => date('Y-m-d H:i:s', strtotime("+365 day")),
-//        ];
-//
-//        for ($i = 0; $i < $count; $i++) {
-//            $code = StringUtil::getRandString(8);
-//            $data['code'] = $code;
-//            model('UserInviteCode')->insert($data);
-//        }
-//
-//        return true;
-//    }
 }

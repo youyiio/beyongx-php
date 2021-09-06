@@ -1,15 +1,15 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-12-03
  * Time: 16:15
  */
 namespace app\cms\controller;
 
-use app\common\model\ArticleModel;
+use app\common\model\cms\ArticleModel;
 
-use app\common\model\CategoryModel;
+use app\common\model\cms\CategoryModel;
 use think\facade\Env;
 use think\facade\Log;
 use XMLWriter;
@@ -52,10 +52,10 @@ class Sitemap extends Base
 
 
         //生成index 首页
-        $sitemap->addItem(url('cms/Index/index',null, false, get_config('domain_name')), 1, "hourly", date_time());
-        $sitemap->addItem(url('cms/Index/about',null, false, get_config('domain_name')), 1, "monthly", date_time());
-        $sitemap->addItem(url('cms/Index/contact',null, false, get_config('domain_name')), 1, "monthly", date_time());
-        $sitemap->addItem(url('cms/Index/about',null, false, get_config('domain_name')), 1, "monthly", date_time());
+        $sitemap->addItem(url('frontend/Index/index',null, false, get_config('domain_name')), 1, "hourly", date_time());
+        $sitemap->addItem(url('frontend/Index/about',null, false, get_config('domain_name')), 1, "monthly", date_time());
+        $sitemap->addItem(url('frontend/Index/contact',null, false, get_config('domain_name')), 1, "monthly", date_time());
+        $sitemap->addItem(url('frontend/Index/about',null, false, get_config('domain_name')), 1, "monthly", date_time());
 
         //生成栏目item
         $CategoryModel = new CategoryModel();

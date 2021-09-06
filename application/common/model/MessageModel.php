@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-12-25
  * Time: 14:24
@@ -13,7 +13,7 @@ use think\Model;
 
 class MessageModel extends Model
 {
-    protected $name = CMS_PREFIX . 'message';
+    protected $name = 'sys_message';
 
     const STATUS_DELETED = -1; //删除
     const STATUS_DRAFT = 0; //草稿，0为世间最自然的数，出生就是这个状态

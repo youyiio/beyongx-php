@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2019-06-03
  * Time: 15:12
@@ -11,8 +11,8 @@ namespace app\admin\job;
 use think\facade\Log;
 use think\queue\Job;
 
-use app\common\model\ArticleModel;
-use app\common\model\ArticleMetaModel;
+use app\common\model\cms\ArticleModel;
+use app\common\model\cms\ArticleMetaModel;
 
 use QL\QueryList;
 

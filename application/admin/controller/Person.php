@@ -2,7 +2,7 @@
 namespace app\admin\controller;
 
 use app\common\logic\UserLogic;
-use app\common\model\ArticleModel;
+use app\common\model\cms\ArticleModel;
 use app\common\model\UserModel;
 
 /**

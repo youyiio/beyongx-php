@@ -67,7 +67,7 @@
                             <td>
                                 <a href="{:url('User/viewUser',['uid'=>$vo['id']])}" class="btn btn-xs btn-info">详情</a>
                                 <a href="{:url('User/editUser',['uid'=>$vo['id']])}" class="btn btn-xs btn-warning">修改</a>
-                                <button data-action="{:url('User/deleteUser',['uid'=>$vo['id']])}" class="btn btn-xs btn-danger js-btn-delete">删除</button>
+                                <button data-action="{:url('User/deleteUser',['uid'=>$vo['id']])}" class="btn btn-xs btn-danger ajax-btn">删除</button>
                             </td>
                         </tr>
                         {/volist}

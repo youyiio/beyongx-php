@@ -1,8 +1,6 @@
 <?php
 namespace app\common\controller;
 
-use app\common\logic\CodeLogic;
-use app\common\model\UserVerifyCodeModel;
 use think\facade\Cache;
 use think\Controller;
 use think\facade\Session;
@@ -12,6 +10,7 @@ use think\captcha\Captcha;
 use app\common\model\ActionLogModel;
 use app\common\model\UserModel;
 
+use app\common\logic\CodeLogic;
 use app\common\logic\UserLogic;
 use app\common\logic\ActionLogLogic;
 use youyi\util\StringUtil;
@@ -77,31 +76,43 @@ class Sign extends Controller
         $password = input("param.password");
 
         //登录次数判断
-        $logErrorMark = input('username') . '_login_error';
-        $logErrorCount = Cache::get($logErrorMark);
-        if ($logErrorCount > 5) {
+        $tryLoginCountMark = $username . '_try_login_count';
+        $tryLoginCount = Cache::get($tryLoginCountMark);
+        if ($tryLoginCount > 5) {
             $this->error('登录错误超过5次,账号被临时冻结1天');
         }
-        if ($logErrorCount >= 5) {
-            Cache::set($logErrorMark, $logErrorCount + 1, strtotime(date('Y-m-d 23:59:59'))-time());
+        if ($tryLoginCount >= 5) {
+            Cache::set($tryLoginCountMark, $tryLoginCount + 1, strtotime(date('Y-m-d 23:59:59'))-time());
+            
             $this->error('登录错误超过5次,账号被临时冻结1天');
         }
 
-        $userLogic = new UserLogic();
-        $user = $userLogic->login($username, $password, request()->ip(0, true));
-        if (!$user) {
-            Cache::remember($logErrorMark, function() {
-                return 0;
-            },strtotime(date('Y-m-d 23:59:59'))-time());
-            Cache::inc($logErrorMark);
+        //初始化登录错误次数
+        Cache::remember($tryLoginCountMark, function () {
+            return 0;
+        }, strtotime(date('Y-m-d 23:59:59')) - time());
 
-            $this->error($userLogic->getError());
+        try {
+            $UserLogic = new UserLogic();
+            $user = $UserLogic->login($username, $password, request()->ip(0, true));
+            if (!$user) {                
+                Cache::inc($tryLoginCountMark);
+
+                $this->error($UserLogic->getError());
+            }
+        } catch(\Exception $e) {            
+            Cache::inc($tryLoginCountMark);
+
+            throw $e;
         }
+
+        //登录成功清除
+        Cache::rm($tryLoginCountMark);
 
         $uid = $user['id'];
         //登录日志
-        $actionLog = new ActionLogLogic();
-        $actionLog->addLog($uid, ActionLogModel::ACTION_LOGIN, '登录');
+        $ActionLogLogic = new ActionLogLogic();
+        $ActionLogLogic->addLog($uid, ActionLogModel::ACTION_LOGIN, '登录');
 
         $expire = config('session.expire');//缓存期限
         session('uid', $uid);
@@ -111,8 +122,8 @@ class Sign extends Controller
         if ($this->defaultConfig['login_multi_client_support'] !== true) {
             //生成login_hash
             $loginHash = uniqid(rand(1000000, 99999999));
-            cookie($uid . '_login_hash', $loginHash);
-            cache($uid . '_login_hash', $loginHash);
+            cookie($uid . CACHE_SEPARATOR . 'login_hash', $loginHash);
+            cache($uid . CACHE_SEPARATOR . 'login_hash', $loginHash);
         }
 
         cookie('username', $username, 3600 * 24 * 15);  //保存用户名在cookie
@@ -154,38 +165,37 @@ class Sign extends Controller
             $userLogic = new UserLogic();
             $mobile = StringUtil::getRandNum(11);
             $user  = $userLogic->register($mobile, $data['password'], $data['nickname'], $data['email'], '', UserModel::STATUS_APPLY);
-            if ($user) {
-                $UserModel = new UserModel();
-                //完善用户资料
-                $profileData = [
-                    'id' => $user['id'],
-                    'head_url' => '/static/cms/image/head/0002.jpg',
-                    'referee' => $data['referee'], //推荐人
-                    'register_ip' => request()->ip(0, true),
-                    'from_referee' => cookie('from_referee'),
-                    'entrance_url'     => cookie('entrance_url'),
-                ];
-                $UserModel->where('id', $user['id'])->setField($profileData);
-
-                //资料扩展
-                //$UserModel->ext('xxx', 'vvv');
-                //$UserModel->meta('xxx', 'vvv');
-
-                //注册的后置操作
-                $this->afterRegister($user['id']);
-
-                //发送激活邮件
-                $CodeLogic = new CodeLogic();
-                $res = $CodeLogic->sendActiveMail($user['email'], request()->module() . '/Sign/mailActive');
-                if ($res) {
-                    $param = ['uid'=>$user['id'], 'email'=>$user['email']];
-                    $this->success('注册成功, 请登录邮箱激活您的帐号!', url(request()->module() . '/Sign/login'), $param);
-                } else {
-                    $this->success('注册成功, 邮件发送失败!', url(request()->module() . '/Sign/login'), ['uid'=>$user['id'], 'email'=>$user['email']]);
-                }
-
-            } else {
+            if (!$user) {
                 $this->error($userLogic->getError());
+            }
+            
+            $UserModel = new UserModel();
+            //完善用户资料
+            $profileData = [
+                'id' => $user['id'],
+                'head_url' => '/static/cms/image/head/0002.jpg',
+                'referee' => $data['referee'], //推荐人
+                'register_ip' => request()->ip(0, true),
+                'from_referee' => cookie('from_referee'),
+                'entrance_url'     => cookie('entrance_url'),
+            ];
+            $UserModel->where('id', $user['id'])->setField($profileData);
+
+            //资料扩展
+            //$UserModel->ext('xxx', 'vvv');
+            //$UserModel->meta('xxx', 'vvv');
+
+            //注册的后置操作
+            $this->afterRegister($user['id']);
+
+            //发送激活邮件
+            $CodeLogic = new CodeLogic();
+            $res = $CodeLogic->sendActiveMail($user['email'], request()->module() . '/Sign/mailActive');
+            if ($res) {
+                $param = ['uid'=>$user['id'], 'email'=>$user['email']];
+                $this->success('注册成功, 请登录邮箱激活您的帐号!', url(request()->module() . '/Sign/login'), $param);
+            } else {
+                $this->success('注册成功, 邮件发送失败!', url(request()->module() . '/Sign/login'), ['uid'=>$user['id'], 'email'=>$user['email']]);
             }
         }
 
@@ -276,7 +286,7 @@ class Sign extends Controller
             $uid = $user['id'];
 
             $CodeLogic = new CodeLogic();
-            if (!$CodeLogic->checkVerifyCode(UserVerifyCodeModel::TYPE_RESET_PASSWORD, $username, $code)) {
+            if (!$CodeLogic->checkVerifyCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code)) {
                 $this->error($CodeLogic->getError());
             }
 
@@ -284,7 +294,7 @@ class Sign extends Controller
             $res = $UserModel->modifyPassword($uid, $password);
             if ($res) {
                 //消费验证码
-                $CodeLogic->consumeCode(UserVerifyCodeModel::TYPE_RESET_PASSWORD, $username, $code);
+                $CodeLogic->consumeCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code);
 
                 $this->success('成功重置密码', url('Sign/login'));
             } else {
@@ -304,11 +314,11 @@ class Sign extends Controller
         $code = input('param.code/s');
         $email = input('param.email/s');
         if (empty($code) || empty($email)) {
-            $this->error('错误：参数错误！', url('cms/Index/index'));
+            $this->error('错误：参数错误！', url('frontend/Index/index'));
         }
 
         $CodeLogic = new CodeLogic();
-        $check = $CodeLogic->checkVerifyCode(UserVerifyCodeModel::TYPE_MAIL_ACTIVE, $email, $code);
+        $check = $CodeLogic->checkVerifyCode(CodeLogic::TYPE_MAIL_ACTIVE, $email, $code);
         if (!$check) {
             $this->error($CodeLogic->getError());
         }
@@ -325,7 +335,7 @@ class Sign extends Controller
         //激活用户
         $UserModel->where('id', $user['id'])->setField('status', UserModel::STATUS_ACTIVED);
         //消费验证码
-        $CodeLogic->consumeCode(UserVerifyCodeModel::TYPE_REGISTER, $email, $code);
+        $CodeLogic->consumeCode(CodeLogic::TYPE_REGISTER, $email, $code);
 
         //邮件激活的后置操作
         $this->afterMailActive($email);
@@ -358,11 +368,11 @@ class Sign extends Controller
 
         //清除cookie
         cookie('uid', null);
-        cookie($uid . '_login_hash',null);
+        cookie($uid . CACHE_SEPARATOR . 'login_hash',null);
 
         //清理相关缓存
         cache($uid . '_menu', null);
-        cache($uid . '_login_hash', null);
+        cache($uid . CACHE_SEPARATOR . 'login_hash', null);
 
         $this->redirect($this->defaultConfig['logout_success_view']);
     }

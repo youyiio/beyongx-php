@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-06-12
  * Time: 15:18
@@ -22,7 +22,8 @@ class ThemeBehavior
     public function run()
     {
         //读取当前主题详细信息
-        $config = get_theme_config(request()->module());
+        //$config = get_theme_config(request()->module());
+        $config = get_theme_config('cms');
 
         /*根据配置和来访设备类型自动切换为电脑主题或手机主题。 start */
         $header = request()->header();

@@ -1,19 +1,10 @@
 <?php
-
-/**
- * Created by PhpStorm.
- * User: cattong
- * Date: 2016-10-07
- * Time: 23:17
- */
-
 namespace app\common\logic;
 
+use think\Model;
 use app\common\exception\ModelException;
 use app\common\library\ResultCode;
-use think\Model;
 use app\common\model\UserModel;
-use app\common\model\api\PushTokenModel;
 use app\common\model\api\TokenModel;
 
 class UserLogic extends Model
@@ -68,8 +59,8 @@ class UserLogic extends Model
 
     public function logout($userId, $accessId, $deviceId)
     {
-        $PushTokenModel = new PushTokenModel();
-        return $PushTokenModel->logout($userId, $accessId, $deviceId);
+        //$PushTokenModel = new PushTokenModel();
+        //return $PushTokenModel->logout($userId, $accessId, $deviceId);
     }
 
     public function modifyPassword($userId, $oldPassword, $newPassword)
@@ -99,25 +90,6 @@ class UserLogic extends Model
         return $user;
     }
 
-    public function savePushToken($userId, $accessId, $deviceId, $os, $androidPushToken, $iosPushToken)
-    {
-        if (!$os) {
-            $os = Os::Android;
-        }
-
-        $pushToken = $androidPushToken;
-        if ($os == Os::Android) {
-            $pushToken = $androidPushToken;
-        } else if ($os == Os::iOS) {
-            $pushToken = $iosPushToken;
-        }
-
-        $PushTokenModel = new PushTokenModel();
-        $pushTokenInfo = $PushTokenModel->createPushToken($userId, $accessId, $deviceId, $os, $pushToken);
-
-        return $pushTokenInfo;
-    }
-
     public function findOrCreateToken($userId, $accessId, $deviceId)
     {
         $TokenModel = new TokenModel();
@@ -145,15 +117,6 @@ class UserLogic extends Model
     {
         $userId = $user['id'];
 
-        $PushTokenModel = new PushTokenModel();
-        $pushTokenModel = $PushTokenModel->findByUserId($userId, $accessId, $deviceId);
-        if ($pushTokenModel) {
-            if ($pushTokenModel['os'] == Os::Android) {
-                $user['android_push_token'] = $pushTokenModel['push_token'];
-            } else if ($pushTokenModel['os'] == Os::iOS) {
-                $user['ios_push_token'] = $pushTokenModel['push_token'];
-            }
-        }
         $user['device_id'] = $deviceId;
 
         $tokenInfo = $this->findOrCreateToken($userId, $accessId, $deviceId);

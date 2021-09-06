@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-05-23
  * Time: 14:53
@@ -55,7 +55,7 @@ class Article extends TagLib
 
         $parse  = "<?php ";
         $parse .= "  $internalAid = $aid; ";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "  \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "  $id = \$ArticleModel->find(['id' => $internalAid]);";
         $parse .= "  $assign = $id; ";
         $parse .= "  ?>";
@@ -97,18 +97,18 @@ class Article extends TagLib
         $parse .= "  $id = null;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['id','>', $internalAid];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) { ";
-        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];} else { $internalCid = -1;}";
         $parse .= "  } ";
         $parse .= "  if ($internalCid) {";
-        $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "    \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "    \$cids = \$childs['ids'];";
         $parse .= "    array_push(\$cids, $internalCid);";
-        $parse .= "    $id = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,post_time,author')->order('id asc')->find();";
+        $parse .= "    $id = \app\common\model\cms\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,post_time,author')->order('id asc')->find();";
         $parse .= "  } else {";
-        $parse .= "    \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "    \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "    $id = \$ArticleModel->where(\$where)->field('id,title,post_time,author')->order('id asc')->find();";
         $parse .= "  } ";
         $parse .= "  $assign = $id; ";
@@ -151,18 +151,18 @@ class Article extends TagLib
         $parse .= "  $id = null;";
         $parse .= "  \$where = [];";
         $parse .= "  \$where[] = ['id', '<', $internalAid];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) { ";
-        $parse .= "    \$category = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];} else { $internalCid = -1;}";
         $parse .= "  } ";
         $parse .= "  if ($internalCid) {";
-        $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "    \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "    \$cids = \$childs['ids'];";
         $parse .= "    array_push(\$cids, $internalCid);";
-        $parse .= "    $id = \app\common\model\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,post_time,author')->order('id desc')->find();";
+        $parse .= "    $id = \app\common\model\cms\ArticleModel::has('CategoryArticle', [['category_id','in',\$cids]])->where(\$where)->field('id,title,post_time,author')->order('id desc')->find();";
         $parse .= "  } else {";
-        $parse .= "    \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "    \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "    $id = \$ArticleModel->where(\$where)->field('id,title,post_time,author')->order('id desc')->find();";
         $parse .= "  } ";
         $parse .= "  $assign = $id; ";
@@ -206,12 +206,12 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];} else { $internalCid = -1;}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'index_category_' . $internalCid . '_' . $pageSize . '_' . \$page;";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  \$field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "  \$order = 'sort desc,post_time desc';";
         $parse .= "  if ($cache) { ";
@@ -219,13 +219,13 @@ class Article extends TagLib
         $parse .= "  } ";
         $parse .= "  if (empty($internalList)) { ";
         $parse .= "    if ($internalCid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "      \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
         $parse .= "      array_push(\$cids, $internalCid);";
         $parse .= "      \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
-        $parse .= "      $internalList = \app\common\model\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->paginate($pageSize,false,['query'=>input('param.')]);";
+        $parse .= "      $internalList = \app\common\model\cms\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->paginate($pageSize,false,['query'=>input('param.')]);";
         $parse .= "    } else { ";
-        $parse .= "      \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "      \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order(\$order)->paginate($pageSize,false,['query'=>input('param.')]);";
         $parse .= "    } ";
         $parse .= "    if ($cache) {";
@@ -269,13 +269,13 @@ class Article extends TagLib
         $parse .= "  $internalCid = $cid; ";
         $parse .= "  $internalList = [];";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
 
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "  \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "  \$field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "  \$order = 'sort desc,post_time desc';";
         $parse .= "  if ($internalCid) { ";
-        $parse .= "    \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "    \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "    \$cids = \$childs['ids'];";
         $parse .= "    array_push(\$cids, $internalCid);";
         $parse .= "    \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
@@ -324,13 +324,13 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_hot_list_' . $internalCid . $cache . $limit;";
         $parse .= '  $where = [];';
-        $parse .= '  $where[] = [\'status\', \'=\', \app\common\model\ArticleModel::STATUS_PUBLISHED];';
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= '  $where[] = [\'status\', \'=\', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];';
+        $parse .= "  \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
@@ -338,11 +338,11 @@ class Article extends TagLib
         $parse .= "  \$order = 'read_count desc';";
         $parse .= "  if (empty($internalList)) { ";
         $parse .= "    if ($internalCid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "      \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
         $parse .= "      array_push(\$cids, $internalCid);";
         $parse .= "      \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
-        $parse .= "      $internalList = \app\common\model\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
+        $parse .= "      $internalList = \app\common\model\cms\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } else { ";
         $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } ";
@@ -388,13 +388,13 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
@@ -402,11 +402,11 @@ class Article extends TagLib
         $parse .= "  \$order = 'post_time desc';";
         $parse .= "  if (empty($internalList)) { ";
         $parse .= "    if ($internalCid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "      \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
         $parse .= "      array_push(\$cids, $internalCid);";
         $parse .= "      \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
-        $parse .= "      $internalList = \app\common\model\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
+        $parse .= "      $internalList = \app\common\model\cms\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } else { ";
         $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } ";
@@ -455,7 +455,7 @@ class Article extends TagLib
         $parse .= "  $internalCid = $cid;";
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  $internalAid = $aid;";
@@ -469,7 +469,7 @@ class Article extends TagLib
         $parse .= "    \$where[] = ['article_a_id', '=', $internalAid];";
         $parse .= "    \$whereOr[] = ['article_b_id', '=', $internalAid];";
         $parse .= "    \$field = 'id,article_a_id,article_b_id,title_similar,content_similar';";
-        $parse .= "    \$ArticleDataModel = new \app\common\model\ArticleDataModel();";
+        $parse .= "    \$ArticleDataModel = new \app\common\model\cms\ArticleDataModel();";
         $parse .= "    \$dataList = \$ArticleDataModel->where(\$where)->whereOr(\$whereOr)->field(\$field)->order('title_similar desc,content_similar desc')->limit(100)->select();";
         $parse .= "    \$ids = [];";
         $parse .= "    foreach (\$dataList as \$articleData) {";
@@ -481,17 +481,17 @@ class Article extends TagLib
         $parse .= "    };";
 
         $parse .= "    \$where = [];";
-        $parse .= "    \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "    \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "    \$where[] = ['id', 'in', \$ids];";
-        $parse .= "    \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "    \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "    \$field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "    \$order = 'post_time desc';";
         $parse .= "    if ($internalCid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "      \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
         $parse .= "      array_push(\$cids, $internalCid);";
         $parse .= "      \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
-        $parse .= "      $internalList = \app\common\model\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
+        $parse .= "      $internalList = \app\common\model\cms\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } else { ";
         $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->order(\$order)->limit($limit)->select();";
         $parse .= "    } ";
@@ -537,24 +537,24 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";
         $parse .= "  \$where = [];";
-        $parse .= "  \$where[] = ['status', '=', \app\common\model\ArticleModel::STATUS_PUBLISHED];";
-        $parse .= "  \$ArticleModel = new \app\common\model\ArticleModel();";
+        $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
+        $parse .= "  \$ArticleModel = new \app\common\model\cms\ArticleModel();";
         $parse .= "  if ($cache) { ";
         $parse .= "    $internalList = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  \$field = 'id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
         $parse .= "  if (empty($internalList)) { ";
         $parse .= "    if ($internalCid) { ";
-        $parse .= "      \$childs = \app\common\model\CategoryModel::getChild($internalCid);";
+        $parse .= "      \$childs = \app\common\model\cms\CategoryModel::getChild($internalCid);";
         $parse .= "      \$cids = \$childs['ids'];";
         $parse .= "      array_push(\$cids, $internalCid);";
         $parse .= "      \$field = 'cms_article.id,title,description,author,thumb_image_id,post_time,read_count,comment_count';";
-        $parse .= "      $internalList = \app\common\model\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->orderRand()->limit($limit)->select();";
+        $parse .= "      $internalList = \app\common\model\cms\ArticleModel::hasWhere('CategoryArticle', [['category_id','in',\$cids]], \$field)->where(\$where)->field(\$field)->orderRand()->limit($limit)->select();";
         $parse .= "    } else { ";
         $parse .= "      $internalList = \$ArticleModel->where(\$where)->field(\$field)->orderRand()->limit($limit)->select();";
         $parse .= "    } ";

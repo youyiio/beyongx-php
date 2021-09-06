@@ -3,7 +3,7 @@ namespace app\admin\controller;
 
 use app\common\logic\PushLogic;
 use app\common\model\ActionLogModel;
-use app\common\model\ArticleModel;
+use app\common\model\cms\ArticleModel;
 use app\common\model\AuthGroupAccessModel;
 use app\common\model\AuthGroupModel;
 use app\common\model\Message;

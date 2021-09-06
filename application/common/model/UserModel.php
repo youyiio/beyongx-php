@@ -12,7 +12,7 @@ use think\Model;
 
 class UserModel extends BaseModel
 {
-    protected $name = CMS_PREFIX . 'user';
+    protected $name = 'sys_user';
     protected $pk = 'id';
 
     const STATUS_DELETED = -1; //已删除
@@ -50,7 +50,7 @@ class UserModel extends BaseModel
     //关联表：用户组
     public function groups()
     {
-        return $this->belongsToMany('AuthGroupModel', config('database.prefix'). CMS_PREFIX . 'auth_group_access','group_id','uid');
+        return $this->belongsToMany('AuthGroupModel', config('database.prefix'). 'sys_auth_group_access','group_id','uid');
     }
 
     //关联表：用户组中间表

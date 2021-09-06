@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2018-06-12
  * Time: 20:45
@@ -11,7 +11,7 @@ namespace app\common\model;
 
 class AddonsModel extends BaseModel
 {
-    protected $name = CMS_PREFIX . 'addons';
+    protected $name = 'sys_addons';
 
     const STATUS_DELETED = -1; //已删除
     const STATUS_UNKNOWN = 0;  //未知状态

@@ -61,9 +61,9 @@
                                 <td>{$vo.create_time}</td>
                                 <td>{$vo.status_html|raw}</td>
                                 <td>
-                                    {if $vo.status == \app\common\model\CrawlerModel::STATUS_CRAWLING}
+                                    {if $vo.status == \app\common\model\cms\CrawlerModel::STATUS_CRAWLING}
                                     <a href="" class="btn btn-xs btn-primary" disabled="">采集中</a>
-                                    {elseif $vo.status == \app\common\model\CrawlerModel::STATUS_CRAWL_SUCCESS /}
+                                    {elseif $vo.status == \app\common\model\cms\CrawlerModel::STATUS_CRAWL_SUCCESS /}
                                     <a href="" class="btn btn-xs btn-primary" disabled="">采集完</a>
                                     {else /}
                                     <a href="{:url('Crawler/startCrawl',['id'=>$vo['id']])}" class="btn btn-xs btn-primary ajax-a"><i class="fa fa-play"></i> 采集</a>

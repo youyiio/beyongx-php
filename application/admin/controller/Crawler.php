@@ -1,11 +1,11 @@
 <?php
 namespace app\admin\controller;
 
-use app\common\model\ArticleMetaModel;
-use app\common\model\ArticleModel;
-use app\common\model\CrawlerMetaModel;
-use app\common\model\CrawlerModel;
-use app\common\model\CategoryModel;
+use app\common\model\cms\ArticleMetaModel;
+use app\common\model\cms\ArticleModel;
+use app\common\model\cms\CrawlerMetaModel;
+use app\common\model\cms\CrawlerModel;
+use app\common\model\cms\CategoryModel;
 use think\Queue;
 use think\Db;
 

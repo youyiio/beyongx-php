@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: Administrator
  * Date: 2018/5/4
  * Time: 10:39
@@ -8,7 +8,7 @@
 
 namespace app\cms\controller;
 
-use app\common\model\FeedbackModel;
+use app\common\model\cms\FeedbackModel;
 use app\common\model\UserModel;
 
 /**
@@ -29,18 +29,18 @@ class Feedback extends Base
         }
 
         $FeedbackModel = new FeedbackModel();
-        $total = $FeedbackModel->where('send_client_id','=',$user)->whereOr('reply_client_id','=',$user)->count();
+        $total = $FeedbackModel->where('send_client_id', '=', $user)->whereOr('reply_client_id','=',$user)->count();
         $length = 8;
         if ($total <= $length) {
-            $msgList = $FeedbackModel->where('send_client_id','=', $user)->whereOr('reply_client_id','=', $user)->order('create_time')->select();
+            $msgList = $FeedbackModel->where('send_client_id', '=', $user)->whereOr('reply_client_id','=', $user)->order('create_time')->select();
         } else {
             $offset = $total - $length;
-            $msgList = $FeedbackModel->where('send_client_id','=', $user)->whereOr('reply_client_id','=', $user)->limit($offset,$length)->order('create_time')->select();
+            $msgList = $FeedbackModel->where('send_client_id', '=', $user)->whereOr('reply_client_id','=', $user)->limit($offset,$length)->order('create_time')->select();
         }
 
         if ($user == session('uid')) {
             $UserModel = new UserModel();
-            $userInfo = $UserModel->where('id','=',$user)->find();
+            $userInfo = $UserModel->where('id', '=', $user)->find();
             foreach ( $msgList as $value) {
                 $value['send_client_id'] = $userInfo['nickname'];
             }

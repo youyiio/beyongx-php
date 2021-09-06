@@ -9,15 +9,7 @@
 return [
 
     /*****************Cms 通用路由 begin*******************/
-    //首页
-    'index/index' => ['cms/Index/index', ['method'=>'get']],
-    'index/business' => ['cms/Index/business', ['method'=>'get']],
-    'index/team' => ['cms/Index/team', ['method'=>'get']],
-    'index/partner' => ['cms/Index/partner', ['method'=>'get']],
-    'index/about' => ['cms/Index/about', ['method'=>'get']],
-    'index/contact' => ['cms/Index/contact', ['method'=>'get']],
-    'index/:name' => ['cms/Index/__extPage', ['method'=>'get']], //可动态扩充页面
-
+    
     //文章
     'list/index' => ['cms/Article/index', ['method'=>'get']],
     'list/:cid' => ['cms/Article/articleList', ['method'=>'get']],
@@ -34,13 +26,6 @@ return [
     'sitemap.xml' => ['cms/Sitemap/xml', ['method'=>'get']],
     'sitemap-[:id].xml' => ['cms/Sitemap/xml', ['method'=>'get']],
     'sitemap' => ['cms/Sitemap/html', ['method'=>'get']],
-
-    //用户操作
-    'sign/index' => ['cms/Sign/index', ['method'=>'get,post']],
-    'sign/login' => ['cms/Sign/login', ['method'=>'get,post']],
-    'sign/register' => ['cms/Sign/register', ['method'=>'get,post']],
-    'sign/logout' => ['cms/Sign/logout', ['method'=>'get,post']],
-    'sign/forget' => ['cms/Sign/forget', ['method'=>'get,post']],
 
     /*****************Cms 通用路由 end*******************/
 ];

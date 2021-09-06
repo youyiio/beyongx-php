@@ -1,1 +1,114 @@
-{extend name="layout" /}{block name="pagecss"}<link href="__PUBLIC__/static/layui/css/layui.css" rel="stylesheet">{/block}{block name="content"}<div class="container">    <div class="row">        <div class="col-md-12">            <div class="ibox float-e-margins">                <div class="ibox-content">                    <div>                        <h3 class="font-bold no-margins">创建数据库</h3>                        <div class="hr-line-dashed"></div>                    </div>                    <br/>                    <form class="layui-form form-horizontal">                        <div class="form-group">                            <label class="col-sm-2 control-label">数据库类型</label>                            <div class="col-sm-9">                                <select name="db[type]" required lay-verify="required" class="form-control">                                    <option value="">请选择数据库数据库类型</option>                                    <option value="mysql">mysql</option>                                </select>                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">数据库地址</label>                            <div class="col-sm-9">                                <input type="text" name="db[hostname]" value="127.0.0.1" required lay-verify="required"  class="form-control" placeholder="数据库地址">                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">端口号</label>                            <div class="col-sm-9">                                <input type="text" name="db[hostport]" value="3306" required lay-verify="required"  class="form-control" placeholder="端口号">                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">数据库名</label>                            <div class="col-sm-9">                                <input type="text" name="db[database]" value="cms" required lay-verify="required"  class="form-control" placeholder="数据库名">                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">用户名</label>                            <div class="col-sm-9">                                <input type="text" name="db[username]" value="root" required lay-verify="required"  class="form-control" placeholder="用户名">                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">密码</label>                            <div class="col-sm-9">                                <input type="password" name="db[password]" value="" required lay-verify="required"  class="form-control" placeholder="密码">                            </div>                        </div>                        <div class="form-group">                            <label  class="col-sm-2 control-label">表前缀</label>                            <div class="col-sm-9">                                <input type="text" name="db[prefix]" value="cms_" required lay-verify="required"  class="form-control" placeholder="表前缀" readonly>                            </div>                        </div>                        <div class="form-group">                            <label class="col-sm-2 control-label"></label>                            <div class="col-sm-9">                                <a class="btn btn-white btn-outline btn-large" href="{:url('install/Index/step1')}">上一步</a>                                <button type="button" class="btn btn-primary btn-submit-install btn-fw" lay-submit lay-filter="app-install-submit">下一步</button>                            </div>                        </div>                    </form>                </div>            </div>        </div>    </div></div>{/block}{block name="pagejs"}<script>    layui.use(['form'], function(){        var $ = layui.$            ,form = layui.form;        //监听提交        form.on('submit(app-install-submit)', function(data){            var field = data.field;            //console.log(field)            //提交安装            $.ajax({                url:'{:url(\'install/Index/step2\')}',                method:"POST",                data:field,                beforeSend: function() {                    layer.load(1);                },                complete: function() {                    layer.closeAll('loading');                },                success:function (res) {                    layer.msg(res.msg);                    if (res.code == 1){                        setTimeout(function () {                            location.href = '/'                        },1500)                    }                }            });        });    });</script>{/block}
+{extend name="layout" /}
+
+{block name="pagecss"}
+<link href="__PUBLIC__/static/layui/css/layui.css" rel="stylesheet">
+{/block}
+
+{block name="content"}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div>
+                        <h3 class="font-bold no-margins">创建数据库</h3>
+                        <div class="hr-line-dashed"></div>
+                    </div>
+
+                    <br/>
+                    <form class="layui-form form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">数据库类型</label>
+                            <div class="col-sm-9">
+                                <select name="db[type]" required lay-verify="required" class="form-control">
+                                    <option value="">请选择数据库数据库类型</option>
+                                    <option value="mysql">mysql</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">数据库地址</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="db[hostname]" value="127.0.0.1" required lay-verify="required"  class="form-control" placeholder="数据库地址">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">端口号</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="db[hostport]" value="3306" required lay-verify="required"  class="form-control" placeholder="端口号">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">数据库名</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="db[database]" value="cmsdb" required lay-verify="required"  class="form-control" placeholder="数据库名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="db[username]" value="cmsdba" required lay-verify="required"  class="form-control" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">密码</label>
+                            <div class="col-sm-9">
+                                <input type="password" name="db[password]" value="" required lay-verify="required"  class="form-control" placeholder="密码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">表前缀</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="db[prefix]" value="cms_" required lay-verify="required"  class="form-control" placeholder="表前缀" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <div class="col-sm-9">
+                                <a class="btn btn-white btn-outline btn-large" href="{:url('install/Index/step1')}">上一步</a>
+                                <button type="button" class="btn btn-primary btn-submit-install btn-fw" lay-submit lay-filter="app-install-submit">下一步</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="pagejs"}
+<script>
+    layui.use(['form'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+        //监听提交
+        form.on('submit(app-install-submit)', function(data){
+            var field = data.field;
+            //console.log(field)
+            //提交安装
+            $.ajax({
+                url:'{:url(\'install/Index/step2\')}',
+                method:"POST",
+                data:field,
+                beforeSend: function() {
+                    layer.load(1);
+                },
+                complete: function() {
+                    layer.closeAll('loading');
+                },
+                success:function (res) {
+                    layer.msg(res.msg);
+                    if (res.code == 1){
+                        setTimeout(function () {
+                            location.href = '/'
+                        },1500)
+                    }
+                }
+            });
+        });
+    });
+</script>
+{/block}

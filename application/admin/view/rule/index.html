@@ -51,7 +51,7 @@
                                 </td>
                                 <td>{notempty name="v.icon"}<i class="fa {$v['icon']}"></i>{/notempty}</td>
                                 <td>{$v.condition}</td>
-                                <td>{$v.belongto}</td>
+                                <td>{$v.belongs_to}</td>
                                 <td>
                                     <a href="javascript:;" data-id="{$v.id}" onclick="add_child(this)">添加子权限</a> |
                                     <a href="javascript:;" data-id="{$v.id}" data-name="{$v.name}" data-title="{$v.title}" data-icon="{$v.icon}" data-condition="{$v.condition}" onclick="edit(this)">修改</a> |
@@ -110,7 +110,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <input type="hidden" name="belongto" value="admin" />
+                            <input type="hidden" name="belongs_to" value="admin" />
                             <button class="btn btn-sm btn-white" type="submit">新增</button>
                         </div>
                     </div>
@@ -158,7 +158,7 @@
                     </div>
                     <div class="form-group">
                         <div class="col-lg-offset-2 col-lg-10">
-                            <input type="hidden" name="belongto" value="admin" />
+                            <input type="hidden" name="belongs_to" value="admin" />
                             <button class="btn btn-sm btn-white" type="submit">修改</button>
                         </div>
                     </div>

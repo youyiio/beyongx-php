@@ -1,6 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by VSCode.
  * User: cattong
  * Date: 2017-04-19
  * Time: 17:50
@@ -12,7 +12,7 @@ use think\Model;
 
 class ImageModel extends Model
 {
-    protected $name = CMS_PREFIX . 'image';
+    protected $name = 'sys_image';
     protected $pk = 'id';
 
     protected $type = [
