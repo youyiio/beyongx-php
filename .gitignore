@@ -9,7 +9,10 @@ vendor/*
 thinkphp
 
 # my project
+.env
+.env*
 data/runtime
 data/backup
-#data/install.lock
+data/install.lock
 data/install/database.php
+config/sms.php

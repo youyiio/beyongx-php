@@ -5,13 +5,19 @@
 * api常用基本接口
 * 实现beyongx-app移动端，使用flutter开发
 
-## v1.6.1 （开发中）
+## v1.7.0 (规划中)
+
+* ElasticSearch支持，实现对文章的全文搜索；
+* 系统设置支持对文章索引重建；
+
+## v1.6.1 （done）
 
 * 更新echarts 5.0（youyiio/php-echarts）
 * 引入api模块, 使用jwt支持
 * 阿里、腾讯、极光短信支持（youyiio/beyong-sms）
+* 加强.env配置，实现.dev,.test,.prod三种环境，配置方法,如根目录下添加.evn.dev文件
 
-## v1.6.0 （开发完成）
+## v1.6.0 （done）
 
 * 精简数据库
 * 统一模块拦截器

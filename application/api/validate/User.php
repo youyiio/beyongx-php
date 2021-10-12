@@ -3,7 +3,7 @@ namespace app\api\validate;
 
 use app\common\model\UserModel;
 use think\Validate;
-use youyi\util\PregUtil;
+use beyong\commons\utils\PregUtils;
 
 /**
 * 用户验证规则
@@ -37,11 +37,11 @@ class User extends Validate
         }
         if (isset($data['type'])) {
             $type = $data['type'];
-            if ($type == "mobile" && !PregUtil::isMobile($value)) {
+            if ($type == "mobile" && !PregUtils::isMobile($value)) {
                 return "手机号格式不正确!";
             }
 
-            if ($type == "email" && !PregUtil::isEmail($value)) {
+            if ($type == "email" && !PregUtils::isEmail($value)) {
                 return "邮箱格式不正确";
             }
         }

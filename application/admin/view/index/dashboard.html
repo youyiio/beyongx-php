@@ -113,7 +113,7 @@
 
 {block name="js"}
 <!-- echarts -->
-<script src="__PUBLIC__/static/inspinia/js/plugins/echarts/echarts.min.js" type="text/javascript"></script>
+<script src="__PUBLIC__/static/echarts/echarts.min.js" type="text/javascript"></script>
 <script>
     $(document).ready(function() {
         var option = {
@@ -150,7 +150,13 @@
                 data: []
             },
             yAxis: {
-                type: 'value'
+                type: 'value',
+                axisLine: {
+                    show:true
+                },
+                axisTick: {
+                    show:true
+                }
             },
             series: [{
                 name: '新增',
@@ -177,13 +183,13 @@
 
             var url = $(this).data('action');
             myChart.showLoading();
-            $.getJSON(url, [], function (json) {
+            $.getJSON(url, [], function (res) {
                 myChart.hideLoading();
-                if (json.code != 1) {
+                if (res.code != 1) {
                     return;
                 }
-
-                myChart.setOption(json.data);
+                
+                myChart.setOption(res.data);
             });
         });
         $(".btn-tab:first").trigger('click');

@@ -154,8 +154,7 @@ class BaseModel extends Model
         }
         $data = $data->toArray();
         // 获取树形或者结构数据
-        include_once(Env::get('root_path') . 'extend/' .'tree/Data.class.php');
-        $tree = new \tree\Data();
+        $tree = new \beyong\commons\data\Tree();
         if ($type == 'tree') {
             $data = $tree::tree($data, $name, $fieldPK, $fieldPid);
         } elseif ($type = "level") {

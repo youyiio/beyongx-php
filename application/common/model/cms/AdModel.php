@@ -10,9 +10,6 @@ class AdModel extends BaseModel
 {
     protected $name = CMS_PREFIX . 'ad';
 
-    const TYPE_HEADLINE = 1; //首页滚动图
-    const TYPE_BANNER = 2;   //banner广告图
-
     protected $pk = 'id';
     //自动完成
     protected $auto = [];

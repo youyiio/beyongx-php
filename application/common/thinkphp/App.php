@@ -14,7 +14,7 @@ use think\Error;
 
 class App extends \think\App
 {
-    const BEYONG_CMS_VERSION = '1.5.0';
+    private static $BEYONG_CMS_VERSION = '';
 
     /**
      * 初始化应用
@@ -61,6 +61,16 @@ class App extends \think\App
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
         }
+        //加载具体环境配置文件重载覆盖：.env.dev, .env.test, .env.prod
+        $profile = $this->env->get("run.profile");
+        if (!empty($profile)) {
+            if (is_file($this->rootPath . '.env.' . $profile)) {
+                $this->env->load($this->rootPath . '.env.' . $profile);
+            }
+        }
+        
+        //读取版本
+        App::$BEYONG_CMS_VERSION = $this->env->get('beyong_cms_version', 'none');
 
         $this->namespace = $this->env->get('app_namespace', $this->namespace);
         $this->env->set('app_namespace', $this->namespace);
@@ -132,6 +142,6 @@ class App extends \think\App
      */
     public static function beyongCmsVersion()
     {
-        return static::BEYONG_CMS_VERSION;
+        return App::$BEYONG_CMS_VERSION;
     }
 }

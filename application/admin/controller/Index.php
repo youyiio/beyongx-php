@@ -7,6 +7,12 @@ use think\helper\Time;
 use app\common\model\UserModel;
 use app\common\model\cms\ArticleModel;
 
+use beyong\echarts\ECharts;
+use beyong\echarts\options\YAxis;
+use beyong\echarts\Option;
+use beyong\echarts\charts\Line;
+use beyong\echarts\options\XAxis;
+
 /**
 * 首页控制器
 */
@@ -109,12 +115,9 @@ class Index extends Base
 
     public function today()
     {
-        $option =[
-            'xAxis'=> ['data'=>[]],
-            'series'=> [['data'=>[]]],
-        ];
-
         $where = [];
+        $xAxisData = [];
+        $yAxisData = [];
         $UserModel = new UserModel();
         for ($hour = 0; $hour < 24; $hour++) {
             $beginTime = mktime($hour, 0, 0, date('m'), date('d'), date('Y'));
@@ -125,23 +128,31 @@ class Index extends Base
             $where[] = ['register_time', 'between', [date_time($beginTime), date_time($endTime)]];
             $inquiryCount = $UserModel->where($where)->count();
 
-            array_push($option['xAxis']['data'], $hour.'时');
-            array_push($option['series'][0]['data'], $inquiryCount);
+            array_push($xAxisData, $hour.'时');
+            array_push($yAxisData, $inquiryCount);
         }
 
-        $this->success('success', '', $option);
+        $xAxis = new XAxis();
+        $xAxis->data = $xAxisData;
+    
+        $option = new Option();
+        $option->xAxis($xAxis);
+    
+        $chart = new Line();
+        $chart["data"] = $yAxisData;
+
+        $option->series([$chart]);
+
+        $this->success('ok', '', $option);
     }
 
     public function month()
     {
-        $option =[
-            'xAxis'=> ['data'=>[]],
-            'series'=> [['data'=>[]]],
-        ];
-
         $where = [];
+        $xAxisData = [];
+        $yAxisData = [];
         $UserModel = new UserModel();
-        for ($day = 1; $day <= date('t'); $day++) {
+        for ($day = 1; $day < date('t'); $day++) {
             $beginTime = mktime(0, 0, 0, date('m'), $day, date('Y'));
             $endTime = mktime(23, 59, 59, date('m'), $day, date('Y'));
 
@@ -150,21 +161,29 @@ class Index extends Base
             $where[] = ['register_time','between', [date_time($beginTime), date_time($endTime)]];
             $inquiryCount = $UserModel->where($where)->count();
 
-            array_push($option['xAxis']['data'], $day.'日');
-            array_push($option['series'][0]['data'], $inquiryCount);
+            array_push($xAxisData, $day.'日');
+            array_push($yAxisData, $inquiryCount);
         }
 
-        $this->success('success', '', $option);
+        $xAxis = new XAxis();
+        $xAxis->data = $xAxisData;
+    
+        $option = new Option();
+        $option->xAxis($xAxis);
+    
+        $chart = new Line();
+        $chart["data"] = $yAxisData;
+
+        $option->series([$chart]);
+
+        $this->success('ok', '', $option);
     }
 
     public function year()
     {
-        $option =[
-            'xAxis'=> ['data'=>[]],
-            'series'=> [['data'=>[]]],
-        ];
-
         $where = [];
+        $xAxisData = [];
+        $yAxisData = [];
         $UserModel = new UserModel();
         for ($month = 1; $month <= 12; $month++) {
             $beginTime = mktime(0, 0, 0, $month, 1, date('Y'));
@@ -175,10 +194,22 @@ class Index extends Base
             $where[] = ['register_time','between', [date_time($beginTime), date_time($endTime)]];
             $inquiryCount = $UserModel->where($where)->count();
 
-            array_push($option['xAxis']['data'], $month.'月');
-            array_push($option['series'][0]['data'], $inquiryCount);
+            array_push($xAxisData, $month.'月');
+            array_push($yAxisData, $inquiryCount);
         }
 
-        $this->success('success', '', $option);
+        $xAxis = new XAxis();
+        $xAxis->data = $xAxisData;
+    
+        $option = new Option();
+        $option->xAxis($xAxis);
+    
+        $chart = new Line();
+        $chart["data"] = $yAxisData;
+
+        $option->series([$chart]);
+
+        $this->success('ok', '', $option);
     }
+
 }

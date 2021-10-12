@@ -1,10 +1,9 @@
 <?php
 namespace app\common\model;
 
-use think\Db;
 use think\facade\Cookie;
-use youyi\util\PregUtil;
-use youyi\util\StringUtil;
+use beyong\commons\utils\PregUtils;
+use beyong\commons\utils\StringUtils;
 use app\common\exception\ModelException;
 use app\common\library\ResultCode;
 
@@ -89,12 +88,12 @@ class UserModel extends BaseModel
             throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
         }
         if (empty($email)) {
-            $email = $mobile .'@' . StringUtil::getRandString(6) . '.com';
+            $email = $mobile .'@' . StringUtils::getRandString(6) . '.com';
         } else if ($this->findByEmail($email)) {
             throw new ModelException(ResultCode::E_USER_EMAIL_HAS_EXIST, '邮箱已经存在');
         }
         if (empty($account)) {
-            $account = StringUtil::getRandString(12);
+            $account = StringUtils::getRandString(12);
         } else if ($this->where(['account' => $account])->find()) {
             throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
         }
@@ -132,7 +131,7 @@ class UserModel extends BaseModel
     public function checkUser($username, $password)
     {
         $user = null;
-        if (PregUtil::isEmail($username)) {
+        if (PregUtils::isEmail($username)) {
 
             $user = $this->findByEmail($username);
             if (!$user) {

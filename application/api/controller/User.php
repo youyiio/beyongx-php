@@ -39,7 +39,7 @@ class User extends Base
             'status' => $user->status,
             'head_url' => $user->head_url,
             'sex' => $user->sex,
-            'registerTime' => $user->register_time,
+            'register_time' => $user->register_time,
         ];
 
         return ajax_success($returnData);

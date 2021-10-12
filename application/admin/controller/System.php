@@ -119,7 +119,7 @@ class System extends Base
                 $this->error("请选择要清理的缓存！");
             }
 
-            $dir = new \youyi\util\Dir(Env::get('runtime_path'));
+            $dir = new \beyong\commons\io\Dir(Env::get('runtime_path'));
             foreach($types as $k => $v) {
                 switch($v) {
                     case 'temp':

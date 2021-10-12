@@ -17,10 +17,13 @@ Route::group('api', function () {
     Route::rule("post/:aid", 'api/Post/edit', 'post');
     Route::rule("post/:aid", 'api/Post/delete', 'delete');
 
-    Route::rule("post/list/:page", 'api/Post/list', 'get');
+    Route::rule("post/list", 'api/Post/list', 'get');
 
     Route::rule("sms/sendCode", 'api/Sms/sendCode', 'post');
     Route::rule("sms/login", 'api/Sms/login', 'post');
+
+    Route::rule("ad/list", 'api/Ad/list', 'get');
+    Route::rule("ad/carousel", 'api/Ad/carousel', 'get');
 
     // 定义miss路由
     Route::miss('api/Base/miss');

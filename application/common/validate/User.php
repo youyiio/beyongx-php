@@ -63,7 +63,7 @@ class User extends Validate
     ];
 
     protected $scene = [
-        'register' => ['nickname','email','password','repassword','code'],
+        'register' => ['username','nickname','password','repassword','code.require'],
         'login' => ['email.email','password','code'],
         'add' => ['email','password','repassword'],
         'profile' => ['nickname','sex','born','qq','mobile','phone','website'],

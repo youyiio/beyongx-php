@@ -3,7 +3,7 @@ namespace app\common\model\api;
 
 use app\common\model\BaseModel;
 use think\helper\Time;
-use youyi\util\StringUtil;
+use beyong\commons\utils\StringUtils;
 
 class TokenModel extends BaseModel
 {
@@ -24,7 +24,7 @@ class TokenModel extends BaseModel
         $data['uid'] = $uid;
         $data['access_id'] = $accessId;
         $data['device_id'] = $deviceId;
-        $data['token'] = StringUtil::getRandString(18);
+        $data['token'] = StringUtils::getRandString(18);
 
         $data['status'] = TokenModel::STATUS_USABLE;
         $expireTime = Time::daysAfter(30);
@@ -54,7 +54,7 @@ class TokenModel extends BaseModel
             return false;
         }
 
-        $tokenInfo->token = StringUtil::getRandString(18);
+        $tokenInfo->token = StringUtils::getRandString(18);
         $tokenInfo->status = TokenModel::STATUS_USABLE;
         $expireTime = Time::daysAfter(30);
         $tokenInfo->expire_time = date('Y-m-d H:i:s', $expireTime); //30天后过期

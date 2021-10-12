@@ -1,15 +1,17 @@
 <?php
 namespace app\admin\controller;
 
-use app\common\logic\PushLogic;
 use app\common\model\ActionLogModel;
 use app\common\model\cms\ArticleModel;
 use app\common\model\AuthGroupAccessModel;
 use app\common\model\AuthGroupModel;
-use app\common\model\Message;
 use app\common\model\UserModel;
+use beyong\echarts\charts\Bar;
+use beyong\echarts\Option;
+use beyong\echarts\options\XAxis;
 use think\facade\Cache;
-
+use app\common\model\MessageModel;
+use app\common\logic\MessageLogic;
 
 /**
 * 用户管理控制器
@@ -331,12 +333,9 @@ class User extends Base
 
     public function echartShow()
     {
-        $option =[
-            'xAxis'=> ['data'=>[]],
-            'series'=> [['data'=>[]]],
-        ];
-
         $where = [];
+        $xAxisData = [];
+        $yAxisData = [];
         $timeStart = input('param.start');
         $timeEnd = input('param.end');
 
@@ -350,9 +349,20 @@ class User extends Base
             $where[] = ['register_time','between', [date_time($beginTime), date_time($endTime)]];
             $inquiryCount = $UserModel->where($where)->count();
 
-            array_push($option['xAxis']['data'], $day);
-            array_push($option['series'][0]['data'], $inquiryCount);
+            array_push($xAxisData, $day);
+            array_push($yAxisData, $inquiryCount);
         }
+
+        $xAxis = new XAxis();
+        $xAxis->data = $xAxisData;
+    
+        $option = new Option();
+        $option->xAxis($xAxis);
+    
+        $chart = new Bar();
+        $chart["data"] = $yAxisData;
+
+        $option->series([$chart]);
 
         $this->success('success', '', $option);
     }
@@ -393,8 +403,8 @@ class User extends Base
         $content = input('post.content/s');
         $extra = "";
 
-        $pushLogic = new PushLogic();
-        $res = $pushLogic->pushToUser($uid, Message::TYPE_SYSTEM, $title, $content, $extra);
+        $messageLogic = new MessageLogic();
+        $res = $messageLogic->createMessage($uid, MessageModel::TYPE_SYSTEM, $title, $content, $extra);
         if ($res) {
             $this->success('消息已推送');
         } else {

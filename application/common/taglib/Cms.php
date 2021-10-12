@@ -223,7 +223,8 @@ class Cms extends TagLib
     }
 
     /**
-     * {cms:ads cache="" name="" limit="" id="vo"}{/cms:ads}
+     * {cms:ads cache="" slot="" limit="" id="vo"}{/cms:ads}
+     * {cms:ads cache="" slot-id="" limit="" id="vo"}{/cms:ads}
      * @param $tag
      * @param $content
      * @return string

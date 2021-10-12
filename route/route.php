@@ -11,10 +11,6 @@
 
 use think\facade\Route;
 
-//域名绑定到前端
-//Route::domain('www', 'home');
-// 子域名到admin模块
-//Route::domain('admin', 'admin');
 
 return [
     '__pattern__' => [

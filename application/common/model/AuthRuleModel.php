@@ -68,8 +68,7 @@ class AuthRuleModel extends BaseModel
         }
         $data = $data->toArray();
         // 获取树形或者结构数据
-        include_once(Env::get('root_path') . 'extend/' .'tree/Data.class.php');
-        $tree = new \tree\Data;
+        $tree = new \beyong\commons\data\Tree();
         if ($type == 'tree') {//供给如下拉菜单使用
             $data = $tree::tree($data, $name, $fieldPK, $filedPid);
         } else if ($type == "level") {//给左测菜单使用

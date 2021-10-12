@@ -8,12 +8,32 @@ use app\common\model\AuthGroupAccessModel;
 use app\common\model\UserModel;
 use Firebase\JWT\JWT;
 use think\facade\Cache;
-use youyi\util\PregUtil;
-use youyi\util\StringUtil;
+use beyong\commons\utils\PregUtils;
+use beyong\commons\utils\StringUtils;
 use app\common\logic\CodeLogic;
 
 class Sign extends Base
 {
+    protected $defaultConfig = [
+        'login_multi_client_support' => false, //支持单个用户多个端同时登录
+        'login_success_view' => '', //登录成功后，跳转地址
+        'logout_success_view' => '', //注销后，跳转地址
+        'register_enable' => false, //注册功能是否支持
+        'register_code_type' => '', //注册码方式，值为：email,mobile
+        'reset_enable' => false, //忘记密码功能是否支持
+        'reset_code_type' => '', //重置密码，值为：email,mobile
+    ];
+
+    public function initialize()
+    {
+        parent::initialize();
+
+        $config = config('sign.');
+
+        $this->defaultConfig = array_merge($this->defaultConfig, $config);
+
+    }
+    
     // 注册
     public function register()
     {
@@ -29,30 +49,29 @@ class Sign extends Base
             return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, validate('User')->getError());
         }
 
+        $code = $params["code"];
+
         //验证码验证
-        if (PregUtil::isMobile($params['username'])) {
-            $cacheCode = Cache::get($params['username'] . "_sms_code", '');
-            if ($cacheCode != $params['code']) {
-                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, "验证码不正确！");
+        $codeLogic = new CodeLogic();
+        if (PregUtils::isMobile($params['username'])) {
+            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
+            if ($check !== true) {
+                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, $codeLogic->getError());
             }
-
-            Cache::rm($params['username'] . "_sms_code");
-        } else if (PregUtil::isEmail($params['username'])) {
-            $cacheCode = Cache::get($params['username'] . "_email_code", '');
-            if ($cacheCode != $params['code']) {
-                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, "验证码不正确！");
+        } else if (PregUtils::isEmail($params['username'])) {
+            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
+            if ($check !== true) {
+                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, $codeLogic->getError());
             }
-
-            Cache::rm($params['username'] . "_email_code");
         }
        
 
-        //注册
-        $mobile = StringUtil::getRandNum(11);
-        $email = $mobile .'@' . StringUtil::getRandString(6) . '.com';
-        if (PregUtil::isMobile($params['username'])) {
+        //确认注册各字段
+        $mobile = StringUtils::getRandNum(11);
+        $email = $mobile .'@' . StringUtils::getRandString(6) . '.com';
+        if (PregUtils::isMobile($params['username'])) {
             $mobile = $params['username'];
-        } else if (PregUtil::isEmail($params['username'])) {
+        } else if (PregUtils::isEmail($params['username'])) {
             $email = $params['username'];
         }
         
@@ -68,7 +87,7 @@ class Sign extends Base
         //完善用户资料
         $profileData = [
             'id' => $user['id'],
-            'head_url' => '/static/cms/image/head/0002.jpg',
+            'head_url' => '/static/common/img/head/default.jpg',
             'referee' => 1, //$data['referee'], //推荐人
             'register_ip' => request()->ip(0, true),
             'from_referee' => cookie('from_referee'),
@@ -207,7 +226,7 @@ class Sign extends Base
         $uid = $user['id'];
 
         $CodeLogic = new CodeLogic();
-        if (!$CodeLogic->checkVerifyCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code)) {
+        if (!$CodeLogic->checkCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code)) {
             return ajax_error(ResultCode::ACTION_FAILED, $CodeLogic->getError());
         }
 

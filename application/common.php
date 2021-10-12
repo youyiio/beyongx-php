@@ -50,7 +50,7 @@ function get_client_info()
 
     $arr = [];
     foreach ($client as $k => $v) {
-        $key       = parse_name($k);
+        $key = parse_name($k);
         $arr[$key] = $v;
     }
     return $arr;
@@ -217,7 +217,7 @@ function money_show($fee)
 //php获取中文字符拼音首字母
 function get_first_pinyin($str)
 {
-    $py  = new \app\common\library\PinYin;
+    $py  = new \app\common\library\PinYin();
     $str = $py->getFirstLetter($str);
     return strtoupper($str);
 }
@@ -234,7 +234,7 @@ function encrypt_password($rawPasswd, $key = '')
         return false;
     }
 
-    $passwd = strtolower($rawPasswd);
+    $passwd = strtolower((string)$rawPasswd);
     if (empty($key)) {
         $key = get_config('password_key', '');
     }

@@ -7,10 +7,11 @@ use app\common\logic\UserLogic;
 use app\common\model\AuthGroupAccessModel;
 use app\common\model\UserModel;
 use think\facade\Cache;
-use youyi\util\PregUtil;
-use youyi\util\StringUtil;
+use beyong\commons\utils\PregUtils;
+use beyong\commons\utils\StringUtils;
 
 use Firebase\JWT\JWT;
+use app\common\logic\CodeLogic;
 
 class Sms extends Base
 {
@@ -22,41 +23,35 @@ class Sms extends Base
 
         $params = $this->request->put();
         $mobile = $params["mobile"];
-        if (!PregUtil::isMobile($mobile)) {
+        $action = isset($params["action"]) ? $params["action"] : "login";
+        if (!PregUtils::isMobile($mobile)) {
             return ajax_error(ResultCode::ACTION_FAILED, "手机号格式不正确!");
         }
 
+        if (!in_array($action, [CodeLogic::TYPE_REGISTER, CodeLogic::TYPE_LOGIN, CodeLogic::TYPE_RESET_PASSWORD])) {
+            return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, '短信action类型不正确!');
+        }
+
         // 防止短信被刷
-        $mobileFrequency = Cache::get($mobile . "_sms_code_frequency");
-        $ipFrequency = Cache::get($this->request->ip(0, true) . "_sms_code_frequency");
+        $mobileFrequency = Cache::get($mobile . "_send_code_frequency");
+        $ipFrequency = Cache::get($this->request->ip(0, true) . "_send_code_frequency");
         $frequencyLimited = !empty($mobileFrequency) || !empty($ipFrequency);
         if ($frequencyLimited) {
             return ajax_error(ResultCode::ACTION_FAILED, "您操作过于频繁，请稍候再试!");
         }
 
-        $smsConfig = config('sms.');
-        \beyong\sms\Config::init($smsConfig);
-
-        $client = \beyong\sms\SmsClient::instance();
-        
-        //$sign、$template和$templateParams 服务商控制台获取
-        $sign = $smsConfig['actions']['login']['sign'];
-        $template = $smsConfig['actions']['login']['template'];
-
-        $code = StringUtil::getRandNum(6);
-        $templateParams = ['code' => $code];
-        
-        
-        $response = $client->to($params['mobile'])->sign($sign)->template($template, $templateParams)->send();
-        if ($response !== true) {            
-            return ajax_error(ResultCode::ACTION_FAILED, $client->getError());
+        //验证码发送
+        try {
+            $codeLogic = new CodeLogic();
+                 
+            $codeLogic->sendCodeByMobile($mobile, $action);
+        } catch(\Exception $e) {
+            return ajax_error(ResultCode::ACTION_FAILED, $e->getMessage());
         }
-        
-        Cache::set($mobile . "_sms_code", $code, 5 * 60);
 
         //频率限制
-        Cache::set($mobile . "_sms_code_frequency", '60s', 60);
-        Cache::set($this->request->ip(0, true) . "_sms_code_frequency", '20s', 20);
+        Cache::set($mobile . "_send_code_frequency", '60s', 60);
+        Cache::set($this->request->ip(0, true) . "_send_code_frequency", '20s', 20);
 
         return ajax_success(null);        
     }
@@ -71,10 +66,10 @@ class Sms extends Base
 
         $mobile = $params["mobile"];
         $code = $params["code"];
-        if (!PregUtil::isMobile($mobile)) {
+        if (!PregUtils::isMobile($mobile)) {
             return ajax_error(ResultCode::ACTION_FAILED, "手机号格式不正确!");
         }
-        if (strlen($code) !== 6 || !PregUtil::isNumber($code)) {
+        if (strlen($code) !== 6 || !PregUtils::isNumber($code)) {
             return ajax_error(ResultCode::ACTION_FAILED, "验证码为6位的数字!");
         }
 
@@ -96,12 +91,15 @@ class Sms extends Base
         }, strtotime(date('Y-m-d 23:59:59')) - time());
         Cache::inc($tryLoginCountMark);
 
-        $cacheCode = Cache::get($mobile . "_sms_code", '');
-        if ($cacheCode != $code) {
-            return ajax_error(ResultCode::E_PARAM_ERROR, "验证码不正确！");
+        $codeLogic = new CodeLogic();
+        $check = $codeLogic->checkCode(CodeLogic::TYPE_LOGIN, $mobile, $code);
+        if ($check !== true) {
+            return ajax_error(ResultCode::E_PARAM_ERROR, $codeLogic->getError());
         }
 
-        Cache::rm($mobile . "_sms_code");
+        //清掉验证码
+        $codeLogic->consumeCode(CodeLogic::TYPE_LOGIN, $mobile, $code);
+
         Cache::rm($tryLoginCountMark);
 
         $UserMobile = new UserModel();
@@ -138,7 +136,7 @@ class Sms extends Base
     private function addUser($mobile)
     {
         $nickname = '用户' . substr($mobile, 5);
-        $password = StringUtil::getRandString(12);
+        $password = StringUtils::getRandString(12);
 
         $UserLogic = new UserLogic();
         $user = $UserLogic->register($mobile, $password, $nickname, '', '', UserModel::STATUS_ACTIVED);
