@@ -13,6 +13,6 @@ thinkphp
 .env*
 data/runtime
 data/backup
-data/install.lock
-data/install/database.php
+#data/install.lock
+#data/install/database.php
 config/sms.php

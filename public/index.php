@@ -20,13 +20,6 @@ Loader::addNamespace('app', __DIR__ . '/../application/');
 
 Container::getInstance()->bindTo('app', new \app\common\thinkphp\App(__DIR__ . '/../application/'));
 
-// 如果install/install.lock文件不存在，走安装引导程序
-if (!file_exists(__DIR__ . '/../data/install.lock')) {
-    // 绑定安装模块
-    Container::get('app')->bind('install/index')->run()->send();
-    exit;
-}
-
 // 支持事先使用静态方法设置Request对象和Config对象
 
 
