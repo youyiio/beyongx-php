@@ -114,7 +114,7 @@
                                 <td>{$vo.id}</td>
                                 <td>
                                     {volist name="vo.categorys" id="categoryVo" empty="未分类"}
-                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title_cn}</span>
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$categoryVo.title}</span>
                                     {/volist}
                                 </td>
                                 <td><a href="{:url('Article/viewArticle',['id'=>$vo['id']])}" class="J_addMenuTab">{$vo.title}</a>

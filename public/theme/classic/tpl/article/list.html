@@ -1,5 +1,5 @@
 {extend name="public/base" /}
-{block name="title"}{$category.title_cn} - {:get_config('site_name')}{/block}
+{block name="title"}{$category.title} - {:get_config('site_name')}{/block}
 {block name="description"}{$category.remark}{/block}
 
 {block name="body"}
@@ -12,7 +12,7 @@
           {cms:categorys cache='true' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
-            {$vo.title_cn}</a>
+            {$vo.title}</a>
           {/cms:categorys}
         </span>
         </div>

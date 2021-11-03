@@ -228,7 +228,7 @@
                                 <td>{$vo.id}</td>
                                 <td>
                                     {volist name="vo.categorys" id="category" empty="未分类"}
-                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$category.title_cn}</span>
+                                    {gt name="key" value="0"}<br>{/gt}<span class="label">{$category.title}</span>
                                     {/volist}
                                 </td>
                                 <td><a href="{:url(request()->controller().'/viewArticle',['id'=>$vo['id']])}">{$vo.title}</a>{eq name="vo.is_top" value="1"}<span class="label label-info label-sm">顶</span>{/eq}</td>

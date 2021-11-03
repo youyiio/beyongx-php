@@ -13,12 +13,12 @@ class Base extends Controller
 
     public function miss() {
         return json([
-            'code' => \ERRNO['PARAMERR'],
+            'code' => ResultCode::E_PARAM_ERROR,
             'message'   => '访问接口不存在或参数错误']);
     }
 
     public function initialize() {
-        $this->user_info = session("jwt_payload_data", null);
+        $this->user_info = session("jwt_payload_data");
     }
 
     //空操作：系统在找不到指定的操作方法的时候，会定位到空操作

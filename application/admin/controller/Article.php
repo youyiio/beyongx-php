@@ -91,7 +91,7 @@ class Article extends Base
 
         //文章分类列表
         $CategoryModel = new CategoryModel();
-        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title_cn');
+        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title');
         $this->assign('categoryList', $cateList);
 
         return $this->fetch('article/index');
@@ -126,7 +126,7 @@ class Article extends Base
 
         //分类列表
         $CategoryModel = new CategoryModel();
-        $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
+        $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title');
         $this->assign('categoryList', $categoryList);
 
         return $this->fetch('article/addArticle');
@@ -172,7 +172,7 @@ class Article extends Base
 
         //分类列表
         $CategoryModel = new CategoryModel();
-        $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
+        $categoryList = $CategoryModel->getTreeData('tree','sort,id', 'title');
         $this->assign('categoryList', $categoryList);
 
         //记录上一级来源，方便回跳; 优先redirect参数传递
@@ -391,7 +391,7 @@ class Article extends Base
 
         //文章分类列表
         $CategoryModel = new CategoryModel();
-        $categorys = $CategoryModel->getTreeData('tree','sort,id', 'title_cn');
+        $categorys = $CategoryModel->getTreeData('tree','sort,id', 'title');
         $this->assign('categorys', $categorys);
 
         return $this->fetch('batchCategory');
@@ -608,7 +608,7 @@ class Article extends Base
         }
 
         $CategoryModel = new CategoryModel();
-        $list = $CategoryModel->getTreeData('tree','sort,id', 'title_cn', 'id', 'pid');
+        $list = $CategoryModel->getTreeData('tree','sort,id', 'title', 'id', 'pid');
         $this->assign('list', $list);
 
         return $this->fetch('categoryList');
@@ -712,7 +712,7 @@ class Article extends Base
 
         //广告槽列表
         $AdSlotModel = new AdSlotModel();
-        $slotList = $AdSlotModel->order('id asc')->field('id, title_cn')->select();
+        $slotList = $AdSlotModel->order('id asc')->field('id, title')->select();
         $this->assign('slotList', $slotList);
 
         return $this->fetch('adList');
@@ -751,7 +751,7 @@ class Article extends Base
 
         //类型列表
         $AdSlotModel = new AdSlotModel();
-        $slotList = $AdSlotModel->order('id asc')->field('id,title_cn,title_en,remark')->select();
+        $slotList = $AdSlotModel->order('id asc')->field('id,title,name,remark')->select();
         $this->assign('slotList', $slotList);
 
         return $this->fetch('article/addAd');
@@ -807,7 +807,7 @@ class Article extends Base
 
         //类型列表
         $AdSlotModel = new AdSlotModel();
-        $slotList = $AdSlotModel->order('id asc')->field('id,title_cn,title_en')->select();
+        $slotList = $AdSlotModel->order('id asc')->field('id,title,name')->select();
         $this->assign('slotList', $slotList);
 
         return $this->fetch('article/addAd');

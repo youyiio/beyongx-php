@@ -99,7 +99,7 @@ class Article extends TagLib
         $parse .= "  \$where[] = ['id','>', $internalAid];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) { ";
-        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];} else { $internalCid = -1;}";
         $parse .= "  } ";
         $parse .= "  if ($internalCid) {";
@@ -153,7 +153,7 @@ class Article extends TagLib
         $parse .= "  \$where[] = ['id', '<', $internalAid];";
         $parse .= "  \$where[] = ['status', '=', \app\common\model\cms\ArticleModel::STATUS_PUBLISHED];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) { ";
-        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$category = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$category)) { $internalCid = \$category['id'];} else { $internalCid = -1;}";
         $parse .= "  } ";
         $parse .= "  if ($internalCid) {";
@@ -206,7 +206,7 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];} else { $internalCid = -1;}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'index_category_' . $internalCid . '_' . $pageSize . '_' . \$page;";
@@ -324,7 +324,7 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_hot_list_' . $internalCid . $cache . $limit;";
@@ -388,7 +388,7 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";
@@ -455,7 +455,7 @@ class Article extends TagLib
         $parse .= "  $internalCid = $cid;";
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  $internalAid = $aid;";
@@ -537,7 +537,7 @@ class Article extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'article_latest_list_' . $internalCid . $cache . $limit;";

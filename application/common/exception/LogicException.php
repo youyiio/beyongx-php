@@ -13,7 +13,7 @@ class LogicException extends \Exception  {
             $this->logicCode = $logicCode;
             $this->logicMessage = empty($logicMessage)? config('resultcode.'.$logicCode): $logicMessage;
         } else {//is_string
-            $this->logicCode = ResultCode::ACTION_FAILED;
+            $this->logicCode = ResultCode::E_LOGIC_ERROR;
             $this->logicMessage = $logicCode;
         }
         

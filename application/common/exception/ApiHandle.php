@@ -30,7 +30,7 @@ class ApiHandle extends Handle
         ];
         $detailError = "[file: {$data['file']}: (line: {$data['line']}) ]  [error code: {$data['code']}] : \n {$data['message']}";
 
-        Log::error('##### ExceptionHandle #### exception class: ' . get_class($e));
+        Log::error('##### ApiHandle #### exception class: ' . get_class($e));
         //Log::error('print: [file][line] [error code]: ');
         Log::error($detailError);
         Log::error('Exception stack:');
@@ -42,10 +42,19 @@ class ApiHandle extends Handle
             "data" => null,
         ];
 
+        if ($e instanceof JwtException) {
+            $data["code"] = $e->getCode();
+            $data["message"] = $e->getMessage();
+            $data["error"] = $e->getJwtError();
+
+            return json($data);
+        }
+
         // 参数验证错误
         if ($e instanceof ValidateException) {
-            $data["code"] = ResultCode::E_DATA_VERIFY_ERROR;
-            $data["message"] = "ResultCode::E_DATA_VERIFY_ERROR:" . $e->getMessage();
+            $data["code"] = $e->getCode() == 0 ?? ResultCode::E_PARAM_VALIDATE_ERROR;
+            $data["message"] = $e->getMessage();
+            $data["error"] = "E_PARAM_VALIDATE_ERROR";
 
             return json($data);
         }
@@ -54,6 +63,7 @@ class ApiHandle extends Handle
         if ($e instanceof HttpException && request()->isAjax()) {
             $data["code"] = ResultCode::E_UNKNOW_ERROR;
             $data["message"] = $e->getMessage();
+            $data["error"] = "E_UNKNOW_ERROR";
 
             return json($data);
         }
@@ -62,13 +72,14 @@ class ApiHandle extends Handle
         if ($e instanceof ModelException) {
             $data["code"] = $e->getModelCode();
             $data["message"] = $e->getModelMessage();
+            $data["error"] = "E_MODEL_ERROR";
 
             return json($data);
         }
 
         //数据库操作异常
         if ($e instanceof DbException || $e instanceof PDOException) {
-            $data["code"] = ResultCode::E_DB_OPERATION_ERROR;
+            $data["code"] = ResultCode::E_DB_ERROR;
             $data["message"] = $e->getMessage();
 
             return json($data);

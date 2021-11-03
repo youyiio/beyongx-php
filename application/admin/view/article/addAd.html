@@ -46,7 +46,7 @@
                         <select name="slot_ids[]" id="slot_ids" data-placeholder="请选择广告位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search"  ><!-- 多选加: multiple-->
                             <option value="-1">请选择显示位置</option>
                             {volist name="slotList" id="vo"}
-                            <option value="{$vo.id}" data-image-size="{if isset($adImages[$vo['title_en']])}{:htmlspecialchars(json_encode($adImages[$vo['title_en']]))}{/if}" {present name="$ad"}{in name="vo.id" value="$oldSlots"}selected{/in}{/present}>{$vo.title_cn}</option>
+                            <option value="{$vo.id}" data-image-size="{if isset($adImages[$vo['name']])}{:htmlspecialchars(json_encode($adImages[$vo['name']]))}{/if}" {present name="$ad"}{in name="vo.id" value="$oldSlots"}selected{/in}{/present}>{$vo.title}</option>
                             {/volist}
                         </select>
                         <span class="help-block m-b-none"></span>

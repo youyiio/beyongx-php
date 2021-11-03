@@ -21,7 +21,7 @@ use think\facade\Response;
 use think\facade\View;
 use think\facade\Url;
 
-class AdminHandle extends Handle
+class FrontendHandle extends Handle
 {
     public function render(Exception $e)
     {
@@ -33,7 +33,7 @@ class AdminHandle extends Handle
         ];
         $detailError = "[file: {$data['file']}: (line: {$data['line']}) ]  [error code: {$data['code']}] : \n {$data['message']}";
 
-        Log::error('##### AdminHandle #### exception class: ' . get_class($e));
+        Log::error('##### FrontendHandle #### exception class: ' . get_class($e));
         //Log::error('print: [file][line] [error code]: ');
         Log::error($detailError);
         Log::error('Exception stack:');

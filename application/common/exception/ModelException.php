@@ -13,7 +13,7 @@ class ModelException extends \Exception  {
             $this->modelCode = $modelCode;
             $this->modelMessage = empty($modelMessage)? config('resultcode.'.$modelCode): $modelMessage;
         } else {//is_string
-            $this->ModelCode = ResultCode::ACTION_FAILED;
+            $this->ModelCode = ResultCode::E_MODEL_ERROR;
             $this->modelMessage = $modelCode;
             
         }

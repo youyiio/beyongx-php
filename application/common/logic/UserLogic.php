@@ -73,7 +73,7 @@ class UserLogic extends Model
 
         $tempPassword = encrypt_password($oldPassword, get_config('password_key'));
         if ($tempPassword != $user->password) {
-            throw new ModelException(ResultCode::E_DATA_VERIFY_ERROR, '原始密码不正确!');
+            throw new ModelException(ResultCode::E_DATA_VALIDATE_ERROR, '原始密码不正确!');
         }
 
         $newPassword = encrypt_password($newPassword, get_config('password_key'));

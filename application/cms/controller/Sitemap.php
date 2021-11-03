@@ -65,7 +65,7 @@ class Sitemap extends Base
             $loc = url('cms/Article/articleList', ['cid' => $category->id], false, get_config('domain_name'));
             $sitemap->addItem($loc, $priority, "daily", date_time());
 
-            $loc = url('cms/Article/articleList', ['cname' => $category->title_en], false, get_config('domain_name'));
+            $loc = url('cms/Article/articleList', ['cname' => $category->name], false, get_config('domain_name'));
             $sitemap->addItem($loc, $priority, "daily", date_time());
         }
 

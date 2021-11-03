@@ -46,7 +46,7 @@
                                 </td>
                                 <td>{$vo['id']}</td>
                                 <td>{$vo['_name']|raw}</td>
-                                <td>{$vo['title_en']}</td>
+                                <td>{$vo['name']}</td>
                                 <td>{$vo.remark}</td>
                                 <td><input type="checkbox" name="status[]" value="{$vo.id}" class="ajax-switch" {if $vo.status == \app\common\model\cms\CategoryModel::STATUS_ONLINE}checked="checked"{/if} ></td>
                                 <td>

@@ -21,17 +21,17 @@
             <form class="form-horizontal ajax-form" action="{:url('Article/addCategory')}" method="post">
 
                 <div class="form-group">
-                    <label class="col-lg-2 control-label" for="title_cn">分类名称</label>
+                    <label class="col-lg-2 control-label" for="title">分类名称</label>
                     <div class="col-lg-10">
-                        <input class="form-control" type="text" id="title_cn" name="title_cn" placeholder="分类名称" value="{$category.title_cn|default=''}" required>
+                        <input class="form-control" type="text" id="title" name="title" placeholder="分类名称" value="{$category.title|default=''}" required>
                         <span class="help-block m-b-none"></span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="col-lg-2 control-label" for="title_en">英文名称</label>
+                    <label class="col-lg-2 control-label" for="name">英文名称</label>
                     <div class="col-lg-10">
-                        <input class="form-control" type="text" id="title_en" name="title_en" placeholder="英文名称" value="{$category.title_en|default=''}" required>
+                        <input class="form-control" type="text" id="name" name="name" placeholder="英文名称" value="{$category.name|default=''}" required>
                         <span class="help-block m-b-none"></span>
                     </div>
                 </div>

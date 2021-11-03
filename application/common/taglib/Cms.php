@@ -23,7 +23,7 @@ class Cms extends TagLib
         'categorys'  => ['attr' => 'cache,cid,cname,id,limit,assign', 'close' => true], //分类列表标签，cid|cname有值时，获取二级分类列表
         'category'  => ['attr' => 'cache,cid,cname,assign', 'close' => true], //根据cid|cname,查询分类信息标签
         'links'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //友情链接标签
-        'ads'  => ['attr' => 'cache,slot,slot-id,limit,id,assign', 'close' => true], //广告链接标签,slot对应ad_slot表的title_en
+        'ads'  => ['attr' => 'cache,slot,slot-id,limit,id,assign', 'close' => true], //广告链接标签,slot对应ad_slot表的name
         'tags'  => ['attr' => 'cache,limit,id,assign', 'close' => true], //标签云
     ];
 
@@ -82,7 +82,7 @@ class Cms extends TagLib
         $parse .= "    $internalCategory = cache(\$cacheMark); ";
         $parse .= "  } ";
         $parse .= "  if (!empty($internalCname)) {";
-        $parse .= "    \$where = ['title_en'=>$internalCname,'status'=>\app\common\model\cms\CategoryModel::STATUS_ONLINE];";
+        $parse .= "    \$where = ['name'=>$internalCname,'status'=>\app\common\model\cms\CategoryModel::STATUS_ONLINE];";
         $parse .= "    $internalCategory = \app\common\model\cms\CategoryModel::where(\$where)->find();";
         $parse .= "    if ($cache && $internalCategory) {";
         $parse .= "      cache(\$cacheMark, $internalCategory, $cache);";
@@ -140,7 +140,7 @@ class Cms extends TagLib
         $parse .= "  $internalCname = \"$cname\";";
         $parse .= "  $internalList = [];";
         $parse .= "  if (empty($internalCid) && !empty($internalCname)) {";
-        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['title_en'=>$internalCname])->find();";
+        $parse .= "    \$internalCategory = \app\common\model\cms\CategoryModel::where(['name'=>$internalCname])->find();";
         $parse .= "    if (!empty(\$internalCategory)) { $internalCid = \$internalCategory['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'categorys_' . $cache . $internalCid . $limit;";
@@ -211,8 +211,8 @@ class Cms extends TagLib
         $parse .= "    if ($cache) { ";
         $parse .= "      cache(\$cacheMark, $internalList, $cache); ";
         $parse .= "    } ";
-        $parse .= "  $assign = $internalList;";
         $parse .= "  } ";
+        $parse .= "  $assign = $internalList;";
         $parse .= '  ?>';
 
         $parse .= "  {volist name='$internalList' id='$id'}";
@@ -253,7 +253,7 @@ class Cms extends TagLib
         $parse .= "  $internalSlotId = $slotId; ";
         $parse .= "  $internalSlot = \"$slot\";";
         $parse .= "  if (empty($internalSlotId) && !empty($internalSlot)) {";
-        $parse .= "    \$internalAdSlot = \app\common\model\cms\AdSlotModel::where(['title_en'=>$internalSlot])->find();";
+        $parse .= "    \$internalAdSlot = \app\common\model\cms\AdSlotModel::where(['name'=>$internalSlot])->find();";
         $parse .= "    if (!empty(\$internalAdSlot)) { $internalSlotId = \$internalAdSlot['id'];}";
         $parse .= "  }";
         $parse .= "  \$cacheMark = 'ads_' . $internalSlotId . $cache . $limit;";

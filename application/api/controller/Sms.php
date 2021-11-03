@@ -29,7 +29,7 @@ class Sms extends Base
         }
 
         if (!in_array($action, [CodeLogic::TYPE_REGISTER, CodeLogic::TYPE_LOGIN, CodeLogic::TYPE_RESET_PASSWORD])) {
-            return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, '短信action类型不正确!');
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, '短信action类型不正确!');
         }
 
         // 防止短信被刷

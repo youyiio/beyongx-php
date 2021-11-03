@@ -12,6 +12,9 @@ use beyong\commons\utils\PregUtils;
 use beyong\commons\utils\StringUtils;
 use app\common\logic\CodeLogic;
 
+use app\common\model\ActionLogModel;
+use think\facade\Session;
+
 class Sign extends Base
 {
     protected $defaultConfig = [
@@ -46,7 +49,7 @@ class Sign extends Base
 
         $check = validate('User')->scene('register')->check($params);
         if ($check !== true) {
-            return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, validate('User')->getError());
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
         $code = $params["code"];
@@ -56,12 +59,12 @@ class Sign extends Base
         if (PregUtils::isMobile($params['username'])) {
             $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
             if ($check !== true) {
-                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, $codeLogic->getError());
+                return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $codeLogic->getError());
             }
         } else if (PregUtils::isEmail($params['username'])) {
             $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
             if ($check !== true) {
-                return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, $codeLogic->getError());
+                return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $codeLogic->getError());
             }
         }
        
@@ -80,7 +83,7 @@ class Sign extends Base
         $UserLogic = new UserLogic();
         $user = $UserLogic->register($mobile, $params['password'], $nickname, $email, '', UserModel::STATUS_ACTIVED);
         if (!$user) {
-            return ajax_error(ResultCode::E_DB_OPERATION_ERROR, $UserLogic->getError());
+            return ajax_error(ResultCode::E_LOGIC_ERROR, $UserLogic->getError());
         }
 
         $UserModel = new UserModel();
@@ -186,6 +189,38 @@ class Sign extends Base
         return ajax_success($data);
     }
 
+    //注销登录
+    public function logout()
+    {
+        $payloadData = session('jwt_payload_data');
+        if (!$payloadData) {
+            return ajax_error(ResultCode::ACTION_FAILED, 'TOKEN自定义参数不存在！');
+        }
+        $uid = $payloadData->uid;
+        if (!$uid) {
+            return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
+        }
+
+        $actionLog = new ActionLogLogic();
+        $actionLog->addLog($uid, ActionLogModel::ACTION_LOGOUT, '登出 ');
+
+        $uid = session('uid');
+
+        //清除session
+        Session::clear();
+        Session::delete('uid');
+
+        //清除cookie
+        cookie('uid', null);
+        cookie($uid . CACHE_SEPARATOR . 'login_hash',null);
+
+        //清理相关缓存
+        cache($uid . '_menu', null);
+        cache($uid . CACHE_SEPARATOR . 'login_hash', null);
+
+        return ajax_success(null);
+    }
+
     /**
      * 忘记密码,重置密码
      */
@@ -219,7 +254,7 @@ class Sign extends Base
         
         $check = $this->validate(input('post.'), 'User.resetPwd');
         if ($check !== true) {
-            return ajax_error(ResultCode::E_DATA_VERIFY_ERROR, $check);
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $check);
         }
 
         $password = input('post.password');

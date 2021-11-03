@@ -13,7 +13,7 @@
         <a href="{:url('frontend/Index/index')}" {if request()->controller() == 'Index' && request()->action() == 'index'} class="active" {/if}>首页</a>
         <a href="{:url('cms/Article/index')}">微语</a>
         {cms:categorys cache="false" limit="2" id="vo"}
-        <a href="{:url('cms/Article/articleList',['cname'=>$vo.title_en])}">{$vo.title_cn}</a>
+        <a href="{:url('cms/Article/articleList',['cname'=>$vo.name])}">{$vo.title}</a>
         {/cms:categorys}
         <a href="{:url('cms/Feedback/index')}" {if request()->controller() == 'Feedback' && request()->action() == 'index'} class="active" {/if}>留言</a>
         <a href="{:url('frontend/Index/about')}" {if request()->controller() == 'Index' && request()->action() == 'about'} class="active" {/if}>关于</a>

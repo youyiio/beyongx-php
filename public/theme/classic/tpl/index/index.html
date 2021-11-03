@@ -24,7 +24,7 @@
           {cms:categorys cache='120' id='vo'}
           <a href="{:url('cms/Article/articleList', ['cid'=>$vo.id])}"
              {if request()->controller() == 'Article' && request()->action() == 'articlelist' && $vo.id == $cid} class="active"{/if}>
-            {$vo.title_cn}</a>
+            {$vo.title}</a>
           {/cms:categorys}
         </span>
         </div>

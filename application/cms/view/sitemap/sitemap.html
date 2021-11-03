@@ -54,7 +54,7 @@
         <h3>分类目录</h3>
         <ul>
             {cms:categorys cache="120" id="vo"}
-            <li class="page_item page-item-15930"><a href="{:url('cms/Article/articleList',['cname'=>$vo.title_en])}">{$vo.title_cn}</a></li>
+            <li class="page_item page-item-15930"><a href="{:url('cms/Article/articleList',['cname'=>$vo.name])}">{$vo.title}</a></li>
             {/cms:categorys}
         </ul>
     </div>

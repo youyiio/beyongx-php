@@ -26,7 +26,6 @@
         "topthink/think-helper": "^1.0",
         "topthink/think-captcha": "^2.0",
         "cattong/think-mailer": "^1.0",
-        "cattong/think-addons": "^1.0",
         "cattong/think-auth": "^1.0",
         "jaeger/querylist": "4.*",
         "topthink/think-queue": "^2.0",

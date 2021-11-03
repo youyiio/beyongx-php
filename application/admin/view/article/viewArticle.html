@@ -15,7 +15,7 @@
                        data-width="850" data-height="650">查看访问统计</a>
                     <div class="pull-right">
                         {volist name="article.categorys" id="vo"}
-                        <span class="label">{$vo.title_cn}</span>
+                        <span class="label">{$vo.title}</span>
                         {/volist}
                         <button class="btn btn-white btn-xs" id="btnCopy" data-clipboard-text="{:url('cms/Article/viewArticle', ['aid'=>$article.id], true, get_config('domain_name'))}">
                             复制文章地址

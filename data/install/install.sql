@@ -208,8 +208,8 @@ alter table cms_ad_serving comment '广告投放表,';
 create table cms_ad_slot
 (
    id                   int not null auto_increment,
-   title_cn             varchar(32) not null,
-   title_en             varchar(32) not null,
+   title             varchar(32) not null,
+   name             varchar(32) not null,
    remark               varchar(128),
    primary key (id)
 )
@@ -379,8 +379,8 @@ create table cms_category
 (
    id                   int not null auto_increment,
    pid                  varchar(24) not null,
-   title_cn             varchar(64) not null,
-   title_en             varchar(64) not null,
+   title             varchar(64) not null,
+   name             varchar(64) not null,
    remark               varchar(128) not null,
    status               tinyint not null comment '0.下线;1.上线',
    sort                 int,
@@ -1193,31 +1193,31 @@ INSERT INTO `sys_hooks`(id,name,description,type,status,addons,update_time,creat
 /* =========================================数据初始脚本：文章及广告表=============================*/
 truncate table cms_category;
 
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (1, 0, '公司新闻', 'company', '公司新闻文章', 1, 1, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (2, 0, '公司相册', 'album', '公司相册介绍', 1, 2, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (3, 0, '公司产品', 'product', '公司产品介绍', 1, 3, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (4, 0, '行业新闻', 'news', '行业新闻文章', 1, 4, '2018-01-19 00:00:00');
-INSERT INTO `cms_category`(id,pid,title_cn,title_en,remark,status,sort,create_time) VALUES (5, 0, '行业动态', 'status', '行业动态文章', 1, 5, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title,name,remark,status,sort,create_time) VALUES (1, 0, '公司新闻', 'company', '公司新闻文章', 1, 1, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title,name,remark,status,sort,create_time) VALUES (2, 0, '公司相册', 'album', '公司相册介绍', 1, 2, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title,name,remark,status,sort,create_time) VALUES (3, 0, '公司产品', 'product', '公司产品介绍', 1, 3, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title,name,remark,status,sort,create_time) VALUES (4, 0, '行业新闻', 'news', '行业新闻文章', 1, 4, '2018-01-19 00:00:00');
+INSERT INTO `cms_category`(id,pid,title,name,remark,status,sort,create_time) VALUES (5, 0, '行业动态', 'status', '行业动态文章', 1, 5, '2018-01-19 00:00:00');
 
 truncate table cms_ad_slot;
 
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (2, '首页顶部广告', 'index_header', '首页顶部广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (3, '首页中间广告', 'index_center', '首页中间广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (4, '首页底部广告', 'index_footer', '首页底部广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (11, '分类列表页头部', 'category_list_header', '显示于分类列表页头部');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (12, '分类列表页中间', 'category_list_center', '显示于分类列表页中间');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (13, '分类列表页底部', 'category_list_footer', '显示于分类列表页底部');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (14, '文章列表页头部', 'article_list_header', '显示于文章列表页头部');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (15, '文章列表页中间', 'article_list_center', '显示于文章列表页中间');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (16, '文章列表页底部', 'article_list_footer', '显示于文章列表页底部');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (17, '文章详细页头部', 'article_view_header', '显示于文章详细页头部');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (18, '文章详细页中间', 'article_view_center', '显示于文章详细页中间');
-INSERT INTO `cms_ad_slot`(id, title_cn, title_en, remark) VALUES (19, '文章详细页底部', 'article_view_footer', '显示于文章详细页底部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (1, '首页头条广告', 'banner_headline', '首页头条广告左右滚动');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (2, '首页顶部广告', 'index_header', '首页顶部广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (3, '首页中间广告', 'index_center', '首页中间广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (4, '首页底部广告', 'index_footer', '首页底部广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (5, '侧边栏头部广告', 'sidebar_header', '侧边栏头部广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (6, '侧边栏中间广告', 'sidebar_center', '侧边栏中间广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (7, '侧边栏底部广告', 'sidebar_footer', '侧边栏底部广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (10, '搜索框', 'search', '搜索框下拉推荐广告');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (11, '分类列表页头部', 'category_list_header', '显示于分类列表页头部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (12, '分类列表页中间', 'category_list_center', '显示于分类列表页中间');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (13, '分类列表页底部', 'category_list_footer', '显示于分类列表页底部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (14, '文章列表页头部', 'article_list_header', '显示于文章列表页头部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (15, '文章列表页中间', 'article_list_center', '显示于文章列表页中间');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (16, '文章列表页底部', 'article_list_footer', '显示于文章列表页底部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (17, '文章详细页头部', 'article_view_header', '显示于文章详细页头部');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (18, '文章详细页中间', 'article_view_center', '显示于文章详细页中间');
+INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (19, '文章详细页底部', 'article_view_footer', '显示于文章详细页底部');
 
 /* ================================================================================================*/
 /* =========================================数据初始脚本：设置自增起始=============================*/

@@ -53,7 +53,7 @@ class Crawler extends Base
 
         //分类列表
         $CategoryModel = new CategoryModel();
-        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title_cn');
+        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title');
 
         $this->assign('categoryList', $cateList);
 
@@ -96,7 +96,7 @@ class Crawler extends Base
         $this->assign('crawler', $crawler);
 
         $CategoryModel = new CategoryModel();
-        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title_cn');
+        $cateList = $CategoryModel->getTreeData('tree', 'sort,id', 'title');
         $this->assign('categoryList', $cateList);
 
         return $this->fetch('create');

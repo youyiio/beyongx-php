@@ -43,7 +43,7 @@ class Article extends Base
 
         if (empty($cid) && !empty($cname)) {
             $CategoryModel = new CategoryModel();
-            $category = $CategoryModel->where(['title_en' => $cname])->find();
+            $category = $CategoryModel->where(['name' => $cname])->find();
             if (empty($category)) {
                 $this->error('分类名不存在');
             }
@@ -79,13 +79,13 @@ class Article extends Base
         }
 
         $CategoryModel = new CategoryModel();
-        $child = $CategoryModel->where(['title_en' => $csubname])->find();
+        $child = $CategoryModel->where(['name' => $csubname])->find();
         if (empty($child)) {
             $this->error('子分类名不存在');
         }
 
         $category = $child['parent'];
-        if (empty($category) || $category->title_en != $cname) {
+        if (empty($category) || $category->name != $cname) {
             $this->error('两个分类不存在父子关系!');
         }
 
@@ -107,7 +107,7 @@ class Article extends Base
      * 文章详细内容
      * @param $aid
      * @param $cid: 分类id, 可不传，有传值时是用于定位来源分类;
-     * @param $cname: 分类title_en, 可不传，有传值时是用于定位来源分类;
+     * @param $cname: 分类name, 可不传，有传值时是用于定位来源分类;
      * @param $page: _ueditor_page_break_tag_ 进行内容分页处理, 从0开始【待实现】
      * @return \think\response\View
      * @throws \think\Exception
