@@ -2,15 +2,9 @@ SET FOREIGN_KEY_CHECKS=0;
 
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2021-08-05 18:41:47                          */
+/* Created on:     2021-11-04 11:30:14                          */
 /*==============================================================*/
 
-
-drop table if exists api_config_access;
-
-#drop index idx_api_token_uid_access_device on api_token;
-
-drop table if exists api_token;
 
 drop table if exists cms_ad;
 
@@ -58,41 +52,29 @@ drop table if exists cms_category_article;
 
 drop table if exists cms_comment;
 
-drop table if exists cms_crawler;
-
-#drop index idx_crawler_meta_target_id_meta_key on cms_crawler_meta;
-
-drop table if exists cms_crawler_meta;
-
 drop table if exists cms_feedback;
 
 drop table if exists cms_link;
 
-#drop index idx_action_log_uid_action on sys_action_log;
+#drop index idx_action_log_action_username on sys_action_log;
 
 #drop index idx_action_log_create_time on sys_action_log;
 
 drop table if exists sys_action_log;
 
-#drop index uniq_addons_name on sys_addons;
+#drop index uniq_sys_config_key on sys_config;
 
-drop table if exists sys_addons;
-
-drop table if exists sys_auth_group;
-
-drop table if exists sys_auth_group_access;
-
-drop table if exists sys_auth_rule;
-
-#drop index uniq_config_name on sys_config;
+#drop index idx_sys_config_group on sys_config;
 
 drop table if exists sys_config;
 
+drop table if exists sys_dept;
+
 drop table if exists sys_file;
 
-drop table if exists sys_hooks;
+drop table if exists sys_job;
 
-drop table if exists sys_image;
+drop table if exists sys_menu;
 
 #drop index idx_message_to_uid on sys_message;
 
@@ -102,6 +84,12 @@ drop table if exists sys_message;
 
 drop table if exists sys_region;
 
+drop table if exists sys_role;
+
+#drop index uniq_role_menu_role_id_menu_id on sys_role_menu;
+
+drop table if exists sys_role_menu;
+
 #drop index uniq_user_account on sys_user;
 
 #drop index uniq_user_email on sys_user;
@@ -110,60 +98,19 @@ drop table if exists sys_region;
 
 drop table if exists sys_user;
 
+#drop index uniq_user_job_uid_job_id on sys_user_job;
+
+drop table if exists sys_user_job;
+
 #drop index idx_user_meta_target_id_meta_key on sys_user_meta;
 
 drop table if exists sys_user_meta;
 
-/*==============================================================*/
-/* Table: api_config_access                                     */
-/*==============================================================*/
-create table api_config_access
-(
-   access_id            int not null auto_increment,
-   name                 varchar(64),
-   access_key           varchar(32) not null,
-   access_secret        varchar(32) not null,
-   create_time          datetime not null,
-   primary key (access_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+#drop index uniq_user_role_uid_role_id on sys_user_role;
 
-alter table api_config_access comment '访问配置表';
+drop table if exists sys_user_role;
 
-/*==============================================================*/
-/* Table: api_token                                             */
-/*==============================================================*/
-create table api_token
-(
-   id                   int not null auto_increment,
-   uid                  int not null,
-   access_id            int not null,
-   device_id            varchar(64) not null,
-   token                varchar(64) not null,
-   status               tinyint not null comment '1.有效;2.失效;3.过期',
-   expire_time          datetime not null,
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table api_token comment 'token表';
-
-/*==============================================================*/
-/* Index: idx_api_token_uid_access_device                       */
-/*==============================================================*/
-create index idx_api_token_uid_access_device on api_token
-(
-   uid,
-   access_id,
-   device_id,
-   token
-);
-
-/*==============================================================*/
+*==============================================================*/
 /* Table: cms_ad                                                */
 /*==============================================================*/
 create table cms_ad
@@ -208,9 +155,9 @@ alter table cms_ad_serving comment '广告投放表,';
 create table cms_ad_slot
 (
    id                   int not null auto_increment,
-   title             varchar(32) not null,
-   name             varchar(32) not null,
-   remark               varchar(128),
+   name                 varchar(32) not null comment '广告槽名称',
+   title                varchar(32) not null comment '广告槽标题',
+   remark               varchar(128) comment '备注',
    primary key (id)
 )
 ENGINE = InnoDB
@@ -238,7 +185,7 @@ create table cms_article
    comment_count        int not null default 0,
    author               varchar(64),
    uid                  int not null,
-   sort                 int default 0 comment '排序',
+   sort                 int default 0,
    relateds             text comment '相关文章',
    primary key (id)
 )
@@ -336,7 +283,7 @@ create index idx_article_data_title_similar on cms_article_data
 create table cms_article_meta
 (
    id                   int not null auto_increment,
-   article_id           int not null,
+   target_id            int not null,
    meta_key             varchar(255) not null,
    meta_value           longtext,
    update_time          datetime not null,
@@ -353,7 +300,7 @@ alter table cms_article_meta comment '文章meta表';
 /*==============================================================*/
 create index idx_article_meta_article_id on cms_article_meta
 (
-   article_id
+   target_id
 );
 
 /*==============================================================*/
@@ -379,8 +326,8 @@ create table cms_category
 (
    id                   int not null auto_increment,
    pid                  varchar(24) not null,
-   title             varchar(64) not null,
-   name             varchar(64) not null,
+   name                 varchar(64) not null,
+   title                varchar(64) not null,
    remark               varchar(128) not null,
    status               tinyint not null comment '0.下线;1.上线',
    sort                 int,
@@ -405,7 +352,7 @@ create table cms_category_article
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table cms_category_article comment '文章分类关联表';
+alter table cms_category_article comment '分类文章关联表';
 
 /*==============================================================*/
 /* Index: idx_category_article_cid                              */
@@ -455,66 +402,6 @@ create index idx_comment_article_id on cms_comment
 );
 
 /*==============================================================*/
-/* Table: cms_crawler                                           */
-/*==============================================================*/
-create table cms_crawler
-(
-   id                   int not null auto_increment,
-   title                text not null,
-   status               tinyint not null comment '-1,删除;0.草稿;1.采集中;2.采集成功;3.采集失败',
-   url                  varchar(256) not null,
-   encoding             varchar(16) not null comment 'auto:自动判断\utf-8\gbk\gb2312\iso-8859-1等',
-   is_timing            tinyint not null default 0,
-   is_paging            tinyint not null default 0 comment '0.否;1.是',
-   start_page           int,
-   end_page             int,
-   paging_url           varchar(128),
-   article_url          varchar(128),
-   article_title        varchar(128),
-   article_description  varchar(128),
-   article_keywords     varchar(128),
-   article_content      varchar(128),
-   article_author       varchar(128),
-   article_image        varchar(128),
-   category_id          int,
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table cms_crawler comment '采集规则表';
-
-/*==============================================================*/
-/* Table: cms_crawler_meta                                      */
-/*==============================================================*/
-create table cms_crawler_meta
-(
-   id                   int not null auto_increment,
-   target_id            int not null,
-   meta_key             varchar(32) not null,
-   meta_value           text not null,
-   remark               varchar(128),
-   update_time          datetime not null,
-   create_time          datetime not null,
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table cms_crawler_meta comment '采集元数据表';
-
-/*==============================================================*/
-/* Index: idx_crawler_meta_target_id_meta_key                   */
-/*==============================================================*/
-create index idx_crawler_meta_target_id_meta_key on cms_crawler_meta
-(
-   target_id,
-   meta_key
-);
-
-/*==============================================================*/
 /* Table: cms_feedback                                          */
 /*==============================================================*/
 create table cms_feedback
@@ -556,7 +443,7 @@ create table cms_link
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table cms_link comment '链接表';
+alter table cms_link comment '友链表';
 
 /*==============================================================*/
 /* Table: sys_action_log                                        */
@@ -564,19 +451,24 @@ alter table cms_link comment '链接表';
 create table sys_action_log
 (
    id                   bigint not null auto_increment,
-   uid                  int,
-   action               varchar(64) not null,
-   module               varchar(16),
-   ip                   varchar(64) not null,
+   action               varchar(64) not null comment '操作类型',
+   username             varchar(255) comment '用户名',
+   module               varchar(255) comment '模块',
+   component            varchar(255) comment '组件',
+   ip                   varchar(64),
+   action_time          bigint,
+   params               text,
+   user_agent           text comment '用户代理',
+   response             text,
+   response_time        bigint,
    remark               varchar(256),
-   data                 varchar(128),
    create_time          datetime not null,
    primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table sys_action_log comment '操作日志表';
+alter table sys_action_log comment '日志表';
 
 /*==============================================================*/
 /* Index: idx_action_log_create_time                            */
@@ -587,123 +479,76 @@ create index idx_action_log_create_time on sys_action_log
 );
 
 /*==============================================================*/
-/* Index: idx_action_log_uid_action                             */
+/* Index: idx_action_log_action_username                        */
 /*==============================================================*/
-create index idx_action_log_uid_action on sys_action_log
+create index idx_action_log_action_username on sys_action_log
 (
-   uid,
-   action
+   action,
+   username
 );
-
-/*==============================================================*/
-/* Table: sys_addons                                            */
-/*==============================================================*/
-create table sys_addons
-(
-   id                   int not null auto_increment,
-   name                 varchar(40) not null comment '插件名或标识',
-   title                varchar(20) not null default '0' comment '中文名',
-   description          text comment '描述',
-   status               tinyint not null default 1 comment '状态',
-   config               text,
-   author               varchar(40) comment '作者',
-   version              varchar(20) comment '版本号',
-   create_time          datetime not null comment '安装时间',
-   has_adminlist        boolean not null default 0 comment '是否有后台列表',
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table sys_addons comment '插件表';
-
-/*==============================================================*/
-/* Index: uniq_addons_name                                      */
-/*==============================================================*/
-create index uniq_addons_name on sys_addons
-(
-   name
-);
-
-/*==============================================================*/
-/* Table: sys_auth_group                                        */
-/*==============================================================*/
-create table sys_auth_group
-(
-   id                   smallint(6) not null auto_increment,
-   title                varchar(32) not null,
-   status               tinyint(1) not null default 1 comment '1.激活;2.冻结;3.删除',
-   rules                text,
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table sys_auth_group comment '分组表';
-
-/*==============================================================*/
-/* Table: sys_auth_group_access                                 */
-/*==============================================================*/
-create table sys_auth_group_access
-(
-   uid                  mediumint(8) not null,
-   group_id             mediumint(8) not null,
-   primary key (uid, group_id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table sys_auth_group_access comment '分组访问表';
-
-/*==============================================================*/
-/* Table: sys_auth_rule                                         */
-/*==============================================================*/
-create table sys_auth_rule
-(
-   id                   int not null auto_increment,
-   pid                  int not null default 0,
-   name                 char(80) not null,
-   title                varchar(64),
-   icon                 varchar(20),
-   type                 tinyint(1) not null default 1,
-   is_menu              tinyint(1) default 0 comment '0.否;1.是',
-   sort                 int not null default 0,
-   status               tinyint(1) not null default 1 comment '-1.删除;1.激活;2.暂停;',
-   `condition`          char(100) not null default '',
-   belongs_to             varchar(16),
-   primary key (id)
-)
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
-
-alter table sys_auth_rule comment '规则表';
 
 /*==============================================================*/
 /* Table: sys_config                                            */
 /*==============================================================*/
 create table sys_config
 (
-   id                   int not null auto_increment,
-   name                 varchar(128) not null,
-   value                text,
-   remark               varchar(128),
-   value_type           varchar(16) comment '值类型:bool,number,text,muti_text',
-   tab                  varchar(16),
-   sort                 int default 0,
+   id                   int(11) not null auto_increment,
+   name                 varchar(255) comment '字典名称',
+   `group`              varchar(255) comment '字典组',
+   `key`                varchar(255) comment '字典键',
+   value                text comment '字典值',
+   value_type           varchar(16) comment '值类型',
+   status               tinyint comment '启用状态',
+   sort                 int comment '排序',
+   remark               varchar(512) comment '备注',
+   create_by            varchar(255) comment '创建者',
+   update_by            varchar(255) comment '更新者',
+   create_time          datetime comment '创建时间',
+   update_time          datetime comment '更新时间',
    primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table sys_config comment '配置表';
+alter table sys_config comment '字典表';
 
 /*==============================================================*/
-/* Index: uniq_config_name                                      */
+/* Index: idx_sys_config_group                                  */
 /*==============================================================*/
-create unique index uniq_config_name on sys_config
+create index idx_sys_config_group on sys_config
 (
-   name
+   `group`
 );
+
+/*==============================================================*/
+/* Index: uniq_sys_config_key                                   */
+/*==============================================================*/
+create unique index uniq_sys_config_key on sys_config
+(
+   `key`
+);
+
+/*==============================================================*/
+/* Table: sys_dept                                              */
+/*==============================================================*/
+create table sys_dept
+(
+   id                   int(11) not null auto_increment,
+   pid                  int comment '上级部门',
+   name                 varchar(255) comment '名称',
+   status               tinyint comment '启用状态',
+   sort                 int comment '排序',
+   remark               varchar(512) comment '备注',
+   create_by            varchar(255),
+   update_by            varchar(255),
+   create_time          datetime,
+   update_time          datetime,
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+alter table sys_dept comment '部门表';
 
 /*==============================================================*/
 /* Table: sys_file                                              */
@@ -711,13 +556,17 @@ create unique index uniq_config_name on sys_config
 create table sys_file
 (
    id                   int not null auto_increment,
-   file_url             varchar(256) not null,
-   file_path            varchar(256) not null default '0' comment 'file_ulr所在目录',
-   file_name            varchar(128) not null,
-   file_size            int not null,
-   oss_image_url        varchar(512),
-   ext                  text,
+   url_path             varchar(256) not null,
+   path                 varchar(256) not null default '0' comment 'file_ulr所在目录',
+   name                 varchar(128) not null,
+   real_name            varchar(128),
+   size                 int,
+   ext                  varchar(16),
+   bucket               varchar(64),
+   oss_url              varchar(512),
+   thumb_image_url      varchar(256),
    remark               varchar(512),
+   create_by            varchar(255),
    create_time          datetime not null,
    primary key (id)
 )
@@ -727,45 +576,53 @@ DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 alter table sys_file comment '文件表';
 
 /*==============================================================*/
-/* Table: sys_hooks                                             */
+/* Table: sys_job                                               */
 /*==============================================================*/
-create table sys_hooks
+create table sys_job
 (
-   id                   int not null auto_increment,
-   name                 varchar(40) not null comment '钩子名称',
-   description          text comment '描述',
-   type                 tinyint not null default 1 comment '类型',
-   status               tinyint not null default 1 comment '状态',
-   addons               varchar(256) comment '钩子挂载的插件，用'',''分割',
-   update_time          datetime not null comment '更新时间',
-   create_time          datetime not null comment '安装时间',
+   id                   int(11) not null auto_increment,
+   name                 varchar(255) comment '名称',
+   status               tinyint comment '启用状态',
+   sort                 int comment '排序',
+   remark               varchar(512) comment '备注',
+   create_by            varchar(255),
+   update_by            varchar(255),
+   create_time          datetime,
+   update_time          datetime,
    primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table sys_hooks comment '钩子表';
+alter table sys_job comment '岗位表';
 
 /*==============================================================*/
-/* Table: sys_image                                             */
+/* Table: sys_menu                                              */
 /*==============================================================*/
-create table sys_image
+create table sys_menu
 (
    id                   int not null auto_increment,
-   thumb_image_url      varchar(256) not null,
-   image_url            varchar(256) not null default '0',
-   thumb_image_size     int,
-   image_size           int,
-   oss_image_url        varchar(256),
-   ext                  text,
-   remark               varchar(512),
-   create_time          datetime not null,
+   pid                  int not null default 0 comment '父节点',
+   title                varchar(64) not null comment '标题',
+   name                 char(80) comment '名称',
+   component            varchar(255),
+   path                 varchar(255) comment '路径',
+   icon                 varchar(20) comment '图标',
+   type                 tinyint(1) not null default 1 comment '类型 0.页面菜单1.动作菜单',
+   is_menu              tinyint(1) not null comment '是否菜单',
+   status               tinyint(1) not null default 1 comment '状态 -1.删除;1.激活;2.暂停;',
+   sort                 int not null default 0 comment '排序',
+   belongs_to           varchar(16) comment '归属于',
+   create_by            varchar(255) comment '创建者',
+   update_by            varchar(255) comment '更新者',
+   create_time          datetime comment '创建时间',
+   update_time          datetime comment '更新时间',
    primary key (id)
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table sys_image comment '图片表';
+alter table sys_menu comment '菜单表';
 
 /*==============================================================*/
 /* Table: sys_message                                           */
@@ -830,7 +687,51 @@ create table sys_region
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
-alter table sys_region comment '地区表,';
+alter table sys_region comment '地区表';
+
+/*==============================================================*/
+/* Table: sys_role                                              */
+/*==============================================================*/
+create table sys_role
+(
+   id                   smallint(6) not null auto_increment,
+   name                 varchar(32) not null comment '名称',
+   status               tinyint(1) not null default 1 comment '状态:1.激活;2.冻结;3.删除',
+   remark               varchar(512) comment '备注',
+   create_by            varchar(255) comment '创建者',
+   update_by            varchar(255) comment '更新者',
+   create_time          datetime comment '创建时间',
+   update_time          datetime comment '更新时间',
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+alter table sys_role comment '角色表';
+
+/*==============================================================*/
+/* Table: sys_role_menu                                         */
+/*==============================================================*/
+create table sys_role_menu
+(
+   id                   int not null auto_increment,
+   role_id              int not null,
+   menu_id              int not null,
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+alter table sys_role_menu comment '角色菜单关联表';
+
+/*==============================================================*/
+/* Index: uniq_role_menu_role_id_menu_id                        */
+/*==============================================================*/
+create index uniq_role_menu_role_id_menu_id on sys_role_menu
+(
+   role_id,
+   menu_id
+);
 
 /*==============================================================*/
 /* Table: sys_user                                              */
@@ -838,25 +739,24 @@ alter table sys_region comment '地区表,';
 create table sys_user
 (
    id                   int not null auto_increment,
-   mobile               varchar(24) not null,
-   email                varchar(32) not null,
-   account              varchar(32) not null,
-   password             varchar(64) not null,
-   status               tinyint not null comment '-1.删除;1.申请;2.激活;3.冻结;',
-   nickname             varchar(64),
-   sex                  tinyint default 1 comment '1.男;2.女;3.未知;',
-   head_url             varchar(128),
-   qq                   varchar(16),
-   weixin               varchar(64),
-   device_id            varchar(64),
-   referee              int,
-   register_time        datetime not null,
-   register_ip          varchar(64),
-   from_referee         varchar(256),
-   entrance_url         varchar(256),
-   ext                  text,
-   last_login_time      datetime,
-   last_login_ip        varchar(64),
+   mobile               varchar(24) not null comment '手机号',
+   email                varchar(32) not null comment '邮箱',
+   account              varchar(32) not null comment '帐号',
+   password             varchar(64) not null comment '密码',
+   status               tinyint not null comment '状态:-1.删除;1.申请;2.激活;3.冻结;',
+   nickname             varchar(64) comment '昵称',
+   sex                  tinyint default 1 comment '性别:1.男;2.女;3.未知;',
+   head_url             varchar(128) comment '头像url',
+   dept_id              int comment '部门id',
+   qq                   varchar(16) comment 'qq号',
+   weixin               varchar(64) comment '微信号',
+   referee              varchar(64) comment '介绍人',
+   register_time        datetime not null comment '注册时间',
+   register_ip          varchar(64) comment '注册ip',
+   from_referee         varchar(256) comment '来源',
+   entrance_url         varchar(256) comment '首访页',
+   last_login_time      datetime comment '最后登录时间',
+   last_login_ip        varchar(64) comment '最后登录ip',
    primary key (id)
 )
 ENGINE = InnoDB
@@ -889,16 +789,40 @@ create unique index uniq_user_account on sys_user
 );
 
 /*==============================================================*/
+/* Table: sys_user_job                                          */
+/*==============================================================*/
+create table sys_user_job
+(
+   id                   int not null auto_increment,
+   uid                  int not null comment '用户id',
+   job_id               int not null comment '岗位id',
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+alter table sys_user_job comment '用户岗位关联表';
+
+/*==============================================================*/
+/* Index: uniq_user_job_uid_job_id                              */
+/*==============================================================*/
+create unique index uniq_user_job_uid_job_id on sys_user_job
+(
+   uid,
+   job_id
+);
+
+/*==============================================================*/
 /* Table: sys_user_meta                                         */
 /*==============================================================*/
 create table sys_user_meta
 (
    id                   int not null auto_increment,
    target_id            int not null,
-   meta_key             varchar(32) not null,
-   meta_value           text not null,
-   update_time          datetime not null,
-   create_time          datetime not null,
+   meta_key             varchar(32) not null comment '元数据key',
+   meta_value           text not null comment '元数据value',
+   update_time          datetime not null comment '更新时间',
+   create_time          datetime not null comment '创建时间',
    primary key (id)
 )
 ENGINE = InnoDB
@@ -915,69 +839,95 @@ create index idx_user_meta_target_id_meta_key on sys_user_meta
    meta_key
 );
 
+/*==============================================================*/
+/* Table: sys_user_role                                         */
+/*==============================================================*/
+create table sys_user_role
+(
+   id                   int not null auto_increment,
+   uid                  int not null comment '用户id',
+   role_id              int not null comment '角色id',
+   primary key (id)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci;
+
+alter table sys_user_role comment '用户角色关联表';
+
+/*==============================================================*/
+/* Index: uniq_user_role_uid_role_id                            */
+/*==============================================================*/
+create unique index uniq_user_role_uid_role_id on sys_user_role
+(
+   uid,
+   role_id
+);
+
+
+
 
 
 /* ==================================================================================================*/
 /* ============================================数据初始脚本：config表================================*/
 truncate table sys_config;
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('site_name', 'BeyongCms内容管理系统', '网站名称', 'text', 'base', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('domain_name', 'www.beyongx.com', '域名', 'text', 'base', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('icp', '闽ICP备xxxxxxxx号-1', '备案号', 'text', 'base', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('password_key', 'lGfFSc17z8Q15P5kU0guNqq906DHNbA3', '加密密钥', 'text', 'base', 0);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('theme_package_name', 'classic', '主题名称', 'text', 'base', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?3d0c1af3caa383b0cd59822f1e7a751b\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 'base', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('网站名称', 'base', 'site_name', 'BeyongCms内容管理系统', '网站名称', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('域名', 'base', 'domain_name', 'www.beyongx.com', '域名', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('备案号', 'base', 'icp', '闽ICP备xxxxxxxx号-1', '备案号', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('加密密钥', 'base', 'password_key', 'lGfFSc17z8Q15P5kU0guNqq906DHNbA3', '加密密钥', 'text', 0);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('主题名称', 'base', 'theme_package_name', 'classic', '主题名称', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('统计代码', 'base', 'stat_code', '<script>\r\nvar _hmt = _hmt || [];\r\n(function() {\r\n  var hm = document.createElement(\"script\");\r\n  hm.src = \"https://hm.baidu.com/hm.js?3d0c1af3caa383b0cd59822f1e7a751b\";\r\n  var s = document.getElementsByTagName(\"script\")[0]; \r\n  s.parentNode.insertBefore(hm, s);\r\n})();\r\n</script>\r\n<!-- 以下为自动提交代码 -->\r\n<script>\r\n(function(){\r\n    var bp = document.createElement(\"script\");\r\n    var curProtocol = window.location.protocol.split(\":\")[0];\r\n    if (curProtocol === \"https\") {\r\n        bp.src = \"https://zz.bdstatic.com/linksubmit/push.js\";\r\n    }\r\n    else {\r\n        bp.src = \"http://push.zhanzhang.baidu.com/push.js\";\r\n    }\r\n    var s = document.getElementsByTagName(\"script\")[0];\r\n    s.parentNode.insertBefore(bp, s);\r\n})();\r\n</script>\r\n', '统计代码', 'muti_text', 4);
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('title', 'BeyongCms平台', '网站标题', 'text', 'seo', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('description', 'BeyongCms内容管理系统|Beyongx,ThinkPHP,CMS，可二次开发的扩展框架，包含用户管理，权限角色管理及内容管理等', '网站描述', 'muti_text', 'seo', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('keywords', 'BeyongCms,Beyongx,ThinkPHP,CMS内容管理系统,扩展框架', '网站关键词，有英文逗号分隔', 'text', 'seo', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('网站标题', 'seo', 'title', 'BeyongCms平台', '网站标题', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('网站描述', 'seo', 'description', 'BeyongCms内容管理系统|Beyongx,ThinkPHP,CMS，可二次开发的扩展框架，包含用户管理，权限角色管理及内容管理等', '网站描述', 'muti_text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('网站关键词，有英文逗号分隔', 'seo', 'keywords', 'BeyongCms,Beyongx,ThinkPHP,CMS内容管理系统,扩展框架', '网站关键词，有英文逗号分隔', 'text', 3);
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('company_name', 'XXX公司', '公司名称', 'text', 'company', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('bank_card', 'xxx', '公司银行账号', 'text', 'company', 0);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('bank_name', '招商银行', '公司银行帐号开户行', 'text', 'company', 0);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('公司名称', 'company', 'company_name', 'XXX公司', '公司名称', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('公司名称', 'company', 'bank_card', 'xxx', '公司银行账号', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('公司名称', 'company', 'bank_name', '招商银行', '公司银行帐号开户行', 'text', 3);
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 'article', 0);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('article_audit_switch', 'true', '文章审核', 'bool', 'article', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 'article', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('article_water_text', '', '水印文本', 'text', 'article', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('image_upload_quality', '80', '上传图片质量', 'text', 'article', 4);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 'article', 5);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('address', '厦门市思明区软件园二期望海路000号000室', '联系地址','text', 'contact', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('zip_code', '361008', '邮编', 'text', 'contact', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('fax', '0592-1234567', '传真', 'text', 'contact', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('tel', '0592-5000000', '联系电话', 'text', 'contact', 4);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('contact', 'beyongx sir', '联系人', 'text', 'contact', 5);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email', 'xx@xxx.com', '联系邮箱', 'text', 'contact', 6);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('qq', 'qq_xxx', '联系QQ', 'text', 'contact', 7);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('weixin', 'weixin_xx', '联系微信', 'text', 'contact', 8);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_addr', 'service@beyongx.com', '发件邮箱地址', 'text', 'email', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_host', 'smtp.exmail.qq.com', '邮箱SMTP服务器地址', 'text', 'email', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_name', 'service', '发件邮箱名称', 'text', 'email', 5);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_pass', 'password', '发件邮箱密码', 'text', 'email', 4);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_port', '465', 'SMTP服务器端口,一般为25', 'number', 'email', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_security', 'ssl', '加密方式：null|ssl|tls, QQ邮箱必须使用ssl', 'text', 'email', 0);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_activate_user', '<style type=\"text/css\">\r\n  p{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请注册成为Beyongx会员的邮箱验证链接是: <a style=\"font-size: 30px;color: red;\" href=\"{url}\">{url}</a></p>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '新用户邮箱激活html格式', 'muti_text', 'email_template', 6);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('email_reset_password', '<style type=\"text/css\">\r\np{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请找回密码的邮箱验证码是: <strong style=\"font-size: 30px;color: red;\">{code}</strong></p>\r\n<p>您本次重置密码的邮箱链接是: <a style=\"font-size: 30px;color: red;\"  href=\"{url}\">{url}</strong>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '用户邮箱重置密码html格式', 'muti_text', 'email_template', 7);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('文章缩略图大小配置', 'article', 'article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'text', 0);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('文章审核', 'article', 'article_audit_switch', 'true', '文章审核', 'bool', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('水印开关', 'article', 'article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('水印文本', 'article', 'article_water_text', '', '水印文本', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('上传图片质量', 'article', 'image_upload_quality', '80', '上传图片质量', 'text', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('上传图片宽高', 'article', 'image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'text', 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系地址', 'contact', 'address', '厦门市思明区软件园二期望海路000号000室', '联系地址', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('邮编', 'contact', 'zip_code', '361008', '邮编', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('传真', 'contact', 'fax', '0592-1234567', '传真', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系电话', 'contact', 'tel', '0592-5000000', '联系电话', 'text', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系人', 'contact', 'contact', 'beyongx sir', '联系人', 'text', 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系邮箱', 'contact', 'email', 'xx@xxx.com', '联系邮箱', 'text', 6);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系QQ', 'contact', 'qq', 'qq_xxx', '联系QQ', 'text', 7);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('联系微信', 'contact', 'weixin', 'weixin_xx', '联系微信', 'text', 8);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('邮箱服务器地址', 'email', 'email_host', 'smtp.exmail.qq.com', '邮箱SMTP服务器地址', 'text', 0);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('邮箱服务器端口', 'email', 'email_port', '465', 'SMTP服务器端口,一般为25', 'number', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('加密方式', 'email', 'email_security', 'ssl', '加密方式：null|ssl|tls, QQ邮箱必须使用ssl', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('发件邮箱名称', 'email', 'email_name', 'service', '发件邮箱名称', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('发件邮箱地址', 'email', 'email_addr', 'service@beyongx.com', '发件邮箱地址', 'text', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('发件邮箱密码', 'email', 'email_pass', 'password', '发件邮箱密码', 'text', 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('新用户邮箱激活html格式', 'email_template', 'email_activate_user', '<style type=\"text/css\">\r\n  p{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请注册成为Beyongx会员的邮箱验证链接是: <a style=\"font-size: 30px;color: red;\" href=\"{url}\">{url}</a></p>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '新用户邮箱激活html格式', 'muti_text', 6);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('用户邮箱重置密码html格式', 'email_template', 'email_reset_password', '<style type=\"text/css\">\r\np{text-indent: 2em;}\r\n</style>\r\n<div><strong>尊敬的用户</strong></div>\r\n<p>您好，非常感谢您对Beyongx(<a href=\"https://www.ituizhan.com/\" target=\"_blank\" title=\"Beyongx\">Beyongx</a>)的关注和热爱</p>\r\n<p>您本次申请找回密码的邮箱验证码是: <strong style=\"font-size: 30px;color: red;\">{code}</strong></p>\r\n<p>您本次重置密码的邮箱链接是: <a style=\"font-size: 30px;color: red;\"  href=\"{url}\">{url}</strong>\r\n<p>如果非您本人操作，请忽略该邮件。</p>\r\n', '用户邮箱重置密码html格式', 'muti_text', 7);
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('tab_meta', '[{\"tab\":\"base\",\"name\":\"基本设置\",\"sort\":1},{\"tab\":\"seo\",\"name\":\"SEO设置\",\"sort\":2},{\"tab\":\"contact\",\"name\":\"联系方式\",\"sort\":3},{\"tab\":\"email\",\"name\":\"邮箱设置\",\"sort\":4},{\"tab\":\"article\",\"name\":\"文章设置\",\"sort\":5},{\"tab\":\"aliyun_oss\",\"name\":\"阿里OSS存储\",\"sort\":6},{\"tab\":\"qiniuyun_oss\",\"name\":\"七牛OSS存储\",\"sort\":7},{\"tab\":\"email_template\",\"name\":\"邮件模板\",\"sort\":8},{\"tab\":\"oss\",\"name\":\"OSS存储设置\",\"sort\":9}]', 'tab标签元数据', 'text', NULL, 0);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('tab标签元数据', NULL, 'tab_meta', '[{\"tab\":\"base\",\"name\":\"基本设置\",\"sort\":1},{\"tab\":\"seo\",\"name\":\"SEO设置\",\"sort\":2},{\"tab\":\"contact\",\"name\":\"联系方式\",\"sort\":3},{\"tab\":\"email\",\"name\":\"邮箱设置\",\"sort\":4},{\"tab\":\"article\",\"name\":\"文章设置\",\"sort\":5},{\"tab\":\"aliyun_oss\",\"name\":\"阿里OSS存储\",\"sort\":6},{\"tab\":\"qiniuyun_oss\",\"name\":\"七牛OSS存储\",\"sort\":7},{\"tab\":\"email_template\",\"name\":\"邮件模板\",\"sort\":8},{\"tab\":\"oss\",\"name\":\"OSS存储设置\",\"sort\":9}]', 'tab标签元数据', 'text', 0);
 
 #oss存储配置
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('oss_switch', 'false', 'OSS存储开关', 'bool', 'oss', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('oss_vendor', 'qiniuyun', 'OSS', 'text', 'oss', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('OSS存储开关', 'oss', 'oss_switch', 'false', 'bool', 'oss', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('OSS厂商', 'oss', 'oss_vendor', 'qiniuyun', 'text', 'oss', 2);
 
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('ali_bucket', 'Bucket名称', '阿里oss Bucket名称', 'text', 'aliyun_oss', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('ali_endpoint', 'xxxx.aliyuncs.com', '阿里oss 外网地址endpoint', 'text', 'aliyun_oss', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('ali_key_id', '阿里云key id', '阿里Access Key ID', 'text', 'aliyun_oss', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('ali_key_secret', '阿里云key secret', '阿里Access Key Secret', 'text', 'aliyun_oss', 4);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('ali_url', '阿里云oss域名地址', '阿里oss 访问的地址', 'text', 'aliyun_oss', 5);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('qiniu_bucket', 'Bucket名称', '七牛oss Bucket', 'text', 'qiniuyun_oss', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('qiniu_key_id', '七牛oss Accesskey', '七牛oss Accesskey', 'text', 'qiniuyun_oss', 2);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('qiniu_key_secret', '七牛oss Secretkey', '七牛oss Secretkey', 'text', 'qiniuyun_oss', 3);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('qiniu_url', '七牛域名地址', '七牛oss 访问的地址', 'text', 'qiniuyun_oss', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('阿里oss Bucket名称', 'aliyun_oss', 'ali_bucket', 'Bucket名称', '阿里oss Bucket名称', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('阿里oss 外网地址endpoint', 'aliyun_oss', 'ali_endpoint', 'xxxx.aliyuncs.com', '阿里oss 外网地址endpoint', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('阿里Access Key ID', 'aliyun_oss', 'ali_key_id', '阿里云key id', '阿里Access Key ID', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('阿里Access Key Secret', 'aliyun_oss', 'ali_key_secret', '阿里云key secret', '阿里Access Key Secret', 'text', 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('阿里oss 访问的地址', 'aliyun_oss', 'ali_url', '阿里云oss域名地址', '阿里oss 访问的地址', 'text', 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('七牛oss Bucket', 'qiniuyun_oss', 'qiniu_bucket', 'Bucket名称', '七牛oss Bucket', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('七牛oss Accesskey', 'qiniuyun_oss', 'qiniu_key_id', '七牛oss Accesskey', '七牛oss Accesskey', 'text', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('七牛oss Secretkey', 'qiniuyun_oss', 'qiniu_key_secret', '七牛oss Secretkey', '七牛oss Secretkey', 'text', 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('七牛oss 访问的地址', 'qiniuyun_oss', 'qiniu_url', '七牛域名地址', '七牛oss 访问的地址', 'text', 4);
 
 #百度站长资源push
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('zhanzhang_site', '站长域名', '', 'text', 'zhanzhang', 1);
-INSERT INTO `sys_config`(name,value,remark,value_type,tab,sort) VALUES ('zhanzhang_token', '站长token', '', 'text', 'zhanzhang', 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('站长域名', 'zhanzhang', 'zhanzhang_site', '站长域名', '', 'text', 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,sort) VALUES ('站长token', 'zhanzhang', 'zhanzhang_token', '站长token', '', 'text', 2);
 
 /* ================================================================================================*/
 /* ============================================数据初始脚本：用户表================================*/

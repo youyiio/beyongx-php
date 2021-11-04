@@ -371,7 +371,7 @@ function get_config($key = '', $default = null)
 {
     if (!cache('config') || config('app_debug')) {
         $ConfigModel = new \app\common\model\ConfigModel();
-        $config = $ConfigModel->column('dict_value', 'dict_key');
+        $config = $ConfigModel->column('value', 'key');
         cache('config', $config, 5 * 60);
     }
     $config = cache('config');

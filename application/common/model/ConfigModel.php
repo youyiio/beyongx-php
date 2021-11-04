@@ -13,6 +13,6 @@ use think\Model;
 
 class ConfigModel extends Model
 {
-    protected $name = 'sys_dict';
+    protected $name = 'sys_config';
     protected $pk = 'id';
 }
