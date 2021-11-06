@@ -239,7 +239,8 @@ function encrypt_password($rawPasswd, $key = '')
         $key = get_config('password_key', '');
     }
 
-    return strtolower(md5(sha1($passwd) . $key));
+    $shaStr = hash("sha256", $passwd . "{" . $key . "}");
+    return strtolower(md5($shaStr));
 }
 
 /**

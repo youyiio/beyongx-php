@@ -425,7 +425,7 @@ class Rule extends Base
             if (empty($data['password'])) {
                 unset($data['password']);
             } else {
-                $data['password'] = encrypt_password($data['password']);
+                $data['password'] = encrypt_password($data['password'], get_config('password_key'));
             }
 
             $result = $userModel->editUser($uid, $data);

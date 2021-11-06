@@ -110,7 +110,7 @@ drop table if exists sys_user_meta;
 
 drop table if exists sys_user_role;
 
-*==============================================================*/
+/*==============================================================*/
 /* Table: cms_ad                                                */
 /*==============================================================*/
 create table cms_ad
@@ -935,9 +935,9 @@ truncate sys_user;
 
 #默认密码为 888888
 INSERT INTO
-    `sys_user`(`id`,`mobile`,`email`,`account`,`password`,`status`,`nickname`,`sex`,`head_url`,`device_id`,`register_time`,`last_login_time`,`last_login_ip`)
+    `sys_user`(`id`,`mobile`,`email`,`account`,`password`,`status`,`nickname`,`sex`,`head_url`,`register_time`,`last_login_time`,`last_login_ip`)
 VALUES
-    (1,'18888888888','admin@admin.com','admin','f6bc5c8794afdae1dd41edb7939020e2',2,'超级管理员',1,null,null,'2015-01-01 00:00:00','2017-05-12 15:55:52','110.84.32.49');
+    (1,'18888888888','admin@admin.com','admin','f6bc5c8794afdae1dd41edb7939020e2',2,'超级管理员',1,null,'2015-01-01 00:00:00','2017-05-12 15:55:52','110.84.32.49');
 
 /* ================================================================================================*/
 /* =========================================数据初始脚本：角色权限表===============================*/
@@ -1125,21 +1125,6 @@ INSERT INTO `sys_auth_group_access` (`uid`,`group_id`) VALUES (1, 1);
 
 
 /* ================================================================================================*/
-/* =========================================数据初始脚本：插件及钩子=============================*/
-truncate sys_addons;
-truncate sys_hooks;
-
-#配置插件
-INSERT INTO `sys_addons`(id,name,title,description,status,config,author,version,create_time,has_adminlist) VALUES (1, 'test', 'test插件', 'test插件简介', 1, NULL, 'test', '0.1', '2018-01-01 00:00:00', 0);
-INSERT INTO `sys_addons`(id,name,title,description,status,config,author,version,create_time,has_adminlist) VALUES (2, 'enhance', '系统增强插件', 'Cms系统增强插件,用于前后部分定制', 1, NULL, 'beyongx', '0.1', '2018-06-12 00:00:00', 0);
-
-#配置插件中可使用的钩子
-INSERT INTO `sys_hooks`(id,name,description,type,status,addons,update_time,create_time) VALUES (21, 'demo', 'demo钩子', 1, 1, 'test', '2018-01-01 00:00:00', '2018-01-01 00:00:00');
-INSERT INTO `sys_hooks`(id,name,description,type,status,addons,update_time,create_time) VALUES (22, 'userTimeline', '用户动态列表', 1, 1, 'enhance', '2018-06-12 00:00:00', '2018-06-12 00:00:00');
-INSERT INTO `sys_hooks`(id,name,description,type,status,addons,update_time,create_time) VALUES (23, 'userBalance', '用户帐户信息', 1, 1, 'enhance', '2018-06-12 00:00:00', '2018-06-12 00:00:00');
-
-
-/* ================================================================================================*/
 /* =========================================数据初始脚本：文章及广告表=============================*/
 truncate table cms_category;
 
@@ -1174,8 +1159,6 @@ INSERT INTO `cms_ad_slot`(id, title, name, remark) VALUES (19, '文章详细页�
 alter table sys_user AUTO_INCREMENT=100000;
 alter table sys_message AUTO_INCREMENT=100000;
 alter table sys_file AUTO_INCREMENT=100000;
-alter table sys_image AUTO_INCREMENT=100000;
 alter table cms_article AUTO_INCREMENT=100000;
 alter table cms_category AUTO_INCREMENT=100;
-alter table api_config_access AUTO_INCREMENT=1001000;
 
