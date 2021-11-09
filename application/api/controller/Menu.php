@@ -2,8 +2,7 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
-use app\common\model\AuthRuleModel;
-use beyong\commons\data\Tree;
+use app\common\model\RoleModel;
 use think\Validate;
 
 class Menu extends Base
@@ -25,8 +24,8 @@ class Menu extends Base
             $where[] = ['title', 'like', '%'.$keyword.'%'];
         }
         
-        $AuthRuleModel = new AuthRuleModel();
-        $list = $AuthRuleModel->where($where)->order('id asc')->paginate($size, false, ['page'=>$page])->toArray();
+        $RoleModel = new RoleModel();
+        $list = $RoleModel->where($where)->order('id asc')->paginate($size, false, ['page'=>$page])->toArray();
      
        
         // 获取树形或者list数据
@@ -61,14 +60,14 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
         
-        $AuthRuleModel = new AuthRuleModel();
-        $res = $AuthRuleModel->save($params);
-        $id = $AuthRuleModel->id;
+        $RoleModel = new RoleModel();
+        $res = $RoleModel->save($params);
+        $id = $RoleModel->id;
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $returnData = AuthRuleModel::get($id);
+        $returnData = RoleModel::get($id);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -88,7 +87,7 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
 
-        $menu = AuthRuleModel::get($params['id']);
+        $menu = RoleModel::get($params['id']);
      
         $menu->name = $params['name']?? '';
         $menu->title = $params['title']?? '';
@@ -103,7 +102,7 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $data = AuthRuleModel::get($params['id']);
+        $data = RoleModel::get($params['id']);
         $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -111,7 +110,7 @@ class Menu extends Base
     //删除菜单
     public function delete($id)
     {
-        $menu = AuthRuleModel::get($id);
+        $menu = RoleModel::get($id);
         $res = $menu->delete();
 
         if (!$res) {

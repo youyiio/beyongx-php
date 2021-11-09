@@ -7,19 +7,19 @@ use think\facade\Cache;
 /**
  * 权限规则model
  */
-class AuthRuleModel extends BaseModel
+class MenuModel extends BaseModel
 {
-    protected $name = 'sys_auth_rule';
+    protected $name = 'sys_menu';
 
     public static function init()
     {
-        AuthRuleModel::afterInsert(function($menu){
+        MenuModel::afterInsert(function($menu){
             Cache::clear('menu');
         });
-        AuthRuleModel::afterUpdate(function($menu){
+        MenuModel::afterUpdate(function($menu){
             Cache::clear('menu');
         });
-        AuthRuleModel::afterDelete(function($menu){
+        MenuModel::afterDelete(function($menu){
             Cache::clear('menu');
         });
     }

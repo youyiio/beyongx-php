@@ -5,7 +5,9 @@ namespace app\api\controller;
 use app\common\library\ResultCode;
 use app\common\logic\UserLogic;
 use app\common\model\AuthGroupAccessModel;
+use app\common\model\DeptModel;
 use app\common\model\UserModel;
+use app\common\model\UserRoleModel;
 use think\facade\Cache;
 use think\facade\Validate;
 
@@ -15,7 +17,7 @@ class User extends Base
     // 获取用户信息
     public function query($id)
     {
-        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
         $user = $UserModel->where('id', $id)->field($fields)->find();
 
@@ -37,8 +39,10 @@ class User extends Base
             return ajax_return(ResultCode::E_UNKNOW_ERROR, '未知错误!');
         }
 
-        $user['dept'] = [];
+        $DeptModel = new DeptModel();
+        $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name')->find();
         unset($user['status']);
+        unset($user['dept_id']);
         $returnData = $user;
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -53,7 +57,7 @@ class User extends Base
         $filters = $params['filters'] ?? []; 
 
         $where = [];
-        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         if (isset($filters['keyword'])) {
             $where[] = ['id|mobile|email|nickname', 'like', '%'.$filters['keyword'].'%'];
         }
@@ -62,8 +66,10 @@ class User extends Base
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
 
         //查询部门
+        $DeptModel = new DeptModel();
         foreach ($list as $val) {
-            $val['dept'] = [];
+            $val['dept'] = $DeptModel->where('id', $val['dept_id'])->field('id,name')->find();
+            unset($val['dept_id']);
         }
 
         $list = $list->toArray();
@@ -102,8 +108,8 @@ class User extends Base
                     'group_id' => $v
                 ];
             }
-            $AuthGroupAccessModel = new AuthGroupAccessModel();
-            $AuthGroupAccessModel->insertAll($group);
+            $UserRoleModel = new UserRoleModel();
+            $UserRoleModel->insertAll($group);
         }
 
         $user = UserModel::get($uid);
@@ -141,8 +147,8 @@ class User extends Base
         }
 
         // 修改权限
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $AuthGroupAccessModel->where(['uid'=>$uid])->delete();
+        $UserRoleModel = new UserRoleModel();
+        $UserRoleModel->where(['role_id'=>$uid])->delete();
        
         if (!empty($params['roleIds'])) {
             $group = [];
@@ -152,13 +158,13 @@ class User extends Base
                     'group_id'=>$v
                 ];
             }
-            $AuthGroupAccessModel->insertAll($group);
+            $UserRoleModel->insertAll($group);
         }
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
         $returnData = $user;
-        $returnData['roleIds'] = $AuthGroupAccessModel->where('uid', $uid)->column('group_id');
+        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('group_id');
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -201,8 +207,8 @@ class User extends Base
 
         //返回数据
         $returnData = UserModel::get($uid);
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $returnData['roleIds'] = $AuthGroupAccessModel->where('uid', $uid)->column('group_id');
+        $UserRoleModel = new UserRoleModel();
+        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('group_id');
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -259,8 +265,8 @@ class User extends Base
 
         $uid = $params['id'];
         // 修改权限
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $AuthGroupAccessModel->where(['uid'=>$uid])->delete();
+        $UserRoleModel = new UserRoleModel();
+        $UserRoleModel->where(['role_id'=>$uid])->delete();
         if (!empty($params['roleIds'])) {
             $group = [];
             foreach ($params['roleIds'] as $k => $v) {
@@ -269,14 +275,14 @@ class User extends Base
                     'group_id'=>$v
                 ];
             }
-            $AuthGroupAccessModel->insertAll($group);
+            $UserRoleModel->insertAll($group);
         }
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
         $returnData = UserModel::get($uid);
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $returnData['roleIds'] = $AuthGroupAccessModel->where('uid', $uid)->column('group_id');
+        $UserRoleModel = new UserRoleModel();
+        $returnData['roleIds'] = $UserRoleModel->where('role_id', $uid)->column('group_id');
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

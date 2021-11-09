@@ -2,10 +2,12 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
-use app\common\model\AuthGroupAccessModel;
-use app\common\model\AuthGroupModel;
-use app\common\model\AuthRuleModel;
+use app\common\model\DeptModel;
+use app\common\model\MenuModel;
+use app\common\model\RoleMenuModel;
+use app\common\model\RoleModel;
 use app\common\model\UserModel;
+use app\common\model\UserRoleModel;
 use think\facade\Cache;
 
 class Role extends Base
@@ -20,13 +22,13 @@ class Role extends Base
         $keyword = $filters['keyword'];
 
         $where = [];
-        $fields = 'id,title,status';
+        $fields = 'id,name,status';
         if (!empty($keyword)) {
-            $where[] = ['title', 'like', '%'.$keyword.'%'];
+            $where[] = ['name', 'like', '%'.$keyword.'%'];
         }
 
-        $AuthGroupModel = new AuthGroupModel();
-        $list = $AuthGroupModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page])->toArray();
+        $RoleModel = new RoleModel();
+        $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page])->toArray();
 
         //返回数据
         $returnData['current'] = $list['current_page'];
@@ -50,15 +52,14 @@ class Role extends Base
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         }
 
-        $AuthGroupModel = new AuthGroupModel();
-        $result = $AuthGroupModel->save(['title'=>$name]);
-        // $result = $AuthGroupModel->save([['title'=>$name], ['remark'=>$remark]]);
+        $RoleModel = new RoleModel();
+        $result = $RoleModel->save(['name'=>$name, 'remark'=>$remark]);
+
         if (!$result) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
-
-        $id = $AuthGroupModel->id;
-        $returnData = $AuthGroupModel->where('id', '=' ,$id)->find();
+        $id = $RoleModel->id;
+        $returnData = $RoleModel->where('id', '=' ,$id)->find();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -70,14 +71,14 @@ class Role extends Base
 
         $id = $params['id'];
 
-        $role = AuthGroupModel::get($id);
+        $role = RoleModel::get($id);
 
         if (!$role) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '角色不存在!');
         }
 
-        $role->title = $params['name'];
-        // $role->remark = $params['remark'];
+        $role->name = $params['name']?? '';
+        $role->remark = $params['remark']?? '';
         $res = $role->save();
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
@@ -91,7 +92,7 @@ class Role extends Base
     {
         
         //删除AuthGroup表中的数据
-        $role = AuthGroupModel::get($id);
+        $role = RoleModel::get($id);
         $res = $role->delete();
         
         if (!$res) {
@@ -99,8 +100,8 @@ class Role extends Base
         }
 
         //删除AuthGroupAccess表中的数据
-        $AuthGroupAcessModel = new AuthGroupAccessModel();
-        $AuthGroupAcessModel->where('group_id', '=', $id)->delete();
+        $UserRoleModel = new UserRoleModel();
+        $UserRoleModel->where('role_id', '=', $id)->delete();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }
@@ -108,12 +109,12 @@ class Role extends Base
     //查询角色权限
     public function menus($id)
     {
-        $AuthGroupModel = new AuthGroupModel();
-        $rules = $AuthGroupModel->where('id', $id)->column('rules');
-      
-        $ids = explode(',', $rules[0]);
-        $AuthRuleModel = new AuthRuleModel();
-        $list = $AuthRuleModel->where('id', 'in', $ids)->select();
+        $MenuModel = new RoleMenuModel();
+        $menus = $MenuModel->where('role_id', $id)->column('menu_id');
+     
+        $ids = implode(',', $menus);
+        $MenuModel = new MenuModel();
+        $list = $MenuModel->where('id', 'in', $ids)->select();
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $list);
     }
@@ -124,18 +125,19 @@ class Role extends Base
         $params = $this->request->put();
         $menuIds = $params['menuIds']?? [];
 
-        $data['id'] = $id;
-        $data['rules'] = implode(',', $menuIds);
+        $RoleMenuModel = new RoleMenuModel();
+        $RoleMenuModel->where('role_id', $id)->delete();
      
-        $AuthGroupModel = new AuthGroupModel();
-        $res = $AuthGroupModel->allowField(true)->isUpdate()->save($data);
-        if (!$res) {
-            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
-        } 
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $groupUserIds = $AuthGroupAccessModel->where('group_id',$data['id'])->column('uid');
-        foreach ($groupUserIds as $uid) {
-            Cache::tag('menu')->rm($uid);
+        if (!empty($menuIds)) {
+            $group = [];
+            foreach ($menuIds as $menuId) {
+                $group[] = [
+                    'role_id' => $id,
+                    'menu_id'  => $menuId
+                ];
+            }
+           
+            $RoleMenuModel->insertAll($group);
         }
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
@@ -154,15 +156,22 @@ class Role extends Base
             $where[] = ['nickname|mobile|email', 'like', '%'.$keyword.'%'];
         }
 
-        $AuthGroupAcessModel = new AuthGroupAccessModel();
-        $uids = $AuthGroupAcessModel->where('group_id', $id)->column('uid');
+        $UserRoleModel = new UserRoleModel();
+        $uids = $UserRoleModel->where('role_id', $id)->column('uid');
       
         //查找符合条件的用户
         $where[] = ['id', 'in', $uids];
-        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,nickname,sex,mobile,email,head_url,qq,dept_id,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
-        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page])->toArray();
-     
+        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
+
+        $DeptModel = new DeptModel();
+        foreach ($list as $val) {
+            $val['dept'] = $DeptModel->where('id', $val['dept_id'])->field('id,name')->find();
+            unset($val['dept_id']);
+        }
+
+        $list = $list->toArray();
         //返回数据
         $returnData['current'] = $list['current_page'];
         $returnData['pages'] = $list['last_page'];
