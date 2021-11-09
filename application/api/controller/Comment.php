@@ -35,30 +35,24 @@ class Comment extends Base
 
         $page = $params['page']?: 1;
         $size = $params['size']?: 10;
-        $query = $params['filters']?: '';
+        $filters = $params['filters']?: '';
 
         if (!empty($filters['startTime'])) {
-            $where[] = ['create_time', '>=', $query['startTime'] . '00:00:00'];
+            $where[] = ['create_time', '>=', $filters['startTime'] . '00:00:00'];
         }
         if (!empty($filters['endTime'])) {
-            $where[] = ['create_time', '<=', $query['endTime'] . '23:59:59'];
+            $where[] = ['create_time', '<=', $filters['endTime'] . '23:59:59'];
         }
-        $where = ['status' => CommentModel::STATUS_PUBLISHED];
+        if (!empty($filters['keyword'])) {
+            $where[] = ['content', 'like', '%'.$filters['keyword'].'%'];
+        }
 
-        $pageConfig = [
-            'page' => $page,
-        ];
+        $where[] = ['status', '=', CommentModel::STATUS_PUBLISHED];
 
         $CommentModel = new CommentModel();
-        $list = $CommentModel->where($where)->paginate($size, false, $pageConfig)->toArray();
-       
-        $returnData['current'] = $list['current_page'];
-        $returnData['pages'] = $list['last_page'];
-        $returnData['size'] = $list['per_page'];
-        $returnData['total'] = $list['total'];
-        $returnData['records'] = parse_fields($list['data'], 1);
-     
-        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+        $list = $CommentModel->where($where)->paginate($size, false, ['page'=>$page]);
+    
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', to_standard_pagelist($list));
     }
 
     //查询评论内容
@@ -83,24 +77,24 @@ class Comment extends Base
         }
 
         $params = $this->request->put();
+        //参数言则会那个
         $check = validate('Comment')->scene('create')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('Comment')->getError());
         }
 
+        //查找要评论的文章
         $ArticleModel = new ArticleModel();
         $article = $ArticleModel->field('id,title')->find($params['articleId']);
         if (!$article) {
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '文章不存在!');
         }
-        $pid = $params['id']?: '';
-        $content = $params['content'] ? remove_xss($params['content']) : '';
-        $articleId = (int)$params['articleId'];
 
+        //插入数据
         $data = [
-            'article_id' => $articleId,
-            'pid' => $pid,
-            'content' => $content,
+            'article_id' => $params['articleId'],
+            'pid' => $params['id']?: '',
+            'content' => remove_xss($params['content']),
             'status' => CommentModel::STATUS_PUBLISHED,
             'ip' => request()->ip(0, true),
             'create_time' => date_time()
@@ -118,58 +112,48 @@ class Comment extends Base
         }
 
         $CommentModel = new CommentModel();
-
         $comId = $CommentModel->allowField(true)->isUpdate(false)->insertGetId($data);
 
         if (!$comId) {
-            return ajax_return(ResultCode::ACTION_FAILED, '新增失败');
-        } else {
-            //增加评论数量;
-            $ArticleModel->where('id', $articleId)->setInc('comment_count');
+            return ajax_return(ResultCode::E_DB_ERROR, '新增失败');
+        } 
 
-            //发送评论消息;
-            $msgTitle = '新评论消息';
-            $msgContent = $author . '评论了文章 “' . $article['title'] . '”';
-            send_message(0, 1, $msgTitle, $msgContent, MessageModel::TYPE_COMMENT);
+        //增加评论数量;
+        $ArticleModel->where('id', $params['articleId'])->setInc('comment_count');
 
-            $data = CommentModel::get($comId);
-            $data = $data->toArray();
-            $returnData = parse_fields($data, 1);
-            return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
-        }
+        //发送评论消息;
+        $msgTitle = '新评论消息';
+        $msgContent = $author . '评论了文章 “' . $article['title'] . '”';
+        send_message(0, 1, $msgTitle, $msgContent, MessageModel::TYPE_COMMENT);
+
+        $data = CommentModel::get($comId);
+        $data = $data->toArray();
+        $returnData = parse_fields($data, 1);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+        
     }
 
     //审核评论
     public function audit()
     {
         $params = $this->request->put();
+      
+        //参数验证
         if (count($params) !== 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['id']) && !is_int($params['id'])) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+        if (isset($params['id']) && is_numeric($params['id'])) {
+            $ids[] = $params['id']; 
+        } elseif (isset($params['ids']) && is_array($params['ids'])) {
+            $ids = $params['ids'];     
+        } else {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['ids']) && count($params['ids']) == 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        //审核
-        if (isset($params['id'])) {
-            $ids[] = $params['id'];    
-        } 
-
-        if (isset($params['ids']) && is_array($params['ids'])) {
-            $ids = $params['ids'];        
-        }
-
-
+    
         $CommentModel = new CommentModel();
         $success = $CommentModel->where('id', 'in', $ids)->setField('status', CommentModel::STATUS_PUBLISHED);
 
         $fails = count($ids) - $success;
-
         $returnData = ['success'=> $success, 'fail' => $fails];
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '批量审核成功!', $returnData);
@@ -180,29 +164,22 @@ class Comment extends Base
     public function delete()
     {
         $params = $this->request->put();
+     
+        //参数验证
         if (count($params) !== 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['id']) && !is_int($params['id'])) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        if (isset($params['ids']) && count($params['ids']) == 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+        if (isset($params['id']) && is_numeric($params['id'])) {
+            $ids[] = $params['id']; 
+        } elseif (isset($params['ids']) && is_array($params['ids'])) {
+            $ids = $params['ids'];     
+        } else {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
     
-        //删除评论
-        if (isset($params['id'])) {
-            $ids[] = $params['id'];    
-        } 
-
-        if (isset($params['ids']) && is_array($params['ids'])) {
-            $ids = $params['ids'];        
-        }
-        
         $CommentModel = new CommentModel();
         $success = $CommentModel->where('id', 'in', $ids)->setField('status', CommentModel::STATUS_DELETED);
+        
         $fails = count($ids) - $success;
         $returnData = ['success'=> $success, 'fail' => $fails];
 

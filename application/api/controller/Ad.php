@@ -8,7 +8,6 @@ use app\common\model\cms\AdModel;
 use app\common\model\cms\AdServingModel;
 use app\common\model\cms\AdSlotModel;
 use app\common\model\ImageModel;
-use PhpOffice\PhpSpreadsheet\Calculation\Statistical\Distributions\F;
 use think\Validate;
 
 class Ad extends Base
@@ -18,7 +17,7 @@ class Ad extends Base
     {
         $params = $this->request->put();
 
-        //数据验证
+        //数据验证git
         $validate = new Validate();
         $validate->rule([
             'slot' => 'require',
@@ -48,25 +47,16 @@ class Ad extends Base
     {
         $params = $this->request->put();
 
-        //数据验证
-        $validate = new Validate();
-        $validate->rule([
-            'page' => 'require|integer',
-            'size' => 'require|integer'
-        ]);
-        if (!$validate->check($params)) {
-            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $validate->getError());
-        };
 
-        $page = $params['page'];
-        $size = $params['size'];
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 10;
         $filters = $params["filters"];
-        $title = $filters['keyword']?? '';
+        $keyword = $filters['keyword']?? '';
         $soltIds = $filters['soltIds']?? '';
 
         $where = [];
-        if (!empty($title)) {
-            $where[] = ['title', 'like', "%$title%"];
+        if (!empty($keyword)) {
+            $where[] = ['title', 'like', "%$keyword%"];
         }
         if (!empty($soltIds)) {
             $AdServingModel = new AdServingModel();
@@ -82,7 +72,6 @@ class Ad extends Base
         }
 
         $list = $list->toArray();
-        
         //返回数据
         $returnData['current'] = $list['current_page'];
         $returnData['pages'] = $list['last_page'];
@@ -118,7 +107,7 @@ class Ad extends Base
         ]);
 
         if (!$validate->check($params)) {
-            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $validate->getError());
+            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '操作失败', $validate->getError());
         }
 
         $AdModel = new AdModel();
@@ -127,11 +116,12 @@ class Ad extends Base
         //驼峰转为下划线
         $params = parse_fields($params);
         $AdModel->isUpdate(false)->allowField(true)->save($params);
-        $adId = $AdModel->id;
 
+        $adId = $AdModel->id;
         if (!$adId) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         }
+
         //新增中间表数据
         $pivot = ['update_time' => date_time(), 'create_time' => date_time()];
         $AdModel->adSlots()->attach($soltIds, $pivot);
@@ -161,7 +151,7 @@ class Ad extends Base
         ]);
 
         if (!$validate->check($params)) {
-            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $validate->getError());
+            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '操作失败!', $validate->getError());
         }
 
         $params['create_time'] = date_time();
@@ -191,7 +181,7 @@ class Ad extends Base
         $ad = AdModel::get($id);
        
         if (!$ad) {
-            $this->error('广告不存在!');
+            ajax_return(ResultCode::E_DATA_NOT_FOUND, '广告不存在!');
         }
 
         $ad->delete();
