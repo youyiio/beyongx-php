@@ -7,6 +7,7 @@ use think\Validate;
 
 class Config extends Base
 {
+    //查询字典信息
     public function list()
     {
         $params = $this->request->put();
@@ -37,7 +38,30 @@ class Config extends Base
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
-    //新增字段
+    //查询字典信息
+    public function query()
+    {
+        $params = $this->request->put();
+        $key = $params['key']??'';
+        $group = $params['group']??'';
+
+        if (empty($key)) {
+            return ajax_return(ResultCode::E_PARAM_EMPTY, '参数为空');
+        }
+        if (!empty($group)) {
+            $where[] = ['group', '=', $group];
+        }
+
+        $where[] = ['key', '=', $key];
+       
+        $ConfigModel = new ConfigModel();
+        $list = $ConfigModel->where($where)->find();
+
+        $returnData = parse_fields($list, 1);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
+    }
+
+    //新增字典
     public function create()
     {
         $params = $this->request->put();
@@ -85,9 +109,51 @@ class Config extends Base
         $config = ConfigModel::get($id);
 
         if (!$config) {
-            return ajax_return(ResultCode::E_ACCESS_NOT_FOUND, '操作失败!');
+            return ajax_return(ResultCode::E_ACCESS_NOT_FOUND, '数据未找到!');
         }
 
+        $res = $config->isUpdate(false)->allowField(true)->save($params, ['id'=>$id]);
 
+        if (!$res) {
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
+
+        $returnData = parse_fields($config, 1);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
+    }
+
+    //查询状态字典
+    public function status($name)
+    {
+        $ConfigModel = new ConfigModel();
+        $list = $ConfigModel->where('group', '=', $name.'_status')->field('key,value')->select();
+
+        if (empty($list)) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '数据未找到');
+        }
+
+        $returnData = [];
+        foreach ($list as $val) {
+            $returnData[] = [
+                $val['key'] => $val['value']
+            ];
+        }
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
+    }
+
+    //删除字典
+    public function delete($id)
+    {
+        //删除role表中的数据
+        $config = ConfigModel::get($id);
+        $res = $config->delete();
+        
+        if (!$res) {
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }
 }

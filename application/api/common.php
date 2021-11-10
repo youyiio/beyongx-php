@@ -119,7 +119,7 @@ function getTree($data, $pid = 0, $fieldPK = 'id', $fieldPid = 'pid', $depth = 1
 }
 
 //获取list数据结构
-function getList($data, $pid = 0, $fieldPri = 'cid', $fieldPid = 'pid', $level = 1)
+function getList($data, $pid = 0, $fieldPri = 'id', $fieldPid = 'pid', $level = 1)
 {
     if (empty($data)) {
         return array();
@@ -128,7 +128,7 @@ function getList($data, $pid = 0, $fieldPri = 'cid', $fieldPid = 'pid', $level =
     foreach ($data as $v) {
         $id = $v[$fieldPri];
         if ($v[$fieldPid] == $pid) {
-            $v['_level'] = $level;
+            $v['level'] = $level;
            
             array_push($arr, $v);
             $tmp = getList($data, $id, $fieldPri, $fieldPid, $level + 1);

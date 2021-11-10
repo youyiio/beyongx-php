@@ -6,6 +6,8 @@ use app\common\exception\ModelException;
 use app\common\library\ResultCode;
 use app\common\model\UserModel;
 use app\common\model\api\TokenModel;
+use beyong\commons\utils\StringUtils;
+use think\facade\Cookie;
 
 class UserLogic extends Model
 {
@@ -128,4 +130,46 @@ class UserLogic extends Model
         return $user;
     }
 
+    //新增用户
+    public function createUser($mobile, $password, $nickname = '', $email = '', $account = '', $deptId, $status = UserModel::STATUS_ACTIVED)
+    {
+        $UserModel = new UserModel();
+        if (empty($nickname)) {
+            $nickname = $mobile;
+        }
+        if ($UserModel->findByMobile($mobile)) {
+            throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
+        }
+        if (empty($email)) {
+            $email = $mobile .'@' . StringUtils::getRandString(6) . '.com';
+        } else if ($UserModel->findByEmail($email)) {
+            throw new ModelException(ResultCode::E_USER_EMAIL_HAS_EXIST, '邮箱已经存在');
+        }
+        if (empty($account)) {
+            $account = StringUtils::getRandString(12);
+        } else if ($UserModel->where(['account' => $account])->find()) {
+            throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
+        }
+
+        
+        $user = new UserModel();
+        $user->mobile = $mobile;
+        $user->email = $email;
+        $user->account = $account;
+        $user->password = encrypt_password($password, get_config('password_key'));
+        $user->status = $status;
+        $user->nickname = $nickname;
+        $user->dept_id = $deptId;
+        $currentTime = date('Y-m-d H:i:s');
+        $user->register_time = $currentTime;
+
+        //设置来源及入口url
+        if (Cookie::has('from_referee') || Cookie::has('entrance_url')) {
+            $user->from_referee = Cookie::get('from_referee');
+            $user->entrance_url = Cookie::get('entrance_url');
+        }
+
+        $user->save();
+        return $user->id;
+    }
 }

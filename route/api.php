@@ -4,7 +4,14 @@ use think\facade\Route;
 
 
 Route::group('api', function () {
-    
+    //通用公共接口
+    Route::rule('config/query', 'api/Config/query', 'post');
+    Route::rule('config/:name/status', 'api/Config/status', 'get');
+    Route::rule("ad/carousel", 'api/Ad/carousel', 'get');
+    Route::rule('dept/dict', 'api/Dept/dict', 'get');
+    Route::rule('job/dict', 'api/Job/dict', 'get');
+
+    //登录注册相关
     Route::rule("sign/login", 'api/Sign/login', 'post|get');
     Route::rule("sign/register", 'api/Sign/register', 'post|get');
     Route::rule("sign/logout", 'api/Sign/logout', 'post|get');
@@ -63,7 +70,6 @@ Route::group('api', function () {
     Route::rule("ad/create", 'api/Ad/create', 'post');
     Route::rule("ad/edit", 'api/Ad/edit', 'post');
     Route::rule("ad/:id", 'api/Ad/delete', 'delete');
-    Route::rule("ad/carousel", 'api/Ad/carousel', 'get');
 
     Route::rule("sms/sendCode", 'api/Sms/sendCode', 'post');
     Route::rule("sms/login", 'api/Sms/login', 'post');
