@@ -10,12 +10,12 @@ return [
 
     /*****************frontend 通用路由 begin*******************/
     //首页
-    'index/index' => ['frontend/Index/index', ['method'=>'get']],
-    'index/business' => ['frontend/Index/business', ['method'=>'get']],
-    'index/team' => ['frontend/Index/team', ['method'=>'get']],
-    'index/partner' => ['frontend/Index/partner', ['method'=>'get']],
-    'index/about' => ['frontend/Index/about', ['method'=>'get']],
-    'index/contact' => ['frontend/Index/contact', ['method'=>'get']],
+    'index' => ['frontend/Index/index', ['method'=>'get']],
+    'business' => ['frontend/Index/business', ['method'=>'get']],
+    'team' => ['frontend/Index/team', ['method'=>'get']],
+    'partner' => ['frontend/Index/partner', ['method'=>'get']],
+    'about' => ['frontend/Index/about', ['method'=>'get']],
+    'contact' => ['frontend/Index/contact', ['method'=>'get']],
     'index/:name' => ['frontend/Index/__extPage', ['method'=>'get']], //可动态扩充页面
 
     //用户操作
@@ -26,6 +26,6 @@ return [
     'sign/forget' => ['frontend/Sign/forget', ['method'=>'get,post']],
     'sign/captcha' => ['frontend/Sign/captcha', ['method'=>'get,post']],
     'sign/sendCode' => ['frontend/Sign/sendCode', ['method'=>'get,post']],
-    
+     
     /*****************frontend 通用路由 end*******************/
 ];
