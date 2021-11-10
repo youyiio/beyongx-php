@@ -63,17 +63,12 @@ class Article extends Base
         if (!empty($filters['endTime'])) {
             $where[] = [$queryTimeField, '<=', $filters['endTime'] . '23:59:59'];
         }
-      
         $order = [
             'sort' => 'desc',
             'post_time' => 'desc',
         ];
-        $pageConfig = [
-            'page' => $page,
-            'query' => ''
-        ];
-    
-        $list = $ArticleModel->where($where)->field($fields)->order($order)->paginate($size, false, $pageConfig);
+     
+        $list = $ArticleModel->where($where)->field($fields)->order($order)->paginate($size, false, ['page'=>$page]);
        
         //添加缩略图
         foreach ($list as $art) {
@@ -94,10 +89,13 @@ class Article extends Base
     // 查询文章内容
     public function query($aid) 
     {
-        $art = ArticleModel::get($aid);
+        $ArticleModel = new ArticleModel();
 
+        $fields = 'id,title,keywords,description,content,read_count,thumb_image_id,comment_count,author,status,create_time,post_time,update_time';
+        $art = $ArticleModel->where('id', $aid)->field($fields)->find();
+      
         if (!$art) {
-            return ajax_error(ResultCode::SC_NOT_FOUND, '文章不存在');
+            return ajax_error(ResultCode::E_DATA_NOT_FOUND, '文章不存在');
         }
 
         //文章标签
@@ -112,24 +110,11 @@ class Article extends Base
         $metaFiles = $this->findMetaFiles($art);
       
         //返回数据
-        $returnData = [
-            'id' => $art['id'],
-            'title' => $art['title'],
-            'keywords' => $art['keywords'],
-            'description' => $art['description'],
-            'tags' => $tags,
-            'thumbImage' => $thumbImage,
-            'content' => $art['content'],
-            'readCount' => $art['read_count'],
-            'commentCount' => $art['comment_count'],
-            'author' => $art['author'],
-            'status' => $art['status'],
-            'createTime' => $art['create_time'],
-            'postTime' => $art['post_time'],
-            'updateTime' => $art['update_time'],
-            'metaImages' => $metaImages,
-            'metaFiles' => $metaFiles
-        ];
+        $returnData = parse_fields($art, 1);
+        $returnData['tags'] = $tags;
+        $returnData['thumbImage'] = $thumbImage;
+        $returnData['metaImages'] = $metaImages;
+        $returnData['metaFiles'] = $metaFiles;
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '查询成功!', $returnData);
     }
@@ -141,14 +126,15 @@ class Article extends Base
         $params = $this->request->put();
 
         //新增文章
-        $articleModel = new ArticleModel();
+        $ArticleModel = new ArticleModel();
         if (get_config('article_audit_switch') === 'false') {
-            $status = $articleModel::STATUS_PUBLISHED;
+            $status = $ArticleModel::STATUS_PUBLISHED;
         } else {
-            $status = $articleModel::STATUS_PUBLISHING;        
+            $status = $ArticleModel::STATUS_PUBLISHING;        
         }
         $user = $this->user_info;
         $uid = $user->uid;
+        
         if (empty($params['author'])) {
             $userModel = new UserModel();
             $author = $userModel->where('id', $uid)->value('nickname');
@@ -170,20 +156,21 @@ class Article extends Base
             'meta_file_ids' => $params['metaFileIds']?: '',
             'status' => $status,
         ];
-
         $articleLogic = new ArticleLogic();
         $artId = $articleLogic->addArticle($data);
         
         if (!$artId) {
-            return ajax_error(ResultCode::E_LOGIC_ERROR, '新增失败',$artId->geterror());
+            return ajax_error(ResultCode::E_LOGIC_ERROR, '新增失败');
         }
 
         //返回数据
-        $art = ArticleModel::get($artId);
+     
+        $fields = 'id,title,keywords,description,content,read_count,thumb_image_id,comment_count,author,status,create_time,post_time,update_time';
+        $art = $ArticleModel->where('id', $artId)->field($fields)->find();
 
+        //标签
         $articleMetaModel = new ArticleMetaModel();
         $tags = $articleMetaModel->_metas($artId, 'tag');
-        
         //缩略图
         $thumbImage = $this->findThumbImage($art);
         //附加图片
@@ -191,25 +178,12 @@ class Article extends Base
         //附加文件
         $metaFiles = $this->findMetaFiles($art);
       
-        //返回json格式
-        $returnData = [
-            'id' => $art['id'],
-            'title' => $art['title'],
-            'keywords' => $art['keywords'],
-            'description' => $art['description'],
-            'tags' => $tags,
-            'thumbImage' => $thumbImage,
-            'content' => $art['content'],
-            'readCount' => 0,
-            'commentCount' => 0,
-            'author' => $art['author'],
-            'status' => $art['status'],
-            'createTime' => $art['create_time'],
-            'postTime' => $art['post_time'],
-            'updateTime' => $art['update_time'],
-            'metaImages' => $metaImages,
-            'metaFiles' => $metaFiles
-        ];
+        //返回数据
+        $returnData = parse_fields($art, 1);
+        $returnData['tags'] = $tags;
+        $returnData['thumbImage'] = $thumbImage;
+        $returnData['metaImages'] = $metaImages;
+        $returnData['metaFiles'] = $metaFiles;
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '创建成功!', $returnData);
     }
@@ -218,10 +192,10 @@ class Article extends Base
     {
         //请求的body数据
         $params = $this->request->put();
-        $params = parse_fields($params,0);
-        
-        if ($aid !== $params['id']) {
-            return ajax_error(ResultCode::E_PARAM_ERROR, '参数错误');
+        $params = parse_fields($params, 0);
+
+        if ($aid != $params['id']) {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
         }
         
         //更新数据
@@ -263,16 +237,16 @@ class Article extends Base
     {
         $params = $this->request->put();
        
+        //参数验证
         if (count($params) !== 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['id']) && !is_int($params['id'])) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        if (isset($params['ids']) && count($params['ids']) == 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+        if (isset($params['id']) && is_numeric($params['id'])) {
+            $ids[] = $params['id']; 
+        } elseif (isset($params['ids']) && is_array($params['ids'])) {
+            $ids = $params['ids'];     
+        } else {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
 
         $data = [
@@ -285,14 +259,6 @@ class Article extends Base
         }
 
         //发布文章
-        if (isset($params['id'])) {
-            $ids[] = $params['id'];    
-        } 
-
-        if (isset($params['ids']) && is_array($params['ids'])) {
-            $ids = $params['ids'];        
-        }
-       
         $ArticleModel = new ArticleModel();
         $success = $ArticleModel->where('id', 'in', $ids)->setField($data);
         $fails = count($ids) - $success;
@@ -306,16 +272,17 @@ class Article extends Base
     public function audit()
     {
         $params = $this->request->put();
+      
+        //参数验证
         if (count($params) !== 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['id']) && !is_int($params['id'])) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        if (isset($params['ids']) && count($params['ids']) == 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+        if (isset($params['id']) && is_numeric($params['id'])) {
+            $ids[] = $params['id']; 
+        } elseif (isset($params['ids']) && is_array($params['ids'])) {
+            $ids = $params['ids'];     
+        } else {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
 
         $data = [
@@ -323,16 +290,7 @@ class Article extends Base
             'post_time' => date_time()
         ];
 
-        //审核
-        if (isset($params['id'])) {
-            $ids[] = $params['id'];    
-        } 
-        if (isset($params['ids']) && is_array($params['ids'])) {
-            $ids = $params['ids'];        
-        }
-
         $ArticleModel = new ArticleModel();
-    
         $success = $ArticleModel->where('id', 'in', $ids)->setField($data);
         $fails = count($ids) - $success;
 
@@ -345,25 +303,17 @@ class Article extends Base
     public function delete() 
     {
         $params = $this->request->put();
+       
+        //参数验证
         if (count($params) !== 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
-
-        if (isset($params['id']) && !is_int($params['id'])) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        if (isset($params['ids']) && count($params['ids']) == 1) {
-            return ajax_return(ResultCode::ACTION_FAILED, '参数错误');
-        }
-
-        //删除
-        if (isset($params['id'])) {
-            $ids[] = $params['id'];    
-        } 
-
-        if (isset($params['ids']) && is_array($params['ids'])) {
-            $ids = $params['ids'];        
+        if (isset($params['id']) && is_numeric($params['id'])) {
+            $ids[] = $params['id']; 
+        } elseif (isset($params['ids']) && is_array($params['ids'])) {
+            $ids = $params['ids'];     
+        } else {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
         }
 
         $ArticleModel = new ArticleModel();
@@ -374,10 +324,10 @@ class Article extends Base
         return ajax_return(ResultCode::ACTION_SUCCESS, '删除文章成功!', $returnData);
     }
 
+    //查询文章评论
     public function comments($id)
     {
         $article = ArticleModel::get($id);
-        
         if (empty($article)) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '文章不存在');
         }
@@ -385,23 +335,19 @@ class Article extends Base
         $params = $this->request->put();
         $page = $params['page']?: 1;
         $size = $params['size']?: 5;
-        $query = $params['filters']?: '';
+        $filters = $params['filters']?: '';
+
         //查询评论
         $CommentModel = new CommentModel();
-        
-        $where['article_id'] = $id;
-        $where['status'] = CommentModel::STATUS_PUBLISHED;
-
-        $pageConfig = [
-            'page' => $page,
-            'query' => $query
+        $where =[
+            ['content', 'like', '%'. $filters['keyword'].'%'],
+            ['article_id', '=', $id],
+            ['status', '=', CommentModel::STATUS_PUBLISHED]
         ];
-
-        $list = $CommentModel->where($where)->paginate($size, false, $pageConfig);
-        //总页数
+      
+        $list = $CommentModel->where($where)->paginate($size, false, ['page'=>$page]);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '查询成功!', to_standard_pagelist($list));
-
     }
 
     //查找文章的缩略图
@@ -411,6 +357,7 @@ class Article extends Base
         if (empty($art['thumb_image_id']) || $art['thumb_image_id'] == 0) {
             return $thumbImage;
         }
+
         $ImageModel = new ImageModel();
         $thumbImage = $ImageModel::get($art['thumb_image_id']);
     
@@ -426,8 +373,8 @@ class Article extends Base
         unset($thumbImage['thumb_image_size']);
         unset($art['thumb_image_id']);
 
-        $thumbImage = $thumbImage->toArray();
-        $thumbImage = parse_fields($thumbImage,1);
+        $thumbImage = parse_fields($thumbImage->toArray(),1);
+        
         return $thumbImage;
     }
 
@@ -443,8 +390,7 @@ class Article extends Base
             unset($image['image_size']);
             unset($image['thumb_image_size']);
         }
-        $metaImages = $metaImages->toArray();
-        $metaImages = parse_fields($metaImages, 1);
+        $metaImages = parse_fields($metaImages->toArray(), 1);
     
         return $metaImages;
     }
@@ -457,8 +403,7 @@ class Article extends Base
             $file['fullFileUrl'] = $file->getFullFileUrlAttr('',$file);
             unset($file['remark']);
         }
-        $metaFiles = $metaFiles->toArray();
-        $metaFiles = parse_fields($metaFiles, 1);
+        $metaFiles = parse_fields($metaFiles->toArray(), 1);
 
         return $metaFiles;
     }

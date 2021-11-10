@@ -5,9 +5,9 @@ use think\Model;
 /**
  * 权限规则model
  */
-class AuthGroupModel extends BaseModel
+class RoleModel extends BaseModel
 {
-    protected $name = 'sys_auth_group';
+    protected $name = 'sys_role';
 
 	/**
 	 * 传递主键id删除数据
@@ -19,11 +19,11 @@ class AuthGroupModel extends BaseModel
     {
 		$this->where($map)->delete();
 		$group_map=[
-			'group_id'=>$map['id']
+			'menu_id'=>$map['id']
 		];
 		// 删除关联表中的组数据
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-		$result = $AuthGroupAccessModel->deleteData($group_map);
+        $UserRoleModel = new UserRoleModel();
+		$result = $UserRoleModel->deleteData($group_map);
 		return $result;
 	}
 

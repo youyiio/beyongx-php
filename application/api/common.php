@@ -84,3 +84,56 @@ function getJWT($token) {
 
     return $data;
 }
+
+//获取树状结构
+function getTree($data, $pid = 0, $fieldPK = 'id', $fieldPid = 'pid', $depth = 1, $currentDepth = 1)
+{
+    if (empty($data)) {
+        return array();
+    }
+    
+    $arr = array();
+    foreach ($data as $v) {
+        if ($v[$fieldPid] == $pid) {
+            $arr[$v[$fieldPK]] = $v;
+            $arr[$v[$fieldPK]]['level'] = $currentDepth;
+            $children = getTree($data, $v[$fieldPK], $fieldPK, $fieldPid, $depth, $currentDepth + 1);
+
+            //判断是否有children
+            if (empty($children)) {
+                $arr[$v[$fieldPK]]["hasChildren"] = false;
+                continue;
+            }
+            $arr[$v[$fieldPK]]["hasChildren"] = true;
+
+            //判断深度
+            if ($depth == $currentDepth) {
+                $arr[$v[$fieldPK]]['children'] = [];
+                continue;
+            }
+            $arr[$v[$fieldPK]]['children'] = $children;
+        }
+    }
+
+    return array_merge($arr);
+}
+
+//获取list数据结构
+function getList($data, $pid = 0, $fieldPri = 'cid', $fieldPid = 'pid', $level = 1)
+{
+    if (empty($data)) {
+        return array();
+    }
+    $arr = array();
+    foreach ($data as $v) {
+        $id = $v[$fieldPri];
+        if ($v[$fieldPid] == $pid) {
+            $v['_level'] = $level;
+           
+            array_push($arr, $v);
+            $tmp = getList($data, $id, $fieldPri, $fieldPid, $level + 1);
+            $arr = array_merge($arr, $tmp);
+        }
+    }
+    return array_merge($arr);
+}
