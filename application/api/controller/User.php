@@ -4,8 +4,8 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\logic\UserLogic;
-use app\common\model\AuthGroupAccessModel;
 use app\common\model\DeptModel;
+use app\common\model\RoleModel;
 use app\common\model\UserModel;
 use app\common\model\UserRoleModel;
 use think\facade\Cache;
@@ -94,7 +94,7 @@ class User extends Base
         }
 
         $UserLogic = new UserLogic();
-        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email']);
+        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email'], '', $params['deptId']);
         
         if (!$uid) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
@@ -105,7 +105,7 @@ class User extends Base
             foreach ($params['roleIds'] as $k => $v) {
                 $group[] = [
                     'uid' => $uid,
-                    'group_id' => $v
+                    'role_id' => $v
                 ];
             }
             $UserRoleModel = new UserRoleModel();
@@ -113,6 +113,7 @@ class User extends Base
         }
 
         $user = UserModel::get($uid);
+        $user['dept'] = DeptModel::get($user['dept_id']);
         $returnData = parse_fields($user, 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);  
@@ -140,31 +141,36 @@ class User extends Base
         if (isset($params['weixin'])) {
             $user->weixin = $params['weixin'];
         }
+        if (isset($params['deptId'])) {
+            $user->dept_id = $params['deptId'];
+        }
         $res = $user->save();
 
         if (!$res) {
             return ajax_return(ResultCode::ACTION_SUCCESS, '操作失败!');
         }
 
-        // 修改权限
+        //修改对应角色
         $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->where(['role_id'=>$uid])->delete();
+        $UserRoleModel->where(['uid'=>$uid])->delete();
        
         if (!empty($params['roleIds'])) {
-            $group = [];
+            $data = [];
             foreach ($params['roleIds'] as $k => $v) {
-                $group[] = [
+                $data[] = [
                     'uid'=>$uid,
-                    'group_id'=>$v
+                    'role_id'=>$v
                 ];
             }
-            $UserRoleModel->insertAll($group);
+            $UserRoleModel->insertAll($data);
         }
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
         $returnData = $user;
-        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('group_id');
+        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('role_id');
+        $returnData['dept'] = DeptModel::get($user['dept_id']);
+        unset($returnData['dept_id']);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -266,23 +272,25 @@ class User extends Base
         $uid = $params['id'];
         // 修改权限
         $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->where(['role_id'=>$uid])->delete();
+        $UserRoleModel->where(['uid'=>$uid])->delete();
         if (!empty($params['roleIds'])) {
-            $group = [];
+            $data = [];
             foreach ($params['roleIds'] as $k => $v) {
-                $group[] = [
+                $data[] = [
                     'uid'=>$uid,
-                    'group_id'=>$v
+                    'role_id'=>$v
                 ];
             }
-            $UserRoleModel->insertAll($group);
+            $UserRoleModel->insertAll($data);
         }
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
-        $returnData = UserModel::get($uid);
-        $UserRoleModel = new UserRoleModel();
-        $returnData['roleIds'] = $UserRoleModel->where('role_id', $uid)->column('group_id');
+        $UserModel = new UserModel();
+        $returnData = $UserModel->where('id', $uid)->field('id,nickname')->find();
+
+        $RoleModel = new RoleModel();
+        $returnData['roleIds'] = $RoleModel->alias('r')->join('sys_user_role u', 'r.id = u.role_id')->where('uid', $uid)->field('r.id,r.name')->select();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

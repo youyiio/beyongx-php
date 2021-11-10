@@ -12,9 +12,10 @@ class User extends Validate
 {
 
     protected $rule = [
-        'uid'        => ['require', 'integer'],
+        'id'        => ['require', 'integer'],
         'nickname'   => ['require','max'=> 32],
         'username'   => ['require','checkUsername'],
+        'roleIds'    => ['array'],
         'email'      => ['email','unique:' . 'sys_user,email'],
         'password'   => ['require','min'=> 6, 'max'=> 16],
         'repassword' => ['require','confirm:password'],
@@ -22,12 +23,12 @@ class User extends Validate
         'sex'        => ['in'=> [0,1,2]],
         'born'       => ['date'],
         'qq'         => ['regex'=>'/^[1-9][0-9]{5,}$/'],
-        'mobile'     => ['regex'=>'/\d{11}/'],
+        'mobile'     => ['require','regex'=>'/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|16[6]|(17[0,3,5-8])|(18[0-9])|19[89])\d{8}$/'],
         'phone'      => ['regex'=>'/^(\d{3,4}-)?\d{7,8}$/'],
         'website'    => ['url'],
 
-        'newPwd'   => ['require','min'=> 6, 'max'=> 16, 'checkNewPwd'],
-        'newRePwd' => ['require','confirm:newPwd'],
+        // 'newPwd'   => ['require','min'=> 6, 'max'=> 16, 'checkNewPwd'],
+        // 'newRePwd' => ['require','confirm:newPwd'],
     ];
 
     protected function checkUsername($value, $rule, $data)
@@ -60,10 +61,11 @@ class User extends Validate
     }
 
     protected $message = [
-        'uid'              => '用户id错误',
+        'id'              => '用户id错误',
         'nickname.require' => '用户名必填',
         'nickname.max'     => '用户名最多32个字符',
         'nickname.unique'  => '用户名已存在',
+        'roleIds.require'  => '角色ID必填',
         'email.email'      => '邮箱格式错误',
         'email.unique'     => '邮箱已注册',
         'password.require' => '密码必填',
@@ -78,22 +80,13 @@ class User extends Validate
         'mobile'           => '手机号有误',
         'phone'            => '电话号码有误',
         'website'          => '网址有误',
-        'newPwd.require' => '密码必填',
-        'newPwd.min'     => '密码最少6个字符',
-        'newPwd.max'     => '密码最多16个字符',
-        'newRePwd'       => '两次密码不一致',
     ];
 
     protected $scene = [
-        'register' => ['username','password','repassword','code'],
-        'login' => ['username','password','code'],
-        'add' => ['email','password','repassword'],
+        'create' => ['nickname','mobile','email','password','roleIds'], //新增用户
+        'edit' => ['id','nickname','mobile','email','roleIds','qq','wechat'], 
         'profile' => ['nickname','sex','born','qq','mobile','phone','website'],
-        'modifyPassword' => ['password','newPwd','newRePwd'], //自己修改
-        'changePwd' => ['uid','newPwd','newRePwd'], //管理员强制修改用户操作
-        'resetPwd' => ['password'],
-        'edit' => ['email', 'phone', 'nickname']
+        'modifyPassword' => ['id','password'], 
+        'addRoles' => ['id', 'roleIds']
     ];
-
-
 }

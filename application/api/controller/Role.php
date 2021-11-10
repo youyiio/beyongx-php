@@ -90,8 +90,7 @@ class Role extends Base
     //删除角色
     public function delete($id)
     {
-        
-        //删除AuthGroup表中的数据
+        //删除role表中的数据
         $role = RoleModel::get($id);
         $res = $role->delete();
         
@@ -99,7 +98,7 @@ class Role extends Base
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
 
-        //删除AuthGroupAccess表中的数据
+        //删除RoleMenu表中的数据
         $UserRoleModel = new UserRoleModel();
         $UserRoleModel->where('role_id', '=', $id)->delete();
 
