@@ -1,0 +1,74 @@
+# 定义一些变量, 下面各阶段会使用
+variables:
+  #server_ip: 192.168.1.52
+  #ssh_port: 22
+  bundle_name: bundle.tar.gz
+  upload_path: /root/cicd/beyongx
+  deploy_path: /data/web/demo.beyongx.com
+
+# 定义执行的各个阶段及顺序
+stages:
+  - build
+  - test
+  - deploy-for-ci # deploy for tester
+  - deploy-for-cd # deploy for product
+
+# 编译打包，job测试编译是否出现问题
+build_job:
+  stage: build
+  only:
+    - master
+  script:
+    - whereis php
+
+# 测试阶段，如junit,jmeter等
+test_job:
+  stage: test
+  only:
+    - master
+  script:
+    - ls -l
+
+# 开发持续集成，部署测试环境，需重新编译打包
+deploy_for_ci_job:
+  stage: deploy-for-ci
+  only:
+    - master
+  script:
+    - pwd
+    - ls -l
+    - composer install
+    - tar -czf $bundle_name addons application config data extend public route thinkphp vendor .env build.php check_env.sh start_*
+    - ls -l ./
+    - echo ${ci_server_ip}
+    - echo $ci_ssh_port
+    - ssh root@$ci_server_ip -p $ci_ssh_port "rm -fr $upload_path && mkdir $upload_path"
+    - scp -P $ci_ssh_port ./$bundle_name root@$ci_server_ip:$upload_path/
+    - scp -P $ci_ssh_port .gitlab-ci.sh root@$ci_server_ip:$upload_path/
+    - ssh root@$ci_server_ip -p $ci_ssh_port "ls -l $upload_path"
+    - ssh root@$ci_server_ip -p $ci_ssh_port "cd $upload_path && chmod +x .gitlab-ci.sh && ./.gitlab-ci.sh $deploy_path"
+
+# 持续交付，部署生产环境，需重新编译打包
+deploy_for_cd_job:
+  stage: deploy-for-cd
+  only:
+    - release
+  script:
+    - pwd
+    - ls -l
+    - composer install
+    - tar -czf $bundle_name addons application config data extend public route thinkphp vendor .env build.php check_env.sh start_*
+    - ls -l ./
+    - echo ${cd_server_ip}
+    - echo $cd_ssh_port
+    - ssh root@$cd_server_ip -p $cd_ssh_port "rm -fr $upload_path && mkdir $upload_path"
+    - scp -P $cd_ssh_port ./$bundle_name root@$cd_server_ip:$upload_path/
+    - scp -P $cd_ssh_port .gitlab-ci.sh root@$cd_server_ip:$upload_path/
+    - ssh root@$cd_server_ip -p $cd_ssh_port "ls -l $upload_path"
+    - ssh root@$cd_server_ip -p $cd_ssh_port "cd $upload_path && chmod +x .gitlab-ci.sh && ./.gitlab-ci.sh $deploy_path"
+  artifacts:
+    when: on_success # job成功时上传artifacts
+    expire_in: 1 week # 一周后过期
+    paths:
+      - $bundle_name
+
