@@ -3,6 +3,8 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\DeptModel;
+use app\common\model\UserModel;
+use think\Validate;
 
 class Dept extends Base
 {
@@ -25,5 +27,113 @@ class Dept extends Base
         $returnData = $data;
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+    }
+
+    //查询部门列表
+    public function list()
+    {
+        $params = $this->request->put();
+
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 10;
+        $filters = $params['filters']?? '';
+        $pid = $filters['pid']?? 0;
+        $depth = $filters['depth']?? 1;
+        $struct = $filters['struct']?? '';
+
+        $DeptModel = new DeptModel();
+        $list = $DeptModel->paginate($size, false, ['page'=>$page])->toArray();
+
+        $returnData['current'] = $list['current_page'];
+        $returnData['pages'] = $list['last_page'];
+        $returnData['size'] = $list['per_page'];
+        $returnData['total'] = $list['total'];
+        
+        // 获取树形或者list数据
+        if ($struct === 'list') {
+            $data = getList($list['data'], $pid, 'id', 'pid');
+        } else {
+            $data = getTree($list['data'], $pid, 'id', 'pid', $depth);
+        }
+        //返回数据
+        $returnData['records'] = parse_fields($data, 1);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+    }
+
+    //新增部门
+    public function create()
+    {
+        $params = $this->request->put();
+
+        $validate = Validate::make([
+            'pid' => 'integer',
+            'name' => 'require|chsDash',
+            'remark' => 'chsDash',
+            'sort' => 'integer'
+        ]);
+
+        if (!$validate->check($params)) {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误', $validate->getError());
+        }
+
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+
+        $dept = new DeptModel();
+        $params['create_time'] = date_time();
+        $params['update_time'] = date_time();
+        $params['create_by'] = $userInfo['nickname']?? '';
+        $params['update_by'] = $userInfo['nickname']?? '';
+        $dept->isUpdate(false)->allowField(true)->save($params);
+
+        $id = $dept->id;
+        if (!$id) {
+            return ajax_return(ResultCode::E_DB_ERROR, '新增失败!');
+        }
+
+        $data = DeptModel::get($id);
+        $returnData = parse_fields($data, 1);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+    }
+
+    //编辑部门
+    public function edit()
+    {
+        $params = $this->request->put();
+        $id = $params['id'];
+        $dept = DeptModel::get($id);
+        if (!$dept) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '部门不存在!');
+        }
+
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+        $params['update_by'] = $userInfo['nickname'] ?? '';
+        $params['update_time'] = date_time(); 
+        $DeptModel = new DeptModel();
+     
+        $result = $DeptModel->update($params);
+
+        if (!$result) {
+            return ajax_return(ResultCode::E_DB_ERROR, '编辑失败!');
+        }
+        
+        $returnData = parse_fields($dept, 1);
+        
+        return ajax_return(ResultCode::E_DB_ERROR, '操作成功!', $returnData);
+    }
+
+    //删除部门
+    public function delete($id)
+    {
+        $dept = DeptModel::get($id);
+        if (!$dept) {
+            $this->error('分类不存在!');
+        }
+        $dept->delete();
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }
 }

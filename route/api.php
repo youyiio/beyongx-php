@@ -89,6 +89,18 @@ Route::group('api', function () {
     Route::rule("menu/edit", 'api/Menu/edit', 'post');
     Route::rule("menu/:id", 'api/Menu/delete', 'delete');
 
+    //部门管理相关
+    Route::rule("dept/list", 'api/Dept/list', 'get');
+    Route::rule("dept/create", 'api/Dept/create', 'post');
+    Route::rule("dept/edit", 'api/Dept/edit', 'post');
+    Route::rule("dept/:id", 'api/Dept/delete', 'delete');
+
+    //岗位管理相关
+    Route::rule("job/list", 'api/Job/list', 'get');
+    Route::rule("job/create", 'api/Job/create', 'post');
+    Route::rule("job/edit", 'api/Job/edit', 'post');
+    Route::rule("job/:id", 'api/Job/delete', 'delete');
+
     //字典管理相关
     Route::rule("config/list", 'api/Config/list', 'get');
     Route::rule("config/create", 'api/Config/create', 'post');
