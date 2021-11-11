@@ -14,6 +14,7 @@ class Category extends Base
         $size = $params['size']?: 10;
         $filters = $params['filters']?: '';
         $pid = $filters['pid']?? 0;
+        $struct = $filters['struct']?? '';
         $depth = $filters['depth']?? 1;
 
         if (!empty($filters['startTime'])) {
@@ -35,10 +36,11 @@ class Category extends Base
         $returnData['total'] = $list['total'];
         
         // 获取树形或者list数据
-        $data = getTree($list['data'], $pid, 'id', 'pid', $depth);
-        if (isset($filters['struct']) && $filters['struct'] === 'list') {
-            $data = getList($list['data'], $pid, 'id', 'pid', $depth);
-        } 
+        if ($struct === 'list') {
+            $data = getList($list['data'], $pid, 'id', 'pid');
+        } else {
+            $data = getTree($list['data'], $pid, 'id', 'pid', $depth);
+        }
 
         //返回数据
         $returnData['records'] = parse_fields($data, 1);
@@ -88,14 +90,6 @@ class Category extends Base
         $category = CategoryModel::get($id);
         if (!$category) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '分类不存在!');
-        }
-
-        
-        //查看分类名是否已存在
-        $CategoryModel = new CategoryModel();
-        $name = $CategoryModel->where('name', $params['name'])->limit(1)->select();
-        if (count($name) >= 1) {
-            return ajax_return(ResultCode::E_PARAM_ERROR, "分类名已存在!");
         }
         if (empty($params['name'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
