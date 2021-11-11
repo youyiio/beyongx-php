@@ -13,6 +13,7 @@ use beyong\commons\utils\StringUtils;
 use app\common\logic\CodeLogic;
 
 use app\common\model\ActionLogModel;
+use app\common\model\UserRoleModel;
 use think\facade\Session;
 
 class Sign extends Base
@@ -47,9 +48,9 @@ class Sign extends Base
         //请求的body数据
         $params = $this->request->put();
 
-        $check = validate('User')->scene('register')->check($params);
+        $check = validate('Sign')->scene('register')->check($params);
         if ($check !== true) {
-            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('Sign')->getError());
         }
 
         $code = $params["code"];
@@ -99,12 +100,12 @@ class Sign extends Base
         $UserModel->where('id', $user['id'])->setField($profileData);
 
         //权限初始化
-        $group[] = [
+        $userRole[] = [
             'uid' => $user->id,
-            'group_id' => config('user_group_id')
+            'role_id' => config('user_group_id')
         ];
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $AuthGroupAccessModel->insertAll($group);
+        $UserRoleModel = new UserRoleModel();
+        $UserRoleModel->insertAll($userRole);
 
         $returnData = [
             'uid' => $user->id,
@@ -126,9 +127,13 @@ class Sign extends Base
             return ajax_error(ResultCode::SC_FORBIDDEN, '非法访问！请检查请求方式！');
         }
 
-        $needParams = ['username', 'password'];
-        
-        $params = $params = $this->request->put();;
+        //请求的body数据
+        $params = $this->request->put();
+
+        $check = validate('Sign')->scene('login')->check($params);
+        if ($check !== true) {
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('Sign')->getError());
+        }
 
         //登录次数判断
         $tryLoginCountMark = $params['username'] . '_try_login_count';
