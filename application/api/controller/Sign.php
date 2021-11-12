@@ -54,22 +54,25 @@ class Sign extends Base
         }
 
         $code = $params["code"];
+        $username = $params['username'];
 
         //验证码验证
         $codeLogic = new CodeLogic();
-        if (PregUtils::isMobile($params['username'])) {
-            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
+        if (PregUtils::isMobile($username)) {
+            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $username, $code);
             if ($check !== true) {
                 return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $codeLogic->getError());
             }
-        } else if (PregUtils::isEmail($params['username'])) {
-            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $params['username'], $code);
+        } else if (PregUtils::isEmail($username)) {
+            $check = $codeLogic->checkCode(CodeLogic::TYPE_REGISTER, $username, $code);
             if ($check !== true) {
                 return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $codeLogic->getError());
             }
         }
        
-
+        //消费验证码
+        $codeLogic->consumeCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code);
+       
         //确认注册各字段
         $mobile = StringUtils::getRandNum(11);
         $email = $mobile .'@' . StringUtils::getRandString(6) . '.com';
