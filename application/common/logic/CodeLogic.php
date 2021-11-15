@@ -14,7 +14,8 @@ use think\facade\Cache;
 
 use beyong\commons\utils\PregUtils;
 use beyong\commons\utils\StringUtils;
-use LogicException;
+use app\common\exception\LogicException;
+use app\common\library\ResultCode;
 
 /**
  * 验证码管理
@@ -44,7 +45,7 @@ class CodeLogic extends Model
         $user = $UserModel->findByEmail($email);
         if (empty($user)) {
             $this->error = '邮箱不存在';
-            throw new LogicException("邮箱不存在！");
+            throw new LogicException(ResultCode::E_USER_EMAIL_NOT_EXIST, "邮箱不存在！");
             return false;
         }
 
@@ -80,7 +81,7 @@ class CodeLogic extends Model
         $user = $UserModel->findByEmail($email);
         if ($user) {
             //$this->error = '邮箱已经注册！';
-            throw new LogicException("邮箱已经注册！");
+            throw new LogicException(ResultCode::E_USER_EMAIL_HAS_EXIST, "邮箱已经注册！");
             return false;
         }
 
@@ -98,7 +99,7 @@ class CodeLogic extends Model
 
         $res = send_mail($email, $subject, $message, true, $data);
         if ($res !== true) {
-            throw new LogicException($res);
+            throw new LogicException(ResultCode::E_THIRDPARTY_ERROR, $res);
         }
 
         // 缓存验证码
@@ -118,14 +119,14 @@ class CodeLogic extends Model
         $user = $UserModel->findByMobile($mobile);
         if ($user) {
             //$this->error = '手机已经注册！';
-            throw new LogicException("手机已经注册！");
+            throw new LogicException(ResultCode::E_USER_MOBILE_HAS_EXIST, "手机已经注册！");
             return false;
         }
 
         $smsConfig = config('sms.');
         $action = self::TYPE_REGISTER;
         if (!isset($smsConfig["actions"][$action])) {
-            throw new LogicException("短信action类型不支持或者未配置!");
+            throw new LogicException(ResultCode::E_DATA_ERROR, "短信action类型不支持或者未配置!");
         }
 
         \beyong\sms\Config::init($smsConfig);
@@ -141,7 +142,7 @@ class CodeLogic extends Model
         
         $response = $client->to($mobile)->sign($sign)->template($template, $templateParams)->send();
         if ($response !== true) {            
-            throw new LogicException($client->getError());
+            throw new LogicException(ResultCode::E_THIRDPARTY_ERROR, $client->getError());
         }
 
         Cache::set($action . CACHE_SEPARATOR . $mobile, $code, 5 * 60);
@@ -158,7 +159,7 @@ class CodeLogic extends Model
     {
         $smsConfig = config('sms.');
         if (!isset($smsConfig["actions"][$action])) {
-            throw new LogicException("短信action类型不支持或者未配置!");
+            throw new LogicException(ResultCode::E_DATA_ERROR, "短信action类型不支持或者未配置!");
         }
         
         \beyong\sms\Config::init($smsConfig);
@@ -174,7 +175,7 @@ class CodeLogic extends Model
         
         $response = $client->to($mobile)->sign($sign)->template($template, $templateParams)->send();
         if ($response !== true) {            
-            throw new LogicException($client->getError());
+            throw new LogicException(ResultCode::E_THIRDPARTY_ERROR, $client->getError());
         }
 
         Cache::set($action . CACHE_SEPARATOR . $mobile, $code, 5 * 60);
@@ -239,14 +240,14 @@ class CodeLogic extends Model
         $UserModel = new UserModel();
         $user = $UserModel->findByMobile($mobile);
         if (!$user) {
-            throw new LogicException("手机号不正确！");
+            throw new LogicException(ResultCode::E_USER_MOBILE_NOT_EXIST, "手机号不正确！");
             return false;
         }
 
         $smsConfig = config('sms.');
         $action = self::TYPE_RESET_PASSWORD;
         if (!isset($smsConfig["actions"][$action])) {
-            throw new LogicException("短信action类型不支持或者未配置!");
+            throw new LogicException(ResultCode::E_DATA_ERROR, "短信action类型不支持或者未配置!");
         }
         
         \beyong\sms\Config::init($smsConfig);
@@ -262,7 +263,7 @@ class CodeLogic extends Model
         
         $response = $client->to($mobile)->sign($sign)->template($template, $templateParams)->send();
         if ($response !== true) {            
-            throw new LogicException($client->getError());
+            throw new LogicException(ResultCode::E_THIRDPARTY_ERROR, $client->getError());
         }
 
         Cache::set($action . CACHE_SEPARATOR . $mobile, $code, 5 * 60);
