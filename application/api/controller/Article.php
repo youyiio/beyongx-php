@@ -29,8 +29,8 @@ class Article extends Base
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('Article')->getError());
         }
      
-        $page = $params['page'] ?: 1;
-        $size = $params['size'] ?: 10;
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
         $filters = $params['filters'] ?? []; 
 
         $where = [];
@@ -72,7 +72,7 @@ class Article extends Base
        
         //添加缩略图
         foreach ($list as $art) {
-            $art['thumbImage'] = $this->findThumbImage($art);
+            $art['thumbImage'] = findThumbImage($art);
         }
 
         $list = $list->toArray();
@@ -103,11 +103,11 @@ class Article extends Base
         $tags = $articleMetaModel->_metas($art['id'], 'tag');
 
         //缩略图
-        $thumbImage = $this->findThumbImage($art);
+        $thumbImage = findThumbImage($art);
         //附加图片
-        $metaImages = $this->FindMetaImages($art);
+        $metaImages = findMetaImages($art);
         //附加文件
-        $metaFiles = $this->findMetaFiles($art);
+        $metaFiles = findMetaFiles($art);
       
         //返回数据
         $returnData = parse_fields($art, 1);
@@ -148,12 +148,12 @@ class Article extends Base
             'description' => $params['description'],
             'keywords' => $params['keywords'],
             'author' => $author,
-            'tags' => $params['tags']?: '',
+            'tags' => $params['tags']?? '',
             'content' => remove_xss($params['content']),
             'category_ids' => $params['categoryIds'],
-            'thumb_image_id' => $params['thumbImageId']?: '',
-            'meta_image_ids' => $params['metaImageIds']?: '',
-            'meta_file_ids' => $params['metaFileIds']?: '',
+            'thumb_image_id' => $params['thumbImageId']?? '',
+            'meta_image_ids' => $params['metaImageIds']?? '',
+            'meta_file_ids' => $params['metaFileIds']?? '',
             'status' => $status,
         ];
         $articleLogic = new ArticleLogic();
@@ -172,11 +172,11 @@ class Article extends Base
         $articleMetaModel = new ArticleMetaModel();
         $tags = $articleMetaModel->_metas($artId, 'tag');
         //缩略图
-        $thumbImage = $this->findThumbImage($art);
+        $thumbImage = findThumbImage($art);
         //附加图片
-        $metaImages = $this->FindMetaImages($art);
+        $metaImages = findMetaImages($art);
         //附加文件
-        $metaFiles = $this->findMetaFiles($art);
+        $metaFiles = findMetaFiles($art);
       
         //返回数据
         $returnData = parse_fields($art, 1);
@@ -216,11 +216,11 @@ class Article extends Base
         $tags = $articleMetaModel->_metas($aid, 'tag');
 
         //缩略图
-        $thumbImage = $this->findThumbImage($art);
+        $thumbImage = findThumbImage($art);
         //附加图片
-        $metaImages = $this->FindMetaImages($art);
+        $metaImages = findMetaImages($art);
         //附加文件
-        $metaFiles = $this->findMetaFiles($art);
+        $metaFiles = findMetaFiles($art);
 
         //返回json格式
         $returnData = parse_fields($art->toArray(),1);
@@ -333,14 +333,14 @@ class Article extends Base
         }
 
         $params = $this->request->put();
-        $page = $params['page']?: 1;
-        $size = $params['size']?: 5;
-        $filters = $params['filters']?: '';
-
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 5;
+        $filters = $params['filters']?? '';
+        $keyword = $filters['keyword']?? '';
         //查询评论
         $CommentModel = new CommentModel();
         $where =[
-            ['content', 'like', '%'. $filters['keyword'].'%'],
+            ['content', 'like', '%'.$keyword.'%'],
             ['article_id', '=', $id],
             ['status', '=', CommentModel::STATUS_PUBLISHED]
         ];

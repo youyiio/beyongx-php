@@ -2,6 +2,7 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
+use app\common\model\MenuModel;
 use app\common\model\RoleModel;
 use think\Validate;
 
@@ -19,13 +20,13 @@ class Menu extends Base
         $depth = $filters['depth']?? 1;
 
         $where = [];
-        $where[] = ['belongs_to', '=', 'admin'];
+        $where[] = ['belongs_to', '=', 'api'];
         if (!empty($keyword)) {
             $where[] = ['title', 'like', '%'.$keyword.'%'];
         }
         
-        $RoleModel = new RoleModel();
-        $list = $RoleModel->where($where)->order('id asc')->paginate($size, false, ['page'=>$page])->toArray();
+        $MenuModel = new MenuModel();
+        $list = $MenuModel->where($where)->order('id asc')->paginate($size, false, ['page'=>$page])->toArray();
      
        
         // 获取树形或者list数据
