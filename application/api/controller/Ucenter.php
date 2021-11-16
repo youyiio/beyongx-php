@@ -46,4 +46,23 @@ class Ucenter extends Base
         return ajax_success($returnData);
     }
     
+    //编辑个人资料
+    public function profile()
+    {
+        $userInfo = $this->user_info;
+        $user = UserModel::get($userInfo['uid']);
+
+        if(!$user) {
+            ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
+        }
+
+        $params = $this->params->put();
+        
+    }
+
+    //查询权限菜单
+    public function menus()
+    {
+
+    }
 }

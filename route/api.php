@@ -56,6 +56,8 @@ Route::group('api', function () {
 
     //个人中心相关
     Route::rule("ucenter/getInfo", 'api/Ucenter/getInfo', 'get');
+    Route::rule("ucenter/profile", 'api/Ucenter/profile', 'post');
+    Route::rule("ucenter/getInfo", 'api/Ucenter/getInfo', 'post');
 
     //文章分类相关
     Route::rule("category/list", 'api/Category/list', 'get|post');
@@ -78,37 +80,52 @@ Route::group('api', function () {
     Route::rule("server/status", 'api/Server/status', 'get');
 
     //友链相关
-    Route::rule("link/list", 'api/Link/list', 'get');
+    Route::rule("link/list", 'api/Link/list', 'get|post');
     Route::rule("link/create", 'api/Link/create', 'post');
     Route::rule("link/edit", 'api/Link/edit', 'post');
     Route::rule("link/:id", 'api/Link/delete', 'delete');
 
     //菜单管理相关
-    Route::rule("menu/list", 'api/Menu/list', 'get');
+    Route::rule("menu/list", 'api/Menu/list', 'get|post');
     Route::rule("menu/create", 'api/Menu/create', 'post');
     Route::rule("menu/edit", 'api/Menu/edit', 'post');
     Route::rule("menu/:id", 'api/Menu/delete', 'delete');
 
     //部门管理相关
-    Route::rule("dept/list", 'api/Dept/list', 'get');
+    Route::rule("dept/list", 'api/Dept/list', 'get|post');
     Route::rule("dept/create", 'api/Dept/create', 'post');
     Route::rule("dept/edit", 'api/Dept/edit', 'post');
     Route::rule("dept/:id", 'api/Dept/delete', 'delete');
 
     //岗位管理相关
-    Route::rule("job/list", 'api/Job/list', 'get');
+    Route::rule("job/list", 'api/Job/list', 'get|post');
     Route::rule("job/create", 'api/Job/create', 'post');
     Route::rule("job/edit", 'api/Job/edit', 'post');
     Route::rule("job/:id", 'api/Job/delete', 'delete');
 
     //字典管理相关
-    Route::rule("config/list", 'api/Config/list', 'get');
+    Route::rule("config/list", 'api/Config/list', 'get|post');
     Route::rule("config/create", 'api/Config/create', 'post');
     Route::rule("config/edit", 'api/Config/edit', 'post');
     Route::rule("config/:id", 'api/Config/delete', 'delete');
 
     Route::rule("log/list", 'api/Log/list', 'get|post');
 
+    //移动端通用公共接口
+    Route::rule('app/config/:name/status', 'api/app.Config/status', 'get');
+    Route::rule('app/config/base', 'api/app.Config/base', 'get');
+    Route::rule('app/carousel', 'api/Ad/carousel', 'post');
+
+    //移动端公共管理相关
+    Route::rule('app/article/timeline', 'api/app.Article/timeline', 'get|post');
+    Route::rule('app/article/latest', 'api/app.Article/latest', 'get|post');
+    Route::rule('app/article/hottest', 'api/app.Article/hotTest', 'get|post');
+    Route::rule('app/article/:aid', 'api/app.Article/query', 'get');
+    Route::rule('app/article/comments/:aid', 'api/app.Article/comments', 'get|post');
+    Route::rule('app/article/related/:aid', 'api/app.Article/related', 'get|post');
+    Route::rule('app/category/list', 'api/app.Article/categoryList', 'get|post');
+    Route::rule('app/link/list', 'api/app.Article/linkList', 'get|post');
+    
     // 定义miss路由
     Route::miss('api/Base/miss');
 

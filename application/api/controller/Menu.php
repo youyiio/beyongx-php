@@ -26,21 +26,26 @@ class Menu extends Base
         }
         
         $MenuModel = new MenuModel();
-        $list = $MenuModel->where($where)->order('id asc')->paginate($size, false, ['page'=>$page])->toArray();
+        $list = $MenuModel->where($where)->order('id asc')->select();
      
        
         // 获取树形或者list数据
-        $data = getTree($list['data'], $pid, 'id', 'pid', $depth);
+        $data = getTree($list, $pid, 'id', 'pid', $depth);
         if (isset($filters['struct']) && $filters['struct'] === 'list') {
-            $data = getList($list['data'], $pid, 'id', 'pid', $depth);
+            $data = getList($list, $pid, 'id', 'pid', $depth);
         } 
         
+        //分页
+        $total = count($data);  //总数
+        $pages = ceil($total / $size); //总页数
+        $start = ($page - 1) * $size;
+        $records =  array_slice($data, $start, $size); 
         //返回数据
-        $returnData['current'] = $list['current_page'];
-        $returnData['pages'] = $list['last_page'];
-        $returnData['size'] = $list['per_page'];
-        $returnData['total'] = $list['total'];
-        $returnData['records'] = parse_fields($data, 1);
+        $returnData['current'] = $page;
+        $returnData['pages'] = $pages;
+        $returnData['size'] = $size;
+        $returnData['total'] = $total;
+        $returnData['records'] = parse_fields($records, 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
