@@ -57,7 +57,7 @@ Route::group('api', function () {
     //个人中心相关
     Route::rule("ucenter/getInfo", 'api/Ucenter/getInfo', 'get');
     Route::rule("ucenter/profile", 'api/Ucenter/profile', 'post');
-    Route::rule("ucenter/getInfo", 'api/Ucenter/getInfo', 'post');
+    Route::rule("ucenter/menus", 'api/Ucenter/menus', 'get');
 
     //文章分类相关
     Route::rule("category/list", 'api/Category/list', 'get|post');

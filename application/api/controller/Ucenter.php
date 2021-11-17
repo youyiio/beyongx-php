@@ -3,7 +3,11 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
+use app\common\model\MenuModel;
+use app\common\model\RoleMenuModel;
+use app\common\model\RoleModel;
 use app\common\model\UserModel;
+use app\common\model\UserRoleModel;
 
 //个人中心
 class Ucenter extends Base
@@ -50,19 +54,59 @@ class Ucenter extends Base
     public function profile()
     {
         $userInfo = $this->user_info;
-        $user = UserModel::get($userInfo['uid']);
+        $user = UserModel::get($userInfo->uid);
 
-        if(!$user) {
+        if (!$user) {
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
 
-        $params = $this->params->put();
+        $params = $this->request->put();
+        $res = $user->isUpdate(true)->allowField(true)->save($params);
+
+        if (!$res) {
+            ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
+        if (isset($params['description'])) {
+            $user->meta('description', $params['description']);
+        }   
+
+        //返回数据
+        $UserModel = new UserModel();
+        $data = $UserModel->where('id', $userInfo->uid)->field('id,nickname,head_url')->find();
+        $roleIds = UserRoleModel::where(['uid'=> $userInfo->uid])->column('role_id');
+
+        $RoleModel = new RoleModel();
+        $data['roles'] = $RoleModel->where('id', 'in', $roleIds)->field('id,name')->select();
+        $data['description'] = $user->metas('description');
+        $returnData = parse_fields($data->toArray(), 1);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
         
     }
 
     //查询权限菜单
     public function menus()
     {
+        $userInfo = $this->user_info;
+        $user = UserModel::get($userInfo->uid);
 
+        if (!$user) {
+            ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
+        }
+        $roleIds = UserRoleModel::where(['uid'=> $userInfo->uid])->column('role_id');
+
+        $RolemenuModel = new RoleMenuModel();
+        $menuIds = $RolemenuModel->where('role_id', 'in', $roleIds)->column('menu_id');
+     
+        $MenuModel = new MenuModel();
+        $fields = 'id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to';
+        $where[] = ['belongs_to', '=', 'api'];
+        $where[] = ['id', 'in', $menuIds];
+        $list = $MenuModel->where($where)->field($fields)->select();
+
+        $list = parse_fields($list, 1);
+        $returnData = getTree($list, 0 , 'id', 'pid', 6);
+        
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 }
