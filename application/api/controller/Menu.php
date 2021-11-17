@@ -3,7 +3,6 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\MenuModel;
-use app\common\model\RoleModel;
 use think\Validate;
 
 class Menu extends Base
@@ -27,7 +26,6 @@ class Menu extends Base
         $MenuModel = new MenuModel();
         $list = $MenuModel->where($where)->order('id asc')->select();
      
-       
         // 获取树形或者list数据
         $data = getTree($list, $pid, 'id', 'pid', $depth);
         if (isset($filters['struct']) && $filters['struct'] === 'list') {
@@ -56,7 +54,7 @@ class Menu extends Base
 
         $validate = Validate::make([
             'pid' => 'require|integer',
-            'name' => 'unique:'. config('database.prefix') . 'sys_auth_rule,name',
+            'name' => 'unique:'. config('database.prefix') . 'sys_menu,name',
             'title' => 'require',
             'type' => 'require|integer',
            
@@ -69,11 +67,11 @@ class Menu extends Base
         $MenuModel->pid = $params['pid'];
         $MenuModel->sort = $params['sort']?? 1;
         $MenuModel->component = $params['component']?? '';
-        $MenuModel->name = $params['icnameon']?? '';
+        $MenuModel->name = $params['name']?? '';
         $MenuModel->title = $params['title'];
         $MenuModel->path = $params['path']?? '';
         $MenuModel->permission = $params['permission']?? '';
-        $MenuModel->is_menu = $params['is_menu']?? '';
+        $MenuModel->is_menu = $params['isMenu']?? '';
         $MenuModel->icon = $params['icon']?? '';
         $MenuModel->type = $params['type'];
         $res = $MenuModel->save($params);
@@ -82,8 +80,8 @@ class Menu extends Base
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
-
         $returnData = MenuModel::get($id);
+        
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -93,7 +91,7 @@ class Menu extends Base
         $params = $this->request->put();
         $validate = Validate::make([
             'id' => 'require',
-            'name' => 'unique:'. config('database.prefix') . 'sys_auth_rule,name',
+            'name' => 'unique:'. config('database.prefix') . 'sys_menu,name',
             'title' => 'require',
             'type' => 'require|integer',
            

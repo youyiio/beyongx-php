@@ -40,7 +40,8 @@ class Job extends Base
 
         $validate = Validate::make([
             'pid' => 'integer',
-            'name' => 'require|chsDash',
+            'name' => 'chsDash',
+            'title' => 'chsDash',
             'remark' => 'chsDash',
             'sort' => 'integer'
         ]);

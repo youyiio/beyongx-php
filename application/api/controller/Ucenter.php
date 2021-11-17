@@ -29,25 +29,24 @@ class Ucenter extends Base
         if (!$uid) {
             return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
         }
-        $user = UserModel::get(['id' => $uid]);
+
+        $UserModel = new UserModel();
+        $fields = 'id,nickname,head_url';
+        $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
         if (empty($user)) {
             return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
         }
 
-        $returnData = [
-            'uid' => $uid,
-            //'account' => $user->account,
-            'nickname' => $user->nickname,
-            'mobile' => $user->mobile,
-            'email' => $user->email,
-            //'status' => $user->status,
-            'headUrl' => $user->head_url,
-            'sex' => $user->sex,
-            'registerTime' => $user->register_time,
-            'roles' => ['admin']
-        ];
+        $data = $user;
+        //描述
+        $data['description'] = $user->meta('description');
+        //角色
+        $roleIds = UserRoleModel::where(['uid' => $user['id']])->column('role_id');
+        $RoleModel = new RoleModel();
+        $data['roles'] = $RoleModel->where('id', 'in', $roleIds)->column('name');
+        $returnData = parse_fields($data->toArray(), 1);
 
-        return ajax_success($returnData);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
     
     //编辑个人资料
