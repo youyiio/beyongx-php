@@ -22,7 +22,7 @@ class Role extends Base
         $keyword = $filters['keyword'];
 
         $where = [];
-        $fields = 'id,name,status';
+        $fields = 'id,name,title,status';
         if (!empty($keyword)) {
             $where[] = ['name', 'like', '%'.$keyword.'%'];
         }

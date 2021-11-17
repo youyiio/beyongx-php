@@ -20,7 +20,6 @@ class Menu extends Base
         $depth = $filters['depth']?? 1;
 
         $where = [];
-        $where[] = ['belongs_to', '=', 'api'];
         if (!empty($keyword)) {
             $where[] = ['title', 'like', '%'.$keyword.'%'];
         }
@@ -57,7 +56,7 @@ class Menu extends Base
 
         $validate = Validate::make([
             'pid' => 'require|integer',
-            'name' => 'require|unique:'. config('database.prefix') . 'sys_auth_rule,name',
+            'name' => 'unique:'. config('database.prefix') . 'sys_auth_rule,name',
             'title' => 'require',
             'type' => 'require|integer',
            
@@ -66,14 +65,25 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
         
-        $RoleModel = new RoleModel();
-        $res = $RoleModel->save($params);
-        $id = $RoleModel->id;
+        $MenuModel = new MenuModel();
+        $MenuModel->pid = $params['pid'];
+        $MenuModel->sort = $params['sort']?? 1;
+        $MenuModel->component = $params['component']?? '';
+        $MenuModel->name = $params['icnameon']?? '';
+        $MenuModel->title = $params['title'];
+        $MenuModel->path = $params['path']?? '';
+        $MenuModel->permission = $params['permission']?? '';
+        $MenuModel->is_menu = $params['is_menu']?? '';
+        $MenuModel->icon = $params['icon']?? '';
+        $MenuModel->type = $params['type'];
+        $res = $MenuModel->save($params);
+        $id = $MenuModel->id;
+
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $returnData = RoleModel::get($id);
+        $returnData = MenuModel::get($id);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -81,10 +91,9 @@ class Menu extends Base
     public function edit()
     {
         $params = $this->request->put();
-
         $validate = Validate::make([
             'id' => 'require',
-            'name' => 'require|unique:'. config('database.prefix') . 'sys_auth_rule,name',
+            'name' => 'unique:'. config('database.prefix') . 'sys_auth_rule,name',
             'title' => 'require',
             'type' => 'require|integer',
            
@@ -93,22 +102,13 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
 
-        $menu = RoleModel::get($params['id']);
-     
-        $menu->name = $params['name']?? '';
-        $menu->title = $params['title']?? '';
-        $menu->icon = $params['icon']?? '';
-        $menu->type = $params['type']?? '';
-        $menu->is_menu = $params['isMenu']?? '';
-        $menu->sort = $params['sort']?? '';
-        $menu->belongs_to = $params['belongsTo']?? '';
-        $res = $menu->save();
-
+        $menu = MenuModel::get($params['id']);
+        $res = $menu->isUpdate(true)->allowField(true)->save($params);
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $data = RoleModel::get($params['id']);
+        $data = MenuModel::get($params['id']);
         $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -116,7 +116,7 @@ class Menu extends Base
     //删除菜单
     public function delete($id)
     {
-        $menu = RoleModel::get($id);
+        $menu = MenuModel::get($id);
         $res = $menu->delete();
 
         if (!$res) {
