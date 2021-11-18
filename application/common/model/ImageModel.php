@@ -12,7 +12,7 @@ use think\Model;
 
 class ImageModel extends Model
 {
-    protected $name = 'sys_image';
+    protected $name = 'sys_file';
     protected $pk = 'id';
 
     protected $type = [
@@ -24,10 +24,10 @@ class ImageModel extends Model
     {
         $switch = get_config('oss_switch');
         if ($switch !== 'true') {
-            $fullImageUrl = url_add_domain($data['image_url']);
+            $fullImageUrl = url_add_domain($data['url_path']);
             $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
         } else {
-            $fullImageUrl = $data['oss_image_url'];
+            $fullImageUrl = $data['oss_url'];
         }
 
         return $fullImageUrl;
@@ -40,7 +40,7 @@ class ImageModel extends Model
             $fullThumbImageUrl = url_add_domain($data['thumb_image_url']);
             $fullThumbImageUrl = str_replace('\\', '/', $fullThumbImageUrl);
         } else {
-            $fullThumbImageUrl = $data['oss_image_url'];
+            $fullThumbImageUrl = $data['oss_url'];
         }
 
         return $fullThumbImageUrl;
@@ -64,7 +64,7 @@ class ImageModel extends Model
         }
 
         $ImageModel = new ImageModel();
-        $data = $ImageModel->where([['image_id','in', $imageIds]])->select();
+        $data = $ImageModel->where([['id','in', $imageIds]])->select();
         if (empty($data)) {
             return [];
         }
@@ -72,10 +72,12 @@ class ImageModel extends Model
         foreach ($data as $v) {
             $res[] = [
                 'id'           => $v->id,
-                'image_url'       => $v->image_url,
-                'full_image_url'   => $v->full_image_url,
                 'thumb_image_url'    => $v->thumb_image_url,
-                'full_thumb_image_url' => $v->full_thumb_image_url,
+                'image_url'       => $v->url,
+                'full_image_url'   => $v->url_path,
+                //'image_url'       => $v->image_url,
+                //'full_image_url'   => $v->full_image_url,
+                //'full_thumb_image_url' => $v->full_thumb_image_url,
                 'remark' => $v->remark,
             ];
         }
