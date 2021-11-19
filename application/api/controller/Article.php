@@ -70,7 +70,6 @@ class Article extends Base
                 'post_time' => 'desc',
             ];
         }
-    
         $orders = parse_fields($orders);
        
         $list = $ArticleModel->where($where)->field($fields)->order($orders)->paginate($size, false, ['page'=>$page]);
@@ -113,14 +112,14 @@ class Article extends Base
         $metaImages = findMetaImages($art);
         //附加文件
         $metaFiles = findMetaFiles($art);
-      
+
         //返回数据
-        $returnData = parse_fields($art, 1);
+        $returnData = parse_fields($art->toArray(), 1);
         $returnData['tags'] = $tags;
         $returnData['thumbImage'] = $thumbImage;
         $returnData['metaImages'] = $metaImages;
         $returnData['metaFiles'] = $metaFiles;
-
+   
         return ajax_return(ResultCode::ACTION_SUCCESS, '查询成功!', $returnData);
     }
 

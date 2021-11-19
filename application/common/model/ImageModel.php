@@ -73,7 +73,7 @@ class ImageModel extends Model
             $res[] = [
                 'id'           => $v->id,
                 'thumb_image_url'    => $v->thumb_image_url,
-                'image_url'       => $v->url,
+                'image_url'       => $v->path,
                 'full_image_url'   => $v->url_path,
                 //'image_url'       => $v->image_url,
                 //'full_image_url'   => $v->full_image_url,

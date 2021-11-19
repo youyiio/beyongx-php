@@ -37,12 +37,16 @@ class Menu extends Base
         $pages = ceil($total / $size); //总页数
         $start = ($page - 1) * $size;
         $records =  array_slice($data, $start, $size); 
+        foreach ($records as &$v) {
+            $v = parse_fields($v->toArray(), 1);
+        }
+        
         //返回数据
         $returnData['current'] = $page;
         $returnData['pages'] = $pages;
         $returnData['size'] = $size;
         $returnData['total'] = $total;
-        $returnData['records'] = parse_fields($records, 1);
+        $returnData['records'] = $records;
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
