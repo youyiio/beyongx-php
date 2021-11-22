@@ -3,6 +3,7 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\MenuModel;
+use app\common\model\UserModel;
 use think\Validate;
 
 class Menu extends Base
@@ -24,7 +25,7 @@ class Menu extends Base
         }
         
         $MenuModel = new MenuModel();
-        $list = $MenuModel->where($where)->order('id asc')->select();
+        $list = $MenuModel->where($where)->order('id asc')->select()->toArray();
      
         // 获取树形或者list数据
         $data = getTree($list, $pid, 'id', 'pid', $depth);
@@ -37,16 +38,13 @@ class Menu extends Base
         $pages = ceil($total / $size); //总页数
         $start = ($page - 1) * $size;
         $records =  array_slice($data, $start, $size); 
-        foreach ($records as &$v) {
-            $v = parse_fields($v->toArray(), 1);
-        }
-        
+    
         //返回数据
         $returnData['current'] = $page;
         $returnData['pages'] = $pages;
         $returnData['size'] = $size;
         $returnData['total'] = $total;
-        $returnData['records'] = $records;
+        $returnData['records'] = parse_fields($records, 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -55,7 +53,6 @@ class Menu extends Base
     public function create()
     {
         $params = $this->request->put();
-
         $validate = Validate::make([
             'pid' => 'require|integer',
             'name' => 'unique:'. config('database.prefix') . 'sys_menu,name',
@@ -67,25 +64,24 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
         
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+
+        $data = parse_fields($params);
+        $data['create_time'] = date_time();
+        $data['create_by'] = $userInfo['nickname']?? '';
+
         $MenuModel = new MenuModel();
-        $MenuModel->pid = $params['pid'];
-        $MenuModel->sort = $params['sort']?? 1;
-        $MenuModel->component = $params['component']?? '';
-        $MenuModel->name = $params['name']?? '';
-        $MenuModel->title = $params['title'];
-        $MenuModel->path = $params['path']?? '';
-        $MenuModel->permission = $params['permission']?? '';
-        $MenuModel->is_menu = $params['isMenu']?? '';
-        $MenuModel->icon = $params['icon']?? '';
-        $MenuModel->type = $params['type'];
-        $res = $MenuModel->save($params);
+        $res = $MenuModel->save($data);
         $id = $MenuModel->id;
 
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
-        $returnData = MenuModel::get($id);
-        
+
+        $menu = MenuModel::get($id);
+        $returnData = parse_fields($menu->toArray(), 1);
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -103,14 +99,21 @@ class Menu extends Base
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!', $validate->getError());
         }
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
 
-        $menu = MenuModel::get($params['id']);
-        $res = $menu->isUpdate(true)->allowField(true)->save($params);
+        $params = parse_fields($params);
+        $params['update_time'] = date_time();
+        $params['update_by'] = $userInfo['nickname']?? '';
+
+        $MenuModel = new MenuModel();
+        $res = $MenuModel->isUpdate(true)->allowField(true)->save($params);
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $data = MenuModel::get($params['id']);
+        $data = $MenuModel->where('id', '=', $params['id'])->select()->toArray();
+
         $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

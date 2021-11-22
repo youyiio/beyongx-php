@@ -19,10 +19,10 @@ class Role extends Base
         $size = $params['size'];
 
         $filters = $params['filters'];
-        $keyword = $filters['keyword'];
+        $keyword = $filters['keyword']?? '';
 
         $where = [];
-        $fields = 'id,name,title,status';
+        $fields = 'id,name,title,status,remark,create_by,update_by,create_time,update_time';
         if (!empty($keyword)) {
             $where[] = ['name', 'like', '%'.$keyword.'%'];
         }

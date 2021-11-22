@@ -10,6 +10,8 @@ Route::group('api', function () {
     Route::rule("ad/carousel", 'api/Ad/carousel', 'get');
     Route::rule('dept/dict', 'api/Dept/dict', 'get');
     Route::rule('job/dict', 'api/Job/dict', 'get');
+    Route::rule('image/upload', 'api/Upload/image', 'post');
+    Route::rule('file/upload', 'api/Upload/file', 'post');
 
     //登录注册相关
     Route::rule("sign/login", 'api/Sign/login', 'post|get');
