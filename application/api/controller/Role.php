@@ -9,6 +9,7 @@ use app\common\model\RoleModel;
 use app\common\model\UserModel;
 use app\common\model\UserRoleModel;
 use think\facade\Cache;
+use think\Validate;
 
 class Role extends Base
 {
@@ -44,16 +45,17 @@ class Role extends Base
     public function create()
     {
         $params = $this->request->put();
-        
-        $name = $params['name']?? '';
-        $remark = $params['remark']?? '';
 
-        if (empty($name)) {
-            return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
+        $validate = Validate::make([
+            'name' => 'alpha',
+            'title' => 'chs',
+        ]);
+        if (!$validate->check($params)) {
+            return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
         }
 
         $RoleModel = new RoleModel();
-        $result = $RoleModel->save(['name'=>$name, 'remark'=>$remark]);
+        $result = $RoleModel->save($params);
 
         if (!$result) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
@@ -69,17 +71,21 @@ class Role extends Base
     {
         $params = $this->request->put();
 
+        //验证参数
         $id = $params['id'];
-
         $role = RoleModel::get($id);
-
         if (!$role) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '角色不存在!');
         }
-
-        $role->name = $params['name']?? '';
-        $role->remark = $params['remark']?? '';
-        $res = $role->save();
+        $validate = Validate::make([
+            'name' => 'alpha',
+            'title' => 'chs',
+        ]);
+        if (!$validate->check($params)) {
+            return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
+        }
+        
+        $res = $role->save($params);
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }

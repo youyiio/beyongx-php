@@ -74,7 +74,7 @@ class Config extends Base
         ]);
 
         if (!$validate->check($params)) {
-            ajax_return(ResultCode::E_PARAM_ERROR, '操作成功!');
+            ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
         }
 
         $Config = new ConfigModel();
