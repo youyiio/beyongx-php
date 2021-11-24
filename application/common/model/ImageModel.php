@@ -24,7 +24,7 @@ class ImageModel extends Model
     {
         $switch = get_config('oss_switch');
         if ($switch !== 'true') {
-            $fullImageUrl = url_add_domain($data['url_path']);
+            $fullImageUrl = url_add_domain($data['file_url']);
             $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
         } else {
             $fullImageUrl = $data['oss_url'];
