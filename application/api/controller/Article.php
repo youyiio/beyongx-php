@@ -8,6 +8,7 @@ use app\common\logic\ArticleLogic;
 use app\common\model\BaseModel;
 use app\common\model\cms\ArticleMetaModel;
 use app\common\model\cms\ArticleModel;
+use app\common\model\cms\CategoryArticleModel;
 use app\common\model\cms\CategoryModel;
 use app\common\model\cms\CommentModel;
 use app\common\model\FileModel;
@@ -44,7 +45,6 @@ class Article extends Base
             $childs = CategoryModel::getChild($filters['categoryId']);
             $childCateIds = $childs['ids'];
             array_push($childCateIds, $filters['categoryId']);
-
             $fields = 'ArticleModel.id,title,keywords,thumb_image_id,post_time,update_time,create_time,is_top,status,read_count,sort,author';
             $ArticleModel = ArticleModel::hasWhere('CategoryArticle', [['category_id','in',$childCateIds]], $fields)->group([]); //hack:group用于清理hasmany默认加group key
         }
@@ -74,9 +74,11 @@ class Article extends Base
        
         $list = $ArticleModel->where($where)->field($fields)->order($orders)->paginate($size, false, ['page'=>$page]);
        
-        //添加缩略图
+        //添加缩略图和分类
         foreach ($list as $art) {
-            $art['thumbImage'] = findThumbImage($art);
+            $art['thumbImage'] = $this->findThumbImage($art);
+            $catgorysIds = CategoryArticleModel::where('article_id', '=', $art['id'])->column('category_id');
+            $art['catgorys'] = CategoryModel::where('id', 'in', $catgorysIds)->field('id,name,title')->select();
         }
 
         $list = $list->toArray();
@@ -97,7 +99,7 @@ class Article extends Base
 
         $fields = 'id,title,keywords,description,content,read_count,thumb_image_id,comment_count,author,status,create_time,post_time,update_time';
         $art = $ArticleModel->where('id', $aid)->field($fields)->find();
-      
+    
         if (!$art) {
             return ajax_error(ResultCode::E_DATA_NOT_FOUND, '文章不存在');
         }
@@ -105,13 +107,16 @@ class Article extends Base
         //文章标签
         $articleMetaModel = new ArticleMetaModel();
         $tags = $articleMetaModel->_metas($art['id'], 'tag');
-
         //缩略图
-        $thumbImage = findThumbImage($art);
+        $thumbImage = $this->findThumbImage($art);
         //附加图片
-        $metaImages = findMetaImages($art);
+        $metaImages = $this->findMetaImages($art);
         //附加文件
-        $metaFiles = findMetaFiles($art);
+        $metaFiles = $this->findMetaFiles($art);
+       
+        //分类
+        $catgorysIds = CategoryArticleModel::where('article_id', '=', $art['id'])->column('category_id');
+        $catgorys = CategoryModel::where('id', 'in', $catgorysIds)->field('id,name,title')->select();
 
         //返回数据
         $returnData = parse_fields($art->toArray(), 1);
@@ -119,6 +124,7 @@ class Article extends Base
         $returnData['thumbImage'] = $thumbImage;
         $returnData['metaImages'] = $metaImages;
         $returnData['metaFiles'] = $metaFiles;
+        $returnData['catgorys'] = $catgorys;
    
         return ajax_return(ResultCode::ACTION_SUCCESS, '查询成功!', $returnData);
     }
@@ -176,11 +182,11 @@ class Article extends Base
         $articleMetaModel = new ArticleMetaModel();
         $tags = $articleMetaModel->_metas($artId, 'tag');
         //缩略图
-        $thumbImage = findThumbImage($art);
+        $thumbImage = $this->findThumbImage($art);
         //附加图片
-        $metaImages = findMetaImages($art);
+        $metaImages = $this->findMetaImages($art);
         //附加文件
-        $metaFiles = findMetaFiles($art);
+        $metaFiles = $this->findMetaFiles($art);
       
         //返回数据
         $returnData = parse_fields($art, 1);
@@ -220,11 +226,11 @@ class Article extends Base
         $tags = $articleMetaModel->_metas($aid, 'tag');
 
         //缩略图
-        $thumbImage = findThumbImage($art);
+        $thumbImage = $this->findThumbImage($art);
         //附加图片
-        $metaImages = findMetaImages($art);
+        $metaImages = $this->findMetaImages($art);
         //附加文件
-        $metaFiles = findMetaFiles($art);
+        $metaFiles = $this->findMetaFiles($art);
 
         //返回json格式
         $returnData = parse_fields($art->toArray(),1);
@@ -363,52 +369,82 @@ class Article extends Base
         }
 
         $ImageModel = new ImageModel();
-        $thumbImage = $ImageModel::get($art['thumb_image_id']);
-    
+        $fields= 'id,name,thumb_image_url,create_time,oss_url,file_url';
+        $thumbImage = $ImageModel->where('id', '=', $art['thumb_image_id'])->field($fields)->find();
+        unset($art['thumb_image_id']);
         if (empty($thumbImage)) {
             return $thumbImage;
         }
 
-        //完整路径
-        $thumbImage['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('',$thumbImage);
-        $thumbImage['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('',$thumbImage);
-        unset($thumbImage['remark']);
-        unset($thumbImage['image_size']);
-        unset($thumbImage['thumb_image_size']);
-        unset($art['thumb_image_id']);
-
-        $thumbImage = parse_fields($thumbImage->toArray(),1);
-        
-        return $thumbImage;
+        //返回数据
+        $data['id'] = $thumbImage['id'];
+        $data['name'] = $thumbImage['name'];
+        $data['thumbImageUrl'] = $thumbImage['thumb_image_url'];
+        $data['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('', $thumbImage);
+        $data['ImageUrl'] = $thumbImage['file_url'];
+        $data['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $thumbImage);
+        $data['ossImageUrl'] = $thumbImage['oss_url'];
+        $data['createTime'] = $thumbImage['create_time'];
+    
+        return $data;
     }
 
     //查找文章的附加图片
     public function FindMetaImages($art)
     {
-        $metaImages = get_image($art->metas('image'));
-        foreach ($metaImages as $image) {
+        $where = [
+            ['article_id', '=', $art['id']],
+            ['meta_Key', '=', 'image']
+        ];
+
+        $metaImageIds = ArticleMetaModel::where($where)->column('meta_value');
+
+        $ImageModel = new ImageModel();
+        $fields = 'id,name,thumb_image_url,create_time,oss_url,file_url';
+        $metaImages = $ImageModel->where('id', 'in', $metaImageIds)->field($fields)->select();
+
+        $data = [];
+        foreach ($metaImages as $key => $image) {
             //获取完整路径
-            $image['fullImageUrl'] = $image->getFullImageUrlAttr('',$image);
-            $image['FullThumbImageUrlAttr'] = $image->getFullThumbImageUrlAttr('',$image);
-            unset($image['remark']);
-            unset($image['image_size']);
-            unset($image['thumb_image_size']);
+            $data[$key]['id'] = $image['id'];
+            $data[$key]['name'] = $image['name'];
+            $data[$key]['thumbImageUrl'] = $image['thumb_image_url'];
+            $data[$key]['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('', $image);
+            $data[$key]['ImageUrl'] = $image['file_url'];
+            $data[$key]['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $image);
+            $data[$key]['ossImageUrl'] = $image['oss_url'];
+            $data[$key]['createTime'] = $image['create_time'];
         }
-        $metaImages = parse_fields($metaImages->toArray(), 1);
     
-        return $metaImages;
+        return $data;
     }
 
     //查找文章的附加文件
     public function findMetaFiles($art)
     {
-        $metaFiles = get_file($art->metas('file'));
-        foreach ($metaFiles as $file) {
-            $file['fullFileUrl'] = $file->getFullFileUrlAttr('',$file);
-            unset($file['remark']);
-        }
-        $metaFiles = parse_fields($metaFiles->toArray(), 1);
+        $where = [
+            ['article_id', '=', $art['id']],
+            ['meta_Key', '=', 'file']
+        ];
 
-        return $metaFiles;
+        $metaFileIds = ArticleMetaModel::where($where)->column('meta_value');
+
+        $FileModel = new FileModel();
+        $fields = 'id,name,file_url,file_path,size,create_time';
+        $metafiles = $FileModel->where('id', 'in', $metaFileIds)->field($fields)->select();
+
+        $data = [];
+        foreach ($metafiles as $key => $file) {
+            //获取完整路径
+            $data[$key]['id'] = $file['id'];
+            $data[$key]['name'] = $file['name'];
+            $data[$key]['fileUrl'] = $file['file_url'];
+            $data[$key]['fullFileUrl'] = $file->getFullFileUrlAttr('', $file);
+            $data[$key]['filePath'] = $file['file_path'];
+            $data[$key]['size'] = $file['size'];
+            $data[$key]['createTime'] = $file['create_time'];
+        }
+
+        return $data;
     }
 }

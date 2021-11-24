@@ -162,6 +162,7 @@ class UserLogic extends Model
         $user->dept_id = $deptId;
         $currentTime = date('Y-m-d H:i:s');
         $user->register_time = $currentTime;
+        $user->register_ip = request()->ip(0, true);
 
         //设置来源及入口url
         if (Cookie::has('from_referee') || Cookie::has('entrance_url')) {

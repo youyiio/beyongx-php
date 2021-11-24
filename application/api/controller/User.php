@@ -25,10 +25,13 @@ class User extends Base
             return ajax_return(ResultCode::E_USER_NOT_EXIST, '用户不存在');
         }
         
+        //部门
         $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name')->find();
+        unset($user['dept_id']);
+        //角色
         $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
         $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
-        unset($user['dept_id']);
+
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -45,7 +48,7 @@ class User extends Base
 
         $where = [];
         foreach ($filters as $key => $value) {
-            if ($key ===  'status') {
+            if ($key ===  'status' && $value !== '') {
                 $where[] = ['status', '=', $value];
                 continue;
             } elseif ($value == '') {
@@ -56,15 +59,16 @@ class User extends Base
         }
         $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
+       
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
 
         //查询部门和角色
         $DeptModel = new DeptModel();
         foreach ($list as $user) {
             $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name,title')->find();
-            $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-            $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
             unset($user['dept_id']);
+            $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+            $user['roles'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
         }
 
         $list = $list->toArray();
@@ -110,7 +114,14 @@ class User extends Base
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
+        //部门
         $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
+        unset($user['dept_id']);
+        //角色
+        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
+       
+
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);  
@@ -164,10 +175,11 @@ class User extends Base
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
-        $returnData = $user;
-        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('role_id');
-        $returnData['dept'] = DeptModel::get($user['dept_id']);
-        unset($returnData['dept_id']);
+        $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
+        unset($user['dept_id']);
+        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+        $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
