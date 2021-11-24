@@ -25,25 +25,12 @@ class User extends Base
             return ajax_return(ResultCode::E_USER_NOT_EXIST, '用户不存在');
         }
         
-        if ($user['status'] !== UserModel::STATUS_ACTIVED) {
-            if ($user['status'] == UserModel::STATUS_APPLY) {
-                return ajax_return(ResultCode::E_USER_STATE_NOT_ACTIVED, '用户未激活');
-            }
-            if ($user['status'] == UserModel::STATUS_FREEZED) {
-                return ajax_return(ResultCode::E_USER_STATE_FREED, '用户已冻结');
-            }
-            if ($user['status'] == UserModel::STATUS_DELETED) {
-                return ajax_return(ResultCode::E_USER_STATE_DELETED, '用户已删除');
-            }
-
-            return ajax_return(ResultCode::E_UNKNOW_ERROR, '未知错误!');
-        }
-
-        $DeptModel = new DeptModel();
-        $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name')->find();
-        unset($user['status']);
+        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name')->find();
+        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
         unset($user['dept_id']);
-        $returnData = $user;
+        $returnData = parse_fields($user->toArray(), 1);
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -57,19 +44,27 @@ class User extends Base
         $filters = $params['filters'] ?? []; 
 
         $where = [];
-        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
-        if (isset($filters['keyword'])) {
-            $where[] = ['id|mobile|email|nickname', 'like', '%'.$filters['keyword'].'%'];
+        foreach ($filters as $key => $value) {
+            if ($key ===  'status') {
+                $where[] = ['status', '=', $value];
+                continue;
+            } elseif ($value == '') {
+                continue;
+            } else {
+                $where[] = [$key, 'like', '%' . $value . '%'];
+            }
         }
-
+        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
 
-        //查询部门
+        //查询部门和角色
         $DeptModel = new DeptModel();
-        foreach ($list as $val) {
-            $val['dept'] = $DeptModel->where('id', $val['dept_id'])->field('id,name')->find();
-            unset($val['dept_id']);
+        foreach ($list as $user) {
+            $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name,title')->find();
+            $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+            $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
+            unset($user['dept_id']);
         }
 
         $list = $list->toArray();
@@ -112,9 +107,11 @@ class User extends Base
             $UserRoleModel->insertAll($group);
         }
 
-        $user = UserModel::get($uid);
-        $user['dept'] = DeptModel::get($user['dept_id']);
-        $returnData = parse_fields($user, 1);
+        $UserModel = new UserModel();
+        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
+        $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
+        $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);  
     }

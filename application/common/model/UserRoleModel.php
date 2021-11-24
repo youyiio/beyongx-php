@@ -14,9 +14,9 @@ class UserRoleModel extends BaseModel
 	 * @param  int $group_id 用户组id
 	 * @return array         用户数组
 	 */
-	public function getUidsByGroupId($menu_id)
+	public function getUidsByRoleId($role_id)
     {
-		$uids = $this->where(['menu_id' => $menu_id])->column('role_id');
+		$uids = $this->where(['role_id' => $role_id])->column('uid');
 		return $uids;
 	}
 

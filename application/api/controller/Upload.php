@@ -24,11 +24,12 @@ class Upload extends Base
         //图片规定尺寸
         $imgWidth = request()->param('width/d', 0);
         $imgHeight = request()->param('height/d', 0);
-
         //缩略图尺寸
         $tbWidth = request()->param('thumbWidth/d', 0);
         $tbHeight = request()->param('thumbHeight/d', 0);
-        
+        //备注
+        $remark = request()->param('remark/s', 0);
+
         //表单验证
         $check = $this->validate(
             ['file' => $tmpFile],
@@ -44,7 +45,6 @@ class Upload extends Base
         }
 
         list($width, $height, $type) = getimagesize($tmpFile->getRealPath()); //获得图片宽高类型
-     
         if ($imgWidth > 0 && $imgHeight > 0) {
             if (!($width >= $imgWidth - 10 && $width <= $imgWidth + 10 && $height >= $imgHeight - 10 && $height <= $imgHeight + 10)) {
                 $this->error('图片尺寸不符合要求:' . $imgWidth . '*' . $imgHeight);
@@ -85,7 +85,7 @@ class Upload extends Base
             'real_name' => $file->getinfo()['name'],
             'create_time' => date_time(),
             'create_by' => $userInfo['nickname']?? '',
-            'remark' => $params['remark']?? '',
+            'remark' => $remark,
         ];
 
         //缩略图
@@ -112,7 +112,7 @@ class Upload extends Base
         $imageId = $ImageModel->insertGetId($data);
         
         //返回数据
-        $fields = 'id,name,real_name,size,ext,file_url,file_path,thumb_image_url,create_by,create_time';
+        $fields = 'id,name,real_name,size,ext,file_url,file_path,thumb_image_url,remark,create_by,create_time';
         $return = $ImageModel->where('id', '=', $imageId)->field($fields)->find()->toArray();
      
         $return['fullFileUrl'] = $return['file_path'].$return['file_url'];
@@ -138,6 +138,7 @@ class Upload extends Base
         //通用文件后缀，加强安全;
         $common_file_exts = 'zip,rar,doc,docx,xls,xlsx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
+        $remark = request()->param('remark/s', ''); //文件格式，中间用,分隔
         if (empty($exts)) {
             $exts = $common_file_exts;
         } else {
@@ -173,7 +174,7 @@ class Upload extends Base
             'real_name' => $file->getinfo()['name'],
             'create_time' => date_time(),
             'create_by' => $userInfo['nickname']?? '',
-            'remark' => $params['remark']?? '',
+            'remark' => $remark,
         ];
 
         $FileModel = new FileModel();
