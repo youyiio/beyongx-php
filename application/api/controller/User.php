@@ -93,7 +93,7 @@ class User extends Base
         }
 
         $UserLogic = new UserLogic();
-        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email'], '', $params['deptId']);
+        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email'], '', $params['deptId']??'');
         
         if (!$uid) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
@@ -111,6 +111,7 @@ class User extends Base
             $UserRoleModel->insertAll($group);
         }
 
+        //返回数据
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
@@ -138,22 +139,15 @@ class User extends Base
         }
 
         $uid = $params['id'];
-
         $user = UserModel::get($uid);
-        $user->nickname = $params['nickname'];
-        $user->mobile = $params['mobile'];
-        $user->email = $params['email'];
-        if (isset($params['qq'])) {
-            $user->qq = $params['qq'];
+        if (!$user) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
-        if (isset($params['weixin'])) {
-            $user->weixin = $params['weixin'];
+        if (isset($params['password'])) {
+            $params['password'] = encrypt_password($params['password'], get_config('password_key'));
         }
-        if (isset($params['deptId'])) {
-            $user->dept_id = $params['deptId'];
-        }
-        $res = $user->save();
-
+      
+        $res = $user->allowField(true)->save($params);
         if (!$res) {
             return ajax_return(ResultCode::ACTION_SUCCESS, '操作失败!');
         }
@@ -175,6 +169,9 @@ class User extends Base
         Cache::tag('menu')->rm($uid); //删除用户菜单配置缓存
 
         //返回数据
+        $UserModel = new UserModel();
+        $fields = 'id,account,nickname,sex,mobile,email,dept_id,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $user = $UserModel->where(['id' => $uid])->field($fields)->find();
         $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
         unset($user['dept_id']);
         $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
@@ -211,21 +208,16 @@ class User extends Base
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
-        $uid = $params['id'];
-        $password = $params['password'];
-        $newPassword = encrypt_password($password, get_config('password_key'));
-
-        $data['id'] = $uid;
-        $data['password'] = $newPassword;
+        $data['id'] = $params['id'];
+        $data['password'] = encrypt_password($params['password'], get_config('password_key'));
         $UserModel = new UserModel();
-        $UserModel->isUpdate(true)->save($data);
+        $res = $UserModel->isUpdate(true)->save($data);
 
-        //返回数据
-        $returnData = UserModel::get($uid);
-        $UserRoleModel = new UserRoleModel();
-        $returnData['roleIds'] = $UserRoleModel->where('uid', $uid)->column('group_id');
+        if (!$res) {
+            return ajax_error(ResultCode::E_DB_ERROR, '修改失败!');
+        }
 
-        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', '');
     }
 
     //冻结用户
@@ -235,7 +227,7 @@ class User extends Base
 
         $uid = $params['id'];
         if ($uid == 0) {
-            $this->error('参数id错误');
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
         }
 
         $UserModel = new UserModel();
@@ -255,7 +247,7 @@ class User extends Base
 
         $uid = $params['id'];
         if ($uid == 0) {
-            $this->error('参数id错误');
+            return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '参数错误!');
         }
 
         $UserModel = new UserModel();

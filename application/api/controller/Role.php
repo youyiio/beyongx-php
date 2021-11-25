@@ -54,8 +54,14 @@ class Role extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
         }
 
+        $params['create_time'] = date_time();
+        $params['update_time'] = date_time();
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+        $params['create_by'] = $userInfo['nickname'] ?? '';
+        $params['update_by'] = $userInfo['nickname'] ?? '';
         $RoleModel = new RoleModel();
-        $result = $RoleModel->save($params);
+        $result = $RoleModel->isUpdate(false)->allowField(true)->save($params);
 
         if (!$result) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
@@ -84,7 +90,11 @@ class Role extends Base
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
         }
-        
+
+        $params['update_time'] = date_time();
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+        $params['update_by'] = $userInfo['nickname'] ?? '';
         $res = $role->save($params);
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
@@ -119,9 +129,13 @@ class Role extends Base
      
         $ids = implode(',', $menus);
         $MenuModel = new MenuModel();
-        $list = $MenuModel->where('id', 'in', $ids)->select();
-        
-        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $list);
+        $fields = 'id,pid,title,name,component,path,icon,type,is_menu,status,sort,belongs_to,create_by,update_by,create_time,update_time';
+        $list = $MenuModel->where('id', 'in', $ids)->field($fields)->select()->toArray();
+
+        $data = parse_fields($list ,1);
+        $returnData = getTree($data);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
     //分配角色权限
@@ -130,6 +144,10 @@ class Role extends Base
         $params = $this->request->put();
         $menuIds = $params['menuIds']?? [];
 
+        $role = RoleModel::get($id);
+        if (!$role) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '角色不存在!');
+        }
         $RoleMenuModel = new RoleMenuModel();
         $RoleMenuModel->where('role_id', $id)->delete();
      
