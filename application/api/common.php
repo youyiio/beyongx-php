@@ -4,6 +4,8 @@ use think\facade\Log;
 
 use Firebase\JWT\JWT;
 use app\common\library\ResultCode;
+use app\common\model\cms\ArticleMetaModel;
+use app\common\model\FileModel;
 use app\common\model\ImageModel;
 
 class ApiCode {
@@ -136,4 +138,92 @@ function getList($data, $pid = 0, $fieldPri = 'id', $fieldPid = 'pid', $level = 
         }
     }
     return array_merge($arr);
+}
+
+//查找文章的缩略图
+function findThumbImage($art)
+{
+    $thumbImage = [];
+    if (empty($art['thumb_image_id']) || $art['thumb_image_id'] == 0) {
+        return $thumbImage;
+    }
+
+    $ImageModel = new ImageModel();
+    $fields= 'id,name,thumb_image_url,create_time,oss_url,file_url';
+    $thumbImage = $ImageModel->where('id', '=', $art['thumb_image_id'])->field($fields)->find();
+    unset($art['thumb_image_id']);
+    if (empty($thumbImage)) {
+        return $thumbImage;
+    }
+
+    //返回数据
+    $data['id'] = $thumbImage['id'];
+    $data['name'] = $thumbImage['name'];
+    $data['thumbImageUrl'] = $thumbImage['thumb_image_url'];
+    $data['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('', $thumbImage);
+    $data['ImageUrl'] = $thumbImage['file_url'];
+    $data['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $thumbImage);
+    $data['ossImageUrl'] = $thumbImage['oss_url'];
+    $data['createTime'] = $thumbImage['create_time'];
+
+    return $data;
+}
+
+//查找文章的附加图片
+function FindMetaImages($art)
+{
+    $where = [
+        ['article_id', '=', $art['id']],
+        ['meta_Key', '=', 'image']
+    ];
+
+    $metaImageIds = ArticleMetaModel::where($where)->column('meta_value');
+
+    $ImageModel = new ImageModel();
+    $fields = 'id,name,thumb_image_url,create_time,oss_url,file_url';
+    $metaImages = $ImageModel->where('id', 'in', $metaImageIds)->field($fields)->select();
+
+    $data = [];
+    foreach ($metaImages as $key => $image) {
+        //获取完整路径
+        $data[$key]['id'] = $image['id'];
+        $data[$key]['name'] = $image['name'];
+        $data[$key]['thumbImageUrl'] = $image['thumb_image_url'];
+        $data[$key]['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('', $image);
+        $data[$key]['ImageUrl'] = $image['file_url'];
+        $data[$key]['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $image);
+        $data[$key]['ossImageUrl'] = $image['oss_url'];
+        $data[$key]['createTime'] = $image['create_time'];
+    }
+
+    return $data;
+}
+
+//查找文章的附加文件
+function findMetaFiles($art)
+{
+    $where = [
+        ['article_id', '=', $art['id']],
+        ['meta_Key', '=', 'file']
+    ];
+
+    $metaFileIds = ArticleMetaModel::where($where)->column('meta_value');
+
+    $FileModel = new FileModel();
+    $fields = 'id,name,file_url,file_path,size,create_time';
+    $metafiles = $FileModel->where('id', 'in', $metaFileIds)->field($fields)->select();
+
+    $data = [];
+    foreach ($metafiles as $key => $file) {
+        //获取完整路径
+        $data[$key]['id'] = $file['id'];
+        $data[$key]['name'] = $file['name'];
+        $data[$key]['fileUrl'] = $file['file_url'];
+        $data[$key]['fullFileUrl'] = $file->getFullFileUrlAttr('', $file);
+        $data[$key]['filePath'] = $file['file_path'];
+        $data[$key]['size'] = $file['size'];
+        $data[$key]['createTime'] = $file['create_time'];
+    }
+
+    return $data;
 }
