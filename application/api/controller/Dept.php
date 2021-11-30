@@ -16,15 +16,15 @@ class Dept extends Base
         $struct = $params['struct']?? '';
 
         $DeptModel = new DeptModel();
-        $list = $DeptModel->field('id,pid,name')->select();
+        $list = $DeptModel->field('id,name,title')->select();
 
         if ($struct === 'list') {
             $data = getList($list);
         } else {
-            $data = getTree($list);
+            $data = getTree($list, 0, 'id', 'pid', 3);
         }
 
-        $returnData = $data;
+        $returnData = parse_fields($data, 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -42,7 +42,7 @@ class Dept extends Base
         $struct = $filters['struct']?? '';
 
         $DeptModel = new DeptModel();
-        $list = $DeptModel->select();
+        $list = $DeptModel->select()->toArray();
 
         // 获取树形或者list数据
         if ($struct === 'list') {
@@ -56,6 +56,7 @@ class Dept extends Base
         $pages = ceil($total / $size); //总页数
         $start = ($page - 1) * $size;
         $records =  array_slice($data, $start, $size); 
+    
         //返回数据
         $returnData['current'] = $page;
         $returnData['pages'] = $pages;
@@ -98,7 +99,7 @@ class Dept extends Base
         }
 
         $data = DeptModel::get($id);
-        $returnData = parse_fields($data, 1);
+        $returnData = parse_fields($data->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -125,7 +126,7 @@ class Dept extends Base
             return ajax_return(ResultCode::E_DB_ERROR, '编辑失败!');
         }
         
-        $returnData = parse_fields($dept, 1);
+        $returnData = parse_fields($dept->toArray(), 1);
         
         return ajax_return(ResultCode::E_DB_ERROR, '操作成功!', $returnData);
     }
@@ -135,7 +136,7 @@ class Dept extends Base
     {
         $dept = DeptModel::get($id);
         if (!$dept) {
-            $this->error('分类不存在!');
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '部门不存在!');
         }
         $dept->delete();
 

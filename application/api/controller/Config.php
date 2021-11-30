@@ -45,19 +45,23 @@ class Config extends Base
         $key = $params['key']??'';
         $group = $params['group']??'';
 
-        if (empty($key)) {
-            return ajax_return(ResultCode::E_PARAM_EMPTY, '参数为空');
+        if (empty($key) && empty($group)) {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
+        }
+
+        $where = [];
+        if (!empty($key)) {
+            $where[] = ['key', '=', $key];
         }
         if (!empty($group)) {
             $where[] = ['group', '=', $group];
         }
 
-        $where[] = ['key', '=', $key];
-       
         $ConfigModel = new ConfigModel();
-        $list = $ConfigModel->where($where)->find();
+        $fields = 'id,name,group,key,value,value_type,status,sort,remark';
+        $list = $ConfigModel->where($where)->field($fields)->select();
 
-        $returnData = parse_fields($list, 1);
+        $returnData = parse_fields($list->toArray(), 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
     }
 
@@ -86,9 +90,7 @@ class Config extends Base
         $Config->sort = $params['sort']?? ''; 
         $Config->remark = $params['remark']?? ''; 
         $Config->save();
-
         $id = $Config->id;
-
         if (!$id) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
@@ -129,7 +131,7 @@ class Config extends Base
         $ConfigModel = new ConfigModel();
         $list = $ConfigModel->where('group', '=', $name.'_status')->field('key,value')->select();
 
-        if (empty($list)) {
+        if (($list->isEmpty())) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '数据未找到');
         }
 

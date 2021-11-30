@@ -103,7 +103,7 @@ class Ucenter extends Base
         $where[] = ['id', 'in', $menuIds];
         $list = $MenuModel->where($where)->field($fields)->select();
 
-        $list = parse_fields($list, 1);
+        $list = parse_fields($list->toArray(), 1);
         $returnData = getTree($list, 0 , 'id', 'pid', 6);
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
