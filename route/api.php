@@ -109,7 +109,7 @@ Route::group('api', function () {
 
     //字典管理相关
     Route::rule("config/list", 'api/Config/list', 'get|post');
-    Route::rule("config/groups", 'api/Config/groups', 'get|post');
+    Route::rule("config/groups", 'api/Config/groups', 'post');
     Route::rule("config/create", 'api/Config/create', 'post');
     Route::rule("config/edit", 'api/Config/edit', 'post');
     Route::rule("config/:id", 'api/Config/delete', 'delete');

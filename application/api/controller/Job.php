@@ -39,7 +39,7 @@ class Job extends Base
         $fields = 'id,name,title,sort,remark,create_by,create_time,update_by,update_time';
         $list = $JobModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
 
-        $returnData = list_to_hump($list);
+        $returnData = pagelist_to_hump($list);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
