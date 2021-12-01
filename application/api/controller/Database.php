@@ -14,22 +14,10 @@ class Database extends Base
         $filters = $params['filters']?? '';
 
         $one = ($page-1) * $size;
-        $fields = 'TABLE_NAME,TABLE_TYPE';
+        $fields = 'TABLE_NAME,TABLE_TYPE,TABLE_SCHEMA,ENGINE,VERSION,ROW_FORMAT,TABLE_ROWS,DATA_LENGTH,INDEX_LENGTH,TABLE_COMMENT,AUTO_INCREMENT,CREATE_TIME,UPDATE_TIME';
         //获取所有的表
-        $sql = "select * from information_schema.TABLES where TABLE_SCHEMA=(select database()) limit {$one},{$size}";
-      
+        $sql = "select $fields from information_schema.TABLES where TABLE_SCHEMA=(select database())";
         $re = Db::query($sql);
         halt($re);
-        $d = config::get('database')['database'];
-        $s = 'Tables_in_' . $d;
-        //转换为索引数组
-        $data = [];
-        foreach ($re as $index => $item) {
-            $r = strpos($item[$s], 'fa_basic');
-                       if($r !== false){
-            array_push($data, $item[$s]);
-                        }
-        }
-        rsort($data);
     }
 }

@@ -48,10 +48,10 @@ class Config extends Base
 
         $ConfigModel = new ConfigModel();
         $list = $ConfigModel->distinct(true)->field('group')->buildSql();
-     
         $list = Db::table($list)->alias('a')->paginate($size, false, ['page' => $page]);
+        $returnData =  pagelist_to_hump($list);
 
-        return pagelist_to_hump($list);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
     //查询字典信息
