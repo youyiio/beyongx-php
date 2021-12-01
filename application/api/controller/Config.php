@@ -3,6 +3,7 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\ConfigModel;
+use think\Db;
 use think\Validate;
 
 class Config extends Base
@@ -38,6 +39,21 @@ class Config extends Base
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
+    //查询字典组
+    public function groups()
+    {
+        $params = $this->request->put();
+        $page = $params['page'] ?? '1';
+        $size = $params['size'] ?? '10';
+
+        $ConfigModel = new ConfigModel();
+        $list = $ConfigModel->distinct(true)->field('group')->buildSql();
+     
+        $list = Db::table($list)->alias('a')->paginate($size, false, ['page' => $page]);
+
+        return list_to_hump($list);
+    }
+
     //查询字典信息
     public function query()
     {
@@ -45,17 +61,14 @@ class Config extends Base
         $key = $params['key']??'';
         $group = $params['group']??'';
 
-        if (empty($key) && empty($group)) {
-            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
-        }
-
-        $where = [];
-        if (!empty($key)) {
-            $where[] = ['key', '=', $key];
+        if (empty($key)) {
+            return ajax_return(ResultCode::E_PARAM_EMPTY, 'key不能为空');
         }
         if (!empty($group)) {
             $where[] = ['group', '=', $group];
         }
+
+        $where[] = ['key', '=', $key];
 
         $ConfigModel = new ConfigModel();
         $fields = 'id,name,group,key,value,value_type,status,sort,remark';

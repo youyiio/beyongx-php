@@ -80,6 +80,8 @@ Route::group('api', function () {
 
     //运维管理相关
     Route::rule("server/status", 'api/Server/status', 'get');
+    Route::rule("log/list", 'api/Log/list', 'get|post');
+    Route::rule("db/tables", 'api/Datebase/tables', 'get|post');
 
     //友链相关
     Route::rule("link/list", 'api/Link/list', 'get|post');
@@ -107,11 +109,10 @@ Route::group('api', function () {
 
     //字典管理相关
     Route::rule("config/list", 'api/Config/list', 'get|post');
+    Route::rule("config/groups", 'api/Config/groups', 'get');
     Route::rule("config/create", 'api/Config/create', 'post');
     Route::rule("config/edit", 'api/Config/edit', 'post');
     Route::rule("config/:id", 'api/Config/delete', 'delete');
-
-    Route::rule("log/list", 'api/Log/list', 'get|post');
 
     //移动端通用公共接口
     Route::rule('app/config/:name/status', 'api/app.Config/status', 'get');

@@ -13,7 +13,7 @@ class Job extends Base
     {
         
         $JobModel = new JobModel();
-        $list = $JobModel->field('id,name,remark')->select();
+        $list = $JobModel->field('id,name,title,remark')->select();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $list);
     }
@@ -27,10 +27,21 @@ class Job extends Base
         $size = $params['size']?? 10;
         $filters = $params['filters']?? '';
 
-        $JobModel = new JobModel();
-        $list = $JobModel->paginate($size, false, ['page'=>$page]);
+        $where = [];
+        if (isset($filters['title'])) {
+            $where[] = ['name', 'like', '%'. $filters['name'] .'%'];
+        }
+        if (isset($filters['title'])) {
+            $where[] = ['title', 'like', '%' . $filters['title'] . '%'];
+        }
 
-        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!',to_standard_pagelist($list));
+        $JobModel = new JobModel();
+        $fields = 'id,name,title,sort,remark,create_by,create_time,update_by,update_time';
+        $list = $JobModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
+
+        $returnData = list_to_hump($list);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
     //新增岗位
@@ -40,8 +51,8 @@ class Job extends Base
 
         $validate = Validate::make([
             'pid' => 'integer',
-            'name' => 'chsDash',
-            'title' => 'chsDash',
+            'name' => 'alphaDash',
+            'title' => 'chsAlphaNum',
             'remark' => 'chsDash',
             'sort' => 'integer'
         ]);
