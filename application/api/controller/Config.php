@@ -51,7 +51,7 @@ class Config extends Base
      
         $list = Db::table($list)->alias('a')->paginate($size, false, ['page' => $page]);
 
-        return list_to_hump($list);
+        return pagelist_to_hump($list);
     }
 
     //查询字典信息

@@ -55,8 +55,8 @@ function to_standard_pagelist($paginator)
     ];
 }
 
-// 转为驼峰后的pagelist
-function list_to_hump($list)
+// 分页列表转为驼峰
+function pagelist_to_hump($list)
 {
 
     $list = $list->toArray();

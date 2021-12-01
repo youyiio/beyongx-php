@@ -81,7 +81,7 @@ Route::group('api', function () {
     //运维管理相关
     Route::rule("server/status", 'api/Server/status', 'get');
     Route::rule("log/list", 'api/Log/list', 'get|post');
-    Route::rule("db/tables", 'api/Datebase/tables', 'get|post');
+    Route::rule("db/tables", 'api/Database/tables', 'get|post');
 
     //友链相关
     Route::rule("link/list", 'api/Link/list', 'get|post');
@@ -109,7 +109,7 @@ Route::group('api', function () {
 
     //字典管理相关
     Route::rule("config/list", 'api/Config/list', 'get|post');
-    Route::rule("config/groups", 'api/Config/groups', 'get');
+    Route::rule("config/groups", 'api/Config/groups', 'get|post');
     Route::rule("config/create", 'api/Config/create', 'post');
     Route::rule("config/edit", 'api/Config/edit', 'post');
     Route::rule("config/:id", 'api/Config/delete', 'delete');

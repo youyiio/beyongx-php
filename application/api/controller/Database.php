@@ -4,7 +4,7 @@ namespace app\api\controller;
 use think\Config;
 use think\Db;
 
-class Datebase extends Base
+class Database extends Base
 {
     public function tables()
     {
