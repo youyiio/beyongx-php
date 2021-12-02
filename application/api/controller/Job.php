@@ -93,6 +93,18 @@ class Job extends Base
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '岗位不存在!');
         }
 
+        //验证
+        $validate = Validate::make([
+            'pid' => 'integer',
+            'name' => 'alphaDash',
+            'title' => 'chsAlphaNum',
+            'remark' => 'chsDash',
+            'sort' => 'integer'
+        ]);
+        if (!$validate->check($params)) {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误', $validate->getError());
+        }
+
         $user = $this->user_info;
         $userInfo = UserModel::get($user->uid);
         $params['update_by'] = $userInfo['nickname'] ?? '';
