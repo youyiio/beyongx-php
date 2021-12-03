@@ -17,16 +17,16 @@ class Category extends Base
         $struct = $filters['struct']?? '';
         $depth = $filters['depth']?? 1;
 
+        $where = [];
         if (!empty($filters['startTime'])) {
             $where[] = ['create_time', '>=', $filters['startTime'] . '00:00:00'];
         }
         if (!empty($filters['endTime'])) {
             $where[] = ['create_time', '<=', $filters['endTime'] . '23:59:59'];
         }
-        
-        $where = ['status' => CategoryModel::STATUS_ONLINE];
+    
         $CategoryModel = new CategoryModel();
-        $list = $CategoryModel->where($where)->select();
+        $list = $CategoryModel->where($where)->select()->toArray();
      
         // 获取树形或者list数据
         if ($struct === 'list') {

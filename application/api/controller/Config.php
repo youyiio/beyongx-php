@@ -3,6 +3,7 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\ConfigModel;
+use app\common\model\UserModel;
 use think\Db;
 use think\Validate;
 
@@ -87,7 +88,6 @@ class Config extends Base
             'group' => 'require',
             'key' => 'require',
             'value' => 'require',
-            'value_type' => 'require',
         ]);
 
         if (!$validate->check($params)) {
@@ -95,21 +95,18 @@ class Config extends Base
         }
 
         $Config = new ConfigModel();
-        $Config->name = $params['name'];
-        $Config->group = $params['group']; 
-        $Config->key = $params['key']; 
-        $Config->value = $params['value']; 
-        $Config->value_type = $params['value_type']; 
-        $Config->sort = $params['sort']?? ''; 
-        $Config->remark = $params['remark']?? ''; 
-        $Config->save();
-        $id = $Config->id;
+        $userInfo = $this->user_info;
+        $uid = $userInfo->uid;
+        $nickname = UserModel::where('id', '=', $uid)->column('nickname');
+        $params['create_time'] = date_time();
+        $params['create_by'] = $nickname;
+        $id = $Config->insertGetId($params);
+        
         if (!$id) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
 
         $list = ConfigModel::get($id);
-
         $returnData = parse_fields($list->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
