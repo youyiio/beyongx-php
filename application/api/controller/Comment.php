@@ -93,7 +93,7 @@ class Comment extends Base
         //插入数据
         $data = [
             'article_id' => $params['articleId'],
-            'pid' => $params['id']?: '',
+            'pid' => $params['pid']?: '',
             'content' => remove_xss($params['content']),
             'status' => CommentModel::STATUS_PUBLISHED,
             'ip' => request()->ip(0, true),

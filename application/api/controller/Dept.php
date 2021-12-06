@@ -128,7 +128,7 @@ class Dept extends Base
         
         $returnData = parse_fields($dept->toArray(), 1);
         
-        return ajax_return(ResultCode::E_DB_ERROR, '操作成功!', $returnData);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
     //删除部门
