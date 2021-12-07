@@ -10,12 +10,12 @@ class Category extends Base
     {
         $params = $this->request->put();
 
-        $page = $params['page']?: 1;
-        $size = $params['size']?: 10;
-        $filters = $params['filters']?: '';
-        $pid = $filters['pid']?? 0;
-        $struct = $filters['struct']?? '';
-        $depth = $filters['depth']?? 1;
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
+        $filters = $params['filters'] ?? '';
+        $pid = $filters['pid'] ?? 0;
+        $struct = $filters['struct'] ?? '';
+        $depth = $filters['depth'] ?? 1;
 
         $where = [];
         if (!empty($filters['startTime'])) {
@@ -54,11 +54,9 @@ class Category extends Base
     public function create()
     {
         $params = $this->request->put();
-     
         if (empty($params['name'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }
-
         if (isset($params['pid']) && !is_numeric($params['pid'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }
@@ -106,9 +104,8 @@ class Category extends Base
         }
 
         $data = CategoryModel::get($params['id']);
-        $data = $data->toArray();
+        $returnData = parse_fields($data->toArray(), 1);
 
-        $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -122,7 +119,6 @@ class Category extends Base
         if (!$category) {
             $this->error('分类不存在!');
         }
-
         if (isset($params['pid']) && !is_numeric($params['status'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }

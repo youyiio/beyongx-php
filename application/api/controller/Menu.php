@@ -11,13 +11,14 @@ class Menu extends Base
     public function list()
     {
         $params = $this->request->put();
-        $page = $params['page'];
-        $size = $params['size'];
-
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
         $filters = $params['filters'];
-        $keyword = $filters['keyword']?? '';
-        $pid = $filters['pid']?? 0;
-        $depth = $filters['depth']?? 1;
+
+        $struct = $filters['struct'] ?? '';
+        $keyword = $filters['keyword'] ?? '';
+        $pid = $filters['pid'] ?? 0;
+        $depth = $filters['depth'] ?? 1;
 
         $where = [];
         if (!empty($keyword)) {
@@ -28,10 +29,11 @@ class Menu extends Base
         $list = $MenuModel->where($where)->order('id asc')->select()->toArray();
      
         // 获取树形或者list数据
-        $data = getTree($list, $pid, 'id', 'pid', $depth);
-        if (isset($filters['struct']) && $filters['struct'] === 'list') {
-            $data = getList($list, $pid, 'id', 'pid', $depth);
-        } 
+        if ($struct === 'list') {
+            $data = getList($list, $pid, 'id', 'pid');
+        } else {
+            $data = getTree($list, $pid, 'id', 'pid', $depth);
+        }
         
         //分页
         $total = count($data);  //总数
@@ -112,9 +114,9 @@ class Menu extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }
 
-        $data = $MenuModel->where('id', '=', $params['id'])->select()->toArray();
+        $data = $MenuModel->where('id', '=', $params['id'])->select();
+        $returnData = parse_fields($data->toArray(), 1);
 
-        $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -122,8 +124,8 @@ class Menu extends Base
     public function delete($id)
     {
         $menu = MenuModel::get($id);
+        
         $res = $menu->delete();
-
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
         }

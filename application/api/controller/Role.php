@@ -16,11 +16,11 @@ class Role extends Base
     public function list()
     {
         $params = $this->request->put();
-        $page = $params['page'];
-        $size = $params['size'];
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
 
         $filters = $params['filters'];
-        $keyword = $filters['keyword']?? '';
+        $keyword = $filters['keyword'] ?? '';
 
         $where = [];
         $fields = 'id,name,title,status,remark,create_by,update_by,create_time,update_time';
@@ -29,15 +29,10 @@ class Role extends Base
         }
 
         $RoleModel = new RoleModel();
-        $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page])->toArray();
+        $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
 
-        //返回数据
-        $returnData['current'] = $list['current_page'];
-        $returnData['pages'] = $list['last_page'];
-        $returnData['size'] = $list['per_page'];
-        $returnData['total'] = $list['total'];
-        $returnData['records'] = parse_fields($list['data'], 1);
-
+        $returnData = pagelist_to_hump($list);
+       
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -54,20 +49,23 @@ class Role extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
         }
 
-        $params['create_time'] = date_time();
-        $params['update_time'] = date_time();
         $user = $this->user_info;
         $userInfo = UserModel::get($user->uid);
         $params['create_by'] = $userInfo['nickname'] ?? '';
         $params['update_by'] = $userInfo['nickname'] ?? '';
+        $params['create_time'] = date_time();
+        $params['update_time'] = date_time();
+
         $RoleModel = new RoleModel();
         $result = $RoleModel->isUpdate(false)->allowField(true)->save($params);
-
         if (!$result) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
         $id = $RoleModel->id;
-        $returnData = $RoleModel->where('id', '=' ,$id)->find();
+
+        $role = $RoleModel->where('id', '=' ,$id)->find();
+
+        $returnData = parse_fields($role->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -91,16 +89,19 @@ class Role extends Base
             return ajax_return(ResultCode::ACTION_FAILED, '参数错误!', $validate->getError());
         }
 
-        $params['update_time'] = date_time();
         $user = $this->user_info;
         $userInfo = UserModel::get($user->uid);
+
         $params['update_by'] = $userInfo['nickname'] ?? '';
+        $params['update_time'] = date_time();
         $res = $role->save($params);
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
 
-        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $role);
+        $returnData = parse_fields($role->toArray(), 1);
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
     //删除角色
@@ -108,8 +109,8 @@ class Role extends Base
     {
         //删除role表中的数据
         $role = RoleModel::get($id);
+    
         $res = $role->delete();
-        
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
@@ -126,14 +127,14 @@ class Role extends Base
     {
         $MenuModel = new RoleMenuModel();
         $menus = $MenuModel->where('role_id', $id)->column('menu_id');
-     
         $ids = implode(',', $menus);
+
         $MenuModel = new MenuModel();
         $fields = 'id,pid,title,name,component,path,icon,type,is_menu,status,sort,belongs_to,create_by,update_by,create_time,update_time';
-        $list = $MenuModel->where('id', 'in', $ids)->field($fields)->select()->toArray();
+        $list = $MenuModel->where('id', 'in', $ids)->field($fields)->select();
 
-        $data = parse_fields($list ,1);
-        $returnData = getTree($data);
+        $data = parse_fields($list->toArray() ,1);
+        $returnData = getTree($data, 0, 'id', 'pid', 5);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

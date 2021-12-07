@@ -13,8 +13,8 @@ class Config extends Base
     public function list()
     {
         $params = $this->request->put();
-        $page = $params['page']?? '1';
-        $size = $params['size']?? '10';
+        $page = $params['page'] ?? '1';
+        $size = $params['size'] ?? '10';
         $filters = $params['filters'];
 
         $where = [];
@@ -50,6 +50,7 @@ class Config extends Base
         $ConfigModel = new ConfigModel();
         $list = $ConfigModel->distinct(true)->field('group')->buildSql();
         $list = Db::table($list)->alias('a')->paginate($size, false, ['page' => $page]);
+
         $returnData =  pagelist_to_hump($list);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -59,8 +60,8 @@ class Config extends Base
     public function query()
     {
         $params = $this->request->put();
-        $key = $params['key']??'';
-        $group = $params['group']??'';
+        $key = $params['key'] ?? '';
+        $group = $params['group'] ?? '';
 
         if (empty($key)) {
             return ajax_return(ResultCode::E_PARAM_EMPTY, 'key不能为空');
@@ -89,7 +90,6 @@ class Config extends Base
             'key' => 'require',
             'value' => 'require',
         ]);
-
         if (!$validate->check($params)) {
             ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
         }
@@ -119,13 +119,11 @@ class Config extends Base
         $id = $params['id'];
 
         $config = ConfigModel::get($id);
-
         if (!$config) {
             return ajax_return(ResultCode::E_ACCESS_NOT_FOUND, '数据未找到!');
         }
 
         $res = $config->isUpdate(false)->allowField(true)->save($params, ['id'=>$id]);
-
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
@@ -140,7 +138,6 @@ class Config extends Base
     {
         $ConfigModel = new ConfigModel();
         $list = $ConfigModel->where('group', '=', $name.'_status')->field('key,value')->select();
-
         if (($list->isEmpty())) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '数据未找到');
         }
@@ -158,10 +155,9 @@ class Config extends Base
     //删除字典
     public function delete($id)
     {
-        //删除role表中的数据
+      
         $config = ConfigModel::get($id);
         $res = $config->delete();
-        
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }

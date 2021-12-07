@@ -12,6 +12,7 @@ use beyong\commons\utils\StringUtils;
 
 use Firebase\JWT\JWT;
 use app\common\logic\CodeLogic;
+use app\common\model\UserRoleModel;
 
 class Sms extends Base
 {
@@ -159,10 +160,10 @@ class Sms extends Base
         //权限初始化
         $group[] = [
             'uid' => $user->id,
-            'group_id' => config('user_group_id')
+            'role_id' => config('role_id')
         ];
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $AuthGroupAccessModel->insertAll($group);
+        $UserRoleModel = new UserRoleModel();
+        $UserRoleModel->insertAll($group);
 
         return $user;
     }

@@ -12,30 +12,13 @@ use app\common\model\UserModel;
 
 class Comment extends Base
 {
-
-    protected $payloadData;
-    protected $uid;
-
-    public function initialize()
-    {
-        $this->payloadData = session('jwt_payload_data');
-        if (!$this->payloadData) {
-            return ajax_error(ResultCode::ACTION_FAILED, 'TOKEN自定义参数不存在！');
-        }
-        $this->uid = $this->payloadData->uid;
-        if (!$this->uid) {
-            return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
-        }
-    }
-
     //查询评论列表
     public function list()
     {
         $params = $this->request->put();
-
-        $page = $params['page']?: 1;
-        $size = $params['size']?: 10;
-        $filters = $params['filters']?: '';
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
+        $filters = $params['filters']?? '';
 
         if (!empty($filters['startTime'])) {
             $where[] = ['create_time', '>=', $filters['startTime'] . '00:00:00'];
@@ -48,7 +31,6 @@ class Comment extends Base
         }
 
         $where[] = ['status', '=', CommentModel::STATUS_PUBLISHED];
-
         $CommentModel = new CommentModel();
         $list = $CommentModel->where($where)->paginate($size, false, ['page'=>$page]);
     
@@ -63,8 +45,7 @@ class Comment extends Base
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '评论不存在!');
         }
 
-        $comment = $comment->toArray();
-        $returnData = parse_fields($comment, 1);
+        $returnData = parse_fields($comment->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);   
     }
@@ -77,7 +58,7 @@ class Comment extends Base
         }
 
         $params = $this->request->put();
-        //参数言则会那个
+        //参数验证
         $check = validate('Comment')->scene('create')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('Comment')->getError());
@@ -113,22 +94,20 @@ class Comment extends Base
 
         $CommentModel = new CommentModel();
         $comId = $CommentModel->allowField(true)->isUpdate(false)->insertGetId($data);
-
         if (!$comId) {
             return ajax_return(ResultCode::E_DB_ERROR, '新增失败');
         } 
 
         //增加评论数量;
         $ArticleModel->where('id', $params['articleId'])->setInc('comment_count');
-
         //发送评论消息;
         $msgTitle = '新评论消息';
         $msgContent = $author . '评论了文章 “' . $article['title'] . '”';
         send_message(0, 1, $msgTitle, $msgContent, MessageModel::TYPE_COMMENT);
 
         $data = CommentModel::get($comId);
-        $data = $data->toArray();
-        $returnData = parse_fields($data, 1);
+        $returnData = parse_fields($data->toArray(), 1);
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
         
     }
@@ -137,7 +116,6 @@ class Comment extends Base
     public function audit()
     {
         $params = $this->request->put();
-      
         //参数验证
         if (count($params) !== 1) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
@@ -152,7 +130,6 @@ class Comment extends Base
     
         $CommentModel = new CommentModel();
         $success = $CommentModel->where('id', 'in', $ids)->setField('status', CommentModel::STATUS_PUBLISHED);
-
         $fails = count($ids) - $success;
         $returnData = ['success'=> $success, 'fail' => $fails];
 
@@ -164,7 +141,6 @@ class Comment extends Base
     public function delete()
     {
         $params = $this->request->put();
-     
         //参数验证
         if (count($params) !== 1) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误');
@@ -179,7 +155,6 @@ class Comment extends Base
     
         $CommentModel = new CommentModel();
         $success = $CommentModel->where('id', 'in', $ids)->setField('status', CommentModel::STATUS_DELETED);
-        
         $fails = count($ids) - $success;
         $returnData = ['success'=> $success, 'fail' => $fails];
 

@@ -42,9 +42,9 @@ class User extends Base
     {
         $params = $this->request->put();
 
-        $page = $params['page'];
-        $size = $params['size'];
-        $filters = $params['filters'] ?? []; 
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
+        $filters = $params['filters'] ?? ''; 
 
         $where = [];
         foreach ($filters as $key => $value) {
@@ -54,12 +54,11 @@ class User extends Base
             } elseif ($value == '') {
                 continue;
             } else {
-                $where[] = [$key, 'like', '%' . $value . '%'];
+                $where[] = [$key, 'like', '%'. $value .'%'];
             }
         }
-        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
-       
+        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
 
         //查询部门和角色
@@ -68,17 +67,11 @@ class User extends Base
             $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name,title')->find();
             unset($user['dept_id']);
             $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-            $user['roles'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
+            $user['roles'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
         }
 
-        $list = $list->toArray();
-        //返回数据
-        $returnData['current'] = $list['current_page'];
-        $returnData['pages'] = $list['last_page'];
-        $returnData['size'] = $list['per_page'];
-        $returnData['total'] = $list['total'];
-        $returnData['records'] = parse_fields($list['data'], 1);
-
+        $returnData = pagelist_to_hump($list);
+       
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -86,7 +79,6 @@ class User extends Base
     public function create()
     {
         $params = $this->request->put();
-
         $check = Validate('User')->scene('create')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
@@ -94,7 +86,6 @@ class User extends Base
 
         $UserLogic = new UserLogic();
         $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email'], '', $params['deptId']??'');
-        
         if (!$uid) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         }
@@ -120,9 +111,8 @@ class User extends Base
         unset($user['dept_id']);
         //角色
         $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
+        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
        
-
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);  
@@ -132,7 +122,6 @@ class User extends Base
     public function edit()
     {
         $params = $this->request->put();
-
         $check = Validate('User')->scene('edit')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
@@ -172,10 +161,13 @@ class User extends Base
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email,dept_id,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where(['id' => $uid])->field($fields)->find();
+        
         $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
         unset($user['dept_id']);
+        
         $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
         $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -189,12 +181,10 @@ class User extends Base
         }
 
         $res = UserModel::where('id', $id)->setField('status', UserModel::STATUS_DELETED);
-
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '删除失败!');
         }
 
-        //删除用户角色
         return ajax_return(ResultCode::ACTION_SUCCESS, '删除成功!');
     }
 
@@ -202,7 +192,6 @@ class User extends Base
     public function modifyPassword()
     {
         $params = $this->request->put();
-
         $check = Validate('User')->scene('modifyPassword')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
@@ -210,9 +199,9 @@ class User extends Base
 
         $data['id'] = $params['id'];
         $data['password'] = encrypt_password($params['password'], get_config('password_key'));
+
         $UserModel = new UserModel();
         $res = $UserModel->isUpdate(true)->save($data);
-
         if (!$res) {
             return ajax_error(ResultCode::E_DB_ERROR, '修改失败!');
         }
@@ -232,7 +221,6 @@ class User extends Base
 
         $UserModel = new UserModel();
         $res = $UserModel->where('id', $uid)->where('status', UserModel::STATUS_ACTIVED)->setField('status', UserModel::STATUS_FREEZED);
-
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         } 
@@ -252,7 +240,6 @@ class User extends Base
 
         $UserModel = new UserModel();
         $res = $UserModel->where('id', $uid)->setField('status', UserModel::STATUS_ACTIVED);
-
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         } 
@@ -264,7 +251,6 @@ class User extends Base
     public function addRoles()
     {
         $params = $this->request->put();
-
         $check = Validate('User')->scene('addRoles')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());

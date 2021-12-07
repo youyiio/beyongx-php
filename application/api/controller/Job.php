@@ -11,7 +11,6 @@ class Job extends Base
     //查询岗位字典
     public function dict()
     {
-        
         $JobModel = new JobModel();
         $list = $JobModel->field('id,name,title,remark')->select();
 
@@ -23,9 +22,9 @@ class Job extends Base
     {
         $params = $this->request->put();
 
-        $page = $params['page']?? 1;
-        $size = $params['size']?? 10;
-        $filters = $params['filters']?? '';
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
+        $filters = $params['filters'] ?? '';
 
         $where = [];
         if (isset($filters['title'])) {
@@ -56,7 +55,6 @@ class Job extends Base
             'remark' => 'chsDash',
             'sort' => 'integer'
         ]);
-
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误', $validate->getError());
         }
@@ -78,7 +76,7 @@ class Job extends Base
         }
 
         $data = JobModel::get($id);
-        $returnData = parse_fields($data, 1);
+        $returnData = parse_fields($data->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -117,7 +115,7 @@ class Job extends Base
             return ajax_return(ResultCode::E_DB_ERROR, '编辑失败!');
         }
         
-        $returnData = parse_fields($job, 1);
+        $returnData = parse_fields($job->toArray(), 1);
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
