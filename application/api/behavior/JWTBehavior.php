@@ -7,6 +7,7 @@ use think\exception\ValidateException;
 use app\common\exception\JwtException;
 use think\facade\Request;
 use app\common\library\ResultCode;
+use think\facade\Log;
 
 class JWTBehavior
 {
@@ -34,7 +35,9 @@ class JWTBehavior
         $payload = null;
         try {
             $payload = JWT::decode($token, config('jwt.jwt_key'), [config('jwt.jwt_alg')]);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            Log::error("jwt decode error:" . $e->getMessage());
+        }
         
         if (is_null($payload) || is_null($payload->data)) {
             throw new JwtException(ResultCode::E_TOKEN_EXPIRED, '登录已过期！', 'E_TOKEN_EXPIRED');
