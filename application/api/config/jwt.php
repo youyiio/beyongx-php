@@ -10,8 +10,6 @@ return [
     'jwt_action_excludes' => [
         '/sign/login', 
         '/sign/register', 
-        '/sms/sendcode', '/sms/login',
-        '/anime/categorylist', '/anime/topiclist', 
-        '/anime/chapterlist', '/anime/getanime'
+        '/sms/sendcode', '/sms/login'
     ],  //jwt验证例外列表
 ];

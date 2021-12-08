@@ -54,7 +54,7 @@ class JWTBehavior
             }
         }
 
-        session('jwt_payload_data', $payload->data);
+        //session('jwt_payload_data', $payload->data);
 
         return true;
     }
