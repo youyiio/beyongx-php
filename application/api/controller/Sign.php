@@ -200,11 +200,11 @@ class Sign extends Base
     //注销登录
     public function logout()
     {
-        $payloadData = session('jwt_payload_data');
-        if (!$payloadData) {
+        $user_info = $this->user_info;
+        if (!$user_info) {
             return ajax_error(ResultCode::ACTION_FAILED, 'TOKEN自定义参数不存在！');
         }
-        $uid = $payloadData->uid;
+        $uid = $user_info->uid;
         if (!$uid) {
             return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
         }
