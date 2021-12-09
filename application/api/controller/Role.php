@@ -175,10 +175,10 @@ class Role extends Base
     public function userList($id)
     {
         $params = $this->request->put();
-        $page = $params['page']?? '1';
-        $size = $params['size']?? '10';
+        $page = $params['page'] ?? '1';
+        $size = $params['size'] ?? '10';
         $filters = $params['filters'];
-        $keyword = $filters['keyword'];
+        $keyword = $filters['keyword'] ?? '';
         $where = [];
         if (!empty($keyword)) {
             $where[] = ['nickname|mobile|email', 'like', '%'.$keyword.'%'];
