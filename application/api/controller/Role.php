@@ -30,7 +30,11 @@ class Role extends Base
 
         $RoleModel = new RoleModel();
         $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
-
+        //查询角色权限
+        $RoleMenuModel = new RoleMenuModel();
+        foreach ($list as $key => $value) {
+            $list[$key]['menuIds'] = $RoleMenuModel->where('role_id', '=', $value['id'])->column('menu_id');
+        }
         $returnData = pagelist_to_hump($list);
        
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -171,10 +175,10 @@ class Role extends Base
     public function userList($id)
     {
         $params = $this->request->put();
-        $page = $params['page']?? '1';
-        $size = $params['size']?? '10';
+        $page = $params['page'] ?? '1';
+        $size = $params['size'] ?? '10';
         $filters = $params['filters'];
-        $keyword = $filters['keyword'];
+        $keyword = $filters['keyword'] ?? '';
         $where = [];
         if (!empty($keyword)) {
             $where[] = ['nickname|mobile|email', 'like', '%'.$keyword.'%'];
