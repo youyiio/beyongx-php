@@ -17,8 +17,8 @@ class User extends Base
     // 获取用户信息
     public function query($id)
     {
-        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
+        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', $id)->field($fields)->find();
 
         if (empty($user)) {
@@ -48,8 +48,8 @@ class User extends Base
 
         $where = [];
         foreach ($filters as $key => $value) {
-            if ($key ===  'status' && $value !== '') {
-                $where[] = ['status', '=', $value];
+            if (in_array($key, ['status', 'id']) && $value !== '') {
+                $where[] = [$key, '=', $value];
                 continue;
             } elseif ($value == '') {
                 continue;

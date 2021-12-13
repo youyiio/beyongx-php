@@ -52,6 +52,8 @@ class Article extends Base
         $status = $filters['status'] ?? '';
         if ($status !== '') {
             $where[] = ['status', '=', $status];
+        } else {
+            $where[] = ['status', '>=', ArticleModel::STATUS_DRAFT];
         }
 
         //查询时间
