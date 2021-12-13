@@ -9,6 +9,7 @@ use app\common\model\RoleMenuModel;
 use app\common\model\RoleModel;
 use app\common\model\UserModel;
 use app\common\model\UserRoleModel;
+use think\Validate;
 
 //个人中心
 class Ucenter extends Base
@@ -103,5 +104,38 @@ class Ucenter extends Base
         $returnData = getTree($list, 0 , 'id', 'pid', 6);
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+    }
+
+    //修改密码
+    public function modifyPassword()
+    {
+        $params = $this->request->put();
+        $validate = Validate::make([
+            'oldPassword' => 'require',
+            'password' => 'require|length:6,20|alphaDash'
+        ]);
+       
+        if (!$validate->check($params)) {
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $validate->getError());
+        }
+
+        $oldPassword = $params['oldPassword'];
+        $oldPassword = encrypt_password($oldPassword, get_config('password_key'));
+
+        $uid = $this->user_info;
+        $uid = $uid->uid;
+        $uid = 11;
+        $user = UserModel::get($uid);
+        if($user['password'] !== $oldPassword) {
+            return ajax_error(ResultCode::E_PARAM_ERROR, '旧密码不正确');
+        }
+        
+        $password = encrypt_password($params['password'], get_config('password_key'));
+        $res = $user->isUpdate(true)->save(['password' => $password]);
+        if (!$res) {
+            return ajax_error(ResultCode::E_DB_ERROR, '修改失败!');
+        }
+
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', '');
     }
 }
