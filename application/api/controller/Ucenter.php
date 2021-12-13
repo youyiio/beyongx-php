@@ -31,7 +31,7 @@ class Ucenter extends Base
         //描述
         $data['description'] = $user->meta('description');
         //部门
-        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name')->find();
+        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
         unset($user['dept_id']);
         //查询角色
         $roleIds = UserRoleModel::where(['uid' => $user['id']])->column('role_id');
