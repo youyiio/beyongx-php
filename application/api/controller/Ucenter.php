@@ -124,7 +124,6 @@ class Ucenter extends Base
 
         $uid = $this->user_info;
         $uid = $uid->uid;
-        $uid = 11;
         $user = UserModel::get($uid);
         if($user['password'] !== $oldPassword) {
             return ajax_error(ResultCode::E_PARAM_ERROR, '旧密码不正确');
