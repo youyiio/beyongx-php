@@ -8,6 +8,7 @@ use app\common\exception\JwtException;
 use think\facade\Request;
 use app\common\library\ResultCode;
 use think\facade\Log;
+use app\api\library\RolePermission;
 
 class JWTBehavior
 {
@@ -37,6 +38,7 @@ class JWTBehavior
             $payload = JWT::decode($token, config('jwt.jwt_key'), [config('jwt.jwt_alg')]);
         } catch (\Throwable $e) {
             Log::error("jwt decode error:" . $e->getMessage());
+            throw new JwtException(ResultCode::E_TOKEN_INVALID, 'TOKEN不合法！', 'E_TOKEN_INVALID');
         }
         
         if (is_null($payload) || is_null($payload->data)) {
@@ -46,15 +48,14 @@ class JWTBehavior
         //Api权限验证
         if (config('jwt.jwt_auth_on') !== 'off') {
             $user_info = $payload->data;
-            $uid = $user_info->uid;      
-            $node = request()->module().'/'.request()->controller().'/'.request()->action();
-            $auth = \think\auth\Auth::instance();        
-            if (!$auth->check($node, $uid)) {
-                throw new ValidateException(ResultCode::E_ACCESS_NOT_AUTH, "$node 没有访问权限");
+            $uid = $user_info->uid;   
+            $permission = request()->controller() . ':' . request()->action();
+            $permission = strtolower($permission);
+            $rolePermission = new RolePermission();        
+            if (!$rolePermission->checkPermission($uid, $permission)) {
+                throw new JwtException(ResultCode::E_ACCESS_NOT_AUTH, "访问的资源没有权限：Subject has no permission [$permission]", 'E_ACCESS_NOT_AUTH');
             }
         }
-
-        //session('jwt_payload_data', $payload->data);
 
         return true;
     }
