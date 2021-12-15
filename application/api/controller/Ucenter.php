@@ -55,6 +55,7 @@ class Ucenter extends Base
         }
 
         $params = $this->request->put();
+        $params = parse_fields($params);
         $res = $user->isUpdate(true)->allowField(true)->save($params);
         if (!$res) {
             ajax_return(ResultCode::E_DB_ERROR, '操作失败!');

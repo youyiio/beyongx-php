@@ -14,13 +14,12 @@ class Upload extends Base
     //图片上传
     public function image()
     {
-        $tmpFile = request()->file('file');
-        if (empty($tmpFile)) $tmpFile = request()->file('file');
-        if (empty($tmpFile)) {
-            //$this->error('请选择上传文件');
-            $this->result(null, 0, '请选择上传文件', 'json');
+        $isfile = $_FILES;
+        if ($isfile['file']['tmp_name'] == '') {
+            return ajax_return(ResultCode::ACTION_FAILED, '请选择上传图片');
         }
 
+        $tmpFile = request()->file('file');
         //图片规定尺寸
         $imgWidth = request()->param('width/d', 0);
         $imgHeight = request()->param('height/d', 0);
@@ -41,13 +40,13 @@ class Upload extends Base
             ]
         );
         if ($check !== true) {
-            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '参数验证失败！', $this->error($check));
+            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '参数验证失败！');
         }
 
         list($width, $height, $type) = getimagesize($tmpFile->getRealPath()); //获得图片宽高类型
         if ($imgWidth > 0 && $imgHeight > 0) {
             if (!($width >= $imgWidth - 10 && $width <= $imgWidth + 10 && $height >= $imgHeight - 10 && $height <= $imgHeight + 10)) {
-                $this->error('图片尺寸不符合要求:' . $imgWidth . '*' . $imgHeight);
+                return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, "图片尺寸不符合要求,原图:宽:$width*高:$height");
             }
         }
 
@@ -56,7 +55,7 @@ class Upload extends Base
         //文件验证&文件move操作
         $file = $tmpFile->validate(['ext' => 'jpg,gif,png,jpeg,bmp,ico,webp'])->move($filePath);
         if (!$file) {
-            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '参数验证失败！',$tmpFile->getError());
+            return ajax_return(ResultCode::ACTION_FAILED, '操作失败！',$tmpFile->getError());
         }
 
         $saveName = $file->getSaveName();
@@ -126,15 +125,14 @@ class Upload extends Base
     //文件上传
     public function file()
     {
-        $tmpFile = request()->file('file');
-        if (empty($tmpFile)) {
-            $this->result(null, 0, '请选择上传文件', 'json');
+        $isfile = $_FILES;
+        if ($isfile['file']['tmp_name'] == '') {
+            return ajax_return(ResultCode::ACTION_FAILED, '请选择上传文件');
         }
 
         $rule = [
             'size' => 1024 * 1024 * 200, //200M
         ];
-
         //通用文件后缀，加强安全;
         $common_file_exts = 'zip,rar,doc,docx,xls,xlsx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
@@ -155,6 +153,7 @@ class Upload extends Base
         $path = $filePath . $fileUrl;
 
         //不能信任前端传进来的文件名, thinkphp默认使表单里的filename后缀
+        $tmpFile = request()->file('file');
         $file = $tmpFile->validate($rule)->move($path);;
         if (!$file) {
             $this->result(null, 0, $tmpFile->getError(), 'json');
