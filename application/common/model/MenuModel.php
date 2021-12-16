@@ -24,6 +24,18 @@ class MenuModel extends BaseModel
         });
     }
 
+    //关联角色表
+    public function roles()
+    {
+        return $this->belongsToMany('RoleModel', config('database.prefix') . 'sys_role_menu', 'role_id', 'menu_id');
+    }
+
+    //关联中间表 roleMenuModel
+    public function roleMenus()
+    {
+        return $this->hasMany('roleMenuModel', 'menu_id', 'id');
+    }
+
     /**
      * 删除数据
      * @param    array $map where语句数组形式

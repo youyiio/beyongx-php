@@ -56,6 +56,11 @@ class Ucenter extends Base
 
         $params = $this->request->put();
         $params = parse_fields($params);
+        $check = Validate('User')->scene('edit')->check($params);
+        if ($check !== true) {
+            return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
+        }
+        
         $res = $user->isUpdate(true)->allowField(true)->save($params);
         if (!$res) {
             ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
@@ -84,23 +89,17 @@ class Ucenter extends Base
         $userInfo = $this->user_info;
         $uid = $userInfo->uid;
         $user = UserModel::get($uid);
-
         if (!$user) {
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
-        $roleIds = UserRoleModel::where(['uid'=> $uid])->column('role_id');
 
-        $RolemenuModel = new RoleMenuModel();
-        $menuIds = $RolemenuModel->where('role_id', 'in', $roleIds)->column('menu_id');
+        $roleIds = $user->roles->column('id');
+        $field = 'id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to';
+        $MenuModel = MenuModel::hasWhere('roleMenus', [['role_id', 'in', $roleIds]], $field)->group([]);
 
-        $where[] = [
-            ['belongs_to', '=', 'api'],
-            ['id', 'in', $menuIds]
-        ];
-        $MenuModel = new MenuModel();
-        $fields = 'id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to';
-        $list = $MenuModel->where($where)->field($fields)->select();
-
+        $where[] = ['belongs_to', '=', 'api'];
+        $list = $MenuModel->where($where)->select();
+        
         $list = parse_fields($list->toArray(), 1);
         $returnData = getTree($list, 0 , 'id', 'pid', 6);
         
