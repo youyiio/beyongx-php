@@ -111,17 +111,11 @@ class Role extends Base
     //删除角色
     public function delete($id)
     {
-        //删除role表中的数据
-        $role = RoleModel::get($id);
-    
-        $res = $role->delete();
+        $RoleModel = new RoleModel();
+        $res = $RoleModel->where('id', '=', $id)->setField('status', RoleModel::STATUS_DELETED);
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
-
-        //删除RoleMenu表中的数据
-        $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->where('role_id', '=', $id)->delete();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }

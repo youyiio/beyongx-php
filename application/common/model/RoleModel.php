@@ -9,6 +9,12 @@ class RoleModel extends BaseModel
 {
     protected $name = 'sys_role';
 
+	const STATUS_DELETED = -1; //删除
+	const STATUS_ACTIVED = 1; //激活
+	const STATUS_FREEZED = 2; //冻结
+	
+
+
 	//关联menu表
 	public function menus()
 	{
