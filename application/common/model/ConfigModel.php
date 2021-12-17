@@ -15,4 +15,7 @@ class ConfigModel extends Model
 {
     protected $name = 'sys_config';
     protected $pk = 'id';
+
+    const STATUS_ACTIVED = 1; //启用
+    const STATUS_OFF = 0;  //停用
 }

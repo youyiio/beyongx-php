@@ -13,7 +13,7 @@ class Dept extends Base
     {
         $params = $this->request->put();
 
-        $struct = $params['struct']?? '';
+        $struct = $params['struct'] ?? '';
 
         $DeptModel = new DeptModel();
         $list = $DeptModel->field('id,name,title')->select();
@@ -74,11 +74,11 @@ class Dept extends Base
 
         $validate = Validate::make([
             'pid' => 'integer',
-            'name' => 'require|chsDash',
+            'name' => 'require|alphaDash|length:3,64',
+            'title' => 'require|chs',
             'remark' => 'chsDash',
             'sort' => 'integer'
         ]);
-
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误', $validate->getError());
         }
@@ -89,8 +89,9 @@ class Dept extends Base
         $dept = new DeptModel();
         $params['create_time'] = date_time();
         $params['update_time'] = date_time();
-        $params['create_by'] = $userInfo['nickname']?? '';
-        $params['update_by'] = $userInfo['nickname']?? '';
+        $params['create_by'] = $userInfo['nickname'] ?? '';
+        $params['update_by'] = $userInfo['nickname'] ?? '';
+        $params['status'] = $params['status'] ?? DeptModel::STATUS_ACTIVED;
         $dept->isUpdate(false)->allowField(true)->save($params);
 
         $id = $dept->id;
@@ -108,6 +109,19 @@ class Dept extends Base
     public function edit()
     {
         $params = $this->request->put();
+
+        $validate = Validate::make([
+            'pid' => 'integer',
+            'name' => 'require|alphaDash|length:3,64',
+            'title' => 'require|chs',
+            "status" => 'integer',
+            'remark' => 'chsDash',
+            'sort' => 'integer'
+        ]);
+        if (!$validate->check($params)) {
+            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误', $validate->getError());
+        }
+
         $id = $params['id'];
         $dept = DeptModel::get($id);
         if (!$dept) {

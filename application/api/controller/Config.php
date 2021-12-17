@@ -84,26 +84,28 @@ class Config extends Base
     public function create()
     {
         $params = $this->request->put();
+        $params = parse_fields($params);
+
         $validate = Validate::make([
-            'name' => 'require',
-            'group' => 'require',
+            'name' => 'require|chs',
+            'group' => 'require|alphaDash',
             'key' => 'require',
             'value' => 'require',
         ]);
         if (!$validate->check($params)) {
-            ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
+            ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!', $validate->getError());
         }
 
-        $Config = new ConfigModel();
-        $userInfo = $this->user_info;
-        $uid = $userInfo->uid;
-        $nickname = UserModel::where('id', '=', $uid)->column('nickname');
+        $user = $this->user_info;
+        $userInfo = UserModel::get($user->uid);
+        $params['create_by'] = $userInfo['nickname'] ?? '';
         $params['create_time'] = date_time();
-        $params['create_by'] = $nickname;
+        $params['status'] = $params['status'] ?? ConfigModel::STATUS_ACTIVED;
+
+        $Config = new ConfigModel();
         $id = $Config->insertGetId($params);
-        
         if (!$id) {
-            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+            return ajax_return(ResultCode::E_DB_ERROR, '新增失败!');
         }
 
         $list = ConfigModel::get($id);
@@ -116,16 +118,27 @@ class Config extends Base
     public function edit()
     {
         $params = $this->request->put();
-        $id = $params['id'];
+        $params = parse_fields($params);
+        
+        $validate = Validate::make([
+            'name' => 'require|chs',
+            'group' => 'require|alphaDash',
+            'key' => 'require',
+            'value' => 'require',
+        ]);
+        if (!$validate->check($params)) {
+            ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!', $validate->getError());
+        }
 
+        $id = $params['id'];
         $config = ConfigModel::get($id);
         if (!$config) {
-            return ajax_return(ResultCode::E_ACCESS_NOT_FOUND, '数据未找到!');
+            return ajax_return(ResultCode::E_ACCESS_NOT_FOUND, '字典未找到!');
         }
 
         $res = $config->isUpdate(false)->allowField(true)->save($params, ['id'=>$id]);
         if (!$res) {
-            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+            return ajax_return(ResultCode::E_DB_ERROR, '编辑失败!');
         }
 
         $returnData = parse_fields($config, 1);
@@ -159,7 +172,7 @@ class Config extends Base
         if (!$config) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '字典不存在!');
         }
-        
+
         $res = $config->delete();
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
