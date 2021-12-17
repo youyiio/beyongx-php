@@ -138,7 +138,11 @@ class Dept extends Base
         if (!$dept) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '部门不存在!');
         }
-        $dept->delete();
+
+        $res = $dept->delete();
+        if (!$res) {
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }

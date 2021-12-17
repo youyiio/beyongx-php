@@ -123,11 +123,15 @@ class Job extends Base
     //删除岗位
     public function delete($id)
     {
-        $dept = JobModel::get($id);
-        if (!$dept) {
-            $this->error('分类不存在!');
+        $job = JobModel::get($id);
+        if (!$job) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '岗位不存在!');
         }
-        $dept->delete();
+
+        $res = $job->delete();
+        if (!$res) {
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }

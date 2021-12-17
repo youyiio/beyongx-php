@@ -155,8 +155,11 @@ class Config extends Base
     //删除字典
     public function delete($id)
     {
-      
         $config = ConfigModel::get($id);
+        if (!$config) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '字典不存在!');
+        }
+        
         $res = $config->delete();
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');

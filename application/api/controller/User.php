@@ -178,11 +178,12 @@ class User extends Base
     //删除用户
     public function delete($id)
     {
-        if ($id == 0) {
-            $this->error('参数错误');
+        $user = UserModel::get($id);
+        if (!$user) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
 
-        $res = UserModel::where('id', $id)->setField('status', UserModel::STATUS_DELETED);
+        $res = $user->save(['status' => UserModel::STATUS_DELETED]);
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '删除失败!');
         }

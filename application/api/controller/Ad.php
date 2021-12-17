@@ -193,7 +193,10 @@ class Ad extends Base
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '广告不存在!');
         }
 
-        $ad->delete();
+        $res = $ad->delete();
+        if (!$res) {
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+        }
 
         $AdServingModel = new AdServingModel();
         $AdServingModel->where('ad_id', $id)->delete();

@@ -133,9 +133,13 @@ class Category extends Base
     {
         $category = CategoryModel::get($id);
         if (!$category) {
-            $this->error('分类不存在!');
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '分类不存在!');
         }
-        $category->delete();
+
+        $res = $category->delete();
+        if (!$res) {
+            return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
+        }
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!');
     }

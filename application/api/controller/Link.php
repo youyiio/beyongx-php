@@ -92,11 +92,14 @@ class Link extends Base
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
     }
 
-    //删除链接
+    //删除友链
     public function delete($id)
     {
         $link = LinkModel::get($id);
-        
+        if (!$link) {
+            return ajax_return(ResultCode::E_DATA_NOT_FOUND, '友链不存在!');
+        }
+
         $res = $link->delete();
         if (!$res) {
             return ajax_return(ResultCode::ACTION_FAILED, '操作失败!');
