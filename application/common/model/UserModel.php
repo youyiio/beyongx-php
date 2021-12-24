@@ -58,6 +58,18 @@ class UserModel extends BaseModel
         return $this->hasMany('userRoleModel','uid','role_id');
     }
 
+    //关联表：岗位表
+    public function jobs()
+    {
+        return $this->belongsToMany('JobModel', config('database.prefix') . 'sys_user_role', 'role_id', 'uid');
+    }
+
+    //关联表：用户组岗位
+    public function userJob()
+    {
+        return $this->hasMany('userJobModel', 'uid', 'job_id');
+    }
+
     //自身扩展字段
     public function ext($key, $value='')
     {

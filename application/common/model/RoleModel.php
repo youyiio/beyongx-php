@@ -15,7 +15,7 @@ class RoleModel extends BaseModel
 	
 
 
-	//关联menu表
+	//关联菜单表
 	public function menus()
 	{
 		return $this->belongsToMany('MenuModel', config('database.prefix') . 'sys_role_menu', 'menu_id', 'role_id');
@@ -25,6 +25,18 @@ class RoleModel extends BaseModel
 	public function roleMenus()
 	{
 		return $this->hasMany('RoleMenuModel', 'role_id', 'id');
+	}
+
+	//关联用户表
+	public function users()
+	{
+		return $this->belongsToMany('UserModel', config('database.prefix') . 'sys_user_role', 'uid', 'role_id');
+	}
+
+	//关联中间表 roleMenuModel
+	public function userRole()
+	{
+		return $this->hasMany('UserRoleModel', 'role_id', 'id');
 	}
 
 	/**

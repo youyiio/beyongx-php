@@ -5,7 +5,9 @@ namespace app\api\controller;
 use app\common\library\ResultCode;
 use app\common\logic\UserLogic;
 use app\common\model\DeptModel;
+use app\common\model\JobModel;
 use app\common\model\RoleModel;
+use app\common\model\UserJobModel;
 use app\common\model\UserModel;
 use app\common\model\UserRoleModel;
 use think\facade\Cache;
@@ -122,12 +124,12 @@ class User extends Base
     public function edit()
     {
         $params = $this->request->put();
-        $params = parse_fields($params);
         $check = Validate('User')->scene('edit')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
+        $params = parse_fields($params);
         $uid = $params['id'];
         $user = UserModel::get($uid);
         if (!$user) {
@@ -143,16 +145,28 @@ class User extends Base
             return ajax_return(ResultCode::ACTION_SUCCESS, '操作失败!');
         }
 
-        //修改对应角色
-        $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->where(['uid'=>$uid])->delete();
-       
-        if (!empty($params['roleIds'])) {
+        //修改岗位
+        if (!empty($params['job_ids'])) {
+            $UserJobModel = new UserJobModel();
+            $UserJobModel->where(['uid' => $uid])->delete();
             $data = [];
-            foreach ($params['roleIds'] as $k => $v) {
+            foreach ($params['job_ids'] as $k => $v) {
                 $data[] = [
-                    'uid'=>$uid,
-                    'role_id'=>$v
+                    'uid' => $uid,
+                    'job_id' => $v
+                ];
+            }
+            $UserJobModel->insertAll($data);
+        }
+        //修改对应角色
+        if (!empty($params['role_ids'])) {
+            $UserRoleModel = new UserRoleModel();
+            $UserRoleModel->where(['uid' => $uid])->delete();
+            $data = [];
+            foreach ($params['role_ids'] as $k => $v) {
+                $data[] = [
+                    'uid' => $uid,
+                    'role_id' => $v
                 ];
             }
             $UserRoleModel->insertAll($data);
@@ -167,8 +181,8 @@ class User extends Base
         $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
         unset($user['dept_id']);
         
-        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($user->toArray(), 1);
 

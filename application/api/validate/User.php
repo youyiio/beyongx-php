@@ -20,6 +20,8 @@ class User extends Validate
         'password'   => ['require','min'=> 6, 'max'=> 16],
         'repassword' => ['require','confirm:password'],
         'sex'        => ['in'=> [0,1,2]],
+        'deptId'     => ['integer'],
+        'jobIds'     => ['array'],
         'born'       => ['date'],
         'qq'         => ['regex'=>'/^[1-9][0-9]{5,}$/'],
         'mobile'     => ['require','regex'=>'/^((13[0-9])|(14[5,7])|(15[0-3,5-9])|16[6]|(17[0,3,5-8])|(18[0-9])|19[89])\d{8}$/', 'unique:sys_user,mobile'],
@@ -86,7 +88,7 @@ class User extends Validate
 
     protected $scene = [
         'create' => ['nickname','mobile','email','password','roleIds'], //新增用户
-        'edit' => ['account','nickname','email','roleIds','qq','wechat'], 
+        'edit' => ['account','nickname','email','roleIds', 'deptId','jobIds','qq','wechat'], 
         'profile' => ['nickname','sex','born','qq','mobile','phone','website'],
         'modifyPassword' => ['id','password'], 
         'addRoles' => ['id', 'roleIds']
