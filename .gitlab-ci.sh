@@ -5,7 +5,7 @@ tar -xzf bundle.tar.gz
 deploy_path=$1
 
 if [ ! -d $deploy_path ]; then
-  mkdir $deploy_path
+  mkdir -p $deploy_path
 fi
 
 # 是否首次部署
