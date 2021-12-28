@@ -22,7 +22,7 @@ class Server extends Base
                 "package" => "",
                 "core" => "",
                 "logic" => "",
-                "used" => $use_status['cpu']['used'],
+                "used" => $use_status['cpu']['usageRate'],
                 "idle" => ""
             ],
             "memory" => [
@@ -32,10 +32,10 @@ class Server extends Base
                 "usageRate" => $use_status['mem']['usageRate']
             ],
             "swap" => [
-                "total" => "",
-                "available" => "",
-                "used" => "",
-                "usageRate" => ""
+                "total" => "0",
+                "available" => "0",
+                "used" => "0",
+                "usageRate" => 0.0
             ], 
             "disk" => [
                 "total" => $use_status['disk']['total'],
@@ -124,11 +124,11 @@ class Server extends Base
         $mem_usage = 0.0;
         if (strpos($mem_info[0], 'KiB Mem') > -1) {
             $mem_total = trim(trim($mem_info[0], 'KiB Mem : '), ' total');
-            $mem_used = trim($mem_info[1], ' used');
+            $mem_used = strpos($mem_info[1], 'used') > -1 ? trim($mem_info[1], ' used') : trim($mem_info[2], ' used');
             $mem_usage = round(100 * intval($mem_used) / intval($mem_total), 2); //百分比
         } else {
             $mem_total = trim(trim($mem_info[0], 'Mem: '), 'k total');
-            $mem_used = trim($mem_info[1], 'k used');
+            $mem_used = strpos($mem_info[1], 'used') > -1 ? trim($mem_info[1], 'k used') : trim($mem_info[2], 'k used');
             $mem_usage = round(100 * intval($mem_used) / intval($mem_total), 2); //百分比
         }
         
@@ -173,13 +173,13 @@ class Server extends Base
             'mem' => [
                 'total' => $mem_total,
                 'used' => $mem_used,
-                'useageRate' => $mem_usage
+                'usageRate' => $mem_usage
             ],
             'disk' => [
                 'total' => $hd_total,
                 'used' => $hd_used,
                 'available' => $hd_avail,
-                'useageRate' => $hd_usage
+                'usageRate' => $hd_usage
             ],
             'tast' => [
                 'total' => $task_total,
