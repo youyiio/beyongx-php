@@ -86,7 +86,7 @@ class Server extends Base
     function get_used_status()
     {
         //获取某一时刻系统cpu和内存使用情况
-        $fp = popen('top -b -n 1 | grep -E "^(top|Tasks|%Cpu|KiB Mem|KiB Swap)"',"r");
+        $fp = popen('top -b -n 1 | grep -E "^(top|Tasks|%Cpu|Cpu|KiB Mem|Mem|KiB Swap|Swap)"',"r");
         $rs = "";
         while(!feof($fp)){
             $rs .= fread($fp, 1024);
@@ -110,12 +110,28 @@ class Server extends Base
         $tast_running = trim(trim($tast_info[1], 'running'));
 
         //CPU占有量
-        $cpu_usage = trim(trim($cpu_info[0], 'Cpu(s): '), '%us'); //百分比
+        $cpu_usage = 0.0;
+        if (strpos($cpu_info[0], '%Cpu(s)') > -1) {
+            $cpu_usage = trim(trim($cpu_info[0], '%Cpu(s): '), 'us'); //百分比
+        } else {
+            $cpu_usage = trim(trim($cpu_info[0], 'Cpu(s): '), '%us'); //百分比
+        }
+        
         
         //内存占有量
-        $mem_total = trim(trim($mem_info[0], 'Mem: '),'k total');
-        $mem_used = trim($mem_info[1], 'k used');
-        $mem_usage = round(100 * intval($mem_used) / intval($mem_total), 2); //百分比
+        $mem_total = 0.0;
+        $mem_used = 0.0;
+        $mem_usage = 0.0;
+        if (strpos($mem_info[0], 'KiB Mem') > -1) {
+            $mem_total = trim(trim($mem_info[0], 'KiB Mem : '), ' total');
+            $mem_used = trim($mem_info[1], ' used');
+            $mem_usage = round(100 * intval($mem_used) / intval($mem_total), 2); //百分比
+        } else {
+            $mem_total = trim(trim($mem_info[0], 'Mem: '), 'k total');
+            $mem_used = trim($mem_info[1], 'k used');
+            $mem_usage = round(100 * intval($mem_used) / intval($mem_total), 2); //百分比
+        }
+        
         
         /*硬盘使用率 begin*/        
         $fp = popen('df -lh | grep -E "^(/)"',"r");
