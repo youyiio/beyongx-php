@@ -988,7 +988,7 @@ INSERT INTO `sys_user_role`(uid,role_id) VALUES(1, 1);
 /* =========================================数据初始脚本：角色权限表===============================*/
 truncate table sys_menu;
 
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (1, 0, '面板', 'dashboard', '/views/dashboard', 'dashboard','el-icon-s-home', 1, 0, null, 1, 0, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (1, 0, '面板', 'dashboard', 'dashboard/index', 'dashboard/index','el-icon-s-home', 1, 0, null, 1, 0, 'api');
 INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (2, 0, '通用公共接口', 'common', 'Layout', 'common', null, 1, 0, null, 1, 0, 'api');
 
 INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (3, 0, '内容管理', 'CmsIndex', 'Layout', 'cms', 'el-icon-news', 1, 1, null, 1, 1, 'api');
@@ -996,22 +996,22 @@ INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permis
 INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (5, 0, '系统管理', 'SystemIndex', 'Layout', 'system', 'el-icon-news', 1, 1, null, 1, 3, 'api');
 
 
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (10, 3, '文章管理', 'ArticleList', 'cms/article/index', 'articleList', null, 1, 1, 'article:list', 1, 0, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (11, 3, '评论管理', 'CommentList', 'cms/comment/index', 'commentList', null, 1, 1, 'comment:list', 1, 2, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (12, 3, '文章分类', 'CategoryList', 'cms/category/index', 'categoryList', null, 1, 1, 'category:list', 1, 3, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (13, 3, '广告管理', 'AdList', 'cms/ad', 'adList', '', 1, 1, null, 1, 4, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (10, 3, '文章管理', 'ArticleList', 'cms/article/index', 'article/index', null, 1, 1, 'article:list', 1, 0, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (11, 3, '评论管理', 'CommentList', 'cms/comment/index', 'comment/index', null, 1, 1, 'comment:list', 1, 2, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (12, 3, '文章分类', 'CategoryList', 'cms/category/index', 'category/index', null, 1, 1, 'category:list', 1, 3, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (13, 3, '广告管理', 'AdList', 'cms/ad/index', 'ad/index', '', 1, 1, null, 1, 4, 'api');
 
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (15, 4, '服务器监控', 'server', 'empty/index', 'server', '', 1, 1, null, 1, 0, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (16, 4, '操作日志', 'log', 'monitor/log/index', 'logList', '', 1, 1, null, 1, 1, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (17, 4, '数据库管理', 'database', 'empty/index', 'database', '', 1, 1, null, 1, 2, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (15, 4, '服务器监控', 'EmptyIndex', 'empty/index', 'server/index', '', 1, 1, null, 1, 0, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (16, 4, '操作日志', 'LogIndex', 'monitor/log/index', 'log/index', '', 1, 1, null, 1, 1, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (17, 4, '数据库管理', 'EmptyIndex', 'empty/index', 'database/index', '', 1, 1, null, 1, 2, 'api');
 
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (18, 5, '用户管理', 'user', 'system/user/index', 'userList', '', 1, 1, null, 1, 0, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (19, 5, '角色管理', 'role', 'system/role/index', 'roleList', '', 1, 1, null, 1, 1, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (20, 5, '菜单管理', 'menu', 'system/menu/index', 'menuList', '', 1, 1, null, 1, 2, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (21, 5, '部门管理', 'dept', 'system/dept/index', 'deptList', '', 1, 1, null, 1, 3, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (22, 5, '岗位管理', 'job', 'system/job/index', 'jobList', '', 1, 1, null, 1, 4, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (23, 5, '字典管理', 'dict', 'system/dict/index', 'dictList', '', 1, 1, null, 1, 5, 'api');
-INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (24, 5, '友链管理', 'link', 'system/link/index', 'linkList', '', 1, 0, null, 1, 6, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (18, 5, '用户管理', 'UserIndex', 'system/user/index', 'user/index', '', 1, 1, null, 1, 0, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (19, 5, '角色管理', 'RoleIndex', 'system/role/index', 'role/index', '', 1, 1, null, 1, 1, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (20, 5, '菜单管理', 'MenuIndex', 'system/menu/index', 'menu/index', '', 1, 1, null, 1, 2, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (21, 5, '部门管理', 'DeptIndex', 'system/dept/index', 'dept/index', '', 1, 1, null, 1, 3, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (22, 5, '岗位管理', 'JobIndex', 'system/job/index', 'job/index', '', 1, 1, null, 1, 4, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (23, 5, '字典管理', 'DictIndex', 'system/dict/index', 'dict/index', '', 1, 1, null, 1, 5, 'api');
+INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES (24, 5, '友链管理', 'LinkIndex', 'system/link/index', 'link/index', '', 1, 0, null, 1, 6, 'api');
 
 
 INSERT INTO `sys_menu`(pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES 
@@ -1021,6 +1021,8 @@ INSERT INTO `sys_menu`(pid,title,name,component,path,icon,type,is_menu,permissio
 (2, '查询岗位字典', '', null, '', null, 2, 0, "job:dict", 1, 0, 'api'),
 (2, '图片上传', '', null, '', null, 2, 0, "image:upload", 1, 0, 'api'),
 (2, '文件上传', '', null, '', null, 2, 0, "file:upload", 1, 0, 'api'),
+
+(2, '退出登录', '', null, '', null, 2, 0, "sign:logout", 1, 0, 'api'),
 
 (2, '用户中心', 'userCenter', 'system/user/center', 'userCenter', null, 1, 0, "ucenter:getInfo", 1, 0, 'api'),
 (2, '查询用户信息', '', null, '', null, 2, 0, "ucenter:getInfo", 1, 0, 'api'),
@@ -1144,12 +1146,12 @@ INSERT INTO `sys_menu`(pid,title,name,component,path,icon,type,is_menu,permissio
 (0, '官网链接', '', null, 'https://www.beyongx.com', null, 0, 1, "", 1, 999, 'api')
 ;
 INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES 
-(1000, 0, '二级菜单', 'twoMenu', 'empty/index', 'twoMenu', 'nested', 1, 1, "", 1, 999, 'api')
+(1000, 0, '二级菜单', 'twoMenu', 'Layout', 'twoMenu', 'nested', 1, 1, "", 1, 999, 'api')
 ;
 INSERT INTO `sys_menu`(id,pid,title,name,component,path,icon,type,is_menu,permission,status,sort,belongs_to) VALUES 
-(1001, 1000, '第一级菜单', 'one', 'empty/index', 'one', null, 1, 1, "", 1, 0, 'api'),
-(1002, 1001, '第二级菜单', 'two', 'empty/index', 'two', null, 1, 1, "", 1, 0, 'api'),
-(1003, 1000, '平级菜单', 'pingji', 'empty/index', 'pingji', null, 1, 1, "", 1, 0, 'api')
+(1001, 1000, '第一级菜单', 'one', 'empty/index', 'one/index', null, 1, 1, "", 1, 0, 'api'),
+(1002, 1001, '第二级菜单', 'two', 'empty/index', 'two/index', null, 1, 1, "", 1, 0, 'api'),
+(1003, 1000, '平级菜单', 'pingji', 'empty/index', 'pingji/index', null, 1, 1, "", 1, 1, 'api')
 ;
 
 # 角色初始化

@@ -11,7 +11,7 @@ thinkphp
 # my project
 .env
 .env*
-data/runtime
+#data/runtime 有runtime下.gitignore控制
 data/backup
 #data/install.lock
 #data/install/database.php

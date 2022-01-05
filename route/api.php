@@ -81,7 +81,7 @@ Route::group('api', function () {
     Route::rule("sms/login", 'api/Sms/login', 'post');
 
     //运维管理相关
-    Route::rule("server/status", 'api/Server/status', 'get');
+    Route::rule("server/status", 'api/Server/status', 'get|post');
     Route::rule("log/list", 'api/Log/list', 'get|post');
     Route::rule("db/tables", 'api/Database/tables', 'get|post');
 
