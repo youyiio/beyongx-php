@@ -298,4 +298,39 @@ class User extends Base
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
+
+    //筛选用户
+    public function quickSelect()
+    {
+        $params = $this->request->put();
+
+        $page = $params['page'] ?? 1;
+        $size = $params['size'] ?? 10;
+        $filters = $params['filters'] ?? '';
+
+        $where = [];
+        foreach ($filters as $key => $value) {
+            if ($value !== '') {
+                $where[] = [$key, 'like', '%' . $value . '%'];
+            }
+        }
+        if(empty($where)){
+            $returnData = [
+                'current' => 1,
+                'pages' => $page,
+                'size' => $size,
+                'total' => 0,
+                'records' => [],
+
+            ];
+            return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+        }
+
+        $UserModel = new UserModel();
+        $fields = 'id,account,nickname,sex,mobile,email';
+        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' => $page]);
+        
+        $returnData = to_standard_pagelist($list);
+        return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
+    }
 }
