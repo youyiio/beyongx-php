@@ -31,8 +31,9 @@ class User extends Base
         $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name')->find();
         unset($user['dept_id']);
         //角色
-        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        //岗位
+        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($user->toArray(), 1);
 
@@ -60,16 +61,17 @@ class User extends Base
             }
         }
         $UserModel = new UserModel();
+       
         $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
-
+   
         //查询部门和角色
         $DeptModel = new DeptModel();
         foreach ($list as $user) {
             $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name,title')->find();
             unset($user['dept_id']);
-            $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-            $user['roles'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+            $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+            $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
         }
 
         $returnData = pagelist_to_hump($list);

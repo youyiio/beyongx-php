@@ -4,6 +4,7 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\model\DeptModel;
+use app\common\model\JobModel;
 use app\common\model\MenuModel;
 use app\common\model\RoleMenuModel;
 use app\common\model\RoleModel;
@@ -33,10 +34,10 @@ class Ucenter extends Base
         //部门
         $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
         unset($user['dept_id']);
-        //查询角色
-        $roleIds = UserRoleModel::where(['uid' => $user['id']])->column('role_id');
-        $RoleModel = new RoleModel();
-        $data['roles'] = $RoleModel->where('id', 'in', $roleIds)->field('id,name,title')->select()->toArray();
+        //角色
+        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        //岗位
+        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($data->toArray(), 1);
 
