@@ -63,7 +63,7 @@ class User extends Validate
 
     protected $message = [
         'id'               => '用户id错误',
-        'account.unique'   => '账户已存在',
+        'account.unique'   => '账户名已存在',
         'account.require'   => '账户名必填',
         'nickname.require' => '用户名必填',
         'nickname.max'     => '用户名最多32个字符',

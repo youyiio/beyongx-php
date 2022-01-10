@@ -105,17 +105,31 @@ class User extends Base
             $UserRoleModel = new UserRoleModel();
             $UserRoleModel->insertAll($group);
         }
+        if (!empty($params['jobIds'])) {
+            $group = [];
+            foreach ($params['jobIds'] as $k => $v) {
+                $group[] = [
+                    'uid' => $uid,
+                    'job_id' => $v
+                ];
+            }
+            $UserJobModel = new UserJobModel();
+            $UserJobModel->insertAll($group);
+        }
 
         //返回数据
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
         //部门
-        $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
+        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
         unset($user['dept_id']);
         //角色
-        $roleIds = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-        $user['role'] = RoleModel::where('id', 'in', $roleIds)->field('id,name,title')->select();
+        $user['roleIds'] = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
+        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        //岗位
+        $user['jobIds'] = UserJobModel::where('uid', '=', $user['id'])->column('job_id');
+        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
        
         $returnData = parse_fields($user->toArray(), 1);
 
@@ -179,11 +193,14 @@ class User extends Base
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email,dept_id,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where(['id' => $uid])->field($fields)->find();
-        
-        $user['dept'] = DeptModel::where('id', '=', $user['dept_id'])->field('id,name,title')->select();
+        //部门
+        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
         unset($user['dept_id']);
-        
+        //角色
+        $user['roleIds'] = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
         $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        //岗位
+        $user['jobIds'] = UserJobModel::where('uid', '=', $user['id'])->column('job_id');
         $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($user->toArray(), 1);
