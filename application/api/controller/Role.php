@@ -46,7 +46,7 @@ class Role extends Base
         $params = $this->request->put();
 
         $validate = Validate::make([
-            'name' => 'alpha',
+            'name' => 'alphaDash',
             'title' => 'chs',
         ]);
         if (!$validate->check($params)) {
@@ -86,7 +86,7 @@ class Role extends Base
             return ajax_return(ResultCode::E_PARAM_ERROR, '角色不存在!');
         }
         $validate = Validate::make([
-            'name' => 'alpha',
+            'name' => 'alphaDash',
             'title' => 'chs',
         ]);
         if (!$validate->check($params)) {

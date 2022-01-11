@@ -311,9 +311,7 @@ class User extends Base
         //返回数据
         $UserModel = new UserModel();
         $returnData = $UserModel->where('id', $uid)->field('id,nickname')->find();
-
-        $RoleModel = new RoleModel();
-        $returnData['roleIds'] = $RoleModel->alias('r')->join('sys_user_role u', 'r.id = u.role_id')->where('uid', $uid)->field('r.id,r.name')->select();
+        $returnData['roleIds'] = RoleModel::hasWhere('userRole', ['uid' => $uid], 'id,name')->select();
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
