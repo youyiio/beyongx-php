@@ -61,11 +61,28 @@ class Ucenter extends Base
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
+        if (isset($params['mobile']) && $user['mobile'] != $params['mobile']) {
+            if ($user->findByMobile($params['mobile'])) {
+                return ajax_return(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在!');
+            }
+        }
+        if (isset($params['email']) && $user['email'] != $params['email']) {
+            if ($user->findByEmail($params['email'])) {
+                return ajax_return(ResultCode::E_USER_EMAIL_HAS_EXIST, '邮箱已经存在');
+            }
+        }
+
         $params = parse_fields($params);
         $user->nickname = $params['nickname'];
-        $user->qq = $params['qq'];
-        $user->weixin = $params['weixin'];
+        $user->mobile = $params['mobile'];
+        $user->email = $params['email'];
         $user->sex = $params['sex'];
+        if (isset($params['qq'])) {
+            $user->qq = $params['qq'];
+        }
+        if (isset($params['weixin'])) {
+            $user->weixin = $params['weixin'];
+        }
         if (isset($params['head_url'])) {
             $user->head_url = $params['head_url'];
         }
@@ -79,7 +96,7 @@ class Ucenter extends Base
 
         //返回数据
         $UserModel = new UserModel();
-        $data = $UserModel->where('id', $uid)->field('id,nickname,head_url,qq,weixin,sex')->find();
+        $data = $UserModel->where('id', $uid)->field('id,nickname,head_url,mobile,email,qq,weixin,sex')->find();
         $data['description'] = $user->metas('description');
         $returnData = parse_fields($data->toArray(), 1);
 

@@ -65,8 +65,8 @@ class User extends Validate
     protected $message = [
         'id'               => '用户id错误',
         'account.require'   => '账户名必填',
-        'nickname.require' => '用户名必填',
-        'nickname.max'     => '用户名最多32个字符',
+        'nickname.require' => '昵称必填',
+        'nickname.max'     => '昵称最多32个字符',
         'roleIds.require'  => '角色ID必填',
         'email.email'      => '邮箱格式错误',
         'password.require' => '密码必填',
@@ -88,8 +88,8 @@ class User extends Validate
 
     protected $scene = [
         'create' => ['nickname', 'mobile', 'email', 'password', 'roleIds'], //新增用户
-        'edit' => ['account', 'nickname', 'email', 'roleIds', 'qq', 'weixin'],
-        'ucenterEdit' => ['nickname', 'qq', 'weixin', 'sex', 'headUrl'],
+        'edit' => ['nickname', 'email', 'roleIds', 'qq', 'weixin'],
+        'ucenterEdit' => ['nickname', 'qq', 'weixin', 'sex', 'headUrl', 'mobile', 'email'],
         'profile' => ['nickname', 'sex', 'born', 'qq', 'mobile', 'phone', 'website'],
         'modifyPassword' => ['id', 'password'],
         'addRoles' => ['id', 'roleIds']

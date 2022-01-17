@@ -180,19 +180,19 @@ class UserLogic extends Model
         unset($params['password']); //防止修改密码
         $user = UserModel::get($uid);
 
-        if ($user['mobile'] != $params['mobile']){
+        if (isset($params['mobile']) && $user['mobile'] != $params['mobile']) {
             if ($user->findByMobile($params['mobile'])) {
                 throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
             }
         } 
-        if ($user['email'] != $params['email']) {
+        if (isset($params['email']) && $user['email'] != $params['email']) {
             if ($user->findByEmail($params['email'])) {
-                throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '邮箱已经存在');
+                throw new ModelException(ResultCode::E_USER_EMAIL_HAS_EXIST, '邮箱已经存在');
             }
         }
-        if ($user['account'] != $params['account']) {
-            if ($uid->findByAccount($params['account'])) {
-                throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '账户已经存在');
+        if (isset($params['account']) && $user['account'] != $params['account']) {
+            if ($user->findByAccount($params['account'])) {
+                throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '账户已经存在');
             }
         }
 
