@@ -3,6 +3,7 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
+use app\common\logic\UserLogic;
 use app\common\model\DeptModel;
 use app\common\model\JobModel;
 use app\common\model\MenuModel;
@@ -57,14 +58,15 @@ class Ucenter extends Base
 
         $params = $this->request->put();
         $params = parse_fields($params);
-        $check = Validate('User')->scene('edit')->check($params);
+
+        $check = Validate('User')->scene('ucenterEdit')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
-        
-        $res = $user->isUpdate(true)->allowField(true)->save($params);
+        $userLogic = new UserLogic();
+        $res = $userLogic->updateUser($uid, $params);
         if (!$res) {
-            ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
+            return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
         if (isset($params['description'])) {
             $user->meta('description', $params['description']);
