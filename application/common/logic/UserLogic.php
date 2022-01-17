@@ -173,4 +173,70 @@ class UserLogic extends Model
         $user->save();
         return $user->id;
     }
+
+    public function updateUser($uid, $params)
+    {
+        $UserModel = new UserModel();
+
+        if (isset($params['mobile']) && !$this->uniqueMobile($uid, $params['mobile'])) {
+            throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
+        } else if (isset($params['email']) && !$this->uniqueEmail($uid, $params['email'])) {
+            throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '邮箱已经存在');
+        } else if (isset($params['account']) && !$this->uniqueAccount($uid, $params['account'])) {
+            throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
+        }
+
+        $res = $UserModel->isUpdate(true)->allowField(true)->save($params, ['id' => $uid]);
+
+        return $res;
+    }
+
+    //是否唯一，是的话返回true
+    public function uniqueMobile($uid, $mobile)
+    {
+        $where = [
+            ['mobile', '=', $mobile],
+            ['id', '<>', $uid],
+        ];
+
+        $UserModel = new UserModel();
+        $users = $UserModel->where($where)->limit(1)->select();
+        if (count($users) > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function uniqueEmail($uid, $email)
+    {
+        $where = [
+            ['email', '=', $email],
+            ['id', '<>', $uid],
+        ];
+
+        $UserModel = new UserModel();
+        $users = $UserModel->where($where)->limit(1)->select();
+        if (count($users) > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function uniqueAccount($uid, $account)
+    {
+        $where = [
+            ['account', '=', $account],
+            ['id', '<>', $uid],
+        ];
+
+        $UserModel = new UserModel();
+        $users = $UserModel->where($where)->limit(1)->select();
+        if (count($users) > 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
