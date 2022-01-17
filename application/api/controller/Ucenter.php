@@ -51,20 +51,23 @@ class Ucenter extends Base
         $userInfo = $this->user_info;
         $uid = $userInfo->uid;
         $user = UserModel::get($uid);
-
         if (!$user) {
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
 
         $params = $this->request->put();
-        $params = parse_fields($params);
-
         $check = Validate('User')->scene('ucenterEdit')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
-        $userLogic = new UserLogic();
-        $res = $userLogic->updateUser($uid, $params);
+
+        $params = parse_fields($params);
+        $user->nickname = $params['nickname'];
+        $user->qq = $params['qq'];
+        $user->weixin = $params['weixin'];
+        $user->sex = $params['sex'];
+        $user->head_url = $params['head_url'] ?? '';
+        $res = $user->save();
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
@@ -74,11 +77,7 @@ class Ucenter extends Base
 
         //返回数据
         $UserModel = new UserModel();
-        $data = $UserModel->where('id', $uid)->field('id,nickname,head_url')->find();
-        $roleIds = UserRoleModel::where(['uid'=> $uid])->column('role_id');
-
-        $RoleModel = new RoleModel();
-        $data['roles'] = $RoleModel->where('id', 'in', $roleIds)->field('id,name')->select();
+        $data = $UserModel->where('id', $uid)->field('id,nickname,head_url,qq,weixin,sex')->find();
         $data['description'] = $user->metas('description');
         $returnData = parse_fields($data->toArray(), 1);
 
