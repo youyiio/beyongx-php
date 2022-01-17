@@ -152,19 +152,8 @@ class User extends Base
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
 
-        unset($params['password']);//防止修改密码
-        if ($user['mobile'] == $params['mobile']) {
-            unset($params['mobile']);
-        }
-        if ($user['account'] == $params['account']) {
-            unset($params['account']);
-        }
-        if ($user['email'] == $params['email']) {
-            unset($params['email']);
-        }
-        
         $UserLogic = new UserLogic();
-        $res = $UserLogic->editProfile($user, $params);
+        $res = $UserLogic->editUser($uid, $params);
         if (!$res) {
             return ajax_return(ResultCode::ACTION_SUCCESS, '操作失败!');
         }

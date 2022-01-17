@@ -174,26 +174,24 @@ class UserLogic extends Model
         return $user->id;
     }
 
-    public function editProfile($user, $params)
+    //编辑用户
+    public function editUser($uid, $params)
     {
-        $UserModel = new UserModel();
-        if (isset($params['mobile'])){
-            $result = $UserModel->findByMobile($params['mobile']);
-            if ($user['id'] !== $result['id']) {
+        unset($params['password']); //防止修改密码
+        $user = UserModel::get($uid);
+
+        if ($user['mobile'] != $params['mobile']){
+            if ($user->findByMobile($params['mobile'])) {
                 throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
             }
         } 
-
-        if (isset($params['email'])) {
-            $result = $UserModel->findByEmail($params['email']);
-            if ($user['id'] !== $result['id']) {
+        if ($user['email'] != $params['email']) {
+            if ($user->findByEmail($params['email'])) {
                 throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '邮箱已经存在');
             }
         }
-
-        if (isset($params['account'])) {
-            $result = $UserModel->findByAccount($params['account']);
-            if ($user['id'] !== $result['id']) {
+        if ($user['account'] != $params['account']) {
+            if ($uid->findByAccount($params['account'])) {
                 throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '账户已经存在');
             }
         }

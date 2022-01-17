@@ -66,7 +66,9 @@ class Ucenter extends Base
         $user->qq = $params['qq'];
         $user->weixin = $params['weixin'];
         $user->sex = $params['sex'];
-        $user->head_url = $params['head_url'] ?? '';
+        if (isset($params['head_url'])) {
+            $user->head_url = $params['head_url'];
+        }
         $res = $user->save();
         if (!$res) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
