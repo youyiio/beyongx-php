@@ -231,6 +231,19 @@ class UserModel extends BaseModel
         return $resultSet[0];
     }
 
+    public function findByAccount($account)
+    {
+        $where['account'] = $account;
+
+        $resultSet = $this->where($where)->limit(1)->select();
+        if (count($resultSet) <= 0) {
+            return false;
+        }
+
+        return $resultSet[0];
+    }
+
+
     //修改用户
     public function editUser($uid, $data = [])
     {
