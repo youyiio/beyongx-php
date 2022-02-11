@@ -430,9 +430,8 @@ function get_theme_config($module='cms')
     //优先通过数据库配置加载当前主题，无配置时通过config/theme.php加载
     $packageName = get_config($prefix . 'theme_package_name', '');
     if (empty($packageName)) {
-        //通过config文件加载当前主题信息
-        $config = Config::pull('theme');
-        $packageName = $config['package_name'];
+        //历史遗留，theme_package_name未改为cms_theme_package_name
+        $packageName = get_config('theme_package_name', '');
     }
     if (empty($packageName)) {
         die('未配置主题信息!');

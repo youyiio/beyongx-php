@@ -40,7 +40,7 @@
                     <label class="col-lg-2 control-label" for="slot_ids">显示位置</label>
                     <div class="col-lg-10">
                         {php}
-                        $themeConfig = get_theme_config();
+                        $themeConfig = get_theme_config('cms');
                         $adImages = $themeConfig['ad_images'];
                         {/php}
                         <select name="slot_ids[]" id="slot_ids" data-placeholder="请选择广告位置" class="form-control chosen-select form-control chosen-select-deselect chosen-select-no-single chosen-select-no-results chosen-select-search"  ><!-- 多选加: multiple-->

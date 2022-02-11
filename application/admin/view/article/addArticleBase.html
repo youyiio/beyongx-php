@@ -70,7 +70,7 @@
         <div class="col-lg-10">
             <input type="hidden" name="thumb_image_id" id="thumb_image_id" value="{$article.thumb_image_id|default=''}">
             {php}
-            $themeConfig = get_theme_config();
+            $themeConfig = get_theme_config('cms');
             $articleThumbImage = $themeConfig['article_thumb_image'];
             {/php}
             <div class="dropzone needsclick dz-clickable" id="uploadThumbImage" data-input-name="thumb_image_id" data-width="{$articleThumbImage.width}" data-height="{$articleThumbImage.height}"
