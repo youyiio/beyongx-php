@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
-use think\facade\Config;
+use think\facade\Cache;
 use think\facade\Env;
 use think\facade\Log;
 
@@ -370,12 +370,15 @@ function obj_to_array(&$object) {
  */
 function get_config($key = '', $default = null)
 {
-    if (!cache('config') || config('app_debug')) {
+    $config = Cache::get('config');
+    if (empty(Cache::get('config_sentinel')) || empty($config) || config('app_debug')) {
         $ConfigModel = new \app\common\model\ConfigModel();
         $config = $ConfigModel->column('value', 'key');
-        cache('config', $config, 5 * 60);
+
+        Cache::set('config', $config, -1); //永不过期，通过config_sentinel过期来更新
+        Cache::set('config_sentinel', '1', 5 * 60); //config的哨兵
     }
-    $config = cache('config');
+
     if (empty($key)) {
         return $config;
     } else {
