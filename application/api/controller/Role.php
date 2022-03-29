@@ -31,9 +31,9 @@ class Role extends Base
         $RoleModel = new RoleModel();
         $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
         //查询角色权限
-        $RoleMenuModel = new RoleMenuModel();
+        $MenuModel = new MenuModel();
         foreach ($list as $key => $value) {
-            $list[$key]['menuIds'] = $RoleMenuModel->where('role_id', '=', $value['id'])->column('menu_id');
+            $list[$key]['menuIds'] = $MenuModel::hasWhere('roleMenus', [['role_id', '=', $value['id']]])->where('belongs_to', '=', 'api')->column('sys_menu.id');
         }
         $returnData = pagelist_to_hump($list);
        
@@ -126,13 +126,16 @@ class Role extends Base
     //查询角色权限
     public function menus($id)
     {
-        $MenuModel = new RoleMenuModel();
-        $menus = $MenuModel->where('role_id', $id)->column('menu_id');
-        $ids = implode(',', $menus);
+        $RoleMenuModel = new RoleMenuModel();
+        $ids = $RoleMenuModel->where('role_id', $id)->column('menu_id');
 
         $MenuModel = new MenuModel();
+        $where = [
+            ['id', 'in', $ids],
+            ['belongs_to', '=', 'api']
+        ];
         $fields = 'id,pid,title,name,component,path,icon,type,is_menu,status,sort,belongs_to,create_by,update_by,create_time,update_time';
-        $list = $MenuModel->where('id', 'in', $ids)->field($fields)->select();
+        $list = $MenuModel->where($where)->field($fields)->select();
 
         $data = parse_fields($list->toArray() ,1);
         $returnData = getTree($data, 0, 'id', 'pid', 5);
@@ -169,7 +172,7 @@ class Role extends Base
     }
 
     //查询角色用户列表
-    public function userList($id)
+    public function users($id)
     {
         $params = $this->request->put();
         $page = $params['page'] ?? '1';

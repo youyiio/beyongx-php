@@ -42,6 +42,8 @@ class Log extends Base
         
         //处理数据
         foreach ($list as $val) {
+            $user = UserModel::get($val['username']);
+            $val['username'] = $user['nickname'];
             $val['address'] = ip_to_address($val['ip'], 'province,city');
         }
 

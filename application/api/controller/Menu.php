@@ -20,7 +20,7 @@ class Menu extends Base
         $pid = $filters['pid'] ?? 0;
         $depth = $filters['depth'] ?? 1;
 
-        $where = [];
+        $where[] = ['belongs_to', '=', 'api'];
         if (!empty($keyword)) {
             $where[] = ['title', 'like', '%'.$keyword.'%'];
         }
