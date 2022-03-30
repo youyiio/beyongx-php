@@ -748,7 +748,7 @@ create table sys_template_msg
    type                 varchar(16) not null comment '类型',
    name                 varchar(256) not null,
    content              text not null comment '内容模板',
-   status               tinyint not null comment '-1.删除.0.失效;1.生效',
+   status               tinyint not null comment '状态 -1.删除.0.失效;1.生效',
    update_time          datetime not null comment '更新时间',
    create_time          datetime not null comment '创建时间',
    primary key (id)
