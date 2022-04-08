@@ -225,13 +225,19 @@ class User extends Base
     public function modifyPassword()
     {
         $params = $this->request->put();
+
+        $user = UserModel::get($params['id']);
+        if (!$user){
+            return ajax_error(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
+        }
+
         $check = Validate('User')->scene('modifyPassword')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
         $data['id'] = $params['id'];
-        $data['password'] = encrypt_password($params['password'], get_config('password_key'));
+        $data['password'] = encrypt_password($params['password'], $user['salt']);
 
         $UserModel = new UserModel();
         $res = $UserModel->isUpdate(true)->save($data);

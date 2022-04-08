@@ -73,12 +73,12 @@ class UserLogic extends Model
             throw new ModelException(ResultCode::E_USER_NOT_EXIST, '用户不存在!');
         }
 
-        $tempPassword = encrypt_password($oldPassword, get_config('password_key'));
+        $tempPassword = encrypt_password($oldPassword, $user['salt']);
         if ($tempPassword != $user->password) {
             throw new ModelException(ResultCode::E_DATA_VALIDATE_ERROR, '原始密码不正确!');
         }
 
-        $newPassword = encrypt_password($newPassword, get_config('password_key'));
+        $newPassword = encrypt_password($newPassword, $user['salt']);
 
         $data['id'] = $userId;
         $data['password'] = $newPassword;
@@ -151,12 +151,13 @@ class UserLogic extends Model
             throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
         }
 
-        
+        $salt = StringUtils::getRandNum(24);
         $user = new UserModel();
         $user->mobile = $mobile;
         $user->email = $email;
         $user->account = $account;
-        $user->password = encrypt_password($password, get_config('password_key'));
+        $user->password = encrypt_password($password, $salt);
+        $user->salt = $salt;
         $user->status = $status;
         $user->nickname = $nickname;
         $user->dept_id = $deptId;

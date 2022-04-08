@@ -50,8 +50,8 @@ class Sign extends Validate
     protected function checkNewPwd($value, $rule, $data)
     {
         $UserModel = new UserModel();
-        $oldPwd = $UserModel->where('id', session('uid'))->value('password');
-        if ($oldPwd == encrypt_password($value, get_config('password_key'))) {
+        $temp = $UserModel->where('id', session('uid'))->field('password,salt')->find();
+        if ($temp['password'] == encrypt_password($value, $temp['salt'])) {
             return '新密码与旧密码一致';
         }
         return true;

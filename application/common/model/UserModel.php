@@ -110,11 +110,13 @@ class UserModel extends BaseModel
             throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '帐号已经存在');
         }
 
+        $salt = StringUtils::getRandString(24);
         $user = new UserModel();
         $user->mobile = $mobile;
         $user->email = $email;
         $user->account = $account;
-        $user->password = encrypt_password($password, get_config('password_key'));
+        $user->password = encrypt_password($password, $salt);
+        $user->salt = $salt;
         $user->status = $status;
         $user->nickname = $nickname;
         $currentTime = date('Y-m-d H:i:s');
@@ -156,7 +158,7 @@ class UserModel extends BaseModel
             }
         }
 
-        $tempPassword = encrypt_password($password, get_config('password_key'));
+        $tempPassword = encrypt_password($password, $user['salt']);
         if ($tempPassword !== $user['password']) {
             throw new ModelException(ResultCode::E_USER_PASSWORD_INCORRECT, '密码不正确');
         }
