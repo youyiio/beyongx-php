@@ -63,14 +63,17 @@ class Config extends Base
         $key = $params['key'] ?? '';
         $group = $params['group'] ?? '';
 
-        if (empty($key)) {
-            return ajax_return(ResultCode::E_PARAM_EMPTY, 'key不能为空');
+        if (empty($key) && empty($group)) {
+            return ajax_return(ResultCode::E_PARAM_EMPTY, '参数为空');
+        }
+
+        $where = [];
+        if (!empty($key)) {
+            $where[] = ['key', '=', $key];
         }
         if (!empty($group)) {
             $where[] = ['group', '=', $group];
         }
-
-        $where[] = ['key', '=', $key];
 
         $ConfigModel = new ConfigModel();
         $fields = 'id,name,group,key,value,value_type,status,sort,remark';

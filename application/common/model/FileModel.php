@@ -29,4 +29,17 @@ class FileModel extends Model
 
         return $fullImageUrl;
     }
+
+    public function getFullImageUrlAttr($value, $data)
+    {
+        $switch = get_config('oss_switch');
+        if ($switch !== 'true') {
+            $fullImageUrl = url_add_domain($data['file_url']);
+            $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
+        } else {
+            $fullImageUrl = $data['oss_image_url'];
+        }
+
+        return $fullImageUrl;
+    }
 }
