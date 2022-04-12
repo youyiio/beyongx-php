@@ -34,10 +34,23 @@ class FileModel extends Model
     {
         $switch = get_config('oss_switch');
         if ($switch !== 'true') {
-            $fullImageUrl = url_add_domain($data['file_url']);
+            $fullImageUrl = url_add_domain($data['image_url']);
             $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
         } else {
-            $fullImageUrl = $data['oss_image_url'];
+            $fullImageUrl = $data['oss_url'];
+        }
+
+        return $fullImageUrl;
+    }
+
+    public function getFullThumbImageUrlAttr($value, $data)
+    {
+        $switch = get_config('oss_switch');
+        if ($switch !== 'true') {
+            $fullImageUrl = url_add_domain($data['thumb_image_url']);
+            $fullImageUrl = str_replace('\\', '/', $fullImageUrl);
+        } else {
+            $fullImageUrl = $data['oss_url'];
         }
 
         return $fullImageUrl;
