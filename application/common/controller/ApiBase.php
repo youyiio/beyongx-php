@@ -15,7 +15,13 @@ trait JwtBase
     // 用户信息
     protected $user_info;
 
-    public function initialize() {
+    public function initialize() 
+    {
+        $url = strtolower(Request::url());
+        if (in_array($url, config('jwt.jwt_action_excludes'))) {
+            return true;
+        }
+
         $token = Request::header('authorization');
 
         // 验证是否登录
@@ -50,7 +56,7 @@ trait JwtBase
             $permission = strtolower($permission);
             $rolePermission = new RolePermission();
             $module = request()->module();
-            $module = $module == 'api' ? 'api' : 'admin';
+            //$module = $module == 'api' ? 'api' : 'admin';
             if (!$rolePermission->checkPermission($uid, $permission, $module, 'path')) {
                 $response = json_encode([
                     'code'  => ResultCode::E_ACCESS_LIMIT,
