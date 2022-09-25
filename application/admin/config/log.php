@@ -13,13 +13,11 @@
 // | 日志设置
 // +----------------------------------------------------------------------
 
-use think\facade\Env;
-
 return [
     // 日志记录方式，内置 file socket 支持扩展
-    'type'  => 'File',
+    'type'  => 'app\\common\\thinkphp\\log\\driver\\File',
     // 日志保存目录
-    'path'  => Env::get('runtime_path') . 'log' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR,
+    'path'  => \think\facade\Env::get('runtime_path') . 'log' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR,
     // 日志记录级别
     'level' => ['error', 'notice', 'info', 'log', 'debug'],
     //独立日志
