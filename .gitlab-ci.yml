@@ -38,7 +38,7 @@ deploy_for_ci_job:
     - pwd
     - ls -l
     - composer install
-    - tar -czf $bundle_name addons application config data extend public route thinkphp vendor .env build.php check_env.sh start_*
+    - tar -czf $bundle_name addons application config data extend public route think thinkphp vendor .env build.php check_env.sh start_*
     - ls -l ./
     - echo ${ci_server_ip}
     - echo $ci_ssh_port
@@ -57,7 +57,7 @@ deploy_for_cd_job:
     - pwd
     - ls -l
     - composer install
-    - tar -czf $bundle_name addons application config data extend public route thinkphp vendor .env build.php check_env.sh start_*
+    - tar -czf $bundle_name addons application config data extend public route think thinkphp vendor .env build.php check_env.sh start_*
     - ls -l ./
     - echo ${cd_server_ip}
     - echo $cd_ssh_port

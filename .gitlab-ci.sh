@@ -18,6 +18,11 @@ if [ "$deploy_first" = true ]; then
   /bin/cp -fr .env $deploy_path
   /bin/cp -fr config $deploy_path
   /bin/cp -fr data $deploy_path
+else
+  rm -fr $deploy_path/thinkphp
+  rm -fr $deploy_path/vendor
+  rm -fr $deploy_path/application
+  rm -fr $deploy_path/extend
 fi
 
 # 删除无需部署的文件
@@ -30,12 +35,14 @@ rm -fr data/install/database.php
 /bin/cp -fr extend $deploy_path
 /bin/cp -fr public $deploy_path
 /bin/cp -fr route $deploy_path
+/bin/cp -fr think $deploy_path
 /bin/cp -fr thinkphp $deploy_path
 /bin/cp -fr vendor $deploy_path
 
 /bin/cp -fr check_env.sh $deploy_path
 /bin/cp -fr start_* $deploy_path
 
+rm -fr $deploy_path/data/runtime/temp
 
 if [ "$deploy_first" = true ]; then
   cd $deploy_path
