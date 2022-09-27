@@ -4,6 +4,7 @@ namespace app\api\controller;
 use app\api\library\RolePermission;
 use app\common\library\ResultCode;
 use think\facade\Request;
+use app\common\exception\JwtException;
 
 /**
  * Trait api接口 Base Controller 组件
@@ -20,6 +21,16 @@ trait JwtBase
         $url = strtolower(Request::url());
         if (in_array($url, config('jwt.jwt_action_excludes'))) {
             return true;
+        }
+
+        $authorization = Request::header('authorization');
+        if (!$authorization) {
+            throw new JwtException(ResultCode::E_TOKEN_EMPTY, 'TOKEN参数缺失！', 'E_TOKEN_EMPTY');
+        }
+
+        $type = substr($authorization, 0, 6);
+        if ($type !== 'Bearer') {
+            throw new JwtException(ResultCode::E_TOKEN_INVALID, 'TOKEN类型错误！', 'E_TOKEN_INVALID');
         }
 
         $token = Request::header('authorization');
