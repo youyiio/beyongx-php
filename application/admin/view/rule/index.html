@@ -47,7 +47,7 @@
                                 <td>{$v['_name']|raw}</td>
                                 <td>{$v['name']}</td>
                                 <td>
-                                    <input type="checkbox" class="ajax-switch" name="{$v.id}" {if $v.is_menu == 1} checked {/if}>
+                                    <input type="checkbox" class="ajax-switch" id="{$v.id}" {if $v.is_menu == 1} checked {/if}>
                                 </td>
                                 <td>{notempty name="v.icon"}<i class="fa {$v['icon']}"></i>{/notempty}</td>
                                 <td>{$v.condition}</td>
@@ -221,7 +221,7 @@
             var checkbox = elems[i];
             var switchery = new Switchery(checkbox, { color: '#1AB394' });
             checkbox.onchange = function() {
-                setMenu(this.name, this.checked);
+                setMenu(this.id, this.checked);
             }
         }
     })
