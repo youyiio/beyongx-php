@@ -90,7 +90,7 @@ function getJWT($token) {
     $jwt = new JWT();
     $data = null;
     try {
-        $jwt_data = $jwt::decode($token, config('jwt.jwt_key'), config('jwt.jwt_alg'));
+        $jwt_data = $jwt::decode($token, config('jwt.jwt_key'), [config('jwt.jwt_alg')]);
         $data     = $jwt_data->data;
     } catch (\Throwable $e) {
         Log::write($e->getMessage(), 'error');
