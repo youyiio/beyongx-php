@@ -1012,7 +1012,7 @@ truncate table `sys_role`;
 INSERT INTO `sys_role` (`id`,`name`,`title`,`status`,`remark`) VALUES (1, 'admin', '超级管理员', 1, '');
 INSERT INTO `sys_role` (`id`,`name`,`title`,`status`,`remark`) VALUES (2, 'manager', '普通管理员', 1, '');
 INSERT INTO `sys_role` (`id`,`name`,`title`,`status`,`remark`) VALUES (3, 'editor', '网站编辑', 1, '');
-INSERT INTO `sys_role` (`id`,`name`,`title`,`status`,`remark`) VALUES (4, 'user', '普通用户', 1, '');
+INSERT INTO `sys_role` (`id`,`name`,`title`,`status`,`remark`) VALUES (4, 'member', '普通会员', 1, '');
 
 # 菜单初始化
 truncate table sys_menu;

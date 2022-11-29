@@ -6,6 +6,8 @@ use app\common\exception\ModelException;
 use app\common\library\ResultCode;
 use app\common\model\UserModel;
 use app\common\model\api\TokenModel;
+use app\common\model\RoleModel;
+use app\common\model\UserRoleModel;
 use beyong\commons\utils\StringUtils;
 use think\facade\Cookie;
 
@@ -19,6 +21,14 @@ class UserLogic extends Model
         if (!$user) {
             $this->error = $UserModel->error;
             return false;
+        }
+
+        // 添加普通会员角色
+        $RoleModel = new RoleModel();
+        $role = $RoleModel->where('name', 'member')->find();
+        if ($role) {
+            $UserRoleModel = new UserRoleModel();
+            $UserRoleModel->save(['uid' => $user['id'], 'role_id' => $role->id]);
         }
 
         return $user;
