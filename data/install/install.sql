@@ -915,11 +915,13 @@ INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort)
 INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('公司名称', 'company', 'bank_name', '招商银行', '公司银行帐号开户行', 'string', 1, 3);
 
 INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('文章缩略图大小配置', 'article', 'article_thumb_image', '{\"width\":280,\"height\":280,\"thumb_width\":140,\"thumb_height\":140}', '文章缩略图大小配置', 'string', 1, 0);
-INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('文章审核', 'article', 'article_audit_switch', 'true', '文章审核', 'boolean', 1, 1);
-INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('水印开关', 'article', 'article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 1, 2);
-INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('水印文本', 'article', 'article_water_text', '', '水印文本', 'string', 1, 3);
-INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('上传图片质量', 'article', 'image_upload_quality', '80', '上传图片质量', 'string', 1, 4);
-INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('上传图片宽高', 'article', 'image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'string', 1, 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('文章审核', 'article', 'article_audit_switch', 'true', '文章审核', 'bool', 1, 1);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('文章评论', 'article', 'article_comment_switch', 'false', '是否允许文章评论', 'bool', 1, 2);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('文章评论审核', 'article', 'article_comment_audit_switch', 'true', '文章评论审核', 'bool', 1, 3);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('水印开关', 'article', 'article_water', '1', '水印开关(0:无水印,1:水印文字,2:水印图片)', 'number', 1, 4);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('水印文本', 'article', 'article_water_text', '', '水印文本', 'string', 1, 5);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('上传图片质量', 'article', 'image_upload_quality', '80', '上传图片质量', 'string', 1, 6);
+INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('上传图片宽高', 'article', 'image_upload_max_limit', '680', '上传图片宽高最大值(单位px,0为不限制)', 'string', 1, 7);
 INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('联系地址', 'contact', 'address', '厦门市思明区软件园二期望海路000号000室', '联系地址', 'string', 1, 1);
 INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('邮编', 'contact', 'zip_code', '361008', '邮编', 'string', 1, 2);
 INSERT INTO `sys_config`(name,`group`,`key`,value,remark,value_type,status,sort) VALUES ('传真', 'contact', 'fax', '0592-1234567', '传真', 'string', 1, 3);

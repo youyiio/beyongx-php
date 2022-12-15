@@ -67,7 +67,7 @@ class Comment extends Base
             $content = remove_xss($content);
 
             $data = [];
-            if (get_config('comment_audit_switch') === 'true'){
+            if (get_config('article_comment_audit_switch') === 'true'){
                 $data['status'] = CommentModel::STATUS_PUBLISHING;
             } else {
                 $data['status'] = CommentModel::STATUS_PUBLISHED;
