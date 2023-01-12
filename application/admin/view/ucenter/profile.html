@@ -1,0 +1,62 @@
+{extend name="public/base" /}
+{block name="title"}修改资料{/block}
+{block name="css"}
+<link href="__PUBLIC__/static/inspinia/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+{/block}
+
+{block name="main"}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>修改资料</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content">
+                <form class="form-horizontal ajax-form" action="{:url('Ucenter/profile')}" method="post" role="form">
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">邮箱</label>
+                        <div class="col-lg-10"><input type="text" name="email" placeholder="邮箱" class="form-control" value="{$user.email|default=''}" disabled> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">用户名</label>
+                        <div class="col-lg-10"><input type="text" name="nickname" placeholder="用户名" class="form-control" value="{$user.nickname|default=''}"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">QQ号</label>
+                        <div class="col-lg-10"><input type="text" name="qq" pattern="\d{5,}" placeholder="QQ号" class="form-control" value="{$user.qq|default=''}"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">微信号</label>
+                        <div class="col-lg-10"><input type="text" name="weixin" placeholder="微信号" class="form-control" value="{$user.weixin|default=''}"> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">手机号</label>
+                        <div class="col-lg-10"><input type="text" name="mobile" pattern="\d{11}" placeholder="手机号" class="form-control" value="{$user.mobile|default=''}" disabled> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-sm btn-white" type="submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name="js"}{/block}

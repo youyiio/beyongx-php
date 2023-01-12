@@ -1,6 +1,7 @@
 <?php
 namespace app\cms\controller;
 
+use app\frontend\controller\Base;
 use app\common\model\cms\ArticleMetaModel;
 use app\common\model\cms\ArticleModel;
 use app\common\model\cms\CategoryModel;
@@ -192,7 +193,7 @@ class Article extends Base
             'meta.meta_value' => $tag
         ];
 
-        $fields = 'article.id,title,description,keywords,author,thumb_image_id,post_time,article.update_time,article.create_time,is_top,status,read_count,comment_count,sort,ad_id';
+        $fields = 'article.id,title,description,keywords,author,thumb_image_id,post_time,article.update_time,article.create_time,is_top,status,read_count,comment_count,sort';
         $orders = [
             'post_time' => 'desc',
             'update_time' => 'desc'

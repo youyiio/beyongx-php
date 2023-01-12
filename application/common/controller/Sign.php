@@ -212,8 +212,8 @@ class Sign extends Controller
             'head_url' => '/static/common/img/head/default.jpg',
             'referee' => $data['referee'], //推荐人
             'register_ip' => request()->ip(0, true),
-            'from_referee' => cookie('from_referee'),
-            'entrance_url'  => cookie('entrance_url'),
+            'from_referee' => sub_str(cookie('from_referee'), 0, 250),
+            'entrance_url' => sub_str(cookie('entrance_url'), 0, 250)
         ];
         $UserModel->where('id', $user['id'])->setField($profileData);
 

@@ -27,7 +27,7 @@
                     <div class="col-lg-6">
                         <h2>分组成员</h2>
                         <div data-toggle="buttons" class="btn-group">
-                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/deleteUserFromGroup',['role_id'=>input('param.role_id')])}"> <i class="fa fa-sign-out"></i> 批量移出分组 </label>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
@@ -48,7 +48,7 @@
                                     <td>{$vo.nickname}(ID:{$vo.id})</td>
                                     <td>{$vo.mobile}</td>
                                     <td>{$vo.email}</td>
-                                    <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['id'],'group_id'=>input('param.group_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
+                                    <td><a href="{:url('Rule/deleteUserFromGroup',['uid'=>$vo['id'],'role_id'=>input('param.role_id')])}" class="ajax-a">移出[{$group_name}]分组</a></td>
                                 </tr>
                                 {/volist}
 
@@ -60,7 +60,7 @@
                     <div class="col-lg-6">
                         <h2>未加入分组用户</h2>
                         <div data-toggle="buttons" class="btn-group">
-                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['group_id'=>input('param.group_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
+                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in" data-action="{:url('Rule/addUserToGroup',['role_id'=>input('param.role_id')])}"> <i class="fa fa-sign-in"></i> 批量加入分组 </label>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered table-hover dataTables-example">
@@ -81,7 +81,7 @@
                                     <td>{$vo.nickname}(ID:{$vo.id})</td>
                                     <td>{$vo.mobile}</td>
                                     <td>{$vo.email}</td>
-                                    <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['id'],'group_id'=>input('param.group_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
+                                    <td><a href="{:url('Rule/addUserToGroup',['uid'=>$vo['id'],'role_id'=>input('param.role_id')])}" class="ajax-a" data-success-callback="successSetGroupName">加入[{$group_name}]分组</a></td>
                                 </tr>
                                 {/volist}
 

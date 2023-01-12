@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+
 use think\facade\Cache;
 use think\facade\Env;
 use think\facade\Log;
@@ -244,6 +245,47 @@ function encrypt_password($rawPasswd, $key = '')
 }
 
 /**
+ * sha256+md5加密密码, 安全度高
+ * @param 原始密码 $rawPasswd
+ * @param 加密key $key
+ * @return boolean|string
+ */
+function encrypt_password_advanced($rawPasswd, $key = '')
+{
+    if (empty($rawPasswd)) {
+        return false;
+    }
+
+    $passwd = strtolower((string)$rawPasswd);
+    if (empty($key)) {
+        $key = get_config('password_key', '');
+    }
+
+    $shaStr = hash("sha256", $passwd . "{" . $key . "}");
+    return strtolower(md5($shaStr));
+}
+
+/**
+ * sha1+md5加密密码，安全度低
+ * @param 原始密码 $rawPasswd
+ * @param 加密key $key
+ * @return boolean|string
+ */
+function encrypt_password_low($rawPasswd, $key = '')
+{
+    if (empty($rawPasswd)) {
+        return false;
+    }
+
+    $passwd = strtolower((string)$rawPasswd);
+    if (empty($key)) {
+        $key = get_config('password_key', '');
+    }
+
+    return strtolower(md5(sha1($passwd) . $key));
+}
+
+/**
  * 字符串命名风格转换
  * @param string $name 字符串
  * @param integer $style 映射风格， 0为c风格，1为java风格
@@ -378,7 +420,7 @@ function get_config($key = '', $default = null)
         Cache::set('config', $config, -1); //永不过期，通过config_sentinel过期来更新
         Cache::set('config_sentinel', '1', 5 * 60); //config的哨兵
     }
-
+    
     if (empty($key)) {
         return $config;
     } else {
@@ -398,10 +440,10 @@ function get_config($key = '', $default = null)
 function get_image($id)
 {
     if (is_array($id)) {
-        $ImageModel = new \app\common\model\ImageModel();
-        return $ImageModel->where('id', 'in', $id)->select();
+        $FileModel = new \app\common\model\FileModel();
+        return $FileModel->where('id', 'in', $id)->select();
     } else {
-        return \app\common\model\ImageModel::get($id);
+        return \app\common\model\FileModel::get($id);
     }
 }
 
@@ -727,6 +769,20 @@ function friendly_date($sTime, $type = 'normal', $alt = 'false')
     }
 }
 
+/**
+ * 友好的文件大小显示
+ * @param $size 大小，单位字节
+ * @return string
+ */
+function friendly_size($size) {
+    $units = [' B', ' KB', ' MB', ' GB', ' TB'];
+    for ($i = 0; $size >= 1024 && $i < 4; $i++) {
+        $size /= 1024;
+    }
+
+    return round($size, 2) . $units[$i];
+}
+
 //菜单激活状态判断
 function menu_select($mca = '')
 {
@@ -854,7 +910,7 @@ function sign_params($params, $secret_key, $sign_type = 'MD5')
     $sign_type = strtoupper($sign_type);
     if ($sign_type == 'MD5') {
         $paramString = $paramString . $secret_key;
-        //Log::log($paramString);
+        //Log::info("sign params:" . $paramString);
         $resultSign = md5($paramString);
     } else if ($sign_type == 'RSA') {
         //此时 $secret_key为公钥或私钥，当前暂时只支持md5, 暂未实现
@@ -878,6 +934,74 @@ function http_build_query_ext($query_data)
     }
 
     return http_build_query($query_data);
+}
+
+/**
+ * 简易http get请求
+ *
+ * @param [type] $url
+ * @return string|bool
+ */
+function http_get($url)
+{
+    $header = [
+        'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'
+    ];
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    // 执行
+    $content = curl_exec($ch);
+    if ($content == false) {
+        Log::error(curl_error($ch));
+        return false;
+    }
+    // 关闭
+    curl_close($ch);
+
+    //输出结果
+    return $content;
+}
+
+/**
+ * 简易http post请求
+ *
+ * @param [type] $url
+ * @param array $requestData
+ * @return string|bool
+ */
+function http_post($url, $requestData=array())
+{
+    $header = [
+        'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'
+    ];
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+
+    if (is_array($requestData)) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+    } else {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
+    }
+
+    // 执行
+    $content = curl_exec($ch);
+    if ($content == false) {
+        Log::error(curl_error($ch));
+        return false;
+    }
+    // 关闭
+    curl_close($ch);
+
+    //输出结果
+    return $content;
 }
 
 /**

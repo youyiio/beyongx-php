@@ -1,0 +1,295 @@
+{extend name="public/base" /}
+{block name="title"}评论管理{/block}
+{block name="css"}
+<link rel="stylesheet" href="__PUBLIC__/static/inspinia/css/plugins/datapicker/bootstrap-datetimepicker.min.css">
+{/block}
+{block name="main"}
+
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="ibox float-e-margins">
+            <div class="ibox-title">
+                <h5>评论列表 </h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="{:url(request()->controller().'/index')}">文章管理</a></li>
+                    </ul>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="ibox-content" style="padding:10px">
+                <div class="row">
+                    <div class="col-lg-4 col-md-12">
+                        <div data-toggle="buttons" class="btn-group">
+                            <label class="ladda-button btn btn-sm btn-primary ajax-batch-set" data-style="zoom-in" data-title="提示" data-text="确认要审核通过吗？" data-action="{:url('Comment/auditComment')}"> <i class="fa fa-check"></i> 审核 </label>
+                            <label class="ladda-button btn btn-sm btn-danger ajax-batch-set-prompt" data-style="zoom-in" data-title="提示" data-text="确认要批量删除评论吗？" data-action="{:url('Comment/deleteComment')}"> <i class="fa fa-trash"></i> 删除 </label>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-12 text-right">
+                        <form method="get" role="form" class="form-inline">
+                            <div class="form-group">
+                                <input type="text" name="key" placeholder="关键词" class="form-control m-b-xs" value="{$Think.get.key|default=''}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" autocomplete="off" class="form-control m-b-xs form-datetime" placeholder="起始日期" id="queryDate" name="startTime" value="{$Think.get.startTime |default=$startTime}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" autocomplete="off" class="form-control m-b-xs form-datetime" placeholder="终止日期" name="endTime" value="{$Think.get.endTime |default=$endTime}">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary m-b-xs">查找</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive bootstrap-table" style="padding-bottom:80px">
+                    <div class="fixed-table-container">
+                        <table class="table table-bordered table-hover table-striped table-condensed">
+                            <thead>
+                            <tr>
+                                <th><div class="th-inner"><input type="checkbox" class="ajax-check-all" id="0"></div></th>
+                                <th><div class="th-inner">ID</div></th>
+                                <th><div class="th-inner">评论内容</div></th>
+                                <th><div class="th-inner">to</div></th>
+                                <th><div class="th-inner">用户</div></th>
+                                <th><div class="th-inner">状态</div></th>
+                                <th><div class="th-inner">评论时间</div></th>
+                                <th><div class="th-inner">评论IP</div></th>
+                                <th><div class="th-inner">操作</div></th>
+                            </tr>
+                            </thead>
+                            {foreach name="list" item="vo"}
+                            <tr>
+                                <td><input type="checkbox" class="ajax-check" value="{$vo.id}"></td>
+                                <td>{$vo.id}</td>
+                                <td>{$vo.content}</td>
+                                <td>
+                                    {empty name="$vo.pid"}
+                                    <strong>评论了文章</strong><a class="J_addMenuTab" href="{:url(request()->controller().'/viewArticle', ['id'=>$vo.article_id])}" data-menu-name="{$vo.article.title}">{$vo.article.title}</a>
+                                    {else /}
+                                    <strong>回复了评论</strong><a class="J_addMenuTab" href="{:url(request()->controller().'/viewComments', ['id'=>$vo.id])}" data-menu-name="{$vo.article.title}">{$vo.reply.content}</a>
+                                    {/empty}
+                                </td>
+                                <td>{$vo.author}</td>
+                                <td>{$vo.status_html|raw}</td>
+                                <td>{$vo.create_time}</td>
+                                <td>{$vo.ip|ip_to_address=###, 'province,city'}</td>
+                                <td>
+                                    <a class="J_addMenuTab" href="{:url(request()->controller().'/viewComments', ['id'=>$vo['id']])}" data-menu-name="{$vo.article.title}"><button class="btn btn-xs btn-info" data-toggle="tooltip" data-placement="top" title="查看"><i class="fa fa-eye"></i> 查看</button></a>
+
+                                    {if $vo.status == app\common\model\cms\CommentModel::STATUS_PUBLISHING}
+                                    <button class="btn btn-xs btn-primary ajax-btn-warning"
+                                            data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
+                                            data-title="提示" data-text="确认评论审核通过？"><i class="fa fa-check"></i> 审核</button>
+                                    {elseif $vo.status >= app\common\model\cms\CommentModel::STATUS_PUBLISHED /}
+                                    <button class="btn btn-xs btn-primary ajax-btn-warning"
+                                            data-action="{:url(request()->controller().'/auditComment',['id'=>$vo['id']])}"
+                                            disabled><i class="fa fa-check"></i> 已发布</button>
+                                    {/if}
+                                    <button type="button" class="btn btn-xs btn-white" data-toggle="modal" data-id="{$vo.id}" data-aid="{$vo.article_id}" onclick="reply(this)">
+                                        <i class="fa fa-comment"></i>
+                                        回复
+                                    </button>
+                                    <button class="btn btn-xs btn-danger ajax-btn-warning" data-action="{:url('Comment/deleteComment',['id'=>$vo['id']])}" data-title="提示" data-text="您确认要删除评论吗"><i class="fa fa-remove"></i> 删除</button>
+                                </td>
+                            </tr>
+                            {/foreach}
+                        </table>
+                        <div>
+                            {$pages|raw}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    回复评论
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ajax-form" action="{:url(request()->controller().'/postComment')}" method="post">
+                    <input type="hidden" name="pid" value="0">
+                    <input type="hidden" name="article_id" value="0">
+                    <div class="form-group">
+                        <label class="col-lg-2 control-label">回复内容:</label>
+                        <div class="col-lg-10">
+                            <textarea name="content" style="width: 430px; height: 100px"></textarea> <span class="help-block m-b-none"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-lg-offset-2 col-lg-10">
+                            <button class="btn btn-sm btn-white" type="submit">回复</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+
+{block name="js"}
+<!--日期选择器-->
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/bootstrap-datetimepicker.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/datapicker/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+<!-- Ladda -->
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/spin.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.min.js"></script>
+<script src="__PUBLIC__/static/inspinia/js/plugins/ladda/ladda.jquery.min.js"></script>
+<script>
+    //批量操作
+    $(function() {
+        //批量操作 审核,取消审核,删除
+        var laddaBtn = $('.ajax-batch-set').ladda();
+        laddaBtn.click(function() {
+            // Start loading
+            $(this).ladda('start');
+
+            var ids = getAjaxCheckedValues();
+            if (!ids) {
+                layer.msg('请选择要操作的评论!', function(){});
+                $(this).ladda('stop');
+                return;
+            }
+            var action = $(this).data('action');
+            $.each(ids, function (i, id) {
+                $.post(action, {id: id}, function (data) {
+                    console.log(data);
+                    console.log(ids);
+                    if (data.code == 0 && ids.length == 1) {
+                        layer.msg(data.msg, function(){});
+
+                        return false;
+                    }
+                });
+            });
+
+            setTimeout(function () {
+                location.reload();
+            }, 800);
+        });
+        //删除前提示
+        $('.ajax-batch-set-prompt').click(function() {
+            var title = $(this).data('title') != undefined ? $(this).data('title') : '提示';
+            var text = $(this).data('text') != undefined ? $(this).data('text') : '确认要执行此操作吗?';
+            layer.confirm(text, {
+                title: title,
+                btn: ['确认', '取消']
+            }, function() {
+                layer.closeAll('dialog');
+
+                var laddaBtn = $('.ajax-batch-set-prompt').ladda();
+
+                // Start loading
+                $(laddaBtn).ladda('start');
+
+                var ids = getAjaxCheckedValues();
+                if (!ids) {
+                    layer.msg('请选择要操作的评论!', function(){});
+                    $(laddaBtn).ladda('stop');
+                    return;
+                }
+                var action = $(laddaBtn).data('action');
+                $.post(action, {id: ids.join(',')}, function (data) {
+                    console.log(data);
+                    if (data.code == 0 && ids.length == 1) {
+                        layer.msg(data.msg, function(){});
+                        location.reload();
+                        return false;
+                    }
+                });
+
+                setTimeout(function () {
+                    location.reload();
+                }, 800);
+
+            }, function () {
+                layer.closeAll('dialog');
+            });
+
+        });
+
+
+        $(".bootstrap-table").on('click', 'div.sortable', function(event) {
+            event.preventDefault();
+            /* Act on the event */
+            // 获取排序方式
+            var field = $(this).parent().data("field");
+            var sort = "asc";
+            // alert(field);return;
+            if ($(this).hasClass("desc")) {
+                $(this).removeClass("desc");
+                $(this).addClass("asc");
+                sort = "asc";
+            } else if ($(this).hasClass("asc")) {
+                $(this).removeClass("asc");
+                $(this).addClass("desc");
+                sort = "desc";
+            } else {
+                $(this).addClass("asc");
+                sort = "asc";
+            }
+
+            //get的方式传参数到后台
+            var url = window.location.href;
+            url += (url.indexOf('?') < 0 ? '?' : '&') + "field=" + field + "&sort=" + sort;
+            window.location.href = url;
+        });
+    });
+
+    //日期控件（定时器）
+    $('.form-datetime-timing').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd hh:ii:ss',
+        startView: 'month',
+        minView: 0,
+        autoclose: true,
+        todayBtn: true
+    });
+    //日期控件（查询）
+    $('.form-datetime').datetimepicker({
+        language: 'zh-CN',
+        format: 'yyyy-mm-dd',
+        startView: 'month',
+        minView: 2,
+        autoclose: true,
+        todayBtn: true
+    });
+
+    function reply(obj) {
+        var id = $(obj).data('id');
+        var aid = $(obj).data('aid');
+        $("input[name = 'pid']").val(id);
+        $("input[name = 'content']").val('');
+        $("input[name = 'article_id']").val(aid);
+
+        $("#replyModal").modal('show');
+    }
+  
+</script>
+
+{/block}

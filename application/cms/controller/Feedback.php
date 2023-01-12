@@ -8,6 +8,7 @@
 
 namespace app\cms\controller;
 
+use app\frontend\controller\Base;
 use app\common\model\cms\FeedbackModel;
 use app\common\model\UserModel;
 

@@ -64,9 +64,10 @@
                                 <th><div class="th-inner">操作用户</div></th>
                                 <th><div class="th-inner">操作类型</div></th>
                                 <th><div class="th-inner">模块</div></th>
+                                <th><div class="th-inner">component</div></th>
                                 <th><div class="th-inner">IP</div></th>
+                                <th><div class="th-inner">use agent</div></th>
                                 <th><div class="th-inner">备注</div></th>
-                                <th><div class="th-inner">操作内容</div></th>
                                 <th><div class="th-inner">创建时间</div></th>
                             </tr>
                             </thead>
@@ -74,12 +75,13 @@
                             <tr>
                                 <!-- <td><input type="checkbox" class="ajax-check" id="{$vo.id}"></td> -->
                                 <td>{$vo.id}</td>
-                                <td><a href="{:url('admin/User/viewUser',['uid'=>$vo.uid])}">{$vo.user.nickname}</a></td>
+                                <td><a href="{:url('admin/User/viewUser',['uid'=>$vo.username])}">{$vo.user.username|default=""}</a></td>
                                 <td>{$vo.action_text}</td>
                                 <td>{$vo.module}</td>
+                                <td>{$vo.component}</td>
                                 <td>{$vo.ip} [{$vo.ip|ip_to_address=###,'province,city'}]</td>
-                                <td>{$vo.remark}</td>
-                                <td>{$vo.data}</td>
+                                <td>{$vo.user_agent}</td>
+                                <td>{$vo.remark}</td>                        
                                 <td>{$vo.create_time}</td>
                             </tr>
                             {/foreach}

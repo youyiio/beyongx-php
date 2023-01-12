@@ -8,6 +8,8 @@
 
 namespace app\cms\controller;
 
+use app\frontend\controller\Base;
+
 /**
  * 用于平台测试使用
  * @package app\cms\controller

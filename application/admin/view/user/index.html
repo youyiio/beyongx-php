@@ -102,8 +102,8 @@
                                 <td>{$vo.email}</td>
                                 <td>{$vo.nickname}</td>
                                 <td>
-                                    {notempty name="vo.groups"}
-                                    {volist name="vo.groups" id="v" empty="未分组"}
+                                    {notempty name="vo.roles"}
+                                    {volist name="vo.roles" id="v" empty="未分组"}
                                     <span class="label label-info">{$v.title}</span>
                                     {/volist}
                                     {/notempty}

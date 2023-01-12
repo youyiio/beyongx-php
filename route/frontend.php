@@ -26,6 +26,6 @@ return [
     'sign/forget' => ['frontend/Sign/forget', ['method'=>'get,post']],
     'sign/captcha' => ['frontend/Sign/captcha', ['method'=>'get,post']],
     'sign/sendCode' => ['frontend/Sign/sendCode', ['method'=>'get,post']],
-     
+    
     /*****************frontend 通用路由 end*******************/
 ];

@@ -17,7 +17,8 @@ class Resource extends Base
     //文档列表
     public function documents()
     {
-        $map = [];
+        
+        $map[] = ['ext', 'in', ['doc','docx','ppt','pptx','txt','avi','pdf','mp3','zip','mp4','xlsx']];
         $key = input('param.key');
         if ($key) {
             $map[] = ['remark', 'like', "%$key%"];
@@ -26,11 +27,7 @@ class Resource extends Base
         $FileModel = new FileModel();
         $files = $FileModel->where($map)->paginate(21);
         $pages = $files->render();
-        foreach ($files as $value) {
-             $file_name = $value['file_name'];
-             $value['type'] = substr($file_name,strpos($file_name,'.')+1);
-        }
-
+      
         $this->assign('files', $files);
         $this->assign('pages', $pages);
 
@@ -85,14 +82,14 @@ class Resource extends Base
     //图片列表
     public function images()
     {
-        $map = [];
+        $map[] = ['ext', 'in', ['jpg','gif','png','jpeg','webp','bmp']];
         $key = input('param.key');
         if ($key) {
             $map[] = ['remark', 'like', "%$key%"];
         }
 
-        $ImageModel = new ImageModel();
-        $imageList =  $ImageModel->where($map)->paginate(21);
+        $FileModel = new FileModel();
+        $imageList =  $FileModel->where($map)->paginate(21);
 
         $this->assign('imageList', $imageList);
         $this->assign('pages', $imageList->render());
@@ -106,8 +103,8 @@ class Resource extends Base
             $remark = input('param.remark');
 
             if ($imageId) {
-                $ImageModel = new ImageModel();
-                $result = $ImageModel->save(['remark' =>$remark], ['id' =>$imageId]);
+                $FileModel = new FileModel();
+                $result = $FileModel->save(['remark' =>$remark], ['id' =>$imageId]);
 
                 if ($result) {
                     $this->success('上传成功','images');
@@ -123,19 +120,19 @@ class Resource extends Base
 
     public function deleteImage($imageId = 0)
     {
-        $ImageModel = new ImageModel();
-        $image = $ImageModel->where('id', $imageId)->find();
+        $FileModel = new FileModel();
+        $image = $FileModel->where('id', $imageId)->find();
         if (empty($image)) {
             $this->error('图片不存在');
         }
         //删除图片
-        $imageUrl = Env::get('root_path').'public'.$image['image_url'];
+        $imageUrl = Env::get('root_path').'public'.$image['file_url'];
         is_file($imageUrl) && unlink($imageUrl);
         $tbImageUrl = Env::get('root_path').'public'.$image['thumb_image_url'];
         is_file($tbImageUrl) && unlink($tbImageUrl);
 
         //删除数据
-        $res = $ImageModel->where('id', $imageId)->delete();
+        $res = $FileModel->where('id', $imageId)->delete();
 
         if (!$res) {
             $this->error('删除失败');

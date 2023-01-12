@@ -1,7 +1,9 @@
 <?php
 namespace app\admin\controller;
 
+use app\api\library\RolePermission;
 use app\common\model\AuthRuleModel;
+use app\common\model\MenuModel;
 use think\Controller;
 use think\facade\Cache;
 use think\helper\Time;
@@ -44,10 +46,11 @@ class Base extends Controller
 
         //权限验证
         if (config('cms.auth_on') == 'on') {
-            $node = request()->module().'/'.request()->controller().'/'.request()->action();
-
-            $auth = \think\auth\Auth::instance();
-            if (!$auth->check($node, $uid)) {
+            $permission = request()->module(). '/' . request()->controller() . '/' . request()->action();
+            $permission = strtolower($permission);
+            $rolePermission = new RolePermission();
+            $module = request()->module();
+            if (!$rolePermission->checkPermission($uid, $permission, $module, 'path')) {
                 $this->error('没有访问权限', 'javascript:void(0);');
             }
         }
@@ -65,11 +68,10 @@ class Base extends Controller
         if (Cache::has($uid . '_menu')) {
             $menus = Cache::get($uid . '_menu');
         } else {
-            $AuthRuleModel = new AuthRuleModel();
-            $menus = $AuthRuleModel->getTreeDataBelongsTo('level', 'sort, id', 'name', 'id', 'pid', 'admin');
+            $MenuModel = new MenuModel();
+            $menus = $MenuModel->getTreeDataBelongsTo('level', 'sort, id', 'path', 'id', 'pid', 'admin');
             Cache::set($uid . '_menu', $menus);
         }
-
         $this->assign('menus', $menus);
     }
 

@@ -13,11 +13,11 @@
                         </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/profile',['uid'=>$myself['id']])}">个人资料</a>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Ucenter/profile',['uid'=>$myself['id']])}">个人资料</a>
                         </li>
                         <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="javascript:void(0)">修改头像</a>
                         </li>
-                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Person/password',['uid'=>$myself['id']])}">修改密码</a>
+                        <li><a class="J_menuItem" onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Ucenter/password',['uid'=>$myself['id']])}">修改密码</a>
                         </li>
                         <li class="divider"></li>
                         <li><a onclick="$('.profile-element a.dropdown-toggle').click();" href="{:url('Sign/logout')}">安全退出</a>
@@ -31,8 +31,8 @@
             {foreach name="menus" item="menu"}
             <!-- 一级菜单 -->
             {empty name="menu._data"}
-            <li class="{:menu_select($menu['name'])}" class="leftSubNav">
-                <a class="J_menuItem" href="{:url($menu['name'])}">{notempty name="menu.icon"}<i class="fa {$menu.icon}"></i>{/notempty} <span class="nav-label">{$menu.title}</span></a>
+            <li class="{:menu_select($menu['path'])}" class="leftSubNav">
+                <a class="J_menuItem" href="{:url($menu['path'])}">{notempty name="menu.icon"}<i class="fa {$menu.icon}"></i>{/notempty} <span class="nav-label">{$menu.title}</span></a>
             </li>
             {else/}
             <li>
@@ -49,14 +49,14 @@
                     <li>
 
                         {empty name="secondMenu._data"}
-                        <a class="J_menuItem" href="{:url($secondMenu['name'])}">{$secondMenu.title}</a>
+                        <a class="J_menuItem" href="{:url($secondMenu['path'])}">{$secondMenu.title}</a>
                         {else/}
                         <a href="#">{$secondMenu.title}<span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level collapse">
                             <!-- 三级菜单 -->
                             {volist name="$secondMenu._data" id="thirdMenu"}
                             <li>
-                                <a class="J_menuItem" href="{:url($thirdMenu['name'])}">{$thirdMenu.title}</a>
+                                <a class="J_menuItem" href="{:url($thirdMenu['path'])}">{$thirdMenu.title}</a>
                             </li>
                             {/volist}
                         </ul>

@@ -1,7 +1,9 @@
 <?php
 namespace app\admin\controller;
 
+use app\common\model\FileModel;
 use app\common\model\ImageModel;
+use app\common\model\UserModel;
 use think\facade\Env;
 
 /**
@@ -18,6 +20,7 @@ class Image extends Base
     public function upcrop()
     {
         $imageId = request()->param('imageId/d', 0);
+        
         //id不存在时，图片上传
         if (empty($imageId)) {
             $tmpFile = request()->file('file');
@@ -56,39 +59,55 @@ class Image extends Base
                 $this->error($tmpFile->getError());
             }
             list($width, $height, $type) = getimagesize($file->getRealPath()); //获得图片宽高类型
-
+            
             $saveName = $file->getSaveName();
+
             $data = [
-                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
-                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
-                'create_time' => date_time(),
+                'file_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . $file->getFilename(),
+                'file_path' => Env::get('root_path') . 'public',
+                'size' => $file->getSize(),
+                'ext' => strtolower($file->getExtension()),
+                'name' => $file->getFilename(),
+                'real_name' => $file->getinfo()['name'],
+                'thumb_image_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . $file->getFilename(),
                 'remark' => input('post.remark'),
+                'create_by' => $this->uid,
+                'create_time' => date_time(),
             ];
-            $ImageModel = new ImageModel();
-            $imageId = $ImageModel->insertGetId($data);
+            if (get_config('oss_switch') === 'true') {
+                if (!class_exists('\think\oss\OSSContext')) {
+                    $this->error('您启用了OSS存储，却未安装 think-oss 组件，运行 > composer youyiio/think-oss 进行安装！');
+                }
+
+                $vendor = get_config('oss_vendor');
+                $m = new \think\oss\OSSContext($vendor);
+                $ossImgUrl = $m->doUpload($file->getSaveName(), 'cms');
+                $data['oss_image_url'] = $ossImgUrl;
+            }
+
+            $FileModel = new FileModel();
+            $imageId = $FileModel->insertGetId($data);
 
             $data['id'] = $imageId;
-
             if ($imgWidth > 0 && $imgHeight > 0) {
                 if (!($width >= $imgWidth-10 && $width <= $imgWidth+10 && $height >= $imgHeight-10 && $height <= $imgHeight+10)) {
                     $this->result($data, 1, 'image_need_crop', 'json');
                 }
             }
-
             $this->result($data, 1, '图片上传成功', 'json');
         }
 
 
         //图片裁剪
-        $imageModel = ImageModel::get($imageId);
-        if (!$imageModel) {
+        $FileModel = FileModel::get($imageId);
+        if (!$FileModel) {
             $this->error('图片不存在');
         }
 
         $thumbWidth = request()->param('thumbWidth/d', 0); //截取后缩略图的宽
         $thumbHeight = request()->param('thumbHeight/d', 0); //截取后缩略图的高
         if (!$this->request->isAjax()) {
-            $this->assign('image', $imageModel);
+            $this->assign('image', $FileModel);
             $this->assign('thumbWidth', $thumbWidth);
             $this->assign('thumbHeight', $thumbHeight);
 
@@ -106,7 +125,7 @@ class Image extends Base
 
 
         $path = Env::get('root_path') . 'public' . DIRECTORY_SEPARATOR;
-        $realPath = $path . $imageModel->image_url;
+        $realPath = $path . $FileModel->file_url;
         $file = new \SplFileInfo($realPath);
         $srcImage = \think\Image::open($file);
         if (!$srcImage) {
@@ -130,11 +149,11 @@ class Image extends Base
         $tbImgUrl = $file->getPath() . DIRECTORY_SEPARATOR . 'crop_' . $file->getFilename();
         $srcImage->save($tbImgUrl, $extension, $quality, true);
 
-        $imageModel->image_url = DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR.'crop_'.$file->getFilename();
-        $imageModel->thumb_image_url = DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR.'tb_crop_'.$file->getFilename();
-        $imageModel->save();
+        $FileModel->file_url = DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR.'crop_'.$file->getFilename();
+        $FileModel->thumb_image_url = DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.date('Ymd').DIRECTORY_SEPARATOR.'tb_crop_'.$file->getFilename();
+        $FileModel->save();
 
-        $data = $imageModel;
+        $data = $FileModel;
         $this->result($data, 1, '图片裁剪成功', 'json');
     }
 

@@ -49,27 +49,15 @@ class UserModel extends BaseModel
     //关联表：用户组
     public function roles()
     {
-        return $this->belongsToMany('RoleModel', config('database.prefix'). 'sys_user_role','role_id','uid');
+        return $this->belongsToMany('RoleModel', config('database.prefix') . 'sys_user_role', 'role_id', 'uid');
     }
 
     //关联表：用户组中间表
     public function userRole()
     {
-        return $this->hasMany('userRoleModel','uid','role_id');
+        return $this->hasMany('userRoleModel', 'uid', 'role_id');
     }
-
-    //关联表：岗位表
-    public function jobs()
-    {
-        return $this->belongsToMany('JobModel', config('database.prefix') . 'sys_user_role', 'role_id', 'uid');
-    }
-
-    //关联表：用户组岗位
-    public function userJob()
-    {
-        return $this->hasMany('userJobModel', 'uid', 'job_id');
-    }
-
+    
     //自身扩展字段
     public function ext($key, $value='')
     {
@@ -160,7 +148,17 @@ class UserModel extends BaseModel
 
         $tempPassword = encrypt_password($password, $user['salt']);
         if ($tempPassword !== $user['password']) {
-            throw new ModelException(ResultCode::E_USER_PASSWORD_INCORRECT, '密码不正确');
+            //补充旧密码加密格式问题
+            $tempOldPassword = encrypt_password_low($password, $user['salt']);
+            if ($tempOldPassword !== $user['password']) {
+                throw new ModelException(ResultCode::E_USER_PASSWORD_INCORRECT, '密码不正确');
+            }
+            //更新为新密码加密
+            $data = [];
+            $data['password'] = $tempPassword;
+            $this->where('id', $user['id'])->update($data);
+
+            //throw new ModelException(ResultCode::E_USER_PASSWORD_INCORRECT, '密码不正确');
         }
 
         return $user;
@@ -199,8 +197,10 @@ class UserModel extends BaseModel
         return $this->find($userId);
     }
 
-    public function modifyPassword($userId, $password) {
-        $newPassword = encrypt_password($password, get_config('password_key'));
+    public function modifyPassword($userId, $password)
+    {
+        $user = UserModel::get($userId);
+        $newPassword = encrypt_password($password, $user['salt']);
 
         $data['id'] = $userId;
         $data['password'] = $newPassword;
@@ -244,7 +244,6 @@ class UserModel extends BaseModel
 
         return $resultSet[0];
     }
-
 
     //修改用户
     public function editUser($uid, $data = [])

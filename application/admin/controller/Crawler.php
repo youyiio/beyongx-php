@@ -10,7 +10,7 @@ use think\Queue;
 use think\Db;
 
 /**
- 采集控制器
+ * 采集控制器
  */
 class Crawler extends Base
 {
@@ -277,13 +277,13 @@ class Crawler extends Base
 
                     foreach ($articles as $key => $article) {
                         if ($replaceField == 'all') {
-                            $article->title = str_replace($searchText, $replaceText, $article['title']);
-                            $article->keywords = str_replace($searchText, $replaceText, $article['keywords']);
-                            $article->description = str_replace($searchText, $replaceText, $article['description']);
-                            $article->content = str_replace($searchText, $replaceText, $article['content']);
+                            $article->title = str_replace($searchText, $replaceText, (string)$article['title']);
+                            $article->keywords = str_replace($searchText, $replaceText, (string)$article['keywords']);
+                            $article->description = str_replace($searchText, $replaceText, (string)$article['description']);
+                            $article->content = str_replace($searchText, $replaceText, (string)$article['content']);
                             $article->save();
                         } else {
-                            $article->$replaceField = str_replace($searchText, $replaceText, $article[$replaceField]);
+                            $article->$replaceField = str_replace($searchText, $replaceText, (string)$article[$replaceField]);
                             $article->save();
                         }
                     }
@@ -315,13 +315,13 @@ class Crawler extends Base
 
                     foreach ($articles as $key => $article) {
                         if ($replaceField == 'all') {
-                            $article->title = preg_replace($searchText, $replaceText, $article['title']);
-                            $article->keywords = preg_replace($searchText, $replaceText, $article['keywords']);
-                            $article->description = preg_replace($searchText, $replaceText, $article['description']);
-                            $article->content = preg_replace($searchText, $replaceText, $article['content']);
+                            $article->title = preg_replace($searchText, $replaceText, (string)$article['title']);
+                            $article->keywords = preg_replace($searchText, $replaceText, (string)$article['keywords']);
+                            $article->description = preg_replace($searchText, $replaceText, (string)$article['description']);
+                            $article->content = preg_replace($searchText, $replaceText, (string)$article['content']);
                             $article->save();
                         } else {
-                            $article->$replaceField = preg_replace($searchText, $replaceText, $article[$replaceField]);
+                            $article->$replaceField = preg_replace($searchText, $replaceText, (string)$article[$replaceField]);
                             $article->save();
                         }
                     }

@@ -9,9 +9,9 @@ class Database extends Base
     public function tables()
     {
         $params = $this->request->put();
-        $page = $params['page'] ?? 1;
-        $size = $params['size'] ?? 10;
-        $filters = $params['filters'] ?? '';
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 10;
+        $filters = $params['filters']?? '';
 
         $where = '';
         if (!empty($filters)) {
@@ -27,8 +27,8 @@ class Database extends Base
         $data = Db::query($sql);
     
         //分页
-        $total = count($data);
-        $pages = ceil($total / $size); 
+        $total = count($data);  //总数
+        $pages = ceil($total / $size); //总页数
         $start = ($page - 1) * $size;
         $records =  array_slice($data, $start, $size);
         //返回数据

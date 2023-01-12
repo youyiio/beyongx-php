@@ -4,10 +4,7 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\logic\UserLogic;
-use app\common\model\DeptModel;
-use app\common\model\JobModel;
 use app\common\model\RoleModel;
-use app\common\model\UserJobModel;
 use app\common\model\UserModel;
 use app\common\model\UserRoleModel;
 use think\facade\Cache;
@@ -20,21 +17,26 @@ class User extends Base
     public function query($id)
     {
         $UserModel = new UserModel();
-        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,dept_id,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,account,nickname,sex,mobile,email,status,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', $id)->field($fields)->find();
 
         if (empty($user)) {
             return ajax_return(ResultCode::E_USER_NOT_EXIST, '用户不存在');
         }
-        
-        //部门
-        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name')->find();
-        unset($user['dept_id']);
-        //角色
-        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-        //岗位
-        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        if ($user['status'] !== UserModel::STATUS_ACTIVED) {
+            if ($user['status'] == UserModel::STATUS_APPLY) {
+                return ajax_return(ResultCode::E_USER_STATE_NOT_ACTIVED, '用户未激活');
+            }
+            if ($user['status'] == UserModel::STATUS_FREEZED) {
+                return ajax_return(ResultCode::E_USER_STATE_FREED, '用户已冻结');
+            }
+            if ($user['status'] == UserModel::STATUS_DELETED) {
+                return ajax_return(ResultCode::E_USER_STATE_DELETED, '用户已删除');
+            }
 
+            return ajax_return(ResultCode::E_UNKNOW_ERROR, '未知错误!');
+        }
+       
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -47,7 +49,7 @@ class User extends Base
 
         $page = $params['page'] ?? 1;
         $size = $params['size'] ?? 10;
-        $filters = $params['filters'] ?? ''; 
+        $filters = $params['filters'] ?? '';
 
         $where = [];
         foreach ($filters as $key => $value) {
@@ -57,25 +59,26 @@ class User extends Base
             } elseif ($value == '') {
                 continue;
             } else {
-                $where[] = [$key, 'like', '%'. $value .'%'];
+                $where[] = [$key, 'like', '%' . $value . '%'];
             }
         }
-        $UserModel = new UserModel();
-       
-        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
-        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
-   
-        //查询部门和角色
-        $DeptModel = new DeptModel();
-        foreach ($list as $user) {
-            $user['dept'] = $DeptModel->where('id', $user['dept_id'])->field('id,name,title')->find();
-            unset($user['dept_id']);
-            $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-            $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
+        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        if (isset($filters['keyword'])) {
+            $where[] = ['id|mobile|email|nickname', 'like', '%'.$filters['keyword'].'%'];
         }
 
-        $returnData = pagelist_to_hump($list);
-       
+        $UserModel = new UserModel();
+        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' =>$page]);
+
+     
+        $list = $list->toArray();
+        //返回数据
+        $returnData['current'] = $list['current_page'];
+        $returnData['pages'] = $list['last_page'];
+        $returnData['size'] = $list['per_page'];
+        $returnData['total'] = $list['total'];
+        $returnData['records'] = parse_fields($list['data'], 1);
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -83,13 +86,15 @@ class User extends Base
     public function create()
     {
         $params = $this->request->put();
+
         $check = Validate('User')->scene('create')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
         $UserLogic = new UserLogic();
-        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email'], '', $params['deptId']??'');
+        $uid = $UserLogic->createUser($params['mobile'], $params['password'], $params['nickname'], $params['email']);
+        
         if (!$uid) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         }
@@ -105,32 +110,15 @@ class User extends Base
             $UserRoleModel = new UserRoleModel();
             $UserRoleModel->insertAll($group);
         }
-        if (!empty($params['jobIds'])) {
-            $group = [];
-            foreach ($params['jobIds'] as $k => $v) {
-                $group[] = [
-                    'uid' => $uid,
-                    'job_id' => $v
-                ];
-            }
-            $UserJobModel = new UserJobModel();
-            $UserJobModel->insertAll($group);
-        }
 
         //返回数据
         $UserModel = new UserModel();
-        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,dept_id,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,referee,status,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
-        //部门
-        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
-        unset($user['dept_id']);
         //角色
         $user['roleIds'] = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
         $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-        //岗位
-        $user['jobIds'] = UserJobModel::where('uid', '=', $user['id'])->column('job_id');
-        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-       
+
         $returnData = parse_fields($user->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);  
@@ -145,7 +133,6 @@ class User extends Base
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
-        $params = parse_fields($params);
         $uid = $params['id'];
         $user = UserModel::get($uid);
         if (!$user) {
@@ -157,26 +144,13 @@ class User extends Base
         if (!$res) {
             return ajax_return(ResultCode::ACTION_SUCCESS, '操作失败!');
         }
-
-        //修改岗位
-        if (!empty($params['job_ids'])) {
-            $UserJobModel = new UserJobModel();
-            $UserJobModel->where(['uid' => $uid])->delete();
-            $data = [];
-            foreach ($params['job_ids'] as $k => $v) {
-                $data[] = [
-                    'uid' => $uid,
-                    'job_id' => $v
-                ];
-            }
-            $UserJobModel->insertAll($data);
-        }
+        
         //修改对应角色
-        if (!empty($params['role_ids'])) {
+        if (!empty($params['roleIds'])) {
             $UserRoleModel = new UserRoleModel();
             $UserRoleModel->where(['uid' => $uid])->delete();
             $data = [];
-            foreach ($params['role_ids'] as $k => $v) {
+            foreach ($params['roleIds'] as $k => $v) {
                 $data[] = [
                     'uid' => $uid,
                     'role_id' => $v
@@ -188,17 +162,9 @@ class User extends Base
 
         //返回数据
         $UserModel = new UserModel();
-        $fields = 'id,account,nickname,sex,mobile,email,dept_id,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,account,nickname,sex,mobile,email,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $user = $UserModel->where(['id' => $uid])->field($fields)->find();
-        //部门
-        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
-        unset($user['dept_id']);
-        //角色
         $user['roleIds'] = UserRoleModel::where('uid', '=', $user['id'])->column('role_id');
-        $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-        //岗位
-        $user['jobIds'] = UserJobModel::where('uid', '=', $user['id'])->column('job_id');
-        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($user->toArray(), 1);
 
@@ -218,6 +184,7 @@ class User extends Base
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '删除失败!');
         }
 
+        //删除用户角色
         return ajax_return(ResultCode::ACTION_SUCCESS, '删除成功!');
     }
 
@@ -226,8 +193,9 @@ class User extends Base
     {
         $params = $this->request->put();
 
+
         $user = UserModel::get($params['id']);
-        if (!$user){
+        if (!$user) {
             return ajax_error(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
 
@@ -236,9 +204,9 @@ class User extends Base
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
         }
 
+
         $data['id'] = $params['id'];
         $data['password'] = encrypt_password($params['password'], $user['salt']);
-
         $UserModel = new UserModel();
         $res = $UserModel->isUpdate(true)->save($data);
         if (!$res) {
@@ -255,11 +223,12 @@ class User extends Base
 
         $uid = $params['id'];
         if ($uid == 0) {
-            return ajax_return(ResultCode::E_PARAM_ERROR, '参数错误!');
+            $this->error('参数id错误');
         }
 
         $UserModel = new UserModel();
         $res = $UserModel->where('id', $uid)->where('status', UserModel::STATUS_ACTIVED)->setField('status', UserModel::STATUS_FREEZED);
+
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         } 
@@ -274,11 +243,12 @@ class User extends Base
 
         $uid = $params['id'];
         if ($uid == 0) {
-            return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '参数错误!');
+            $this->error('参数id错误');
         }
 
         $UserModel = new UserModel();
         $res = $UserModel->where('id', $uid)->setField('status', UserModel::STATUS_ACTIVED);
+
         if (!$res) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         } 
@@ -290,6 +260,7 @@ class User extends Base
     public function addRoles()
     {
         $params = $this->request->put();
+
         $check = Validate('User')->scene('addRoles')->check($params);
         if ($check !== true) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, validate('User')->getError());
@@ -298,13 +269,13 @@ class User extends Base
         $uid = $params['id'];
         // 修改权限
         $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->where(['uid'=>$uid])->delete();
+        $UserRoleModel->where(['uid' => $uid])->delete();
         if (!empty($params['roleIds'])) {
             $data = [];
             foreach ($params['roleIds'] as $k => $v) {
                 $data[] = [
-                    'uid'=>$uid,
-                    'role_id'=>$v
+                    'uid' => $uid,
+                    'role_id' => $v
                 ];
             }
             $UserRoleModel->insertAll($data);
@@ -330,11 +301,12 @@ class User extends Base
 
         $where = [];
         foreach ($filters as $key => $value) {
-            if ($value !== '') {
+            if ($value !== ''
+            ) {
                 $where[] = [$key, 'like', '%' . $value . '%'];
             }
         }
-        if(empty($where)){
+        if (empty($where)) {
             $returnData = [
                 'current' => 1,
                 'pages' => $page,
@@ -349,7 +321,7 @@ class User extends Base
         $UserModel = new UserModel();
         $fields = 'id,account,nickname,sex,mobile,email';
         $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' => $page]);
-        
+
         $returnData = to_standard_pagelist($list);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

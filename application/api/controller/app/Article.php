@@ -50,14 +50,8 @@ class Article extends Base
         $CategoryArticleModel = new CategoryArticleModel();
         foreach ($list as $art) {
             $art['thumbImage'] = findThumbImage($art);
-
-            $categotyIds = $CategoryArticleModel->where('article_id', '=', $art['id'])->column('category_id');
-            $categotys = [];
-            foreach ($categotyIds as $cateId) {
-                $CategoryModel = new CategoryModel();
-                $categotys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
-            }
-            $art['categorys'] = $categotys;
+            $categorysIds = CategoryArticleModel::where('article_id', '=', $art['id'])->column('category_id');
+            $art['categorys'] = CategoryModel::where('id', 'in', $categorysIds)->field('id,name,title')->select();
         }
 
         $list = $list->toArray();
@@ -109,12 +103,12 @@ class Article extends Base
             $art['thumbImage'] = findThumbImage($art);
 
             $categotyIds = $CategoryArticleModel->where('article_id', '=', $art['id'])->column('category_id');
-            $categotys = [];
+            $categorys = [];
             foreach ($categotyIds as $cateId) {
                 $CategoryModel = new CategoryModel();
-                $categotys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
+                $categorys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
             }
-            $art['categorys'] = $categotys;
+            $art['categorys'] = $categorys;
         }
 
         $list = $list->toArray();
@@ -166,12 +160,12 @@ class Article extends Base
             $art['thumbImage'] = findThumbImage($art);
 
             $categotyIds = $CategoryArticleModel->where('article_id', '=', $art['id'])->column('category_id');
-            $categotys = [];
+            $categorys = [];
             foreach ($categotyIds as $cateId) {
                 $CategoryModel = new CategoryModel();
-                $categotys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
+                $categorys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
             }
-            $art['categorys'] = $categotys;
+            $art['categorys'] = $categorys;
         }
 
         $list = $list->toArray();
@@ -311,12 +305,12 @@ class Article extends Base
             $art['thumbImage'] = findThumbImage($art);
 
             $categotyIds = $CategoryArticleModel->where('article_id', '=', $art['id'])->column('category_id');
-            $categotys = [];
+            $categorys = [];
             foreach ($categotyIds as $cateId) {
                 $CategoryModel = new CategoryModel();
-                $categotys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
+                $categorys[] = $CategoryModel->where('id', '=', $cateId)->field('id,name,title')->find();
             }
-            $art['categorys'] = $categotys;
+            $art['categorys'] = $categorys;
         }
 
         $list = $list->toArray();
@@ -353,7 +347,7 @@ class Article extends Base
         
         $CategoryModel = new CategoryModel();
         $list = $CategoryModel->where($where)->select();
-      
+
         // 获取树形或者list数据
         if ($struct === 'list') {
             $data = getList($list, $pid, 'id', 'pid');

@@ -54,24 +54,26 @@
                                 <span class="corner"></span>
 
                                 <div class="icon">
-                                    {if $file['type'] == 'doc' || $file['type'] == 'docx'}
+                                    {if $file['ext'] == 'doc' || $file['ext'] == 'docx'}
                                     <i class="fa fa-file-word-o"></i>
-                                    {elseif $file['type'] == 'avi' || $file['type'] == 'mp4' /}
+                                    {elseif $file['ext'] == 'avi' || $file['ext'] == 'mp4' /}
                                     <i class="fa fa-file-movie-o"></i>
-                                    {elseif $file['type'] == 'ppt' || $file['type'] == 'pptx' /}
+                                    {elseif $file['ext'] == 'ppt' || $file['ext'] == 'pptx' /}
                                     <i class="fa fa-paper-plane"></i>
-                                    {elseif $file['type'] == 'pdf' /}
+                                    {elseif $file['ext'] == 'pdf' /}
                                     <i class="fa fa-file-pdf-o"></i>
-                                    {elseif $file['type'] == 'zip' /}
+                                    {elseif $file['ext'] == 'zip' /}
                                     <i class="fa fa-file-archive-o"></i>
-                                    {elseif $file['type'] == 'xlsx' /}
+                                    {elseif $file['ext'] == 'xlsx' /}
                                     <i class="fa fa-bar-chart-o"></i>
+                                    {elseif $file['ext'] == 'txt' /}
+                                    <i class="fa fa-file-text"></i>
                                     {else }
                                     <i class="fa fa-file"></i>
                                     {/if}
                                 </div>
                                 <div class="file-name">
-                                    <a href="{$file.file_url}">{$file.file_name}</a>
+                                    <a href="{$file.file_url}">{$file.name}</a>
                                     <br/>
                                     <small>{$file.remark}</small>
                                 </div>

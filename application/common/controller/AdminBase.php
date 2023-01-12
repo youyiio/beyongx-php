@@ -72,18 +72,17 @@ trait AdminBase
         }        
         $this->assign('myself', $myself);
 
+     
         //菜单数据,Cache::tag不支持redis
         if (Cache::has($uid . '_menu')) {
             $menus = Cache::get($uid . '_menu');
         } else {
             $MenuModel = new MenuModel();
             $menus = $MenuModel->getTreeDataBelongsTo('level', 'sort, id', 'path', 'id', 'pid', 'admin');
-            Cache::set(
-                $uid . '_menu',
+            Cache::set($uid . '_menu',
                 $menus
             );
         }
-
         $this->assign('menus', $menus);
     }
 

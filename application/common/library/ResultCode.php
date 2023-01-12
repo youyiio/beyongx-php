@@ -2,7 +2,6 @@
 namespace app\common\library;
 
 class ResultCode {
-
 	const ACTION_SUCCESS = 1;  //成功
 	const ACTION_FAILED	= 0;  //失败
 
@@ -11,7 +10,7 @@ class ResultCode {
 	const E_PARAM_ERROR	= 3;  //参数错误
 	const E_PARAM_EMPTY	= 4;  //参数为空
 	const E_PARAM_VALIDATE_ERROR = 5;  //参数验证错误
-	const E_TOKEN_EXPIRED	= 6;  //TOKEN已过期或不合法
+	const E_TOKEN_EXPIRED	= 6;  //TOKEN不合法
 	const E_TOKEN_EMPTY	= 7;  //TOKEN参数缺失
 	const E_TOKEN_INVALID	= 8;  //TOKEN不合法
 	const E_ACCESS_NOT_AUTH	= 9;  //访问资源未授权

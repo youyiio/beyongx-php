@@ -62,7 +62,7 @@ class Theme extends Base
         }
 
         $ConfigModel = new ConfigModel();
-        $ConfigModel->where('name', 'theme_package_name')->setField('value', $package_name);
+        $ConfigModel->where('key', 'theme_package_name')->setField('value', $package_name);
 
         //清空缓存
         Cache::set('config', null);

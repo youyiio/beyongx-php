@@ -21,9 +21,9 @@ class Ucenter extends Base
     {
         $user_info = $this->user_info;
         $uid = $user_info->uid;
-        
+
         $UserModel = new UserModel();
-        $fields = 'id,account,nickname,sex,mobile,email,head_url,dept_id';
+        $fields = 'id,account,nickname,sex,mobile,email,head_url';
         $user = $UserModel->where('id', '=', $uid)->field($fields)->find();
         if (empty($user)) {
             return ajax_error(ResultCode::E_USER_NOT_EXIST, '用户不存在！');
@@ -32,25 +32,21 @@ class Ucenter extends Base
         $data = $user;
         //描述
         $data['description'] = $user->meta('description');
-        //部门
-        $user['dept'] = DeptModel::where('id', $user['dept_id'])->field('id,name,title')->find();
-        unset($user['dept_id']);
         //角色
         $user['roles'] = RoleModel::hasWhere('UserRole', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
-        //岗位
-        $user['jobs'] = JobModel::hasWhere('UserJob', ['uid' => $user['id']], 'id,name,title')->select()->toArray();
 
         $returnData = parse_fields($data->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
-    
+
     //编辑个人资料
     public function profile()
     {
         $userInfo = $this->user_info;
         $uid = $userInfo->uid;
         $user = UserModel::get($uid);
+
         if (!$user) {
             ajax_return(ResultCode::E_DATA_NOT_FOUND, '用户不存在!');
         }
@@ -96,12 +92,15 @@ class Ucenter extends Base
 
         //返回数据
         $UserModel = new UserModel();
-        $data = $UserModel->where('id', $uid)->field('id,nickname,head_url,mobile,email,qq,weixin,sex')->find();
+        $data = $UserModel->where('id', $uid)->field('id,nickname,mobile,email,qq,weixin,head_url')->find();
+        $roleIds = UserRoleModel::where(['uid' => $uid])->column('role_id');
+
+        $RoleModel = new RoleModel();
+        $data['roles'] = $RoleModel->where('id', 'in', $roleIds)->field('id,name')->select();
         $data['description'] = $user->metas('description');
         $returnData = parse_fields($data->toArray(), 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
-        
     }
 
     //查询权限菜单
@@ -120,10 +119,10 @@ class Ucenter extends Base
 
         $where[] = ['belongs_to', '=', 'api'];
         $list = $MenuModel->where($where)->select();
-        
+
         $list = parse_fields($list->toArray(), 1);
-        $returnData = getTree($list, 0 , 'id', 'pid', 6);
-        
+        $returnData = getTree($list, 0, 'id', 'pid', 6);
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -135,11 +134,10 @@ class Ucenter extends Base
             'oldPassword' => 'require',
             'password' => 'require|length:6,20|alphaDash'
         ]);
-       
+
         if (!$validate->check($params)) {
             return ajax_error(ResultCode::E_PARAM_VALIDATE_ERROR, $validate->getError());
         }
-
         $uid = $this->user_info;
         $uid = $uid->uid;
         $user = UserModel::get($uid);
@@ -147,10 +145,10 @@ class Ucenter extends Base
         $oldPassword = $params['oldPassword'];
         $oldPassword = encrypt_password($oldPassword, $user['salt']);
 
-        if($user['password'] !== $oldPassword) {
+        if ($user['password'] !== $oldPassword) {
             return ajax_error(ResultCode::E_PARAM_ERROR, '旧密码不正确');
         }
-        
+
         $password = encrypt_password($params['password'], $user['salt']);
         $res = $user->isUpdate(true)->save(['password' => $password]);
         if (!$res) {

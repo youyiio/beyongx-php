@@ -4,7 +4,6 @@ namespace app\api\controller;
 
 use app\common\library\ResultCode;
 use app\common\logic\UserLogic;
-use app\common\model\AuthGroupAccessModel;
 use app\common\model\UserModel;
 use think\facade\Cache;
 use beyong\commons\utils\PregUtils;
@@ -152,15 +151,15 @@ class Sms extends Base
             'head_url' => '/static/cms/image/head/0002.jpg',
             'referee' => 1, //$data['referee'], //推荐人
             'register_ip' => request()->ip(0, true),
-            'from_referee' => cookie('from_referee'),
-            'entrance_url'     => cookie('entrance_url'),
+            'from_referee' => sub_str(cookie('from_referee'), 0, 250),
+            'entrance_url' => sub_str(cookie('entrance_url'), 0, 250),
         ];
         $UserModel->where('id', $user['id'])->setField($profileData);
 
         //权限初始化
         $group[] = [
             'uid' => $user->id,
-            'role_id' => config('role_id')
+            'role_id' => config('user_group_id')
         ];
         $UserRoleModel = new UserRoleModel();
         $UserRoleModel->insertAll($group);

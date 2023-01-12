@@ -8,6 +8,7 @@
 
 namespace app\cms\controller;
 
+use app\frontend\controller\Base;
 use app\common\model\cms\ArticleModel;
 use app\common\model\cms\CommentModel;
 use app\common\model\MessageModel;

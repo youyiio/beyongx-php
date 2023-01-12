@@ -101,7 +101,7 @@ class Webmaster
             $sorts = self::getTargetUrl($domain, $spUrl, 'bd');
             $sorts && $count = count($sorts);
         } else {
-            $output = self::httpGet($spUrl);
+            $output = http_get($spUrl);
             $preg = '/百度为您找到相关结果约(\d+)个/';
             $check = preg_match($preg, $output, $arr);
             $check && $count = $arr[1];
@@ -122,7 +122,7 @@ class Webmaster
 
         $api = "http://data.zz.baidu.com/urls?site=$site&token=$token";
 
-        $output = self::httpPost($api, implode("\n", $links));
+        $output = http_post($api, implode("\n", $links));
         Log::debug($api);
         Log::debug($links);
         Log::debug($output);
@@ -149,7 +149,7 @@ class Webmaster
     public static function baiduSiteCmd($domain = '')
     {
         $url = "https://www.baidu.com/s?wd=site:$domain";
-        $output = self::httpGet($url);
+        $output = http_get($url);
         //echo $output;
         $preg = '/找到相关结果数约(\d+)个/';
         $check = preg_match($preg, $output, $arr);
@@ -170,7 +170,7 @@ class Webmaster
 
     public static function getTargetUrl($domain, $spUrl, $sp)
     {
-        $output = self::httpGet($spUrl);
+        $output = http_get($spUrl);
         if ($output == false) {
             //页面获取失败
             return false;
@@ -252,60 +252,4 @@ class Webmaster
         return $res;
     }
 
-    //get访问
-    private static function httpGet($url)
-    {
-        $header = [
-            'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        // 执行
-        $content = curl_exec($ch);
-        if ($content == false) {
-            Log::error(curl_error($ch));
-            return false;
-        }
-        // 关闭
-        curl_close($ch);
-
-        //输出结果
-        return $content;
-    }
-
-    //get访问
-    private static function httpPost($url, $requestData=array())
-    {
-        $header = [
-            'User-Agent: Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36'
-        ];
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1 );
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-        if (is_array($requestData)) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
-        } else {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $requestData);
-        }
-
-        // 执行
-        $content = curl_exec($ch);
-        if ($content == false) {
-            Log::error(curl_error($ch));
-            return false;
-        }
-        // 关闭
-        curl_close($ch);
-
-        //输出结果
-        return $content;
-    }
 }

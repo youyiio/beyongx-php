@@ -18,7 +18,7 @@
                 <div class="">
                     <div>
                         <h2 class="no-margins">
-                            {$user.nickname} | UID:{$user.id} {volist name="user.groups" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
+                            {$user.nickname} | UID:{$user.id} {volist name="user.roles" id="vo" empty="未分组"}<span class='label label-primary'>{$vo.title}</span>{/volist}
                         </h2>
                         <h4s>{$user.email}</h4s>
                         <small>{$user->meta('description')|default='无描述'}</small>
@@ -93,7 +93,7 @@
                         <h2>个人资料</h2>
                         <p>昵称: {$user.username|default="未命名"}</p>
                         <p>邮箱: <a href="mailto:{$user.email}">{$user.email}</a></p>
-                        <p>用户分组: {volist name="user.groups" id="vo"}<label class="label label-default">{$vo.title}</label>{/volist}</p>
+                        <p>用户分组: {volist name="user.roles" id="vo"}<label class="label label-default">{$vo.title}</label>{/volist}</p>
                         <p>手机号: <a href="tel:{$user.mobile}">{$user.mobile|default=""}</a> </p>
                         <p>QQ: <a href="http://wpa.qq.com/msgrd?v=3&uin={$user.qq}&site=qq&menu=yes">{$user.qq}</a></p>
                         <p>微信: <a href="">{$user.weixin}</a></p>

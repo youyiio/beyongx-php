@@ -2,7 +2,6 @@
 namespace app\api\controller;
 
 use app\common\library\ResultCode;
-use app\common\model\DeptModel;
 use app\common\model\MenuModel;
 use app\common\model\RoleMenuModel;
 use app\common\model\RoleModel;
@@ -16,27 +15,29 @@ class Role extends Base
     public function list()
     {
         $params = $this->request->put();
-        $page = $params['page'] ?? 1;
-        $size = $params['size'] ?? 10;
+        $page = $params['page'];
+        $size = $params['size'];
 
         $filters = $params['filters'];
-        $keyword = $filters['keyword'] ?? '';
+        $keyword = $filters['keyword'];
 
         $where = [];
         $fields = 'id,name,title,status,remark,create_by,update_by,create_time,update_time';
         if (!empty($keyword)) {
-            $where[] = ['name', 'like', '%'.$keyword.'%'];
+            $where[] = ['name', 'like', '%' . $keyword . '%'];
         }
 
         $RoleModel = new RoleModel();
-        $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
+        $list = $RoleModel->where($where)->field($fields)->paginate($size, false, ['page' => $page]);
+    
         //查询角色权限
         $MenuModel = new MenuModel();
         foreach ($list as $key => $value) {
             $list[$key]['menuIds'] = $MenuModel::hasWhere('roleMenus', [['role_id', '=', $value['id']]])->where('belongs_to', '=', 'api')->column('sys_menu.id');
+          
         }
         $returnData = pagelist_to_hump($list);
-       
+
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -61,15 +62,13 @@ class Role extends Base
         $params['update_time'] = date_time();
 
         $RoleModel = new RoleModel();
-        $result = $RoleModel->isUpdate(false)->allowField(true)->save($params);
-        if (!$result) {
+        $id = $RoleModel->isUpdate(false)->allowField(true)->insertGetId($params);
+        if (!$id) {
             return ajax_return(ResultCode::E_DB_ERROR, '操作失败!');
         }
-        $id = $RoleModel->id;
 
-        $role = $RoleModel->where('id', '=' ,$id)->find();
-
-        $returnData = parse_fields($role->toArray(), 1);
+        $role = $RoleModel->where('id', '=', $id)->find();
+        $returnData = parse_fields($role, 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -128,7 +127,7 @@ class Role extends Base
     {
         $RoleMenuModel = new RoleMenuModel();
         $ids = $RoleMenuModel->where('role_id', $id)->column('menu_id');
-
+       
         $MenuModel = new MenuModel();
         $where = [
             ['id', 'in', $ids],
@@ -137,7 +136,7 @@ class Role extends Base
         $fields = 'id,pid,title,name,component,path,icon,type,is_menu,status,sort,belongs_to,create_by,update_by,create_time,update_time';
         $list = $MenuModel->where($where)->field($fields)->select();
 
-        $data = parse_fields($list->toArray() ,1);
+        $data = parse_fields($list->toArray(), 1);
         $returnData = getTree($data, 0, 'id', 'pid', 5);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
@@ -147,7 +146,7 @@ class Role extends Base
     public function addMenus($id)
     {
         $params = $this->request->put();
-        $menuIds = $params['menuIds']?? [];
+        $menuIds = $params['menuIds'] ?? [];
 
         $role = RoleModel::get($id);
         if (!$role) {
@@ -155,7 +154,7 @@ class Role extends Base
         }
         $RoleMenuModel = new RoleMenuModel();
         $RoleMenuModel->where('role_id', $id)->delete();
-     
+
         if (!empty($menuIds)) {
             $group = [];
             foreach ($menuIds as $menuId) {
@@ -164,7 +163,7 @@ class Role extends Base
                     'menu_id'  => $menuId
                 ];
             }
-           
+
             $RoleMenuModel->insertAll($group);
         }
 
@@ -181,31 +180,19 @@ class Role extends Base
         $keyword = $filters['keyword'] ?? '';
         $where = [];
         if (!empty($keyword)) {
-            $where[] = ['nickname|mobile|email', 'like', '%'.$keyword.'%'];
+            $where[] = ['nickname|mobile|email', 'like', '%' . $keyword . '%'];
         }
 
         $UserRoleModel = new UserRoleModel();
         $uids = $UserRoleModel->where('role_id', $id)->column('uid');
-      
+
         //查找符合条件的用户
         $where[] = ['id', 'in', $uids];
-        $fields = 'id,nickname,sex,mobile,email,head_url,qq,dept_id,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
+        $fields = 'id,nickname,sex,mobile,email,head_url,qq,weixin,referee,register_time,register_ip,from_referee,entrance_url,last_login_time,last_login_ip';
         $UserModel = new UserModel();
-        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page'=>$page]);
+        $list = $UserModel->where($where)->field($fields)->paginate($size, false, ['page' => $page]);
 
-        $DeptModel = new DeptModel();
-        foreach ($list as $val) {
-            $val['dept'] = $DeptModel->where('id', $val['dept_id'])->field('id,name')->find();
-            unset($val['dept_id']);
-        }
-
-        $list = $list->toArray();
-        //返回数据
-        $returnData['current'] = $list['current_page'];
-        $returnData['pages'] = $list['last_page'];
-        $returnData['size'] = $list['per_page'];
-        $returnData['total'] = $list['total'];
-        $returnData['records'] = parse_fields($list['data'], 1);
+        $returnData = pagelist_to_hump($list);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }

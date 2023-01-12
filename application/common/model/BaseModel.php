@@ -108,7 +108,7 @@ class BaseModel extends Model
      * @return  boolean  操作是否成功
      * @throws \Exception
      */
-    public function editData($map, $data)
+    protected function editData($map, $data)
     {
         // 去除键值首位空格
         foreach ($data as $k => $v) {

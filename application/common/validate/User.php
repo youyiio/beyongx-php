@@ -12,7 +12,7 @@ class User extends Validate
     protected $rule = [
         'uid'        => ['require', 'integer'],
         'nickname'   => ['require','max'=> 32],
-        'email'      => ['email','unique:' . 'sys_user,email'],
+        'email'      => ['email','unique:' .'sys_user,email', 'checkEmail'],
         'password'   => ['require','min'=> 6, 'max'=> 16],
         'repassword' => ['require','confirm:password'],
         'code'       => ['require','captcha'],
@@ -37,6 +37,17 @@ class User extends Validate
         return true;
     }
 
+    protected function checkEmail($value, $rule, $data)
+    {
+        $UserModel = new UserModel();
+        $temp = $UserModel->where('email', $value)->find();
+        if (isset($temp['id']) && $temp['id'] != $data['uid']) {
+            return  '邮箱已被占用';
+        }
+
+        return true;
+    }
+
     protected $message = [
         'uid'              => '用户id错误',
         'nickname.require' => '用户名必填',
@@ -44,6 +55,7 @@ class User extends Validate
         'nickname.unique'  => '用户名已存在',
         'email.email'      => '邮箱格式错误',
         'email.unique'     => '邮箱已注册',
+        'email.checkEmail' => '邮箱已被占用',
         'password.require' => '密码必填',
         'password.min'     => '密码最少6个字符',
         'password.max'     => '密码最多16个字符',
@@ -62,6 +74,13 @@ class User extends Validate
         'newRePwd'       => '两次密码不一致',
     ];
 
+    // edit 验证场景定义
+    public function sceneEdit()
+    {
+        return $this->only(['email', 'phone', 'nickname'])
+        ->remove('email', 'unique');
+    }  
+
     protected $scene = [
         'register' => ['username','nickname','password','repassword','code.require'],
         'login' => ['email.email','password','code'],
@@ -70,7 +89,6 @@ class User extends Validate
         'modifyPassword' => ['password','newPwd','newRePwd'], //自己修改
         'changePwd' => ['uid','newPwd','newRePwd'], //管理员强制修改用户操作
         'resetPwd' => ['password'],
-        'edit' => ['email', 'phone', 'nickname']
     ];
 
 

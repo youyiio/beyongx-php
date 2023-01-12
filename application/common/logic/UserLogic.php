@@ -141,7 +141,7 @@ class UserLogic extends Model
     }
 
     //新增用户
-    public function createUser($mobile, $password, $nickname = '', $email = '', $account = '', $deptId, $status = UserModel::STATUS_ACTIVED)
+    public function createUser($mobile, $password, $nickname = '', $email = '', $account = '', $status = UserModel::STATUS_ACTIVED)
     {
         $UserModel = new UserModel();
         if (empty($nickname)) {
@@ -170,10 +170,8 @@ class UserLogic extends Model
         $user->salt = $salt;
         $user->status = $status;
         $user->nickname = $nickname;
-        $user->dept_id = $deptId;
         $currentTime = date('Y-m-d H:i:s');
         $user->register_time = $currentTime;
-        $user->register_ip = request()->ip(0, true);
 
         //设置来源及入口url
         if (Cookie::has('from_referee') || Cookie::has('entrance_url')) {
@@ -195,20 +193,21 @@ class UserLogic extends Model
             if ($user->findByMobile($params['mobile'])) {
                 throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '手机号已经存在');
             }
-        } 
+        }
         if (isset($params['email']) && $user['email'] != $params['email']) {
             if ($user->findByEmail($params['email'])) {
-                throw new ModelException(ResultCode::E_USER_EMAIL_HAS_EXIST, '邮箱已经存在');
+                throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '邮箱已经存在');
             }
         }
         if (isset($params['account']) && $user['account'] != $params['account']) {
             if ($user->findByAccount($params['account'])) {
-                throw new ModelException(ResultCode::E_USER_ACCOUNT_HAS_EXIST, '账户已经存在');
+                throw new ModelException(ResultCode::E_USER_MOBILE_HAS_EXIST, '账户已经存在');
             }
         }
 
         $res = $user->isUpdate(true)->allowField(true)->save($params);
-        
+
         return $res;
     }
+    
 }

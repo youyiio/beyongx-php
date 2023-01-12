@@ -8,6 +8,7 @@
 
 namespace app\cms\controller;
 
+use app\frontend\controller\Base;
 
 class Search extends Base
 {

@@ -38,7 +38,7 @@
                                 <a href="javascript:;" ruleId="{$v['id']}" ruleTitle="{$v['title']}" onclick="edit(this)">修改</a> |
                                 <a class="ajax-btn-warning" data-action="{:url('Rule/deleteGroup',['id'=>$v['id']])}" data-title="提示" data-text="确认要删除吗?">删除</a> |
                                 <a href="{:url('Rule/ruleGroup',['id'=>$v['id']])}">分配权限</a> |
-                                <a href="{:url('Rule/checkUser',['group_id'=>$v['id']])}">成员管理</a>
+                                <a href="{:url('Rule/checkUser',['role_id'=>$v['id']])}">成员管理</a>
                             </td>
                         </tr>
                         {/foreach}

@@ -46,6 +46,6 @@ class Article extends Validate
     protected $scene = [
         'create' => ['category_ids','title','keywords','description','content','thumb_image_id','author'],
         'edit' => ['id'=>'require|number','category_ids','title','keywords','description','content'],
-        'list' => ['size','page']
+        'list' => ['size','page'],
     ];
 }

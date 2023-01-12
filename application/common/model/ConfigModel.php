@@ -18,4 +18,5 @@ class ConfigModel extends Model
 
     const STATUS_ACTIVED = 1; //启用
     const STATUS_OFF = 0;  //停用
+
 }

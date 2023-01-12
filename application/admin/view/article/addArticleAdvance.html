@@ -57,14 +57,12 @@
 
     <script>
         $(function() {
-
             let mockImages = {$metaImages|raw};
             let mockFiles = {$metaFiles|raw};
-
             //图片上传
             Dropzone.autoDiscover = false;
             $("#uploadMetaImage").dropzone({
-                url: "{:url('Image/upload')}",
+                url: "{:url('File/upload')}",
                 paramName: 'file', //input的name
                 maxFilesize: 5, // MB
                 addRemoveLinks: true, //添加删除链接
@@ -87,20 +85,19 @@
                         let mock = mockImages[i];
                         var file = {
                             id: mock['id'],
-                            name: mock['image_name'], //需要显示给用户的图片名
-                            size: mock['image_size'], //图片尺寸
-                            type: 'image/jpeg', //图片文件类型,
+                            name: mock['name'], //需要显示给用户的图片名
+                            size: mock['size'], //图片尺寸
+                            type: 'image/jpeg/png', //图片文件类型,
                             status: "success",
                         };
 
                         this.options.addedfile.call(this, file); //添加mock图片到显示区域
-                        this.options.thumbnail.call(this, file, mock['image_url']);  //添加数据源给mock图片
+                        this.options.thumbnail.call(this, file, mock['file_url']);  //添加数据源给mock图片
                         this.emit("complete", file); //通知文件添加成功，进度条才会消失
                     }
 
                     //建议使用on方法来监听事件，避免覆盖了默认的removedfile方法
                     myDropzone.on('removedfile', function(file) {
-                        console.log(file);
                         var $element = $(this.element);
                         let value = $('#' + $element.data('inputName')).val();
                         //删除拼接可能三种方式
@@ -126,7 +123,7 @@
                     if (response.code) {
                         //将图片id填入input
                         var imageId = response.data.id;
-                        var imageUrl = ""+response.data.image_url;
+                        var imageUrl = ""+response.data.file_url;
 
                         let value = $('#' + $element.data('inputName')).val();
                         value = value == '' ? imageId : value + ',' + imageId;
@@ -170,25 +167,25 @@
 
                     for(var i = 0; i < mockFiles.length; i++) {
                         let mock = mockFiles[i];
+                        let type = mock['ext']
                         var file = {
                             id: mock['id'],
-                            name: mock['file_name'], //需要显示给用户的图片名
-                            size: mock['file_size'], //图片尺寸
-                            type: '', //图片文件类型,
+                            name: mock['name'], //需要显示给用户的图片名
+                            size: mock['size'], //图片尺寸
+                            type: type, //图片文件类型,
                             status: "success",
                         };
-
+                       
                         this.options.addedfile.call(this, file); //添加mock图片到显示区域
                         // this.options.generateThumbnail.call(this, file, function(thumb) {
                         //     myDropzone.options.thumbnail.call(myDropzone, file, thumb);  //添加数据源给mock图片
                         // });
-                        this.options.thumbnail.call(this, file, '/static/common/img/format/zip.png');  //添加数据源给mock图片
+                        this.options.thumbnail.call(this, file, "/static/common/img/format/"+type+".png");  //添加数据源给mock图片
                         this.emit("complete", file); //通知文件添加成功，进度条才会消失
                     }
 
                     //建议使用on方法来监听事件，避免覆盖了默认的removedfile方法
                     myDropzone.on('removedfile', function(file) {
-                        console.log(file);
                         var $element = $(this.element);
                         let value = $('#' + $element.data('inputName')).val();
                         //删除拼接可能三种方式
@@ -214,7 +211,7 @@
                     if (response.code) {
                         //将图片id填入input
                         var fileId = response.data.id;
-                        var imageUrl = ""+response.data.image_url;
+                        var imageUrl = ""+response.data.file_url;
 
                         let value = $('#' + $element.data('inputName')).val();
                         value = value == '' ? fileId : value + ',' + fileId;
@@ -237,7 +234,6 @@
                 generateThumbnail: function(file, callback) {
                     var img = document.createElement("img");
                     img.onload = function() {
-                        console.log(img);
                         canvas = document.createElement("canvas");
                         ctx = canvas.getContext("2d");
                         canvas.width = 120;
@@ -249,9 +245,7 @@
                             console.log(e);
                         }
 
-
                         thumbnail = canvas.toDataURL("image/png");
-                        console.log(thumbnail);
 
                         callback(thumbnail);
                     };

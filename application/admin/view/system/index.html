@@ -24,16 +24,17 @@
                                 <form class="form-horizontal ajax-form" action="{:url('System/index')}" method="post">
                                     {volist name="configs" id="config"}
                                     <div class="form-group">
-                                        <label class="col-lg-2 col-md-3 control-label">{$config.remark}</label>
+                                        <label class="col-lg-2 col-md-3 control-label">{$config.name}</label>
                                         <div class="col-lg-6 col-md-9">
                                             {switch $config.value_type}
-                                            {case text}<input type="text" name="{$config.name}" placeholder="{$config.remark}" class="form-control" autocomplete="off" value="{$config.value}">{/case}
+                                            {case string}<input type="text" name="{$config.name}" placeholder="{$config.remark}" class="form-control" autocomplete="off" value="{$config.value}">{/case}
                                             {case bool}<input type="checkbox" class="ajax-switch" name="{$config.name}" {if $config.value === 'true'} checked {/if}>{/case}
                                             {case number}<input type="number" name="{$config.name}" placeholder="{$config.remark}" class="form-control" autocomplete="off" value="{$config.value}">{/case}
+                                            {case text}<textarea class="form-control" name="{$config.name}" rows="5" placeholder="">{$config.value}</textarea>{/case}
                                             {case muti_text}<textarea class="form-control" name="{$config.name}" rows="5" placeholder="">{$config.value}</textarea>{/case}
                                             {default/}<input type="text" name="{$config.name}" placeholder="{$config.remark}" class="form-control" autocomplete="off" value="{$config.value}">
                                             {/switch}
-                                            <span class="help-block m-b-none"></span>
+                                            <span class="help-block m-b-none">{$config.remark}</span>
                                         </div>
                                     </div>
                                     {/volist}

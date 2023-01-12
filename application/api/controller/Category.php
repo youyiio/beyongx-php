@@ -10,12 +10,12 @@ class Category extends Base
     {
         $params = $this->request->put();
 
-        $page = $params['page'] ?? 1;
-        $size = $params['size'] ?? 10;
-        $filters = $params['filters'] ?? '';
-        $pid = $filters['pid'] ?? 0;
-        $struct = $filters['struct'] ?? '';
-        $depth = $filters['depth'] ?? 1;
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 10;
+        $filters = $params['filters']?: '';
+        $pid = $filters['pid']?? 0;
+        $depth = $filters['depth']?? 1;
+        $struct = $filters['struct']?? '';
 
         $where = [];
         if (!empty($filters['startTime'])) {
@@ -24,10 +24,10 @@ class Category extends Base
         if (!empty($filters['endTime'])) {
             $where[] = ['create_time', '<=', $filters['endTime'] . '23:59:59'];
         }
-    
+        
         $CategoryModel = new CategoryModel();
         $list = $CategoryModel->where($where)->select()->toArray();
-     
+         
         // 获取树形或者list数据
         if ($struct === 'list') {
             $data = getList($list, $pid, 'id', 'pid');
@@ -39,7 +39,7 @@ class Category extends Base
         $total = count($data);  //总数
         $pages = ceil($total / $size); //总页数
         $start = ($page - 1) * $size;
-        $records =  array_slice($data, $start, $size); 
+        $records =  array_slice($data, $start, $size); //读取数据
         //返回数据
         $returnData['current'] = $page;
         $returnData['pages'] = $pages;
@@ -54,9 +54,11 @@ class Category extends Base
     public function create()
     {
         $params = $this->request->put();
+     
         if (empty($params['name'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }
+
         if (isset($params['pid']) && !is_numeric($params['pid'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }
@@ -104,8 +106,9 @@ class Category extends Base
         }
 
         $data = CategoryModel::get($params['id']);
-        $returnData = parse_fields($data->toArray(), 1);
+        $data = $data->toArray();
 
+        $returnData = parse_fields($data, 1);
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
@@ -119,6 +122,7 @@ class Category extends Base
         if (!$category) {
             $this->error('分类不存在!');
         }
+
         if (isset($params['pid']) && !is_numeric($params['status'])) {
             return ajax_return(ResultCode::E_DATA_NOT_FOUND, "参数错误!");
         }

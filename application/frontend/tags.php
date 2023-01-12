@@ -22,7 +22,7 @@ return [
         'app\\common\\behavior\\SpiderBehavior',
         'app\\common\\behavior\\LogBehavior',
         'app\\common\\behavior\\FromBehavior',
-        'app\\cms\\behavior\\ThemeBehavior',
+        'app\\frontend\\behavior\\ThemeBehavior',
     ],
     // 视图内容过滤
     'view_filter'  => [],

@@ -1,11 +1,12 @@
 <?php
 namespace app\admin\controller;
 
-use app\common\model\AuthGroupAccessModel;
-use app\common\model\AuthRuleModel;
+use app\common\model\MenuModel;
+use app\common\model\RoleMenuModel;
+use app\common\model\RoleModel;
 use app\common\model\UserModel;
+use app\common\model\UserRoleModel;
 use think\facade\Cache;
-use app\common\model\AuthGroupModel;
 
 /**
  * 权限管理控制器
@@ -18,8 +19,8 @@ class Rule extends Base
      */
     public function index()
     {
-        $AuthRuleModel = new AuthRuleModel();
-        $data = $AuthRuleModel->getTreeDataBelongsTo('tree', 'id','title', 'id', 'pid', 'admin');
+        $MenuModel = new MenuModel();
+        $data = $MenuModel->getTreeDataBelongsTo('tree', 'id','path', 'id', 'pid', 'admin');
 
         $this->assign('data', $data);
         return $this->fetch('index');
@@ -35,15 +36,18 @@ class Rule extends Base
 
         //验证规则唯一性
         $rule = [
-            'name|权限规则' => 'require|unique:'. config('database.prefix') . 'sys_auth_rule,name',
+            'path|权限规则' => 'require|unique:'. config('database.prefix') . 'sys_menu,path',
         ];
         $check = $this->validate($data,$rule);
         if ($check !== true) {
             $this->error($check);
         }
 
-        $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->save($data);
+        $data['belongs_to'] = 'admin';
+        $data['is_menu'] = 1;
+
+        $MenuModel = new MenuModel();
+        $result = $MenuModel->save($data);
         if ($result) {
             $this->success('添加成功', url('Rule/index'));
         }else{
@@ -60,8 +64,8 @@ class Rule extends Base
         $map = [
             'id' => $data['id']
         ];
-        $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->editData($map, $data);
+        $MenuModel = new MenuModel();
+        $result = $MenuModel->editData($map, $data);
         if ($result) {
             $this->success('修改成功', url('Rule/index'));
         } else {
@@ -78,8 +82,8 @@ class Rule extends Base
         $map = [
             'id' => $id
         ];
-        $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->deleteData($map);
+        $MenuModel = new MenuModel();
+        $result = $MenuModel->deleteData($map);
         if ($result) {
             $this->success('删除成功', url('Rule/index'));
         } else {
@@ -101,8 +105,8 @@ class Rule extends Base
                 'sort' => empty($v) && $v !== '0' ? null : $v
             ];
         }
-        $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->isUpdate(true)->saveAll($arr);
+        $MenuModel = new MenuModel();
+        $result = $MenuModel->isUpdate(true)->saveAll($arr);
         if ($result) {
             $this->success('排序成功', url('Rule/index'));
         } else {
@@ -119,8 +123,8 @@ class Rule extends Base
         $isMenu = input('is_menu/s', 'false');
         $isMenu = $isMenu === 'true' ? true : false;
 
-        $AuthRuleModel = new AuthRuleModel();
-        $result = $AuthRuleModel->isUpdate(true)->save(['id' => $id, 'is_menu' => $isMenu]);
+        $MenuModel = new MenuModel();
+        $result = $MenuModel->isUpdate(true)->save(['id' => $id, 'is_menu' => $isMenu]);
         if ($result) {
             $this->success('修改成功', url('Rule/index'));
         } else {
@@ -134,7 +138,7 @@ class Rule extends Base
      */
     public function group()
     {
-        $data = AuthGroupModel::all();
+        $data = RoleModel::all();
         $this->assign('data', $data);
         return view('group');
     }
@@ -147,8 +151,8 @@ class Rule extends Base
         $data = input('post.');
         unset($data['id']);
 
-        $AuthGroupModel = new AuthGroupModel();
-        $result = $AuthGroupModel->save($data);
+        $RoleModel = new RoleModel();
+        $result = $RoleModel->save($data);
         if ($result) {
             $this->success('添加成功', url('Rule/group'));
         }else{
@@ -166,8 +170,8 @@ class Rule extends Base
             'id'=>$data['id']
         ];
 
-        $AuthGroupModel = new AuthGroupModel();
-        $result = $AuthGroupModel->editData($map,$data);
+        $RoleModel = new RoleModel();
+        $result = $RoleModel->editData($map,$data);
         if ($result) {
             $this->success('修改成功',url('Rule/group'));
         }else{
@@ -183,8 +187,8 @@ class Rule extends Base
         $map = [
             'id' => $id
         ];
-        $AuthGroupModel = new AuthGroupModel();
-        $result = $AuthGroupModel->deleteData($map);
+        $RoleModel = new RoleModel();
+        $result = $RoleModel->deleteData($map);
         if ($result !== false) {
             $this->success('删除成功', url('Rule/group'));
         }else{
@@ -200,15 +204,23 @@ class Rule extends Base
     {
         if (request()->isPost()) {
             $data = input('post.');
-            $map = [
-                'id'=>$data['id']
-            ];
-            $data['rules'] = implode(',', $data['rule_ids']);
-            $AuthGroupModel = new AuthGroupModel();
-            $result = $AuthGroupModel->allowField(true)->isUpdate()->save($data);
+            $roleId = $data['id'];
+           
+            $RoleMenuModel = new RoleMenuModel();
+            $RoleMenuModel->where('role_id', $roleId)->delete();
+            $group = [];
+            
+            foreach ($data['rule_ids'] as $menuId) {
+                $group[] = [
+                    'role_id' => $roleId,
+                    'menu_id'  => $menuId
+                ];
+            }
+            $result = $RoleMenuModel->insertAll($group);
+
             if ($result !== false) {
-                $AuthGroupAccessModel = new AuthGroupAccessModel();
-                $groupUserIds = $AuthGroupAccessModel->where('group_id',$data['id'])->column('uid');
+                $UserRoleModel = new UserRoleModel();
+                $groupUserIds = $UserRoleModel->where('role_id', $roleId)->column('uid');
                 foreach ($groupUserIds as $uid) {
                     Cache::tag('menu')->rm($uid);
                 }
@@ -220,18 +232,22 @@ class Rule extends Base
 
         $id = input('param.id');
         // 获取用户组数据
-        $AuthGroupModel = new AuthGroupModel();
-        $groupData = $AuthGroupModel->where('id', $id)->find();
-        $groupData['rules'] = explode(',', $groupData['rules']);
+        $RoleModel = new RoleModel();
+        $roleData = $RoleModel->where('id', $id)->find();
+        $roleData['rules'] = MenuModel::hasWhere('roleMenus', [['role_id', '=', $id]])->where('belongs_to', '=', 'admin')->column('sys_menu.id');
+
         // 获取规则数据
-        $AuthRuleModel = new AuthRuleModel();
-        $ruleData = $AuthRuleModel->getTreeData('level', 'id', 'title');
+        $MenuModel = new MenuModel();
+        $menu = $MenuModel->where('belongs_to','admin')->select();
+        $tree = new \beyong\commons\data\Tree();
+        $ruleData = $tree::channelLevel($menu, 0, '&nbsp;', 'id');
+        
         // 分组信息
-        $groups = $AuthGroupModel->field('id, title')->select();
+        $roles = $RoleModel->field('id, title')->select();
         $assign = [
-            'group_data' => $groupData,
+            'group_data' => $roleData,
             'rule_data' => $ruleData,
-            'groups' => $groups
+            'groups' => $roles
         ];
         $this->assign($assign);
 
@@ -244,11 +260,11 @@ class Rule extends Base
      */
     public function checkUser()
     {
-        $groupId = input('param.group_id');
-        $AuthGroupModel = new AuthGroupModel();
-        $groupName = $AuthGroupModel->where('id', $groupId)->value('title');
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $uids = $AuthGroupAccessModel->where('group_id', $groupId)->column('uid');
+        $groupId = input('param.role_id');
+        $RoleModel = new RoleModel();
+        $groupName = $RoleModel->where('id', $groupId)->value('title');
+        $UserRoleModel = new UserRoleModel();
+        $uids = $UserRoleModel->where('role_id', $groupId)->column('uid');
 
         if (request()->isAjax()) {
             $username = input('param.username', '');
@@ -268,7 +284,7 @@ class Rule extends Base
                     $userList[$k]['isInGroup'] = 1;
                 } else {
                     $userList[$k]['isInGroup'] = 0;
-                    $userList[$k]['setUrl'] = url('Rule/addUserToGroup', ['uid'=>$user['id'], 'group_id'=>$groupId, 'username'=>$user['mobile']]);
+                    $userList[$k]['setUrl'] = url('Rule/addUserToGroup', ['uid'=>$user['id'], 'role_id'=>$groupId, 'username'=>$user['mobile']]);
                 }
             }
 
@@ -282,14 +298,12 @@ class Rule extends Base
         $this->assign($assign);
 
         //当前分组成员
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $userIds = $AuthGroupAccessModel->where('group_id', $groupId)->column('uid');
         $UserModel = new UserModel();
-        $userList = $UserModel->where('id','in', $userIds)->field('id,mobile,email,nickname')->select();
+        $userList = $UserModel->where('id','in', $uids)->field('id,mobile,email,nickname')->select();
         $this->assign('userList',$userList);
 
         //未加入分组的用户
-        $outUserList = $UserModel->where('id', 'not in', $userIds)->field('id,mobile,email,nickname')->select();
+        $outUserList = $UserModel->where('id', 'not in', $uids)->field('id,mobile,email,nickname')->select();
         $this->assign('outUserList', $outUserList);
 
         return $this->fetch('checkUser');
@@ -303,12 +317,12 @@ class Rule extends Base
         $data = input('param.');
         $where = [
             'uid' => $data['uid'],
-            'group_id' => $data['group_id']
+            'role_id' => $data['role_id']
         ];
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $count = $AuthGroupAccessModel->where($where)->count();
+        $UserRoleModel = new UserRoleModel();
+        $count = $UserRoleModel->where($where)->count();
         if ($count == 0) {
-            $res = $AuthGroupAccessModel->save($data);
+            $res = $UserRoleModel->save($data);
             if ($res) {
                 Cache::tag('menu')->rm($data['uid']);
                 $this->success('操作成功');
@@ -328,10 +342,10 @@ class Rule extends Base
         $data = input('param.');
         $where = [
             'uid' => $data['uid'],
-            'group_id' => $data['group_id']
+            'role_id' => $data['role_id']
         ];
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $numRows = $AuthGroupAccessModel->where($where)->delete();
+        $UserRoleModel = new UserRoleModel();
+        $numRows = $UserRoleModel->where($where)->delete();
         if ($numRows >= 1) {
             Cache::tag('menu')->rm($data['uid']);
             $this->success('操作成功', url('Rule/userList'));
@@ -345,8 +359,8 @@ class Rule extends Base
      */
     public function userList()
     {
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $uids = $AuthGroupAccessModel->distinct(true)->column('uid');
+        $UserRoleModel = new UserRoleModel();
+        $uids = $UserRoleModel->distinct(true)->column('uid');
         if (!empty($uids)) {
             $UserModel = new UserModel();
             $list = $UserModel->where('id', 'in', $uids)->paginate(20,false, ['query'=>input('param.')]);
@@ -368,16 +382,16 @@ class Rule extends Base
             $userModel = new UserModel;
             $newUserId = $userModel->addUser($data);
             if($newUserId){
-                if (!empty($data['group_ids'])) {
+                if (!empty($data['role_ids'])) {
                     $group = [];
-                    foreach ($data['group_ids'] as $k => $v) {
+                    foreach ($data['role_ids'] as $k => $v) {
                         $group[] = [
                             'uid' => $newUserId,
-                            'group_id' => $v
+                            'role_id' => $v
                         ];
                     }
-                    $AuthGroupAccessModel = new AuthGroupAccessModel();
-                    $AuthGroupAccessModel->insertAll($group);
+                    $UserRoleModel = new UserRoleModel();
+                    $UserRoleModel->insertAll($group);
                 }
                 Cache::tag('menu')->rm($newUserId);
                 // 操作成功
@@ -388,8 +402,8 @@ class Rule extends Base
             }
         }
 
-        $AuthGroupModel = new AuthGroupModel();
-        $data = $AuthGroupModel->select();
+        $RoleModel = new RoleModel();
+        $data = $RoleModel->select();
         $assign = [
             'data'=>$data
         ];
@@ -409,25 +423,25 @@ class Rule extends Base
             $uid = $data['uid'];
 
             // 修改权限
-            $AuthGroupAccessModel = new AuthGroupAccessModel();
-            $AuthGroupAccessModel->where(['uid'=>$uid])->delete();
+            $UserRoleModel = new UserRoleModel();
+            $UserRoleModel->where(['uid'=>$uid])->delete();
             $group = [];
             foreach ($data['group_ids'] as $k => $v) {
                 $group[] = [
                     'uid'=>$uid,
-                    'group_id'=>$v
+                    'role_id'=>$v
                 ];
             }
-            $AuthGroupAccessModel->insertAll($group);
+            $UserRoleModel->insertAll($group);
             Cache::tag('menu')->rm($uid);
 
-            $userModel = new UserModel;
+            $userModel = new UserModel();
             if (empty($data['password'])) {
                 unset($data['password']);
             } else {
-                $data['password'] = encrypt_password($data['password'], get_config('password_key'));
+                $user = UserModel::get($uid);
+                $data['password'] = encrypt_password($data['password'], $user['salt']);
             }
-
             $result = $userModel->editUser($uid, $data);
             if ($result) {
                 // 操作成功
@@ -450,13 +464,13 @@ class Rule extends Base
         $this->assign('user', $user);
 
         //用户所属分组
-        $AuthGroupAccessModel = new AuthGroupAccessModel();
-        $userGroups = $AuthGroupAccessModel->where('uid', $id)->column('group_id');
+        $UserRoleModel = new UserRoleModel();
+        $userGroups = $UserRoleModel->where('uid', $id)->column('role_id');
         $this->assign('userGroups', $userGroups);
 
         //分组列表
-        $AuthGroupModel = new AuthGroupModel();
-        $groups = $AuthGroupModel->select();
+        $RoleModel = new RoleModel();
+        $groups = $RoleModel->select();
         $this->assign('groups', $groups);
 
         return $this->fetch('editAdmin');

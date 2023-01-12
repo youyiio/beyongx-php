@@ -119,6 +119,14 @@
         $('input[name=status]').val("{:\\app\\common\\model\\cms\\ArticleModel::STATUS_PUBLISHED}");
     });
 
+    $('#keywords').tagsInput({
+        'height': '48px',
+        'width': '100%',
+        'interactive': true,
+        'defaultText': '{empty name="$article.keywords"}关键词{/empty}',
+        'delimiter': [','],
+    });
+
     $('#tags').tagsInput({
         'height': '48px',
         'width': '100%',
@@ -162,13 +170,14 @@
             formData.append("thumbHeight", $element.data('thumbHeight'));
         },
         success: function(file,response) {
+            console.log(response);
             var $element = $(this.element);
             var thumbWidth = $element.data('thumbWidth');
             var thumbHeight = $element.data('thumbHeight');
             if (response.code) {
                 //将图片id填入input
                 var imageId = response.data.id;
-                var imageUrl = ""+response.data.image_url;
+                var imageUrl = ""+response.data.file_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
                 displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);
@@ -208,7 +217,7 @@
     //设定upcropper的函数，变量名固定不变
     var upcropper = {
         successCallback: function (res) {
-            var url = res.data.image_url;
+            var url = res.data.file_url;
             $(".dz-message > img").attr("src", url);
 
             setTimeout(function () {

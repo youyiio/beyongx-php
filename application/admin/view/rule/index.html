@@ -33,11 +33,10 @@
                         <table class="table table-striped table-bordered table-hover table-condensed">
                             <tr>
                                 <th width="5%">排序</th>
-                                <th>权限名</th>
                                 <th>权限</th>
+                                <th>权限名</th>
                                 <th>是否菜单</th>
                                 <th>图标</th>
-                                <th>条件</th>
                                 <th>所属</th>
                                 <th>操作</th>
                             </tr>
@@ -45,16 +44,15 @@
                             <tr>
                                 <td><input class="form-control" style="width:40px;height:25px;" pattern="^\d+$" type="text" name="{$v['id']}" value="{$v['sort']}"></td>
                                 <td>{$v['_name']|raw}</td>
-                                <td>{$v['name']}</td>
+                                <td>{$v['title']}</td>
                                 <td>
                                     <input type="checkbox" class="ajax-switch" id="{$v.id}" {if $v.is_menu == 1} checked {/if}>
                                 </td>
                                 <td>{notempty name="v.icon"}<i class="fa {$v['icon']}"></i>{/notempty}</td>
-                                <td>{$v.condition}</td>
                                 <td>{$v.belongs_to}</td>
                                 <td>
                                     <a href="javascript:;" data-id="{$v.id}" onclick="add_child(this)">添加子权限</a> |
-                                    <a href="javascript:;" data-id="{$v.id}" data-name="{$v.name}" data-title="{$v.title}" data-icon="{$v.icon}" data-condition="{$v.condition}" onclick="edit(this)">修改</a> |
+                                    <a href="javascript:;" data-id="{$v.id}" data-name="{$v.name}" data-title="{$v.title}" data-icon="{$v.icon}" onclick="edit(this)">修改</a> |
                                     <a href="{:url('Rule/delete', ['id'=>$v['id']])}" class="ajax-a">删除</a>
                                 </td>
                             </tr>
@@ -98,7 +96,7 @@
                     <div class="form-group">
                         <label class="col-lg-2 control-label">权限规则:</label>
                         <div class="col-lg-10">
-                            <input type="text" name="name" placeholder="权限规则" class="form-control">
+                            <input type="text" name="path" placeholder="权限规则" class="form-control">
                             <span class="help-block m-b-none">输入模块/控制器/方法即可 例: admin/Rule/index</span>
                         </div>
                     </div>
@@ -143,17 +141,12 @@
                     </div>
                     <div class="form-group">
                         <label class="col-lg-2 control-label">权限规则:</label>
-                        <div class="col-lg-10"><input type="text" name="name" placeholder="权限规则" class="form-control"> <span class="help-block m-b-none">输入模块/控制器/方法即可 例: admin/Rule/index</span>
+                        <div class="col-lg-10"><input type="text" name="path" placeholder="权限规则" class="form-control"> <span class="help-block m-b-none">输入模块/控制器/方法即可 例: admin/Rule/index</span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-lg-2 control-label">图标:</label>
                         <div class="col-lg-10"><input type="text" name="icon" placeholder="图标" class="form-control"> <span class="help-block m-b-none">font-awesome图标 如fa-wechat</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-lg-2 control-label">条件:</label>
-                        <div class="col-lg-10"><input type="text" name="condition" placeholder="条件" class="form-control"> <span class="help-block m-b-none">用户条件 如{score}> 1 and {vip}=1</span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -187,7 +180,6 @@
         $("input[name='pid']").val(id);
         $("input[name='title']").val('');
         $("input[name='name']").val('');
-        $("input[name='condition']").val();
 
         $('#bjy-add').modal('show');
     }
@@ -198,7 +190,6 @@
         $("input[name='title']").val($(obj).data('title'));
         $("input[name='name']").val($(obj).data('name'));
         $("input[name='icon']").val($(obj).data('icon'));
-        $("input[name='condition']").val($(obj).data('condition'));
 
         $('#bjy-edit').modal('show');
     }

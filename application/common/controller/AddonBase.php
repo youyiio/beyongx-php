@@ -27,16 +27,16 @@ trait AddonBase
         $uid = session('uid');
         if (!$uid) {
             if (request()->isAjax()) {
-                $this->error('请重新登陆', url('cms/Sign/index'));
+                $this->error('请重新登陆', url('frontend/Sign/index'));
             }
-            $this->redirect('cms/Sign/index');
+            $this->redirect('frontend/Sign/index');
         }
 
         //实现用户单个端登录，方法: 通过判断cookie和服务器cache的login_hash值
         $localLoginHash = cookie($uid . '_login_hash');
         $cacheLoginHash = cache($uid . '_login_hash');
         if ($localLoginHash != $cacheLoginHash) {
-            $this->error('请重新登陆', url('cms/Sign/index'));
+            $this->error('请重新登陆', url('frontend/Sign/index'));
         }
 
         //用户有请求操作时，session时间重置

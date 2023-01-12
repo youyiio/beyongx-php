@@ -99,8 +99,8 @@
     Dropzone.autoDiscover = false;
     $("#uploadImage").dropzone({
         // autoProcessQueue:false,
-        url: "{:url('Image/upload')}",
-        paramName: 'Filedata', //input的name
+        url: "{:url('File/upload')}",
+        paramName: 'file', //input的name
         maxFilesize: 5, // MB
         addRemoveLinks: true, //添加删除链接
         maxFiles: 1, //最多上传文件数量
@@ -128,7 +128,7 @@
             if (response.code) {
                 //将图片id填入input
                 var imageId = response.data.id;
-                var imageUrl = "" + response.data.image_url;
+                var imageUrl = "" + response.data.file_url;
                 $('#' + $element.data('inputName')).val(imageId);
                 var displayHtml = '<img src="'+imageUrl+'" style="border:1px solid #ccc;width:_thumbWidth_px;height:_thumbHeight_px;max-width:100%">';
                 displayHtml = displayHtml.replace('_thumbWidth_', thumbWidth);

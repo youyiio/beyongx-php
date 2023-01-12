@@ -47,11 +47,12 @@ class Ad extends Base
     {
         $params = $this->request->put();
 
-        $page = $params['page'] ?? 1;
-        $size = $params['size'] ?? 10;
+
+        $page = $params['page']?? 1;
+        $size = $params['size']?? 10;
         $filters = $params["filters"];
-        $keyword = $filters['keyword'] ?? '';
-        $soltIds = $filters['soltIds'] ?? '';
+        $keyword = $filters['keyword']?? '';
+        $soltIds = $filters['soltIds']?? '';
 
         $where = [];
         if (!empty($keyword)) {
@@ -66,16 +67,17 @@ class Ad extends Base
         $AdModel = new AdModel();
         $list = $AdModel->where($where)->order('sort asc,id desc')->paginate($size, false, ['page'=>$page]);
 
-        $AdServingModel =  new AdServingModel();
         foreach ($list as $ad) {
             $ad['image'] = $this->findImage($ad);
-            $ad['servings'] = $AdServingModel->where('ad_id', '=', $ad['id'])->select();
-            foreach ($ad['servings'] as $key => $value) {
-                $ad['servings'][$key]['slot'] = AdSlotModel::get($value['slot_id']);
-            }
         }
 
-        $returnData = pagelist_to_hump($list);
+        $list = $list->toArray();
+        //返回数据
+        $returnData['current'] = $list['current_page'];
+        $returnData['pages'] = $list['last_page'];
+        $returnData['size'] = $list['per_page'];
+        $returnData['total'] = $list['total'];
+        $returnData['records'] = parse_fields($list['data'], 1);
 
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -87,6 +89,7 @@ class Ad extends Base
         $list = $adSlot->select();
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $list);
+
     }
 
     //新增广告
@@ -100,10 +103,9 @@ class Ad extends Base
             'title' => 'require',
             'url' => ['require','url'],
             'slotIds' => ['require','array'],
-            'imageId' => ['require','integer'],
-            'startTime' => ['date'],
-            'endTime' => ['date']
+            'imageId' => ['require','integer']
         ]);
+
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '操作失败', $validate->getError());
         }
@@ -111,30 +113,24 @@ class Ad extends Base
         $AdModel = new AdModel();
         $params['create_time'] = date_time();
         $soltIds = $params['slotIds'];
-
         //驼峰转为下划线
         $params = parse_fields($params);
         $AdModel->isUpdate(false)->allowField(true)->save($params);
+
         $adId = $AdModel->id;
         if (!$adId) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
         }
 
         //新增中间表数据
-        $pivot = ['update_time' => date_time(), 'create_time' => date_time(), 'start_time' => $params['start_time'], 'end_time' => $params['end_time']];
+        $pivot = ['update_time' => date_time(), 'create_time' => date_time()];
         $AdModel->adSlots()->attach($soltIds, $pivot);
 
         //返回数据
         $ad = AdModel::get($adId);
-        $ad['image'] = $this->findImage($ad);
-        $AdServingModel =  new AdServingModel();
-        $ad['servings'] = $AdServingModel->where('ad_id', '=', $adId)->select();
 
-        foreach ($ad['servings'] as $key => $value) {
-            $ad['servings'][$key]['slot'] = AdSlotModel::get($value['slot_id']);
-        }
-
-        $returnData = parse_fields($ad->toArray(), 1);
+        $returnData = $ad;
+        $returnData['image'] = $this->findImage($ad);
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
@@ -143,6 +139,7 @@ class Ad extends Base
     public function edit()
     {
         $params = $this->request->put();
+
         //数据验证
         $validate = new Validate();
         $validate->rule([
@@ -152,14 +149,15 @@ class Ad extends Base
             'slotIds' => ['require','array'],
             'imageId' => ['require','integer']
         ]);
+
         if (!$validate->check($params)) {
             return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '操作失败!', $validate->getError());
         }
 
         $params['create_time'] = date_time();
-        $adId = $params['id'];
+        $id = $params['id'];
         $AdModel = new AdModel();
-        $rowsNum = $AdModel->isUpdate(true)->allowField(true)->save($params, ['id'=> $adId]);
+        $rowsNum = $AdModel->isUpdate(true)->allowField(true)->save($params, ['id'=>$id]);
 
         //更新中间表数据
         $AdModel->adSlots()->detach();
@@ -168,24 +166,16 @@ class Ad extends Base
 
         if ($rowsNum == false) {
             return ajax_return(ResultCode::E_DATA_VALIDATE_ERROR, '操作失败!');
-        }
+        } 
 
         //返回数据
-        $ad = AdModel::get($adId);
-        $ad['image'] = $this->findImage($ad);
-        $AdServingModel =  new AdServingModel();
-        $ad['servings'] = $AdServingModel->where('ad_id', '=', $adId)->select();
-
-        foreach ($ad['servings'] as $key => $value) {
-            $ad['servings'][$key]['slot'] = AdSlotModel::get($value['slot_id']);
-        }
-
-        $returnData = parse_fields($ad->toArray(), 1);
+        $ad = AdModel::get($id);
+        $returnData = $ad;
+        $returnData['image'] = $this->findImage($ad);
         
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功!', $returnData);
     }
 
-    //删除广告
     public function delete($id)
     {
         $ad = AdModel::get($id);
@@ -207,29 +197,27 @@ class Ad extends Base
     //查找广告图
     public function findImage($ad)
     {
-        $image = [];
+        $Image = [];
         if (empty($ad['image_id']) || $ad['image_id'] == 0) {
-            return $image;
+            return $Image;
         }
-
         $ImageModel = new ImageModel();
-        $fields = 'id,name,thumb_image_url,create_time,oss_url,file_url';
-        $image = $ImageModel->where('id', '=', $ad['image_id'])->field($fields)->find();
-        unset($ad['image_id']);
-        if (empty($image)) {
-            return $image;
+        $Image = $ImageModel::get($ad['image_id']);
+    
+        if (empty($Image)) {
+            return $Image;
         }
 
-        //返回数据
-        $data['id'] = $image['id'];
-        $data['name'] = $image['name'];
-        $data['thumbImageUrl'] = $image['thumb_image_url'];
-        $data['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('', $image);
-        $data['ImageUrl'] = $image['file_url'];
-        $data['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $image);
-        $data['ossImageUrl'] = $image['oss_url'];
-        $data['createTime'] = $image['create_time'];
+        //完整路径
+        $Image['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('',$Image);
+        $Image['FullThumbImageUrlAttr'] = $ImageModel->getFullThumbImageUrlAttr('',$Image);
+        unset($Image['remark']);
+        unset($Image['image_size']);
+        unset($Image['thumb_image_size']);
+        unset($ad['image_id']);
 
-        return $data;
+        $Image = $Image->toArray();
+        $Image = parse_fields($Image,1);
+        return $Image;
     }
 }

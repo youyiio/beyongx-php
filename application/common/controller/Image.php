@@ -1,6 +1,7 @@
 <?php
 namespace app\common\controller;
 
+use app\common\model\FileModel;
 use think\facade\Env;
 use app\common\model\ImageModel;
 
@@ -13,6 +14,7 @@ trait Image
 {
     public function upload()
     {
+        
         $tmpFile = request()->file('Filedata');
         if (empty($tmpFile)) $tmpFile = request()->file('file');
         if (empty($tmpFile)) {
@@ -84,21 +86,29 @@ trait Image
             $image->save($tbImgUrl, $extension, $quality, true);
 
             $data = [
-                'image_name' => $fileName,
-                'image_size' => $fileSize,
-                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.'tb_'.$file->getFilename(),
-                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
-                'create_time' => date_time(),
+                'file_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . $file->getFilename(),
+                'file_path' => Env::get('root_path') . 'public',
+                'size' => $fileSize,
+                'ext' => strtolower($file->getExtension()),
+                'name' => $file->getFilename(),
+                'real_name' => $fileName,
+                'thumb_image_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . 'tb_' . $file->getFilename(),
                 'remark' => input('post.remark'),
+                'create_by' => $this->uid,
+                'create_time' => date_time(),
             ];
         } else {
             $data = [
-                'image_name' => $fileName,
-                'image_size' => $fileSize,
-                'thumb_image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
-                'image_url' => DIRECTORY_SEPARATOR.'upload'.DIRECTORY_SEPARATOR.dirname($saveName).DIRECTORY_SEPARATOR.$file->getFilename(),
-                'create_time' => date_time(),
+                'file_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . $file->getFilename(),
+                'file_path' => Env::get('root_path') . 'public',
+                'size' => $fileSize,
+                'ext' => strtolower($file->getExtension()),
+                'name' => $file->getFilename(),
+                'real_name' => $fileName,
+                'thumb_image_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . $file->getFilename(),
                 'remark' => input('post.remark'),
+                'create_by' => $this->uid,
+                'create_time' => date_time(),
             ];
         }
 
@@ -113,8 +123,8 @@ trait Image
             $data['oss_image_url'] = $ossImgUrl;
         }
 
-        $ImageModel = new ImageModel();
-        $imageId = $ImageModel->insertGetId($data);
+        $FileModel = new FileModel();
+        $imageId = $FileModel->insertGetId($data);
 
         $data['id'] = $imageId;
 

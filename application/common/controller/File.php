@@ -18,6 +18,7 @@ trait File
      */
     public function upload()
     {
+   
         $tmpFile = request()->file('file');
         if (empty($tmpFile)) {
             $this->result(null, 0, '请选择上传文件', 'json');
@@ -29,6 +30,7 @@ trait File
 
         //通用文件后缀，加强安全;
         $common_file_exts = 'zip,rar,doc,docx,xls,xlsx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
+        $common_file_exts .= '.pg,gif,png,jpg,jpeg,webp,bmp';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
         if (empty($exts)) {
             $exts = $common_file_exts;
@@ -59,13 +61,15 @@ trait File
 
         //原始上传文件名
         $fileName = $_FILES['file']['name'];
-
         //存入数据库
         $data = [
             'file_url' => $fileUrl,
             'file_path' => $filePath,
-            'file_name' => $fileName,
-            'file_size' => $fileSize,
+            'size' => $fileSize,
+            'ext' => strtolower($ext),
+            'name' => $fileName,
+            'real_name' => $file->getinfo()['name'],
+            'create_by' => $this->uid,
             'create_time' => date_time()
         ];
         $FileModel = new FileModel();

@@ -4,12 +4,11 @@ use think\facade\Route;
 
 
 Route::group('api', function () {
+    
     //通用公共接口
     Route::rule('config/query', 'api/Config/query', 'post');
     Route::rule('config/:name/status', 'api/Config/status', 'get');
     Route::rule("ad/carousel", 'api/Ad/carousel', 'get');
-    Route::rule('dept/dict', 'api/Dept/dict', 'get');
-    Route::rule('job/dict', 'api/Job/dict', 'get');
     Route::rule('image/upload', 'api/Upload/image', 'post');
     Route::rule('file/upload', 'api/Upload/file', 'post');
     Route::rule('user/quickSelect', 'api/User/quickSelect', 'get|post');
@@ -81,7 +80,7 @@ Route::group('api', function () {
     Route::rule("sms/login", 'api/Sms/login', 'post');
 
     //运维管理相关
-    Route::rule("server/status", 'api/Server/status', 'get|post');
+    Route::rule("server/status", 'api/Server/status', 'get');
     Route::rule("log/list", 'api/Log/list', 'get|post');
     Route::rule("db/tables", 'api/Database/tables', 'get|post');
 
@@ -97,24 +96,14 @@ Route::group('api', function () {
     Route::rule("menu/edit", 'api/Menu/edit', 'post');
     Route::rule("menu/:id", 'api/Menu/delete', 'delete');
 
-    //部门管理相关
-    Route::rule("dept/list", 'api/Dept/list', 'get|post');
-    Route::rule("dept/create", 'api/Dept/create', 'post');
-    Route::rule("dept/edit", 'api/Dept/edit', 'post');
-    Route::rule("dept/:id", 'api/Dept/delete', 'delete');
-
-    //岗位管理相关
-    Route::rule("job/list", 'api/Job/list', 'get|post');
-    Route::rule("job/create", 'api/Job/create', 'post');
-    Route::rule("job/edit", 'api/Job/edit', 'post');
-    Route::rule("job/:id", 'api/Job/delete', 'delete');
-
     //字典管理相关
     Route::rule("config/list", 'api/Config/list', 'get|post');
-    Route::rule("config/groups", 'api/Config/groups', 'post');
     Route::rule("config/create", 'api/Config/create', 'post');
     Route::rule("config/edit", 'api/Config/edit', 'post');
     Route::rule("config/:id", 'api/Config/delete', 'delete');
+    Route::rule("config/query", 'api/Config/query', 'post');
+
+    Route::rule("log/list", 'api/Log/list', 'get|post');
 
     //移动端通用公共接口
     Route::rule('app/config/:name/status', 'api/app.Config/status', 'get');
@@ -130,7 +119,7 @@ Route::group('api', function () {
     Route::rule('app/article/related/:aid', 'api/app.Article/related', 'get|post');
     Route::rule('app/category/list', 'api/app.Article/categoryList', 'get|post');
     Route::rule('app/link/list', 'api/app.Article/linkList', 'get|post');
-    
+
     // 定义miss路由
     Route::miss('api/Base/miss');
 

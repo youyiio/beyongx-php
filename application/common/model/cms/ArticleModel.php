@@ -143,7 +143,7 @@ class ArticleModel extends BaseModel
     //关联表：缩略图
     public function thumbImage()
     {
-        return $this->hasOne('app\common\model\ImageModel', 'id', 'thumb_image_id');
+        return $this->hasOne('app\common\model\FileModel', 'id', 'thumb_image_id');
     }
 
     //关联表：文章分类

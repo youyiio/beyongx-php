@@ -1,6 +1,7 @@
 <?php
 namespace app\common\model;
 
+use app\api\library\RolePermission;
 use think\facade\Env;
 use think\facade\Cache;
 
@@ -86,7 +87,7 @@ class MenuModel extends BaseModel
         } else if ($type == "level") {//给左测菜单使用
             $data = $tree::channelLevel($data,0,'&nbsp;', $fieldPK);
 
-            $auth = new \think\auth\Auth();
+            $auth = new RolePermission();
             //清理不显示的菜单
             foreach ($data as $k => $v) {
                 //是否菜单
@@ -95,8 +96,9 @@ class MenuModel extends BaseModel
                     unset($data['_data']);
                     continue;
                 }
+             
                 //是否有权限
-                if (!$auth->check($v['name'], session('uid'),1,'')) {
+                if (!$auth->checkPermission(session('uid'), strtolower($v['path']), 'admin')) {
                     unset($data[$k]);
                     unset($data['_data']);
                     continue;
@@ -108,7 +110,7 @@ class MenuModel extends BaseModel
                         unset($data[$k]['_data'][$m]['_data']);
                         continue;
                     }
-                    if (!$auth->check($n['name'], session('uid'),1,'')) {
+                    if (!$auth->checkPermission(session('uid'), strtolower($v['path']), 'admin')) {
                         unset($data[$k]['_data'][$m]);
                         unset($data[$k]['_data'][$m]['_data']);
                         continue;
@@ -119,7 +121,7 @@ class MenuModel extends BaseModel
                             unset($data[$k]['_data'][$m]['_data'][$o]['_data']);
                             continue;
                         }
-                        if (!$auth->check($p['name'], session('uid'),1,'')) {
+                        if (!$auth->checkPermission(session('uid'), strtolower($v['path']), 'admin')) {
                             unset($data[$k]['_data'][$m]['_data'][$o]);
                             unset($data[$k]['_data'][$m]['_data'][$o]['_data']);
                             continue;

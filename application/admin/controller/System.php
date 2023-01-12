@@ -2,11 +2,8 @@
 namespace app\admin\controller;
 
 use app\common\model\ActionLogModel;
-use app\common\model\cms\CategoryModel;
 use app\common\model\ConfigModel;
 use app\common\model\cms\LinkModel;
-use think\Controller;
-use think\Db;
 use think\facade\Cache;
 use think\facade\Env;
 
@@ -23,8 +20,8 @@ class System extends Base
 
         if (request()->isAjax()) {
             $data = input('param.');
-            unset($data['s']); //路由地址参数不做处理；
 
+            unset($data['s']); //路由地址参数不做处理；
             $ConfigModel = new ConfigModel();
             foreach ($data as $k => $v) {
                 if ($ConfigModel->where('name', $k)->select()) {
@@ -39,11 +36,11 @@ class System extends Base
 
         //获取标签组
         $ConfigModel = new ConfigModel();
-        $tabMeta = $ConfigModel->where('name', 'tab_meta')->value('value');
+        $tabMeta = $ConfigModel->where('key', 'tab_meta')->value('value');
         $tabs = json_decode($tabMeta, true);
         $this->assign('tabs', $tabs);
 
-        $configs = $ConfigModel->where('tab', '=', $tab)->order('sort asc')->select();
+        $configs = $ConfigModel->where('group', '=', $tab)->order('sort asc')->select();
         $this->assign('configs', $configs);
 
         return $this->fetch('index');
@@ -79,7 +76,7 @@ class System extends Base
         ];
         $this->assign('tabs', $tabs);
 
-        $configs = $ConfigModel->where('tab', '=', $tab)->order('sort asc')->select();
+        $configs = $ConfigModel->where('group', '=', $tab)->order('sort asc')->select();
         $this->assign('configs', $configs);
 
         return $this->fetch('notification');
@@ -297,7 +294,7 @@ class System extends Base
             ];
         }
 
-        $fields = 'id, uid, action, module, ip, remark, data, create_time';
+        $fields = 'id, username, action, module, component, ip, user_agent, response, remark, create_time';
         $pageConfig = [
             'type' => '\\app\\common\\paginator\\BootstrapTable',
             'query' => input('param.')

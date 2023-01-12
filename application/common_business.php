@@ -7,9 +7,11 @@
  */
 
 /**
- * @param \app\cms\controller\LibSitemap $sitemap
+ * @param \app\common\library\LibSitemap $sitemap
+ * @param int $pageSize 查询每页最多数量
+ * @param int $maxPage  最多页数
  */
-function sitemap_xml_hook(\app\cms\controller\LibSitemap $sitemap)
+function sitemap_xml_hook(\app\common\library\LibSitemap $sitemap, $pageSize=800, $maxPage=100)
 {
 
 }

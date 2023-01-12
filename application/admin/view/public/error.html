@@ -27,6 +27,9 @@
     <div class="error-desc">
         <p class="text-danger"><?php echo(strip_tags($msg));?></p>
         <p class="hidden">可以选择返回主界面: <br/><a href="#" class="btn btn-primary m-t">Dashboard</a></p>
+        {if strpos($msg, "没有访问权限") >= 0}
+        <p class=""> <a href="{:url('admin/Sign/logout')}" class="btn btn-white m-t m-l">注销</a> <a href="javascript:history.back()" class="btn btn-info m-t">返回</a> </p>
+        {/if}
     </div>
 
     <p class="jump">

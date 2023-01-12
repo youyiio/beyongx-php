@@ -4,7 +4,6 @@ namespace app\api\controller;
 use app\common\library\ResultCode;
 use app\common\logic\ActionLogLogic;
 use app\common\logic\UserLogic;
-use app\common\model\AuthGroupAccessModel;
 use app\common\model\UserModel;
 use Firebase\JWT\JWT;
 use think\facade\Cache;
@@ -72,7 +71,7 @@ class Sign extends Base
        
         //消费验证码
         $codeLogic->consumeCode(CodeLogic::TYPE_RESET_PASSWORD, $username, $code);
-       
+
         //确认注册各字段
         $mobile = StringUtils::getRandNum(11);
         $email = $mobile .'@' . StringUtils::getRandString(6) . '.com';
@@ -97,18 +96,18 @@ class Sign extends Base
             'head_url' => '/static/common/img/head/default.jpg',
             'referee' => 1, //$data['referee'], //推荐人
             'register_ip' => request()->ip(0, true),
-            'from_referee' => cookie('from_referee'),
-            'entrance_url'     => cookie('entrance_url'),
+            'from_referee' => sub_str(cookie('from_referee'), 0, 250),
+            'entrance_url' => sub_str(cookie('entrance_url'), 0, 250),
         ];
         $UserModel->where('id', $user['id'])->setField($profileData);
 
         //权限初始化
-        $userRole[] = [
+        $group[] = [
             'uid' => $user->id,
             'role_id' => config('user_group_id')
         ];
         $UserRoleModel = new UserRoleModel();
-        $UserRoleModel->insertAll($userRole);
+        $UserRoleModel->insertAll($group);
 
         $returnData = [
             'uid' => $user->id,
@@ -174,7 +173,7 @@ class Sign extends Base
 
         $uid = $user['id'];
         $ActionLogLogic = new ActionLogLogic();
-        $ActionLogLogic->addLog($uid, \ApiCode::E_USER_LOGIN_ERROR, '登录');
+        $ActionLogLogic->addRequestLog('login', $uid, $params, '登录成功');
 
         $payload = [
             'iss' => 'jwt_admin',  //该JWT的签发者

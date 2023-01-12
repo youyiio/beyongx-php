@@ -15,20 +15,21 @@ use think\Model;
 class ActionLogLogic extends Model
 {
     //增加日志，data为传递的参数
-    public function addLog($userId, $action, $remark, $params=[])
+    public function addLog($uid, $action, $remark, $params=[], $userAgent='', $httpReferer='', $response='success')
     {
         if (isset($params['password'])) {
             unset($params['password']);
         }
 
         $data = [
-            'username' => $userId,
+            'username' => $uid,
             'action' => $action,
             'module' => request()->module(),
             'ip' => request()->ip(0, true),
-            'params' => substr(json_encode($params), 0, 128),
-            'user_agent' => request()->header("user-agent"),
-            'response' => 'success',
+            'params' => substr(json_encode($params), 0, 255),
+            'user_agent' => $userAgent ?? request()->header("user-agent"),
+            'http_referer' => $httpReferer ?? request()->header("http-referer"),
+            'response' => $response,
             'remark' => $remark            
         ];
 

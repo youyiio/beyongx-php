@@ -16,7 +16,7 @@ class Upload extends Base
     {
         $isfile = $_FILES;
         if ($isfile['file']['tmp_name'] == '') {
-            return ajax_return(ResultCode::ACTION_FAILED, '请选择上传图片');
+            return ajax_return(ResultCode::ACTION_FAILED, '请选择上传文件');
         }
 
         $tmpFile = request()->file('file');
@@ -55,7 +55,7 @@ class Upload extends Base
         //文件验证&文件move操作
         $file = $tmpFile->validate(['ext' => 'jpg,gif,png,jpeg,bmp,ico,webp'])->move($filePath);
         if (!$file) {
-            return ajax_return(ResultCode::ACTION_FAILED, '操作失败！',$tmpFile->getError());
+            return ajax_return(ResultCode::E_PARAM_VALIDATE_ERROR, '参数验证失败！',$tmpFile->getError());
         }
 
         $saveName = $file->getSaveName();
@@ -72,19 +72,13 @@ class Upload extends Base
         }
 
         //插入数据库
-        $user = $this->user_info;
-        $userInfo = UserModel::get($user->uid);
         $data = [
-            'file_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . $saveName,
-            'file_path' => Env::get('root_path') . 'public',
-            'size' => $file->getSize(),
-            'ext' => $file->getExtension(),
-            'name' => $file->getFilename(),
+            'image_name' => $file->getinfo()['name'],
             'thumb_image_url' => '',
-            'real_name' => $file->getinfo()['name'],
-            'create_time' => date_time(),
-            'create_by' => $userInfo['nickname']?? '',
+            'image_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . $saveName,
+            'image_size' => $file->getSize(),
             'remark' => $remark,
+            'create_time' => date_time(),
         ];
 
         //缩略图
@@ -94,6 +88,7 @@ class Upload extends Base
             $image->thumb($tbWidth, $tbHeight, \think\Image::THUMB_FIXED); //固定尺寸缩放
             $image->save($tbImgUrl, $extension, $quality, true);
             $data['thumb_image_url'] =  DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . dirname($saveName) . DIRECTORY_SEPARATOR . 'tb_' . $file->getFilename();
+            $data['thumb_image_size'] = $file->getSize();
         } 
 
         if (get_config('oss_switch') === 'true') {
@@ -111,12 +106,11 @@ class Upload extends Base
         $imageId = $ImageModel->insertGetId($data);
         
         //返回数据
-        $fields = 'id,name,real_name,size,ext,file_url,file_path,thumb_image_url,remark,create_by,create_time';
+        $fields = 'id,image_name,thumb_image_url,image_url,oss_image_url,thumb_image_size,image_size,remark,create_time';
         $return = $ImageModel->where('id', '=', $imageId)->field($fields)->find()->toArray();
      
-        $return['fullFileUrl'] = $return['file_path'].$return['file_url'];
+        $return['fullImageUrl'] = $ImageModel->getFullImageUrlAttr('', $return);
         $return['fullThumbImageUrl'] = $ImageModel->getFullThumbImageUrlAttr('',$return);
-        unset($return['file_path']);
         $returnData = parse_fields($return, 1);
      
         return ajax_return(ResultCode::ACTION_SUCCESS, '操作成功', $returnData);
@@ -133,6 +127,7 @@ class Upload extends Base
         $rule = [
             'size' => 1024 * 1024 * 200, //200M
         ];
+
         //通用文件后缀，加强安全;
         $common_file_exts = 'zip,rar,doc,docx,xls,xlsx,ppt,pptx,ppt,pptx,pdf,txt,exe,bat,sh,apk,ipa';
         $exts = request()->param('exts', ''); //文件格式，中间用,分隔
@@ -166,24 +161,19 @@ class Upload extends Base
         $data = [
             'file_url' => DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . $saveName,
             'file_path' => Env::get('root_path') . 'public',
-            'size' => $file->getSize(),
-            'ext' => $file->getExtension(),
-            'name' => $file->getFilename(),
-            'thumb_image_url' => '',
-            'real_name' => $file->getinfo()['name'],
-            'create_time' => date_time(),
-            'create_by' => $userInfo['nickname']?? '',
+            'file_name' => $file->getinfo()['name'],
+            'file_size' => $file->getSize(),
             'remark' => $remark,
+            'create_time' => date_time(),
         ];
 
         $FileModel = new FileModel();
         $fileId = $FileModel->insertGetId($data);
 
-        $fields = 'id,name,real_name,size,ext,file_url,file_path,thumb_image_url,create_by,create_time';
+        $fields = 'id,file_url,file_path,file_name,file_size,remark,file_path,create_time';
         $return = $FileModel->where('id', '=', $fileId)->field($fields)->find()->toArray();
      
         $return['fullFileUrl'] = $FileModel->getFullFileUrlAttr('', $return);
-        $return['fullThumbImageUrl'] = '';
         unset($return['file_path']);
         $returnData = parse_fields($return, 1);
      
