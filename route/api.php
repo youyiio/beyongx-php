@@ -120,6 +120,18 @@ Route::group('api', function () {
     Route::rule('app/category/list', 'api/app.Article/categoryList', 'get|post');
     Route::rule('app/link/list', 'api/app.Article/linkList', 'get|post');
 
+    //部门管理相关
+    Route::rule("dept/list", 'api/Dept/list', 'get|post');
+    Route::rule("dept/create", 'api/Dept/create', 'post');
+    Route::rule("dept/edit", 'api/Dept/edit', 'post');
+    Route::rule("dept/:id", 'api/Dept/delete', 'delete');
+
+    //岗位管理相关
+    Route::rule("job/list", 'api/Job/list', 'get|post');
+    Route::rule("job/create", 'api/Job/create', 'post');
+    Route::rule("job/edit", 'api/Job/edit', 'post');
+    Route::rule("job/:id", 'api/Job/delete', 'delete');
+
     // 定义miss路由
     Route::miss('api/Base/miss');
 
