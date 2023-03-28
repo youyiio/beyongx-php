@@ -12,6 +12,7 @@ Route::group('api', function () {
     Route::rule('job/dict', 'api/Job/dict', 'get');
     Route::rule('image/upload', 'api/Upload/image', 'post');
     Route::rule('file/upload', 'api/Upload/file', 'post');
+    Route::rule('dataQuery/areas', 'api/DataQuery/areas', 'post');
     Route::rule('user/quickSelect', 'api/User/quickSelect', 'get|post');
 
     //登录注册相关
