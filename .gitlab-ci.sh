@@ -39,6 +39,7 @@ rm -fr data/install/database.php
 /bin/cp -fr thinkphp $deploy_path
 /bin/cp -fr vendor $deploy_path
 
+/bin/cp -fr .version $deploy_path
 /bin/cp -fr check_env.sh $deploy_path
 /bin/cp -fr start_* $deploy_path
 
